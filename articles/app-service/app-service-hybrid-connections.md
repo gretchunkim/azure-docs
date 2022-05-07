@@ -86,12 +86,11 @@ In addition to the portal experience from within your app, you can create Hybrid
 
 ## Hybrid Connections and App Service plans ##
 
-App Service Hybrid Connections are only available in Basic, Standard, Premium, and Isolated pricing SKUs. Hybrid Connections aren't available for function apps in Consumption plans. There are limits tied to the pricing plan.  
+App Service Hybrid Connections are only available in Premium, and Isolated pricing SKUs. Hybrid Connections aren't available for function apps in Consumption plans. There are limits tied to the pricing plan.  
 
 | Pricing plan | Number of Hybrid Connections usable in the plan |
 |----|----|
-| Basic | 5 per plan |
-| Standard | 25 per plan |
+
 | Premium (v1-v3) | 220 per app |
 | Isolated (v1-v2) | 220 per app |
 
