@@ -1,18 +1,17 @@
 ---
-title: T-SQL views using Synapse SQL
-description: Tips for using T-SQL views and developing solutions with Synapse SQL.
-services: synapse-analytics
+title: T-SQL views using SQL pools
+description: Tips for using T-SQL views and developing solutions with dedicated SQL pool and serverless SQL pool in Azure Synapse Analytics..
 author: azaricstefan 
-ms.service: synapse-analytics
+ms.service: azure-synapse-analytics
 ms.topic: conceptual
 ms.subservice: sql
 ms.date: 04/15/2020 
-ms.author: v-stazar 
-ms.reviewer: jrasnick
+ms.author: stefanazaric 
 ---
 
-# T-SQL views using Synapse SQL
-In this article, you'll find tips for using T-SQL views and developing solutions with Synapse SQL. 
+# T-SQL views with dedicated SQL pool and serverless SQL pool in Azure Synapse Analytics
+
+In this article, you'll find tips for using T-SQL views and developing solutions with dedicated SQL pool and serverless SQL pool in Azure Synapse Analytics.
 
 ## Why use views
 
@@ -21,16 +20,11 @@ Views can be used in a number of different ways to improve the quality of your s
 ### SQL pool - create view
 
 > [!NOTE]
-> **SQL pool**: Syntax for CREATE VIEW is not discussed in this article. For more information, see the [CREATE VIEW](/sql/t-sql/statements/create-view-transact-sql?toc=/azure/synapse-analytics/toc.json&bc=/azure/synapse-analytics/breadcrumb/toc.json&view=azure-sqldw-latest) documentation.
-
-### SQL on-demand (preview) - create view
-
-> [!NOTE]
-> **SQL on-demand**: Syntax for CREATE VIEW is not discussed in this article. For more information, see the [CREATE VIEW](/sql/t-sql/statements/create-view-transact-sql?toc=/azure/synapse-analytics/toc.json&bc=/azure/synapse-analytics/breadcrumb/toc.json&view=azure-sqldw-latest) documentation.
+> Syntax for CREATE VIEW is not discussed in this article. For more information, see the [CREATE VIEW](/sql/t-sql/statements/create-view-transact-sql?view=azure-sqldw-latest&preserve-view=true) documentation.
 
 ## Architectural abstraction
 
-A common application pattern is to re-create tables using [CREATE TABLE AS SELECT](/sql/t-sql/statements/create-table-as-select-azure-sql-data-warehouse?toc=/azure/synapse-analytics/toc.json&bc=/azure/synapse-analytics/breadcrumb/toc.json&view=azure-sqldw-latest) (CTAS), which is followed by an object renaming pattern while loading data.
+A common application pattern is to re-create tables using [CREATE TABLE AS SELECT (CTAS)](/sql/t-sql/statements/create-table-as-select-azure-sql-data-warehouse?view=azure-sqldw-latest&preserve-view=true), which is followed by an object renaming pattern while loading data.
 
 The following example adds new date records to a date dimension. Note how a new table, DimDate_New, is first created and then renamed to replace the original version of the table.
 
@@ -49,7 +43,6 @@ FROM   dbo.DimDate_stg AS stg
 
 RENAME OBJECT DimDate TO DimDate_Old;
 RENAME OBJECT DimDate_New TO DimDate;
-
 ```
 
 Keep in mind that this approach can result in tables appearing and disappearing from a user's view, and prompts "table does not exist" error messages. Views can be used to provide users with a consistent presentation layer while the underlying objects are renamed.
@@ -75,6 +68,3 @@ Views in Synapse SQL are only stored as metadata. Consequently, the following op
 ## Next steps
 
 For more development tips, see [Synapse SQL development overview](develop-overview.md).
-
-
-

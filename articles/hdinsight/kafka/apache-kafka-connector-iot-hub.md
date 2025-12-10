@@ -1,39 +1,39 @@
 ---
 title: Use Apache Kafka on HDInsight with Azure IoT Hub 
-description: Learn how to use Apache Kafka on HDInsight with Azure IoT Hub. The Kafka Connect Azure IoT Hub project provides a source and sink connector for Kafka. The source connector can read data from IoT Hub, and the sink connector writes to IoT Hub.
+description: Learn how to use Apache Kafka on HDInsight with Azure IoT Hub. Kafka Connect Azure IoT Hub project provides a source and sink connector for Kafka. The source connector can read data from IoT Hub, and the sink connector writes to IoT Hub.
 #Customer intent: As a developer, I need to use the Kafka IoT Hub connector with Kafka on HDInsight.
-author: hrasheed-msft
-ms.author: hrasheed
-ms.reviewer: jasonh
-ms.service: hdinsight
+ms.service: azure-hdinsight
 ms.topic: how-to
 ms.custom: hdinsightactive
-ms.date: 11/26/2019
+author: yeturis
+ms.author: sairamyeturi
+ms.reviewer: nijelsf
+ms.date: 11/13/2024
 ---
 
 # Use Apache Kafka on HDInsight with Azure IoT Hub
 
 Learn how to use the [Apache Kafka Connect Azure IoT Hub](https://github.com/Azure/toketi-kafka-connect-iothub) connector to move data between Apache Kafka on HDInsight and Azure IoT Hub. In this document, you learn how to run the IoT Hub connector from an edge node in the cluster.
 
-The Kafka Connect API allows you to implement connectors that continuously pull data into Kafka, or push data from Kafka to another system. The [Apache Kafka Connect Azure IoT Hub](https://github.com/Azure/toketi-kafka-connect-iothub) is a connector that pulls data from Azure IoT Hub into Kafka. It can also push data from Kafka to the IoT Hub.
+Kafka Connect API allows you to implement connectors that continuously pull data into Kafka, or push data from Kafka to another system. The [Apache Kafka Connect Azure IoT Hub](https://github.com/Azure/toketi-kafka-connect-iothub) is a connector that pulls data from Azure IoT Hub into Kafka. It can also push data from Kafka to the IoT Hub.
 
 When pulling from the IoT Hub, you use a __source__ connector. When pushing to IoT Hub, you use a __sink__ connector. The IoT Hub connector provides both the source and sink connectors.
 
 The following diagram shows the data flow between Azure IoT Hub and Kafka on HDInsight when using the connector.
 
-![Image showing data flowing from IoT Hub to Kafka through the connector](./media/apache-kafka-connector-iot-hub/iot-hub-kafka-connector-hdinsight.png)
+:::image type="content" source="./media/apache-kafka-connector-iot-hub/iot-hub-kafka-connector-hdinsight.png" alt-text="Image showing data flowing from IoT Hub to Kafka through the connector." border="false":::
 
-For more information on the Connect API, see [https://kafka.apache.org/documentation/#connect](https://kafka.apache.org/documentation/#connect).
+For more information on how to Connect API, see [https://kafka.apache.org/documentation/#connect](https://kafka.apache.org/documentation/#connect).
 
 ## Prerequisites
 
-* An Apache Kafka cluster on HDInsight. For more information, see the [Kafka on HDInsight quickstart](apache-kafka-get-started.md) document.
+* An Apache Kafka cluster on HDInsight. For more information, see [Kafka on HDInsight quickstart](apache-kafka-get-started.md) document.
 
-* An edge node in the Kafka cluster. For more information, see the [Use edge nodes with HDInsight](../hdinsight-apps-use-edge-node.md) document.
+* An edge node in the Kafka cluster. For more information, see [Use edge nodes with HDInsight](../hdinsight-apps-use-edge-node.md) document.
 
 * An SSH client. For more information, see [Connect to HDInsight (Apache Hadoop) using SSH](../hdinsight-hadoop-linux-use-ssh-unix.md).
 
-* An Azure IoT Hub and device. For this article, consider using [Connect Raspberry Pi online simulator to Azure IoT Hub](https://docs.microsoft.com/azure/iot-hub/iot-hub-raspberry-pi-web-simulator-get-started).
+* An Azure IoT Hub and device. For this article, consider using [Connect Raspberry Pi online simulator to Azure IoT Hub](../../iot-hub/iot-hub-raspberry-pi-web-simulator-get-started.md).
 
 * [Scala build tool](https://www.scala-sbt.org/).
 
@@ -47,11 +47,11 @@ For more information on the Connect API, see [https://kafka.apache.org/documenta
     sbt assembly
     ```
 
-    The build will take a few minutes to complete. The command creates a file named `kafka-connect-iothub-assembly_2.11-0.7.0.jar` in the `toketi-kafka-connect-iothub-master\target\scala-2.11` directory for the project.
+    The build takes a few minutes to complete. The command creates a file named `kafka-connect-iothub-assembly_2.11-0.7.0.jar` in the `toketi-kafka-connect-iothub-master\target\scala-2.11` directory for the project.
 
 ## Install the connector
 
-1. Upload the .jar file to the edge node of your Kafka on HDInsight cluster. Edit the command below by replacing `CLUSTERNAME` with the actual name of your cluster. The default values for the SSH user account and name of [edge node](../hdinsight-apps-use-edge-node.md#access-an-edge-node) are used below, modify as needed.
+1. Upload the .jar file to the edge node of your Kafka on HDInsight cluster. Edit the following command by replacing `CLUSTERNAME` with the actual name of your cluster. The default values for the SSH user account and name of [edge node](../hdinsight-apps-use-edge-node.md#access-an-edge-node) are used to modify as needed.
 
     ```cmd
     scp kafka-connect-iothub-assembly*.jar sshuser@new-edgenode.CLUSTERNAME-ssh.azurehdinsight.net:
@@ -98,7 +98,7 @@ From your SSH connection to the edge node, use the following steps to configure 
 
     Copy the values for later use. The value returned is similar to the following text:
 
-    `wn0-kafka.w5ijyohcxt5uvdhhuaz5ra4u5f.ex.internal.cloudapp.net:9092,wn1-kafka.w5ijyohcxt5uvdhhuaz5ra4u5f.ex.internal.cloudapp.net:9092`
+    `<brokername1>.w5ijyohcxt5uvdhhuaz5ra4u5f.ex.internal.cloudapp.net:9092,<brokername2>.w5ijyohcxt5uvdhhuaz5ra4u5f.ex.internal.cloudapp.net:9092`
 
 1. Get the address of the Apache Zookeeper nodes. There are several Zookeeper nodes in the cluster, but you only need to reference one or two. Use the following command to the store the addresses in the variable `KAFKAZKHOSTS`:
 
@@ -106,7 +106,7 @@ From your SSH connection to the edge node, use the following steps to configure 
     export KAFKAZKHOSTS=`curl -sS -u admin:$password -G http://headnodehost:8080/api/v1/clusters/$clusterName/services/ZOOKEEPER/components/ZOOKEEPER_SERVER | jq -r '["\(.host_components[].HostRoles.host_name):2181"] | join(",")' | cut -d',' -f1,2`
     ```
 
-1. When running the connector in standalone mode, the `/usr/hdp/current/kafka-broker/config/connect-standalone.properties` file is used to communicate with the Kafka brokers. To edit the `connect-standalone.properties` file, use the following command:
+1. When you run the connector in standalone mode, the `/usr/hdp/current/kafka-broker/config/connect-standalone.properties` file is used to communicate with the Kafka brokers. To edit the `connect-standalone.properties` file, use the following command:
 
     ```bash
     sudo nano /usr/hdp/current/kafka-broker/config/connect-standalone.properties
@@ -118,7 +118,7 @@ From your SSH connection to the edge node, use the following steps to configure 
     |---|---|---|
     |`bootstrap.servers=localhost:9092`|Replace the `localhost:9092` value with the broker hosts from the previous step|Configures the standalone configuration for the edge node to find the Kafka brokers.|
     |`key.converter=org.apache.kafka.connect.json.JsonConverter`|`key.converter=org.apache.kafka.connect.storage.StringConverter`|This change allows you to test using the console producer included with Kafka. You may need different converters for other producers and consumers. For information on using other converter values, see [https://github.com/Azure/toketi-kafka-connect-iothub/blob/master/README_Sink.md](https://github.com/Azure/toketi-kafka-connect-iothub/blob/master/README_Sink.md).|
-    |`value.converter=org.apache.kafka.connect.json.JsonConverter`|`value.converter=org.apache.kafka.connect.storage.StringConverter`|Same as above.|
+    |`value.converter=org.apache.kafka.connect.json.JsonConverter`|`value.converter=org.apache.kafka.connect.storage.StringConverter`|Same as given.|
     |N/A|`consumer.max.poll.records=10`|Add to end of file. This change is to prevent timeouts in the sink connector by limiting it to 10 records at a time. For more information, see [https://github.com/Azure/toketi-kafka-connect-iothub/blob/master/README_Sink.md](https://github.com/Azure/toketi-kafka-connect-iothub/blob/master/README_Sink.md).|
 
 1. To save the file, use __Ctrl + X__, __Y__, and then __Enter__.
@@ -158,7 +158,7 @@ To retrieve IoT hub information used by the connector, use the following steps:
         > [!IMPORTANT]  
         > The endpoint value from the portal may contain extra text that is not needed in this example. Extract the text that matches this pattern `sb://<randomnamespace>.servicebus.windows.net/`.
 
-   * __From the [Azure CLI](https://docs.microsoft.com/cli/azure/get-started-with-azure-cli)__, use the following command:
+   * __From the [Azure CLI](/cli/azure/get-started-with-azure-cli)__, use the following command:
 
        ```azurecli
        az iot hub show --name myhubname --query "{EventHubCompatibleName:properties.eventHubEndpoints.events.path,EventHubCompatibleEndpoint:properties.eventHubEndpoints.events.endpoint,Partitions:properties.eventHubEndpoints.events.partitionCount}"
@@ -180,7 +180,7 @@ To retrieve IoT hub information used by the connector, use the following steps:
         2. Copy the __Primary key__ value.
         3. Copy the __Connection string--primary key__ value.
 
-    * __From the [Azure CLI](https://docs.microsoft.com/cli/azure/get-started-with-azure-cli)__, use the following command:
+    * __From the [Azure CLI](/cli/azure/get-started-with-azure-cli)__, use the following command:
 
         1. To get the primary key value, use the following command:
 
@@ -193,7 +193,7 @@ To retrieve IoT hub information used by the connector, use the following steps:
         2. To get the connection string for the `service` policy, use the following command:
 
             ```azurecli
-            az iot hub show-connection-string --name myhubname --policy-name service --query "connectionString"
+            az iot hub connection-string show --name myhubname --policy-name service --query "connectionString"
             ```
 
             Replace `myhubname` with the name of your IoT hub. The response is the connection string for the `service` policy.
@@ -280,7 +280,7 @@ For more information on configuring the connector sink, see [https://github.com/
     > [!NOTE]  
     > You may see several warnings as the connector starts. These warnings do not cause problems with receiving messages from IoT hub.
 
-1. Stop the connector after a few minutes using **Ctrl + C** twice. It will take a few minutes for the connector to stop.
+1. Stop the connector after a few minutes using **Ctrl + C** twice. It takes a few minutes for the connector to stop.
 
 ## Start the sink connector
 
@@ -340,14 +340,15 @@ To send messages through the connector, use the following steps:
 
     The schema for this JSON document is described in more detail at [https://github.com/Azure/toketi-kafka-connect-iothub/blob/master/README_Sink.md](https://github.com/Azure/toketi-kafka-connect-iothub/blob/master/README_Sink.md).
 
-    If you're using the simulated Raspberry Pi device, and it's running, the following message is logged by the device:
+   
+If you're using the simulated Raspberry Pi device, and it's running, the device logs the following message.
 
-    ```output
-    Receive message: Turn On
-    ```
+```output
+Receive message: Turn On
 
-    Resend the JSON document, but change the value of the `"message"` entry. The new value is logged by the device.
 
+Resend the JSON document, but change the value of the `"message"` entry. The new value is logged by the device.
+ ```
 For more information on using the sink connector, see [https://github.com/Azure/toketi-kafka-connect-iothub/blob/master/README_Sink.md](https://github.com/Azure/toketi-kafka-connect-iothub/blob/master/README_Sink.md).
 
 ## Next steps
@@ -355,4 +356,3 @@ For more information on using the sink connector, see [https://github.com/Azure/
 In this document, you learned how to use the Apache Kafka Connect API to start the IoT Kafka Connector on HDInsight. Use the following links to discover other ways to work with Kafka:
 
 * [Use Apache Spark with Apache Kafka on HDInsight](../hdinsight-apache-spark-with-kafka.md)
-* [Use Apache Storm with Apache Kafka on HDInsight](../hdinsight-apache-storm-with-kafka.md)

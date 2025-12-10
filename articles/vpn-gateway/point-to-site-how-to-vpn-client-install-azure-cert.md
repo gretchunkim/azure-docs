@@ -1,40 +1,39 @@
 ---
-title: 'Azure VPN Gateway: Install a Point-to-Site client certificate'
-description: Install client cert for P2S certificate authentication - Windows, Mac, Linux.
-services: vpn-gateway
+title: 'Install a Point-to-Site client certificate'
+titleSuffix: Azure VPN Gateway
+description: Learn how to install client certificates for P2S certificate authentication - Windows, Mac, Linux.
 author: cherylmc
-
-ms.service: vpn-gateway
+ms.service: azure-vpn-gateway
+ms.custom: linux-related-content
 ms.topic: how-to
-ms.date: 09/02/2020
+ms.date: 02/13/2025
 ms.author: cherylmc
-
+# Customer intent: As a network administrator, I want to install client certificates for P2S VPN authentication on various operating systems, so that I can ensure secure and proper access for users connecting to the network.
 ---
 # Install client certificates for P2S certificate authentication connections
 
-All clients that connect to a virtual network using Point-to-Site Azure certificate authentication require a client certificate. This article helps you install a client certificate that is used for authentication when connecting to a VNet using P2S.
+When a P2S VPN gateway is configured to require certificate authentication, each client computer must have a client certificate installed locally. This article helps you install a client certificate locally on a client computer. You can also use [Intune](/mem/intune/configuration/vpn-settings-configure) to install certain VPN client profiles and certificates.
 
-## <a name="generate"></a>Acquire a client certificate
-
-No matter what client operating system you want to connect from, you must always have a client certificate. You can generate a client certificate from either a root certificate that was generated using an Enterprise CA solution, or a self-signed root certificate. See the [PowerShell](vpn-gateway-certificates-point-to-site.md), [MakeCert](vpn-gateway-certificates-point-to-site-makecert.md), or [Linux](vpn-gateway-certificates-point-to-site-linux.md) instructions for steps to generate a client certificate. 
+For information about generating certificates, see the [Generate certificates](point-to-site-certificate-gateway.md#generatecert) section of the Point-to-site configuration article.
 
 ## <a name="installwin"></a>Windows
 
 [!INCLUDE [Install on Windows](../../includes/vpn-gateway-certificates-install-client-cert-include.md)]
 
-## <a name="installmac"></a>Mac
-
->[!NOTE]
->Mac VPN clients are supported for the Resource Manager deployment model only. They are not supported for the classic deployment model.
->
->
+## <a name="installmac"></a>macOS
 
 [!INCLUDE [Install on Mac](../../includes/vpn-gateway-certificates-install-mac-client-cert-include.md)]
 
 ## <a name="installlinux"></a>Linux
 
-The Linux client certificate is installed on the client as part of the client configuration. See [Client configuration - Linux](point-to-site-vpn-client-configuration-azure-cert.md#linuxinstallcli) for instructions.
+The Linux client certificate is installed on the client as part of the client configuration. There are a few different methods to install certificates. You can use [strongSwan](point-to-site-vpn-client-certificate-ike-linux.md), or [OpenVPN client](point-to-site-vpn-client-certificate-openvpn-linux.md) steps.
+
+## <a name="vpn-clients"></a>Configure VPN clients
+
+To continue configuration, go back to the VPN client instructions that you were working with. You can use this table to locate the link:
+
+[!INCLUDE [All client articles](../../includes/vpn-gateway-vpn-client-install-articles.md)]
 
 ## Next steps
 
-Continue with the Point-to-Site configuration steps to [Create and install VPN client configuration files](point-to-site-vpn-client-configuration-azure-cert.md).
+For P2S server configuration, see [Configure P2S server settings for certificate authentication](point-to-site-certificate-gateway.md) configuration steps.

@@ -1,13 +1,13 @@
 ---
-title: Extract, transform, and load (ETL) at scale - Azure HDInsight 
+title: Extract, transform, and load (ETL) at scale - Azure HDInsight
 description: Learn how extract, transform, and load is used in HDInsight with Apache Hadoop.
-author: hrasheed-msft
-ms.author: hrasheed
-ms.reviewer: jasonh
-ms.service: hdinsight
+ms.service: azure-hdinsight
 ms.topic: how-to
-ms.custom: hdinsightactive,seoapr2020
-ms.date: 04/28/2020
+ms.custom: hdinsightactive
+author: hareshg
+ms.author: hgowrisankar
+ms.reviewer: nijelsf
+ms.date: 12/02/2024
 ---
 
 # Extract, transform, and load (ETL) at scale
@@ -16,7 +16,7 @@ Extract, transform, and load (ETL) is the process by which data is acquired from
 
 The use of HDInsight in the ETL process is summarized by this pipeline:
 
-![HDInsight ETL at scale overview](./media/apache-hadoop-etl-at-scale/hdinsight-etl-at-scale-overview.png)
+:::image type="content" source="./media/apache-hadoop-etl-at-scale/hdinsight-etl-at-scale-overview.png" alt-text="HDInsight ETL at scale overview." border="false":::
 
 The following sections explore each of the ETL phases and their associated components.
 
@@ -61,7 +61,7 @@ Multiple blobs can be distributed across many servers to scale out access to the
 
 Azure Storage has a WebHDFS API layer for the blob storage. All HDInsight services can access files in Azure Blob storage for data cleaning and data processing. This is similar to how those services would use Hadoop Distributed File System (HDFS).
 
-Data is typically ingested into Azure Storage through PowerShell, the Azure Storage SDK, or AZCopy.
+Data is typically ingested into Azure Storage through PowerShell, the Azure Storage SDK, or AzCopy.
 
 ### Azure Data Lake Storage
 
@@ -69,7 +69,7 @@ Azure Data Lake Storage is a managed, hyperscale repository for analytics data. 
 
 Data is usually ingested into Data Lake Storage through Azure Data Factory. You can also use Data Lake Storage SDKs, the AdlCopy service, Apache DistCp, or Apache Sqoop. The service you choose depends on where the data is. If it's in an existing Hadoop cluster, you might use Apache DistCp, the AdlCopy service, or Azure Data Factory. For data in Azure Blob storage, you might use Azure Data Lake Storage .NET SDK, Azure PowerShell, or Azure Data Factory.
 
-Data Lake Storage is optimized for event ingestion through Azure Event Hubs or Apache Storm.
+Data Lake Storage is optimized for event ingestion through Azure Event Hubs.
 
 ### Considerations for both storage options
 
@@ -77,11 +77,11 @@ For uploading datasets in the terabyte range, network latency can be a major pro
 
 - **Azure ExpressRoute:** Create private connections between Azure datacenters and your on-premises infrastructure. These connections provide a reliable option for transferring large amounts of data. For more information, see [Azure ExpressRoute documentation](../../expressroute/expressroute-introduction.md).
 
-- **Data upload from hard disk drives:** You can use [Azure Import/Export service](../../storage/common/storage-import-export-service.md) to ship hard disk drives with your data to an Azure datacenter. Your data is first uploaded to Azure Blob storage. You can then use Azure Data Factory or the AdlCopy tool to copy data from Azure Blob storage to Data Lake Storage.
+- **Data upload from hard disk drives:** You can use [Azure Import/Export service](../../import-export/storage-import-export-service.md) to ship hard disk drives with your data to an Azure datacenter. Your data is first uploaded to Azure Blob storage. You can then use Azure Data Factory or the AdlCopy tool to copy data from Azure Blob storage to Data Lake Storage.
 
 ### Azure Synapse Analytics
 
-Azure Synapse Analytics is an appropriate choice to store prepared results. You can use Azure HDInsight to perform those services for Zure Synapse Analytics.
+Azure Synapse Analytics is an appropriate choice to store prepared results. You can use Azure HDInsight to perform those services for Azure Synapse Analytics.
 
 Azure Synapse Analytics is a relational database store optimized for analytic workloads. It scales based on partitioned tables. Tables can be partitioned across multiple nodes. The nodes are selected at the time of creation. They can scale after the fact, but that's an active process that might require data movement. For more information, see [Manage compute in Azure Synapse Analytics](../../synapse-analytics/sql-data-warehouse/sql-data-warehouse-manage-compute-overview.md).
 
@@ -101,9 +101,9 @@ HBase adaptability is dependent on the number of nodes in the HDInsight cluster.
 
 Azure offers three PaaS relational databases:
 
-* [Azure SQL Database](../../azure-sql/database/sql-database-paas-overview.md) is an implementation of Microsoft SQL Server. For more information on performance, see [Tuning Performance in Azure SQL Database](../../azure-sql/database/performance-guidance.md).
-* [Azure Database for MySQL](../../mysql/overview.md)  is an implementation of Oracle MySQL.
-* [Azure Database for PostgreSQL](../../postgresql/quickstart-create-server-database-portal.md) is an implementation of PostgreSQL.
+* [Azure SQL Database](/azure/azure-sql/database/sql-database-paas-overview) is an implementation of Microsoft SQL Server. For more information on performance, see [Tuning Performance in Azure SQL Database](/azure/azure-sql/database/performance-guidance).
+* [Azure Database for MySQL](/azure/mysql/overview)  is an implementation of Oracle MySQL.
+* [Azure Database for PostgreSQL](/azure/postgresql/quickstart-create-server-database-portal) is an implementation of PostgreSQL.
 
 Add more CPU and memory to scale up these products.  You can also choose to use premium disks with the products for better I/O performance.
 
@@ -127,7 +127,7 @@ Sqoop uses MapReduce to import and export the data, to provide parallel operatio
 
 Apache Flume is a distributed, reliable, and available service for efficiently collecting, aggregating, and moving large amounts of log data. Its flexible architecture is based on streaming data flows. Flume is robust and fault-tolerant with tunable reliability mechanisms. It has many failover and recovery mechanisms. Flume uses a simple extensible data model that allows for online, analytic application.
 
-Apache Flume can't be used with Azure HDInsight. But, an on-premises Hadoop installation can use Flume to send data to either Azure Blob storage or Azure Data Lake Storage. For more information, see [Using Apache Flume with HDInsight](https://web.archive.org/web/20190217104751/https://blogs.msdn.microsoft.com/bigdatasupport/2014/03/18/using-apache-flume-with-hdinsight/).
+Apache Flume can't be used with Azure HDInsight. But, an on-premises Hadoop installation can use Flume to send data to either Azure Blob storage or Azure Data Lake Storage. For more information, see [Using Apache Flume with HDInsight](/archive/blogs/bigdatasupport/using-apache-flume-with-hdinsight).
 
 ## Transform
 

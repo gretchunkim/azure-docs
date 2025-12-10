@@ -1,12 +1,15 @@
 ---
 title: Develop script actions to customize Azure HDInsight clusters
 description: Learn how to use Bash scripts to customize HDInsight clusters. Script actions allow you to run scripts during or after cluster creation to change cluster configuration settings or install additional software.
-author: hrasheed-msft
-ms.author: hrasheed
-ms.reviewer: jasonh
-ms.service: hdinsight
+ms.service: azure-hdinsight
 ms.topic: how-to
-ms.date: 11/28/2019
+author: hareshg
+ms.author: hgowrisankar
+ms.reviewer: nijelsf
+ms.date: 05/22/2024
+ms.custom:
+  - linux-related-content
+  - sfi-ropc-nochange
 ---
 
 # Script action development with HDInsight
@@ -70,7 +73,7 @@ fi
 
 ### <a name="bps10"></a> Target the operating system version
 
-HDInsight is based on the Ubuntu Linux distribution. Different versions of HDInsight rely on different versions of Ubuntu, which may change how your script behaves. For example, HDInsight 3.4 and earlier are based on Ubuntu versions that use Upstart. Versions 3.5 and greater are based on Ubuntu 16.04, which uses Systemd. Systemd and Upstart rely on different commands, so your script should be written to work with both.
+HDInsight is based on the Ubuntu Linux distribution. Different versions of HDInsight rely on different versions of Ubuntu, which may change how your script behaves. For example, HDInsight 3.4 and earlier are based on Ubuntu versions that use Upstart. Versions 3.5 and greater are based on Ubuntu 16.04, which uses `Systemd`. `Systemd` and Upstart rely on different commands, so your script should be written to work with both.
 
 Another important difference between HDInsight 3.4 and 3.5 is that `JAVA_HOME` now points to Java 8. The following code demonstrates how to determine if the script is running on Ubuntu 14 or 16:
 
@@ -107,7 +110,7 @@ You can find the full script that contains these snippets at https://hdiconfigac
 
 For the version of Ubuntu that is used by HDInsight, see the [HDInsight component version](hdinsight-component-versioning.md) document.
 
-To understand the differences between Systemd and Upstart, see [Systemd for Upstart users](https://wiki.ubuntu.com/SystemdForUpstartUsers).
+To understand the differences between `Systemd` and Upstart, see [`Systemd` for Upstart users](https://wiki.ubuntu.com/SystemdForUpstartUsers).
 
 ### <a name="bPS2"></a>Provide stable links to script resources
 
@@ -118,7 +121,7 @@ The best practice is to download and archive everything in an Azure Storage acco
 > [!IMPORTANT]  
 > The storage account used must be the default storage account for the cluster or a public, read-only container on any other storage account.
 
-For example, the samples provided by Microsoft are stored in the [https://hdiconfigactions.blob.core.windows.net/](https://hdiconfigactions.blob.core.windows.net/) storage account. This location is a public, read-only container maintained by the HDInsight team.
+For example, the samples provided by Microsoft are stored in the `https://hdiconfigactions.blob.core.windows.net/`  storage account. This location is a public, read-only container maintained by the HDInsight team.
 
 ### <a name="bPS4"></a>Use pre-compiled resources
 
@@ -128,7 +131,7 @@ To reduce the time it takes to run the script, avoid operations that compile res
 
 Scripts must be idempotent. If the script runs multiple times, it should return the cluster to the same state every time.
 
-For example, a script that modifies configuration files shouldn't add duplicate entries if ran multiple times.
+If the script runs multiple times, the script that modifies configuration files shouldn't add duplicate entries.
 
 ### <a name="bPS5"></a>Ensure high availability of the cluster architecture
 
@@ -183,7 +186,7 @@ line 1: #!/usr/bin/env: No such file or directory
 
 ### <a name="bps9"></a> Use retry logic to recover from transient errors
 
-When downloading files, installing packages using apt-get, or other actions that transmit data over the internet, the action may fail because of transient networking errors. For example, the remote resource you're communicating with may be in the process of failing over to a backup node.
+When you download files, installing packages using apt-get, or other actions that transmit data over the internet, the action may fail because of transient networking errors. For example, the remote resource you're communicating with may be in the process of failing over to a backup node.
 
 To make your script resilient to transient errors, you can implement retry logic. The following function demonstrates how to implement retry logic. It retries the operation three times before failing.
 
@@ -234,7 +237,7 @@ The following helpers available for use in your script:
 | --- | --- |
 | `download_file SOURCEURL DESTFILEPATH [OVERWRITE]` |Downloads a file from the source URI to the specified file path. By default, it doesn't overwrite an existing file. |
 | `untar_file TARFILE DESTDIR` |Extracts a tar file (using `-xf`) to the destination directory. |
-| `test_is_headnode` |If ran on a cluster head node, return 1; otherwise, 0. |
+| `test_is_headnode` |If the script ran on a cluster head node, return 1; otherwise, 0. |
 | `test_is_datanode` |If the current node is a data (worker) node, return a 1; otherwise, 0. |
 | `test_is_first_datanode` |If the current node is the first data (worker) node (named workernode0) return a 1; otherwise, 0. |
 | `get_headnodes` |Return the fully qualified domain name of the headnodes in the cluster. Names are comma delimited. An empty string is returned on error. |
@@ -263,7 +266,7 @@ Setting an environment variable is performed by the following statement:
 VARIABLENAME=value
 ```
 
-Where VARIABLENAME is the name of the variable. To access the variable, use `$VARIABLENAME`. For example, to assign a value provided by a positional parameter as an environment variable named PASSWORD, you would use the following statement:
+In the preceding example, `VARIABLENAME` is the name of the variable. To access the variable, use `$VARIABLENAME`. For example, to assign a value provided by a positional parameter as an environment variable named PASSWORD, you would use the following statement:
 
 ```bash
 PASSWORD=$1
@@ -287,7 +290,7 @@ Scripts used to customize a cluster needs to be stored in one of the following l
 
 * A __publicly readable URI__. For example, a URL to data stored on OneDrive, Dropbox, or other file hosting service.
 
-* An __Azure Data Lake Storage account__ that is associated with the HDInsight cluster. For more information on using Azure Data Lake Storage with HDInsight, see [Quickstart: Set up clusters in HDInsight](../storage/data-lake-storage/quickstart-create-connect-hdi-cluster.md).
+* An __Azure Data Lake Storage account__ that is associated with the HDInsight cluster. For more information on using Azure Data Lake Storage with HDInsight, see [Quickstart: Set up clusters in HDInsight](./hdinsight-hadoop-provision-linux-clusters.md).
 
     > [!NOTE]  
     > The service principal HDInsight uses to access Data Lake Storage must have read access to the script.
@@ -360,5 +363,5 @@ Replace `INFILE` with the file containing the BOM. `OUTFILE` should be a new fil
 ## <a name="seeAlso"></a>Next steps
 
 * Learn how to [Customize HDInsight clusters using script action](hdinsight-hadoop-customize-cluster-linux.md)
-* Use the [HDInsight .NET SDK reference](https://docs.microsoft.com/dotnet/api/overview/azure/hdinsight) to learn more about creating .NET applications that manage HDInsight
-* Use the [HDInsight REST API](https://msdn.microsoft.com/library/azure/mt622197.aspx) to learn how to use REST to perform management actions on HDInsight clusters.
+* Use the [HDInsight .NET SDK reference](/dotnet/api/overview/azure/hdinsight) to learn more about creating .NET applications that manage HDInsight
+* Use the [HDInsight REST API](/rest/api/hdinsight/) to learn how to use REST to perform management actions on HDInsight clusters.

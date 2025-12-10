@@ -1,19 +1,18 @@
 ---
 title: Optimize Spark jobs for performance
-description: This article provides an introduction to Apache Spark in Azure Synapse Analytics and the different concepts.
-services: synapse-analytics
-author: euangMS
-ms.service: synapse-analytics
+description: This article provides an introduction to Apache Spark in Azure Synapse Analytics.
+author: juluczni
+ms.author: juluczni
+ms.service: azure-synapse-analytics
 ms.topic: overview
 ms.subservice: spark
-ms.date: 04/15/2020
-ms.author: euang
+ms.date: 02/15/2022
 ms.reviewer: euang
 ---
 
-# Optimize Apache Spark jobs (preview) in Azure Synapse Analytics
+# Optimize Apache Spark jobs in Azure Synapse Analytics
 
-Learn how to optimize [Apache Spark](https://spark.apache.org/) cluster configuration for your particular workload.  The most common challenge is memory pressure, because of improper configurations (particularly wrong-sized executors), long-running operations, and tasks that result in Cartesian operations. You can speed up jobs with appropriate caching, and by allowing for [data skew](#optimize-joins-and-shuffles). For the best performance, monitor and review long-running and resource-consuming Spark job executions.
+Learn how to optimize an [Apache Spark](https://spark.apache.org/) cluster configuration for your particular workload.  The most common challenge is memory pressure, because of improper configurations (particularly wrong-sized executors), long-running operations, and tasks that result in Cartesian operations. You can speed up jobs with appropriate caching, and by allowing for [data skew](#optimize-joins-and-shuffles). For the best performance, monitor and review long-running and resource-consuming Spark job executions.
 
 The following sections describe common Spark job optimizations and recommendations.
 
@@ -47,7 +46,7 @@ Earlier Spark versions use RDDs to abstract data, Spark 1.3, and 1.6 introduced 
 
 Spark supports many formats, such as csv, json, xml, parquet, orc, and avro. Spark can be extended to support many more formats with external data sources - for more information, see [Apache Spark packages](https://spark-packages.org).
 
-The best format for performance is parquet with *snappy compression*, which is the default in Spark 2.x. Parquet stores data in columnar format, and is highly optimized in Spark. In addition while *snappy compression* may result in larger files than say gzip compression. Due to the splittable nature of those files they will decompress faster]
+The best format for performance is parquet with *snappy compression*, which is the default in Spark 2.x. Parquet stores data in columnar format, and is highly optimized in Spark. In addition, while *snappy compression* may result in larger files than say gzip compression. Due to the splittable nature of those files, they will decompress faster.
 
 ## Use the cache
 
@@ -58,7 +57,13 @@ Spark provides its own native caching mechanisms, which can be used through diff
 Spark operates by placing data in memory, so managing memory resources is a key aspect of optimizing the execution of Spark jobs.  There are several techniques you can apply to use your cluster's memory efficiently.
 
 * Prefer smaller data partitions and account for data size, types, and distribution in your partitioning strategy.
-* Consider the newer, more efficient [Kryo data serialization](https://github.com/EsotericSoftware/kryo), rather than the default Java serialization.
+* In Synapse Spark (Runtime 3.1 or higher), **Kryo data serialization is enabled by default Kryo data serialization**.
+* You can customize the kryoserializer buffer size using Spark configuration based on your workload requirements:
+
+  ```scala
+  // Set the desired property
+  spark.conf.set("spark.kryoserializer.buffer.max", "256m")
+
 * Monitor and tune Spark configuration settings.
 
 For your reference, the Spark memory structure and some key executor memory parameters are shown in the next image.
@@ -72,7 +77,7 @@ Apache Spark in Azure Synapse uses YARN [Apache Hadoop YARN](https://hadoop.apac
 To address 'out of memory' messages, try:
 
 * Review DAG Management Shuffles. Reduce by map-side reducing, pre-partition (or bucketize) source data, maximize single shuffles, and reduce the amount of data sent.
-* Prefer `ReduceByKey` with its fixed memory limit to `GroupByKey`, which provides aggregations, windowing, and other functions but it has ann unbounded memory limit.
+* Prefer `ReduceByKey` with its fixed memory limit to `GroupByKey`, which provides aggregations, windowing, and other functions but it has an unbounded memory limit.
 * Prefer `TreeReduce`, which does more work on the executors or partitions, to `Reduce`, which does all work on the driver.
 * Leverage DataFrames rather than the lower-level RDD objects.
 * Create ComplexTypes that encapsulate actions, such as "Top N", various aggregations, or windowing operations.
@@ -81,8 +86,8 @@ To address 'out of memory' messages, try:
 
 Spark jobs are distributed, so appropriate data serialization is important for the best performance.  There are two serialization options for Spark:
 
-* Java serialization is the default.
-* Kryo serialization is a newer format and can result in faster and more compact serialization than Java.  Kryo requires that you register the classes in your program, and it doesn't yet support all Serializable types.
+* Java serialization
+* Kryo serialization is the default. It's a newer format and can result in faster and more compact serialization than Java.  Kryo requires that you register the classes in your program, and it doesn't yet support all Serializable types.
 
 ## Use bucketing
 
@@ -173,6 +178,7 @@ MAX(AMOUNT) -> MAX(cast(AMOUNT as DOUBLE))
 
 ## Next steps
 
-- [Tuning Apache Spark](https://spark.apache.org/docs/latest/tuning.html)
+- [Learn about Azure Synapse runtimes for Apache Spark](./apache-spark-version-support.md)
+- [Tuning Apache Spark](https://archive.apache.org/dist/spark/docs/2.4.5/tuning.html)
 - [How to Actually Tune Your Apache Spark Jobs So They Work](https://www.slideshare.net/ilganeli/how-to-actually-tune-your-spark-jobs-so-they-work)
 - [Kryo Serialization](https://github.com/EsotericSoftware/kryo)

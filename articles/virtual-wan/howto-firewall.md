@@ -1,14 +1,15 @@
 ---
 title: 'Install Azure Firewall in a Virtual WAN hub'
 titleSuffix: Azure Virtual WAN
-description: Steps to configure Azure Firewall in a Virtual WAN hub
+description: Learn how to configure Azure Firewall in a Virtual WAN hub.
 services: virtual-wan
 author: cherylmc
 
-ms.service: virtual-wan
+ms.service: azure-virtual-wan
 ms.topic: how-to
-ms.date: 05/21/2020
+ms.date: 10/25/2024
 ms.author: cherylmc
+ms.custom: sfi-image-nochange
 
 ---
 # Configure Azure Firewall in a Virtual WAN hub
@@ -17,54 +18,56 @@ A **secured hub** is an Azure Virtual WAN hub with Azure Firewall. This article 
 
 ## Before you begin
 
-The steps in this article assume that you have already deployed a virtual WAN with one or more hubs.
+The steps in this article assume that you've already deployed a virtual WAN with one or more hubs.
 
 To create a new virtual WAN and a new hub, use the steps in the following articles:
 
 * [Create a virtual WAN](virtual-wan-site-to-site-portal.md#openvwan)
 * [Create a hub](virtual-wan-site-to-site-portal.md#hub)
 
-## View virtual hubs
-
-The **Overview** page for your virtual WAN shows a list of virtual hubs and secured hubs. The following figure shows a virtual WAN with no secured hubs.
-
-[ ![overview](./media/howto-firewall/overview.png)](./media/howto-firewall/overview.png#lightbox)
+> [!IMPORTANT]
+> Virtual WAN is a collection of hubs and services made available inside the hub. The user can deploy as many Virtual WANs as they need. In a Virtual WAN hub, there are multiple services like VPN, ExpressRoute etc. Each of these services is automatically deployed across **Availability Zones** (*except* Azure Firewall) if the region supports Availability Zones. To deploy an Azure Firewall with Availability Zones (recommended) in a Secure vWAN Hub, [this article](../firewall-manager/secure-cloud-network.md) must be used. 
 
 ## Convert to secured hub
 
-1. On the **Overview** page for your virtual WAN, select the hub that you want to convert to a secured hub. On the virtual hub page, you see two options to deploy Azure Firewall into this hub. Select either option.
+To view virtual hubs, go to your Virtual WAN **Overview** page. The **Overview** page for your virtual WAN shows a list of virtual hubs and secured hubs.
 
-   [ ![security](./media/howto-firewall/security.png)](./media/howto-firewall/security.png#lightbox)
+1. On the **Overview** page for your virtual WAN, select the hub that you want to convert to a secured hub.
 
-1. After you select one of the options, you see the **Convert to secure hub** page. Select a hub to convert, and then select **Next: Azure Firewall** at the bottom of the page.
+2. On the virtual hub page, select **Azure Firewall and Firewall Manager** under the "Security" section on the left.
 
-   [ ![select hub](./media/howto-firewall/select-hub.png)](./media/howto-firewall/select-hub.png#lightbox)
-1. After completing the workflow, select **Confirm**.
+3. Select **Next: Azure Firewall** button at the bottom of screen to advance to the next page.  
 
-   [ ![confirm](./media/howto-firewall/confirm.png)](./media/howto-firewall/confirm.png#lightbox)
+4. Select the Azure Firewall properties and status desired, then complete the wizard up to the **Review + confirm** tab:
 
-1. After the hub has been converted to a secured hub, you can view it on the virtual WAN **Overview** page.
+   :::image type="content" source="./media/howto-firewall/vwan-firewall-properties-conversion.png" alt-text="[Azure Firewall] step in the conversion flow" lightbox="./media/howto-firewall/vwan-firewall-properties-conversion.png":::
 
-   [ ![view secured hub](./media/howto-firewall/secured-hub.png)](./media/howto-firewall/secured-hub.png#lightbox)
+> [!NOTE]
+> This procedure doesn't permit the use of Availability Zones for Azure Firewall.
+
+5. After the hub has been converted to a secured hub, you can view the status for the **Azure Firewall** on the virtual hub **Overview** page. The status shows **Secured**.
 
 ## View hub resources
 
 From the virtual WAN **Overview** page, select the secured hub. On the hub page, you can view all the virtual hub resources, including Azure Firewall.
 
-[ ![view hub resources](./media/howto-firewall/view-resources.png)](./media/howto-firewall/view-resources.png#lightbox)
+To view Azure Firewall settings from the secured hub, select on **Azure Firewall and Firewall Manager** under the "Security" section on the left:
 
-To view Azure Firewall settings from the secured hub, under **Security**, select **Secured virtual hub settings**.
-[ ![view hub settings](./media/howto-firewall/hub-settings.png)](./media/howto-firewall/hub-settings.png#lightbox)
+Usage of Availability Zones for Azure Firewall in the Azure Virtual WAN Hub, can be checked accessing the security properties of the hub.
+
 
 ## Configure additional settings
 
 To configure additional Azure Firewall settings for the virtual hub, select the link to **Azure Firewall Manager**. For information about firewall policies, see [Azure Firewall Manager](../firewall-manager/secure-cloud-network.md#create-a-firewall-policy-and-secure-your-hub).
 
-[ ![additional settings](./media/howto-firewall/additional-settings.png)](./media/howto-firewall/additional-settings.png#lightbox)
+:::image type="content" source="./media/howto-firewall/additional-settings.png" alt-text="Screenshot showing Secured Hub overview with Manage Security Provider." lightbox="./media/howto-firewall/additional-settings.png":::
 
 To return to the hub **Overview** page, you can navigate back by clicking the path, as shown by the arrow in the following figure.
 
-[ ![return to overview](./media/howto-firewall/arrow.png)](./media/howto-firewall/arrow.png#lightbox)
+:::image type="content" source="./media/howto-firewall/arrow.png" alt-text="Screenshot showing how to return to the Overview page." lightbox="./media/howto-firewall/arrow.png":::
+
+## Upgrade to Azure Firewall Premium
+At any time, it's possible to upgrade from Azure Firewall Standard to Premium following these [instructions](../firewall/change-sku.md#migrate-a-secure-hub-firewall). This operation will require a maintenance window since some minimal downtime will be generated. 
 
 ## Next steps
 

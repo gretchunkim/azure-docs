@@ -1,11 +1,14 @@
 ---
 title: Set up SAP NetWeaver disaster recovery with Azure Site Recovery 
 description: Learn how to set up disaster recovery for SAP NetWeaver with Azure Site Recovery.
-author: sideeksh
-manager: rochakm
+ms.author: v-gajeronika
+author: Jeronika-MS
+ms.service: azure-site-recovery
 ms.topic: how-to
-ms.date: 11/27/2018
+ms.date: 08/19/2025
+ms.custom: sfi-image-nochange
 
+# Customer intent: "As an IT administrator managing SAP NetWeaver deployments, I want to set up a disaster recovery solution using cloud-based replication, so that I can ensure business continuity and minimize downtime during incidents."
 ---
 # Set up disaster recovery for a multi-tier SAP NetWeaver app deployment
 
@@ -34,18 +37,18 @@ Before you begin, ensure that you know how to do the following tasks:
 
 You can use Site Recovery to implement a disaster recovery solution in the following scenarios:
 * You have SAP systems running in one Azure datacenter, and you're replicating them to another Azure datacenter (Azure-to-Azure disaster recovery). 
-   For more information, see [Azure-to-Azure replication architecture](https://aka.ms/asr-a2a-architecture).
+   For more information, see [Azure-to-Azure replication architecture](./azure-to-azure-architecture.md).
 * You have SAP systems running on VMware (or physical) servers on-premises. You're also replicating the SAP systems to a disaster recovery site in an Azure datacenter (VMware-to-Azure disaster recovery). 
-   This scenario requires some additional components. For more information, see [VMware-to-Azure replication architecture](https://aka.ms/asr-v2a-architecture).
+   This scenario requires some additional components. For more information, see [VMware-to-Azure replication architecture](./vmware-azure-architecture.md).
 * You have SAP systems running on Hyper-V on-premises. You're also replicating the SAP systems to a disaster recovery site in an Azure datacenter (Hyper-V-to-Azure disaster recovery).
-   This scenario requires some additional components. For more information, see [Hyper-V-to-Azure replication architecture](https://aka.ms/asr-h2a-architecture).
+   This scenario requires some additional components. For more information, see [Hyper-V-to-Azure replication architecture](./hyper-v-azure-architecture.md).
 
 In this article, we use an **Azure-to-Azure** disaster recovery scenario. The scenario shows you the SAP disaster recovery capabilities of Site Recovery. Because Site Recovery replication isn't application-specific, the process that's described is expected to also apply to other scenarios.
 
 ### Required foundation services
 In the scenario we discuss in this article, the following foundation services are deployed:
 * Azure ExpressRoute or Azure VPN Gateway
-* At least one Azure Active Directory domain controller and DNS server, running in Azure
+* At least one Microsoft Entra domain controller and DNS server, running in Azure
 
 We recommend that you establish this infrastructure before you deploy Site Recovery.
 
@@ -74,7 +77,7 @@ To implement a high availability solution, you can use either a shared disk clus
  > [!NOTE]
  > Because Site Recovery does not replicate the cloud witness, we recommend that you deploy the cloud witness in the disaster recovery region.
 
-To support the failover cluster environment, [SIOS DataKeeper Cluster Edition](https://azuremarketplace.microsoft.com/marketplace/apps/sios_datakeeper.sios-datakeeper-8) does the cluster shared volume function. In the function, SIOS DataKeeper Cluster replicates independent disks owned by the cluster nodes. Because Azure does not natively support shared disks, it requires solutions provided by SIOS.
+To support the failover cluster environment, [SIOS DataKeeper Cluster Edition](https://azuremarketplace.microsoft.com/marketplace/apps/sios_datakeeper.sios-datakeeper-8) does the cluster shared volume function. In the function, SIOS DataKeeper Cluster replicates independent disks owned by the cluster nodes. 
 
 You can also handle clustering by implementing a file share cluster. [SAP](https://blogs.sap.com/2018/03/19/migration-from-a-shared-disk-cluster-to-a-file-share-cluster) recently modified the Central Services deployment pattern to access the /sapmnt global directories via a UNC path. We still recommend you ensure that the /sapmnt UNC share is highly available. You can check your Central Services instance. Use Windows Server Failover Cluster with Scale Out File Server (SOFS) and the Storage Spaces Direct (S2D) feature in Windows Server 2016.
 
@@ -114,7 +117,7 @@ To start replicating all the SAP application virtual machines to the Azure disas
 
 ## Networking configuration
 
-If you use a static IP address, you can specify the IP address that you want the virtual machine to take. To set the IP address, go to  **Compute and Network settings** > **Network interface card**.
+If you use a static IP address, you can specify the IP address that you want the virtual machine to take. To set the IP address, go to  **Network settings** > **Network interface card**.
 
 ![Screenshot that shows how to set a private IP address in the Site Recovery Network interface card pane](./media/site-recovery-sap/sap-static-ip.png)
 
@@ -133,7 +136,7 @@ For your applications to function correctly, you might need to do some operation
 
 You can deploy the most used Site Recovery scripts into your Azure Automation account by selecting **Deploy to Azure**. When you use any published script, follow the guidance in the script.
 
-[![Deploy to Azure](https://azurecomcdn.azureedge.net/mediahandler/acomblog/media/Default/blog/c4803408-340e-49e3-9a1f-0ed3f689813d.png)](https://aka.ms/asr-automationrunbooks-deploy)
+[Deploy to Azure](https://aka.ms/asr-automationrunbooks-deploy)
 
 1. Add a pre-action script to Group 1 to fail over the SQL Server availability group. Use the ASR-SQL-FailoverAG script published in the sample scripts. Follow the guidance in the script and make the required changes in the script appropriately.
 1. Add a post-action script to attach a load balancer onto the failed-over virtual machines of the Web tier (Group 1). Use the ASR-AddSingleLoadBalancer script published in the sample scripts. Follow the guidance in the script and make the required changes in the script as needed.
@@ -162,5 +165,5 @@ For more information, see [Test failover to Azure in Site Recovery](site-recover
 For more information, see [Failover in Site Recovery](site-recovery-failover.md).
 
 ## Next steps
-* Learn more about building a disaster recovery solution for SAP NetWeaver deployments by using Site Recovery. See the downloadable white paper [SAP NetWeaver: Building a Disaster Recovery Solution with Site Recovery](https://aka.ms/asr_sap). The white paper discusses recommendations for various SAP architectures. You can see supported applications and VM types for SAP on Azure. There are also plan options for testing your disaster recovery solution.
+* Learn more about building a disaster recovery solution for SAP NetWeaver deployments by using Site Recovery. See the downloadable white paper [SAP NetWeaver: Building a Disaster Recovery Solution with Site Recovery](/samples/browse/?redirectedfrom=TechNet-Gallery). The white paper discusses recommendations for various SAP architectures. You can see supported applications and VM types for SAP on Azure. There are also plan options for testing your disaster recovery solution.
 * Learn more about [replicating other workloads](site-recovery-workload.md) by using Site Recovery.

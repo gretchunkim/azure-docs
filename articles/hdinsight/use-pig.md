@@ -2,19 +2,16 @@
 title: Use Apache Pig
 titleSuffix: Azure HDInsight
 description: Learn how to use Pig with Apache Hadoop on HDInsight.
-author: hrasheed-msft
-ms.author: hrasheed
-ms.reviewer: jasonh
-ms.service: hdinsight
+ms.service: azure-hdinsight
 ms.custom: hdinsightactive
 ms.topic: how-to
-ms.date: 01/28/2020
+ms.date: 10/17/2024
 ---
 # Use Apache Pig with Apache Hadoop on HDInsight
 
 Learn how to use [Apache Pig](https://pig.apache.org/) with HDInsight.
 
-Apache Pig is a platform for creating programs for Apache Hadoop by using a procedural language known as *Pig Latin*. Pig is an alternative to Java for creating *MapReduce* solutions, and it is included with Azure HDInsight. Use the following table to discover the various ways that Pig can be used with HDInsight:
+Apache Pig is a platform for creating programs for Apache Hadoop by using a procedural language known as *Pig Latin*. Pig is an alternative to Java for creating *MapReduce* solutions, and it's included with Azure HDInsight. Use the following table to discover the various ways that Pig can be used with HDInsight:
 
 ## <a id="why"></a>Why use Apache Pig
 
@@ -38,7 +35,7 @@ For more information about Pig Latin, see [Pig Latin Reference Manual 1](https:/
 
 ## <a id="data"></a>Example data
 
-HDInsight provides various example data sets, which are stored in the `/example/data` and `/HdiSamples` directories. These directories are in the default storage for your cluster. The Pig example in this document uses the *log4j* file from `/example/data/sample.log`.
+HDInsight provides various example data sets, which are stored in the `/example/data` and `/HdiSamples` directories. These directories are in the default storage for your cluster. The Pig example in this document uses the *Log4j* file from `/example/data/sample.log`.
 
 Each log inside the file consists of a line of fields that contains a `[LOG LEVEL]` field to show the type and the severity, for example:
 
@@ -67,11 +64,11 @@ DUMP RESULT;
 
 The following image shows a summary of what each transformation does to the data.
 
-![Graphical representation of the transformations][image-hdi-pig-data-transformation]
+:::image type="content" source="./media/use-pig/hdi-data-transformation.gif" alt-text="Graphical representation of the transformations." border="false":::
 
 ## <a id="run"></a>Run the Pig Latin job
 
-HDInsight can run Pig Latin jobs by using a variety of methods. Use the following table to decide which method is right for you, then follow the link for a walkthrough.
+HDInsight can run Pig Latin jobs by using various methods. Use the following table to decide which method is right for you, then follow the link for a walkthrough.
 
 ## Pig and SQL Server Integration Services
 
@@ -89,15 +86,15 @@ Now that you have learned how to use Pig with HDInsight, use the following links
 
 * [Upload data to HDInsight](hdinsight-upload-data.md)
 * [Use Apache Hive with HDInsight](./hadoop/hdinsight-use-hive.md)
-* [Use Apache Sqoop with HDInsight](hdinsight-use-sqoop.md)
+* [Use Apache Sqoop with HDInsight](./hadoop/hdinsight-use-sqoop.md)
 * [Use MapReduce jobs with HDInsight](./hadoop/hdinsight-use-mapreduce.md)
 
 [apachepig-home]: https://pig.apache.org/
 [putty]: https://www.chiark.greenend.org.uk/~sgtatham/putty/download.html
 [curl]: https://curl.haxx.se/
-[pigtask]: https://msdn.microsoft.com/library/mt146781(v=sql.120).aspx
-[connectionmanager]: https://msdn.microsoft.com/library/mt146773(v=sql.120).aspx
-[ssispack]: https://msdn.microsoft.com/library/mt146770(v=sql.120).aspx
+[pigtask]: /sql/integration-services/control-flow/azure-hdinsight-pig-task?viewFallbackFrom=sql-server-2014
+[connectionmanager]: /sql/integration-services/connection-manager/azure-subscription-connection-manager?viewFallbackFrom=sql-server-2014
+[ssispack]: /sql/integration-services/azure-feature-pack-for-integration-services-ssis?viewFallbackFrom=sql-server-2014
 [hdinsight-admin-powershell]: hdinsight-administer-use-powershell.md
 
 [hdinsight-use-hive]:../hdinsight-use-hive.md
@@ -110,4 +107,3 @@ Now that you have learned how to use Pig with HDInsight, use the following links
 [powershell-start]: https://technet.microsoft.com/library/hh847889.aspx
 
 
-[image-hdi-pig-data-transformation]: ./media/use-pig/hdi-data-transformation.gif

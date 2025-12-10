@@ -1,21 +1,17 @@
 ---
 title: Copy data from Azure Blob Storage to Azure SQL Database
 description: 'This tutorial provides step-by-step instructions for copying  data from Azure Blob Storage to Azure SQL Database.'
-services: data-factory
-documentationcenter: ''
-author: linda33wj
-manager: shwang
-ms.reviewer: douglasl
-
-ms.service: data-factory
-ms.workload: data-services
+author: jianleishen
 ms.topic: tutorial
-ms.date: 11/08/2019
-ms.author: jingwang
+ms.date: 10/03/2024
+ms.subservice: data-movement
+ms.author: jianleishen
+ms.custom: sfi-ropc-nochange
 ---
+
 # Copy data from Azure Blob to Azure SQL Database using Azure Data Factory
 
-[!INCLUDE[appliesto-adf-xxx-md](includes/appliesto-adf-xxx-md.md)]
+[!INCLUDE[appliesto-adf-asa-md](includes/appliesto-adf-asa-md.md)]
 
 In this tutorial, you create a Data Factory pipeline that copies data from Azure Blob Storage to Azure SQL Database. The configuration pattern in this tutorial applies to copying from a file-based data store to a relational data store. For a list of data stores supported as sources and sinks, see [supported data stores and formats](copy-activity-overview.md#supported-data-stores-and-formats).
 
@@ -31,19 +27,19 @@ You take the following steps in this tutorial:
 
 This tutorial uses .NET SDK. You can use other mechanisms to interact with Azure Data Factory; refer to samples under **Quickstarts**.
 
-If you don't have an Azure subscription, create a [free Azure account](https://azure.microsoft.com/free/) before you begin.
+If you don't have an Azure subscription, create a [free Azure account](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn) before you begin.
 
 ## Prerequisites
 
 * *Azure Storage account*. You use the blob storage as *source* data store. If you don't have an Azure storage account, see [Create a general-purpose storage account](../storage/common/storage-account-create.md).
-* *Azure SQL Database*. You use the database as *sink* data store. If you don't have a database in Azure SQL Database, see the [Create a database in Azure SQL Database](../azure-sql/database/single-database-create-quickstart.md).
+* *Azure SQL Database*. You use the database as *sink* data store. If you don't have a database in Azure SQL Database, see the [Create a database in Azure SQL Database](/azure/azure-sql/database/single-database-create-quickstart).
 * *Visual Studio*. The walkthrough in this article uses Visual Studio 2019.
 * *[Azure SDK for .NET](/dotnet/azure/dotnet-tools)*.
-* *Azure Active Directory application*. If you don't have an Azure Active Directory application, see the [Create an Azure Active Directory application](../active-directory/develop/howto-create-service-principal-portal.md#register-an-application-with-azure-ad-and-create-a-service-principal) section of [How to: Use the portal to create an Azure AD application](../active-directory/develop/howto-create-service-principal-portal.md). Copy the following values for use in later steps: **Application (client) ID**, **authentication key**, and **Directory (tenant) ID**. Assign the application to the **Contributor** role by following the instructions in the same article.
+* *Microsoft Entra application*. If you don't have a Microsoft Entra application, see the [Create a Microsoft Entra application](../active-directory/develop/howto-create-service-principal-portal.md#register-an-application-with-azure-ad-and-create-a-service-principal) section of [How to: Use the portal to create a Microsoft Entra application](../active-directory/develop/howto-create-service-principal-portal.md). Copy the following values for use in later steps: **Application (client) ID**, **authentication key**, and **Directory (tenant) ID**. Assign the application to the **Contributor** role by following the instructions in the same article.
 
 ### Create a blob and a SQL table
 
-Now, prepare your Azure Blob and Azure SQL Database for the tutorial by creating a source blog and a sink SQL table.
+Now, prepare your Azure Blob and Azure SQL Database for the tutorial by creating a source blob and a sink SQL table.
 
 #### Create a source blob
 
@@ -559,7 +555,7 @@ Checking copy activity run details...
 Press any key to exit...
 ```
 
-## Next steps
+## Related content
 
 The pipeline in this sample copies data from one location to another location in an Azure blob storage. You learned how to:
 

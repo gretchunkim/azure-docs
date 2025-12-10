@@ -1,31 +1,25 @@
 ---
-title: Troubleshooting connectivity problems between Azure VMs | Microsoft Docs
-description: Learn how to troubleshoot and resolve the connectivity problems that you might experience between Azure VMs.
+title: Troubleshooting connectivity problems between Azure VMs
+description: Learn how to troubleshoot and resolve the connectivity problems that you might experience between Azure virtual machines (VMs).
 services: virtual-network
-documentationcenter: na
-author: chadmath
+author: asudbring
 manager: dcscontentpm
-editor: ''
-tags: azure-resource-manager
-
-ms.service: virtual-network
-ms.devlang: na
+ms.service: azure-virtual-network
 ms.topic: troubleshooting
-ms.tgt_pltfrm: na
-ms.workload: infrastructure-services
-ms.date: 10/30/2018
-ms.author: genli
+ms.date: 07/19/2023
+ms.author: allensu
+# Customer intent: "As a cloud administrator, I want to troubleshoot connectivity issues between Azure virtual machines, so that I can ensure optimal communication and functionality within my cloud infrastructure."
 ---
 
 # Troubleshooting connectivity problems between Azure VMs
 
 You might experience connectivity problems between Azure virtual machines (VMs). This article provides troubleshooting steps to help you resolve this problem. 
 
-[!INCLUDE [support-disclaimer](../../includes/support-disclaimer.md)]
+[!INCLUDE [support-disclaimer](~/reusable-content/ce-skilling/azure/includes/support-disclaimer.md)]
 
 ## Symptom
 
-One Azure VM cannot connect to another Azure VM.
+One Azure VM can't connect to another Azure VM.
 
 ## Troubleshooting guidance 
 
@@ -37,15 +31,18 @@ One Azure VM cannot connect to another Azure VM.
 6. [Check whether traffic is blocked by ACLs for the classic VM](#step-6-check-whether-traffic-is-blocked-by-acls-for-the-classic-vm)
 7. [Check whether the endpoint is created for the classic VM](#step-7-check-whether-the-endpoint-is-created-for-the-classic-vm)
 8. [Try to connect to a VM network share](#step-8-try-to-connect-to-a-vm-network-share)
-9. [Check Inter-Vnet connectivity](#step-9-check-inter-vnet-connectivity)
+9. [Check Inter-VNet connectivity](#step-9-check-inter-vnet-connectivity)
 
+> [!NOTE]  
+> You can also use Test-NetConnection module in PowerShell to diagnose information for a connection.
+> 
 ## Troubleshooting steps
 
 Follow these steps to troubleshoot the problem. After you complete each step, check whether the problem is resolved. 
 
 ### Step 1: Check whether NIC is misconfigured
 
-Follow the steps in [How to reset network interface for Azure Windows VM](../virtual-machines/windows/reset-network-interface.md). 
+Follow the steps in [How to reset network interface for Azure Windows VM](/troubleshoot/azure/virtual-machines/reset-network-interface). 
 
 If the problem occurs after you modify the network interface (NIC), follow these steps:
 
@@ -54,16 +51,16 @@ If the problem occurs after you modify the network interface (NIC), follow these
 1. Add a NIC.
 2. Fix the problems in the bad NIC or remove the bad NIC.  Then add the NIC again.
 
-For more information, see [Add network interfaces to or remove from virtual machines](virtual-network-network-interface-vm.md).
+For more information, see [Add network interfaces to or remove from virtual machines](virtual-network-network-interface-vm.yml).
 
 **Single-NIC VM** 
 
-- [Redeploy Windows VM](../virtual-machines/windows/redeploy-to-new-node.md)
-- [Redeploy Linux VM](../virtual-machines/linux/redeploy-to-new-node.md)
+- [Redeploy Windows VM](/troubleshoot/azure/virtual-machines/redeploy-to-new-node-windows)
+- [Redeploy Linux VM](/troubleshoot/azure/virtual-machines/redeploy-to-new-node-linux)
 
 ### Step 2: Check whether network traffic is blocked by NSG or UDR
 
-Use [Network Watcher IP Flow Verify](../network-watcher/network-watcher-ip-flow-verify-overview.md) and [NSG Flow Logging](../network-watcher/network-watcher-nsg-flow-logging-overview.md) to determine whether there is a Network Security Group (NSG) or User-Defined Route (UDR) that is interfering with traffic flow.
+Use [Network Watcher IP Flow Verify](../network-watcher/network-watcher-ip-flow-verify-overview.md) and [Connection troubleshoot](../network-watcher/network-watcher-connectivity-overview.md) to determine whether there's a Network Security Group (NSG) or User-Defined Route (UDR) that is interfering with traffic flow. You may need to add inbound rules on both NSGs. The rules must be at the subnet level and the virtual machine's interface level.
 
 ### Step 3: Check whether network traffic is blocked by VM firewall
 
@@ -87,7 +84,7 @@ netstat –ano
 netstat -l
 ```
 
-- Run the **telnet** command on the virtual machine itself to test the port. If the test fails, the application or service is not configured to listen on that port.
+- Run the **telnet** command on the virtual machine itself to test the port. If the test fails, the application or service isn't configured to listen on that port.
 
 ### Step 5: Check whether the problem is caused by SNAT
 
@@ -99,15 +96,15 @@ An  access control list (ACL) provides the ability to selectively permit or deny
 
 ### Step 7: Check whether the endpoint is created for the classic VM
 
-All VMs that you create in Azure by using the classic deployment model can automatically communicate over a private network channel with other virtual machines in the same cloud service or virtual network. However, computers on other virtual networks require endpoints to direct the inbound network traffic to a virtual machine. For more information, see [How to set up endpoints](../virtual-machines/windows/classic/setup-endpoints.md).
+All VMs that you create in Azure by using the classic deployment model can automatically communicate over a private network channel with other virtual machines in the same cloud service or virtual network. However, computers on other virtual networks require endpoints to direct the inbound network traffic to a virtual machine. For more information, see [How to set up endpoints](/previous-versions/azure/virtual-machines/windows/classic/setup-endpoints).
 
 ### Step 8: Try to connect to a VM network share
 
-If you cannot connect to a VM network share, the problem may be caused by unavailable NICs in the VM. To delete the unavailable NICs, see [How to delete the unavailable NICs](../virtual-machines/troubleshooting/reset-network-interface.md#delete-the-unavailable-nics)
+If you can't connect to a VM network share, the problem may be caused by unavailable NICs in the VM. To delete the unavailable NICs, see [How to delete the unavailable NICs](/troubleshoot/azure/virtual-machines/reset-network-interface#delete-the-unavailable-nics)
 
-### Step 9: Check Inter-Vnet connectivity
+### Step 9: Check Inter-VNet connectivity
 
-Use [Network Watcher IP Flow Verify](../network-watcher/network-watcher-ip-flow-verify-overview.md) and [NSG Flow Logging](../network-watcher/network-watcher-nsg-flow-logging-overview.md) to determine whether there is a NSG or UDR that is interfering with traffic flow. You can also verify your Inter-Vnet configuration [here](https://support.microsoft.com/en-us/help/4032151/configuring-and-validating-vnet-or-vpn-connections).
+Use [Network Watcher IP Flow Verify](../network-watcher/network-watcher-ip-flow-verify-overview.md) and [NSG Flow Logging](../network-watcher/network-watcher-nsg-flow-logging-overview.md) to determine whether there's an NSG or UDR that is interfering with traffic flow. You can also verify your Inter-VNet configuration [here](https://support.microsoft.com/en-us/help/4032151/configuring-and-validating-vnet-or-vpn-connections).
 
 ### Need help? Contact support.
 If you still need help, [contact support](https://portal.azure.com/?#blade/Microsoft_Azure_Support/HelpAndSupportBlade) to get your issue resolved quickly.

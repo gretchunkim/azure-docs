@@ -1,18 +1,18 @@
 ---
 title: Use the HBase .NET SDK - Azure HDInsight 
 description: Use the HBase .NET SDK to create and delete tables, and to read and write data.
-author: hrasheed-msft
-ms.author: hrasheed
-ms.reviewer: jasonh
-ms.service: hdinsight
+ms.service: azure-hdinsight
 ms.topic: how-to
-ms.custom: "hdinsightactive, devx-track-csharp"
-ms.date: 12/02/2019
+ms.custom: hdinsightactive, devx-track-csharp, devx-track-dotnet
+author: apurbasroy
+ms.author: apsinhar
+ms.reviewer: nijelsf
+ms.date:  05/09/2024
 ---
 
 # Use the .NET SDK for Apache HBase
 
-[Apache HBase](apache-hbase-overview.md) provides two primary choices to work with your data: [Apache Hive queries, and calls to HBase's RESTful API](apache-hbase-tutorial-get-started-linux.md). You can work directly with the REST API using the `curl` command or a similar utility.
+[Apache HBase](apache-hbase-overview.md) provides two primary choices to work with your data: [Apache Hive queries, and calls to the HBase REST API](apache-hbase-tutorial-get-started-linux.md). You can work directly with the REST API using the `curl` command or a similar utility.
 
 For C# and .NET applications, the [Microsoft HBase REST Client Library for .NET](https://www.nuget.org/packages/Microsoft.HBase.Client/) provides a client library on top of the HBase REST API.
 
@@ -41,7 +41,7 @@ HBase stores data in tables. A table consists of a *Rowkey*, the primary key, an
 
 The data is physically stored in *HFiles*. A single HFile contains data for one table, one region, and one column family. Rows in HFile are stored sorted on Rowkey. Each HFile has a *B+ Tree* index for speedy retrieval of the rows.
 
-To create a new table, specify a `TableSchema` and columns. The following code checks whether the table 'RestSDKTable` already exists - if not, the table is created.
+To create a new table, specify a `TableSchema` and columns. The following code checks whether the table `RestSDKTable` already exists - if not, the table is created.
 
 ```csharp
 if (!client.ListTablesAsync().Result.name.Contains("RestSDKTable"))
@@ -111,7 +111,7 @@ await client.StoreCellsAsync("RestSDKTable", set);
 
 HBase implements [Cloud BigTable](https://cloud.google.com/bigtable/), so the data format looks like the following image:
 
-![Apache HBase sample data output](./media/apache-hbase-rest-sdk/hdinsight-table-roles.png)
+:::image type="content" source="./media/apache-hbase-rest-sdk/hdinsight-table-roles.png" alt-text="Apache HBase sample data output." border="true":::
 
 ## Select data
 
@@ -169,7 +169,7 @@ try
     {
 	    foreach (var row in next.rows)
         {
-    	    // ... read the rows
+            // ... read the rows
         }
     }
 }
@@ -185,4 +185,4 @@ finally
 ## Next steps
 
 * [Get started with an Apache HBase example in HDInsight](apache-hbase-tutorial-get-started-linux.md)
-* Build an end-to-end application with [Analyze real-time Twitter sentiment with Apache HBase](../hdinsight-hbase-analyze-twitter-sentiment.md)
+* Build an end-to-end application with [Analyze real-time X sentiment with Apache HBase](./apache-hbase-tutorial-get-started-linux.md)

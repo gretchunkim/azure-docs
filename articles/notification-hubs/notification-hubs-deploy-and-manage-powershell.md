@@ -2,21 +2,21 @@
 title: Deploy and manage Notification Hubs using PowerShell
 description: How to create and manage Notification Hubs using PowerShell for Automation
 services: notification-hubs
-documentationcenter: ''
 author: sethmanheim
-manager: femila
+manager: lizross
 editor: jwargo
 
 ms.assetid: 7c58f2c8-0399-42bc-9e1e-a7f073426451
-ms.service: notification-hubs
-ms.workload: mobile
+ms.service: azure-notification-hubs
 ms.tgt_pltfrm: powershell
-ms.devlang: na
 ms.topic: article
 ms.date: 01/04/2019
 ms.author: sethm
 ms.reviewer: jowargo
 ms.lastreviewed: 01/04/2019
+ms.custom:
+  - devx-track-dotnet
+  - sfi-ropc-nochange
 ---
 
 # Deploy and manage notification hubs using PowerShell
@@ -30,7 +30,7 @@ This article shows you how to use Create and Manage Azure Notification Hubs usin
 
 If you also need to create a new service bus namespace for your notification hubs, see [Manage Service Bus with PowerShell](../service-bus-messaging/service-bus-manage-with-ps.md).
 
-Managing Notifications Hubs is not supported directly by the cmdlets included with Azure PowerShell. The best approach from PowerShell is to reference the Microsoft.Azure.NotificationHubs.dll assembly. The assembly is distributed with the [Microsoft Azure Notification Hubs NuGet package](https://www.nuget.org/packages/Microsoft.Azure.NotificationHubs/).
+The cmdlets included with Azure PowerShell don't directly support managing Notification Hubs. The best approach from PowerShell is to reference the Microsoft.Azure.NotificationHubs.dll assembly. The assembly is distributed with the [Microsoft Azure Notification Hubs NuGet package](https://www.nuget.org/packages/Microsoft.Azure.NotificationHubs/).
 
 ## Prerequisites
 
@@ -42,7 +42,7 @@ Managing Notifications Hubs is not supported directly by the cmdlets included wi
 
 ## Including a reference to the .NET assembly for Service Bus
 
-Managing Azure Notification Hubs is not yet included with the PowerShell cmdlets in Azure PowerShell. To provision notification hubs, you can use the .NET client provided in the [Microsoft Azure Notification Hubs NuGet package](https://www.nuget.org/packages/Microsoft.Azure.NotificationHubs/).
+Managing Azure Notification Hubs isn't yet included with the PowerShell cmdlets in Azure PowerShell. To provision notification hubs, you can use the .NET client provided in the [Microsoft Azure Notification Hubs NuGet package](https://www.nuget.org/packages/Microsoft.Azure.NotificationHubs/).
 
 First, make sure your script can locate the **Microsoft.Azure.NotificationHubs.dll** assembly, which is installed as a NuGet package in a Visual Studio project. In order to be flexible, the script performs these steps:
 
@@ -74,7 +74,7 @@ catch [System.Exception]
 
 ## Create the `NamespaceManager` class
 
-To provision Notification Hubs, create an instance of the [NamespaceManager](/dotnet/api/microsoft.servicebus.namespacemanager?view=azure-dotnet) class from the SDK.
+To provision Notification Hubs, create an instance of the [NamespaceManager](/dotnet/api/microsoft.servicebus.namespacemanager) class from the SDK.
 
 You can use the [Get-AzureSBAuthorizationRule] cmdlet included with Azure PowerShell to retrieve an authorization rule that's used to provide a connection string. A reference to the `NamespaceManager` instance is stored in the `$NamespaceManager` variable. `$NamespaceManager` is used to provision a notification hub.
 
@@ -93,14 +93,14 @@ To provision a new notification hub, use the [.NET API for Notification Hubs].
 In this part of the script, you set up four local variables.
 
 1. `$Namespace`: Set this to the name of the namespace where you want to create a notification hub.
-2. `$Path`: Set this path to the name of the new notification hub.  For example, "MyHub".
+2. `$Path`: Set this path to the name of the new notification hub. For example, **MyHub**.
 3. `$WnsPackageSid`: Set this to the package SID for your Windows App from the [Windows Dev Center](https://developer.microsoft.com/en-us/windows).
 4. `$WnsSecretkey`: Set this to the secret key for your Windows App from the [Windows Dev Center](https://developer.microsoft.com/en-us/windows).
 
 These variables are used to connect to your namespace and create a new Notification Hub configured to handle Windows Notification Services (WNS) notifications with WNS credentials for a Windows App. For information on obtaining the package SID and secret key see, the [Getting Started with Notification Hubs](notification-hubs-windows-store-dotnet-get-started-wns-push-notification.md) tutorial.
 
 - The script snippet uses the `NamespaceManager` object to check to see if the Notification Hub identified by `$Path` exists.
-- If it does not exist, the script creates `NotificationHubDescription` with WNS credentials and passes it to the `NamespaceManager` class `CreateNotificationHub` method.
+- If it doesn't exist, the script creates `NotificationHubDescription` with WNS credentials and passes it to the `NamespaceManager` class `CreateNotificationHub` method.
 
 ``` powershell
 $Namespace = "<Enter your namespace>"
@@ -158,7 +158,7 @@ Some ready-made scripts are also available for download:
 [Member Offers]: https://azure.microsoft.com/pricing/member-offers/
 [Free Trial]: https://azure.microsoft.com/pricing/free-trial/
 [Install and configure Azure PowerShell]: /powershell/azure/
-[.NET API for Notification Hubs]: /dotnet/api/overview/azure/notification-hubs?view=azure-dotnet
+[.NET API for Notification Hubs]: /dotnet/api/overview/azure/notification-hubs
 [Get-AzureSBNamespace]: /powershell/module/servicemanagement/azure.service/get-azuresbnamespace
 [New-AzureSBNamespace]: /powershell/module/servicemanagement/azure.service/new-azuresbnamespace
-[Get-AzureSBAuthorizationRule]: /powershell/module/servicemanagement/azure.service/get-azuresbauthorizationrule
+[Get-AzureSBAuthorizationRule]: /powershell/module/servicemanagement/azure/get-azuresbauthorizationrule

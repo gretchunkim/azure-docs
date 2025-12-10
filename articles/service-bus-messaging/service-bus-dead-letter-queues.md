@@ -1,100 +1,29 @@
 ---
 title: Service Bus dead-letter queues | Microsoft Docs
 description: Describes dead-letter queues in Azure Service Bus. Service Bus queues and topic subscriptions provide a secondary subqueue, called a dead-letter queue.
-ms.topic: article
-ms.date: 06/23/2020
-ms.custom: "fasttrack-edit, devx-track-csharp"
+ms.topic: concept-article
+ms.date: 05/15/2025
+ms.custom:
+  - "fasttrack-edit, devx-track-csharp"
+  - build-2025
+#customer intent: As an architect or a developer, I want to understand how dead-lettering of messages work in Azure Service Bus.
 ---
 
 # Overview of Service Bus dead-letter queues
 
-Azure Service Bus queues and topic subscriptions provide a secondary subqueue, called a *dead-letter queue* (DLQ). The dead-letter queue doesn't need to be explicitly created and can't be deleted or otherwise managed independent of the main entity.
+Azure Service Bus queues and topic subscriptions provide a secondary subqueue, called a _dead-letter queue_ (DLQ). The dead-letter queue doesn't need to be explicitly created and can't be deleted or managed independent of the main entity.
 
-This article describes dead-letter queues in Service Bus. Much of the discussion is illustrated by the [Dead-Letter queues sample](https://github.com/Azure/azure-service-bus/tree/master/samples/DotNet/Microsoft.ServiceBus.Messaging/DeadletterQueue) on GitHub.
- 
+This article describes dead-letter queues in Service Bus. Much of the discussion is illustrated by the [Dead-Letter queues sample](https://github.com/Azure/azure-sdk-for-net/tree/main/sdk/servicebus/Azure.Messaging.ServiceBus/samples/DeadLetterQueue) on GitHub.
 ## The dead-letter queue
 
-The purpose of the dead-letter queue is to hold messages that can't be delivered to any receiver, or messages that couldn't be processed. Messages can then be removed from the DLQ and inspected. An application might, with help of an operator, correct issues and resubmit the message, log the fact that there was an error, and take corrective action. 
+The purpose of the dead-letter queue is to hold messages that can't be delivered to any receiver, or messages that couldn't be processed. Messages can then be removed from the DLQ and inspected. An application might let a user correct issues and resubmit the message.
 
-From an API and protocol perspective, the DLQ is mostly similar to any other queue, except that messages can only be submitted via the dead-letter operation of the parent entity. In addition, time-to-live isn't observed, and you can't dead-letter a message from a DLQ. The dead-letter queue fully supports peek-lock delivery and transactional operations.
+From an API and protocol perspective, the DLQ is mostly similar to any other queue, except that messages can only be submitted via the dead-letter operation of the parent entity. In addition, time-to-live isn't observed, and you can't dead-letter a message from a DLQ. The dead-letter queue fully supports normal operations such as peek-lock delivery, receive-and-delete, and transactional operations.
 
-There's no automatic cleanup of the DLQ. Messages remain in the DLQ until you explicitly retrieve them from the DLQ and call [Complete()](/dotnet/api/microsoft.azure.servicebus.queueclient.completeasync) on the dead-letter message.
-
-## DLQ message count
-It's not possible to obtain count of messages in the dead-letter queue at the topic level. That's because messages don't sit at the topic level unless Service Bus throws an internal error. Instead, when a sender sends a message to a topic, the message is forwarded to subscriptions for the topic within milliseconds and thus no longer resides at the topic level. So, you can see messages in the DLQ associated with the subscription for the topic. In the following example, **Service Bus Explorer** shows that there are 62 messages currently in the DLQ for the subscription "test1". 
-
-![DLQ message count](./media/service-bus-dead-letter-queues/dead-letter-queue-message-count.png)
-
-You can also get the count of DLQ messages by using Azure CLI command: [`az servicebus topic subscription show`](/cli/azure/servicebus/topic/subscription?view=azure-cli-latest#az-servicebus-topic-subscription-show). 
-
-## Moving messages to the DLQ
-
-There are several activities in Service Bus that cause messages to get pushed to the DLQ from within the messaging engine itself. An application can also explicitly move messages to the DLQ. 
-
-As the message gets moved by the broker, two properties are added to the message as the broker calls its internal version of the [DeadLetter](/dotnet/api/microsoft.azure.servicebus.queueclient.deadletterasync) method on the message: `DeadLetterReason` and `DeadLetterErrorDescription`.
-
-Applications can define their own codes for the `DeadLetterReason` property, but the system sets the following values.
-
-| DeadLetterReason | DeadLetterErrorDescription |
-| --- | --- |
-|HeaderSizeExceeded |The size quota for this stream has been exceeded. |
-|TTLExpiredException |The message expired and was dead lettered. See the [Exceeding TimeToLive](#exceeding-timetolive) section for details. |
-|Session ID is null. |Session enabled entity doesn't allow a message whose session identifier is null. |
-|MaxTransferHopCountExceeded | The maximum number of allowed hops when forwarding between queues. Value is set to 4. |
-| MaxDeliveryCountExceededExceptionMessage | Message could not be consumed after maximum delivery attempts. See the [Exceeding MaxDeliveryCount](#exceeding-maxdeliverycount) section for details. |
-
-## Exceeding MaxDeliveryCount
-
-Queues and subscriptions each have a [QueueDescription.MaxDeliveryCount](/dotnet/api/microsoft.servicebus.messaging.queuedescription.maxdeliverycount) and [SubscriptionDescription.MaxDeliveryCount](/dotnet/api/microsoft.servicebus.messaging.subscriptiondescription.maxdeliverycount) property respectively; the default value is 10. Whenever a message has been delivered under a lock ([ReceiveMode.PeekLock](/dotnet/api/microsoft.azure.servicebus.receivemode)), but has been either explicitly abandoned or the lock has expired, the message [BrokeredMessage.DeliveryCount](/dotnet/api/microsoft.servicebus.messaging.brokeredmessage) is incremented. When [DeliveryCount](/dotnet/api/microsoft.servicebus.messaging.brokeredmessage) exceeds [MaxDeliveryCount](/dotnet/api/microsoft.servicebus.messaging.queuedescription.maxdeliverycount), the message is moved to the DLQ, specifying the `MaxDeliveryCountExceeded` reason code.
-
-This behavior can't be disabled, but you can set [MaxDeliveryCount](/dotnet/api/microsoft.servicebus.messaging.queuedescription.maxdeliverycount) to a large number.
-
-## Exceeding TimeToLive
-
-When the [QueueDescription.EnableDeadLetteringOnMessageExpiration](/dotnet/api/microsoft.servicebus.messaging.queuedescription) or [SubscriptionDescription.EnableDeadLetteringOnMessageExpiration](/dotnet/api/microsoft.servicebus.messaging.subscriptiondescription) property is set to **true** (the default is **false**), all expiring messages are moved to the DLQ, specifying the  `TTLExpiredException` reason code.
-
-Expired messages are only purged and moved to the DLQ when there is at least one active receiver pulling from the main queue or subscription, and [deferred messages](./message-deferral.md) will also not be purged and moved to the dead-letter queue after they expire. These behaviours are by design.
-
-## Errors while processing subscription rules
-
-When the [SubscriptionDescription.EnableDeadLetteringOnFilterEvaluationExceptions](/dotnet/api/microsoft.servicebus.messaging.subscriptiondescription) property is enabled for a subscription, any errors that occur while a subscription's SQL filter rule executes are captured in the DLQ along with the offending message.
-
-## Application-level dead-lettering
-
-In addition to the system-provided dead-lettering features, applications can use the DLQ to explicitly reject unacceptable messages. They can include messages that can't be properly processed because of any sort of system issue, messages that hold malformed payloads, or messages that fail authentication when some message-level security scheme is used.
-
-## Dead-lettering in ForwardTo or SendVia scenarios
-
-Messages will be sent to the transfer dead-letter queue under the following conditions:
-
-- A message passes through more than four queues or topics that are [chained together](service-bus-auto-forwarding.md).
-- The destination queue or topic is disabled or deleted.
-- The destination queue or topic exceeds the maximum entity size.
-
-To retrieve these dead-lettered messages, you can create a receiver using the [FormatTransferDeadletterPath](/dotnet/api/microsoft.azure.servicebus.entitynamehelper.formattransferdeadletterpath) utility method.
-
-## Example
-
-The following code snippet creates a message receiver. In the receive loop for the main queue, the code retrieves the message with [Receive(TimeSpan.Zero)](/dotnet/api/microsoft.servicebus.messaging.messagereceiver), which asks the broker to instantly return any message readily available, or to return with no result. If the code receives a message, it immediately abandons it, which increments the  `DeliveryCount`. Once the system moves the message to the DLQ, the main queue is empty and the loop exits, as [ReceiveAsync](/dotnet/api/microsoft.servicebus.messaging.messagereceiver) returns **null**.
-
-```csharp
-var receiver = await receiverFactory.CreateMessageReceiverAsync(queueName, ReceiveMode.PeekLock);
-while(true)
-{
-    var msg = await receiver.ReceiveAsync(TimeSpan.Zero);
-    if (msg != null)
-    {
-        Console.WriteLine("Picked up message; DeliveryCount {0}", msg.DeliveryCount);
-        await msg.AbandonAsync();
-    }
-    else
-    {
-        break;
-    }
-}
-```
+There's no automatic cleanup of the DLQ. Messages remain in the DLQ until you explicitly retrieve them from the DLQ and complete the dead-letter message.
 
 ## Path to the dead-letter queue
+
 You can access the dead-letter queue by using the following syntax:
 
 ```
@@ -102,13 +31,77 @@ You can access the dead-letter queue by using the following syntax:
 <topic path>/Subscriptions/<subscription path>/$deadletterqueue
 ```
 
-If you're using the .NET SDK, you can get the path to the dead-letter queue by using the SubscriptionClient.FormatDeadLetterPath() method. This method takes the topic name/subscription name and suffixes with **/$DeadLetterQueue**.
+In .NET, you can use the `FormatDeadLetterPath` method.
 
+```csharp
+QueueClient.FormatDeadLetterPath(queuePath)
+SubscriptionClient.FormatDeadLetterPath(topicPath, subscriptionName)
+```
 
-## Next steps
+## DLQ message count
 
-See the following articles for more information about Service Bus queues:
+Obtaining count of messages in the dead-letter queue at the topic level isn't applicable because messages don't sit at the topic level. Instead, when a sender sends a message to a topic, the message is forwarded to subscriptions for the topic within milliseconds and thus no longer resides at the topic level. So, you can see messages in the DLQ associated with the subscription for the topic. In the following example, [Service Bus Explorer ](https://github.com/paolosalvatori/ServiceBusExplorer)shows that there are 62 messages currently in the DLQ for the subscription: test1.
 
-* [Get started with Service Bus queues](service-bus-dotnet-get-started-with-queues.md)
-* [Azure Queues and Service Bus queues compared](service-bus-azure-and-service-bus-queues-compared-contrasted.md)
+:::image type="content" source="./media/service-bus-dead-letter-queues/dead-letter-queue-message-count.png" alt-text="Image showing 62 messages in the dead-letter queue.":::
 
+You can also get the count of DLQ messages by using Azure CLI command: [`az servicebus topic subscription show`](/cli/azure/servicebus/topic/subscription#az-servicebus-topic-subscription-show).
+
+## Moving messages to the DLQ
+
+There are several activities in Service Bus that cause messages to get pushed to the DLQ from within the messaging engine itself. An application can also explicitly move messages to the DLQ. The following two properties (dead-letter reason and dead-letter description) are added to dead-lettered messages. Applications can define their own codes for the dead-letter reason property, but the system sets the following values.
+
+| Dead-letter reason            | Dead-letter error description                                                                                                                |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `HeaderSizeExceeded`          | The size quota for this stream exceeded the limit.                                                                                           |
+| `TTLExpiredException`         | The message expired and was dead lettered. See the [Time to live](#time-to-live) section for details.                                        |
+| `Session ID is null`.         | Session enabled entity doesn't allow a message whose session identifier is null.                                                             |
+| `MaxTransferHopCountExceeded` | The maximum number of allowed hops when forwarding between queues exceeded the limit. This value is set to 4.                                |
+| `MaxDeliveryCountExceeded`    | Message couldn't be consumed after maximum delivery attempts. See the [Maximum delivery count](#maximum-delivery-count) section for details. |
+
+## Time to live
+
+When you enable dead-lettering on queues or subscriptions, all expiring messages are moved to the DLQ. The dead-letter reason code is set to: `TTLExpiredException`. Deferred messages won't be purged and moved to the dead-letter queue after they expire. This behavior is by design.
+
+## Maximum delivery count
+
+There's a limit on number of attempts to deliver messages for Service Bus queues and subscriptions. The default value is 10. Whenever a message is delivered under a peek-lock, but is either explicitly abandoned or the lock is expired, the delivery count on the message is incremented. When the delivery count exceeds the limit, the message is moved to the DLQ. The dead-letter reason for the message in DLQ is set to: `MaxDeliveryCountExceeded`. This behavior can't be disabled, but you can set the max delivery count to a large number.
+
+## Errors while processing subscription rules
+
+If you enable dead-lettering on filter evaluation exceptions, any errors that occur while a subscription's SQL filter rule executes are captured in the DLQ along with the offending message. Don't use this option in a production environment where you have message types that are sent to the topic, which don't have subscribers, as it may result in a large load of DLQ messages. As such, ensure that all messages sent to the topic have at least one matching subscription.
+
+## Application-level dead-lettering
+
+In addition to the system-provided dead-lettering features, applications can use the DLQ to explicitly reject unacceptable messages. They can include messages that can't be properly processed because of any sort of system issue, messages that hold malformed payloads, or messages that fail authentication when some message-level security scheme is used.
+
+In .NET, it can be done by calling [ServiceBusReceiver.DeadLetterMessageAsync method](/dotnet/api/azure.messaging.servicebus.servicebusreceiver.deadlettermessageasync).
+
+We recommend that you include the type of the exception in the `DeadLetterReason` and the stack trace of the exception in the `DeadLetterDescription` as it makes it easier to troubleshoot the cause of the problem resulting in messages being dead-lettered. It might result in some messages exceeding [the 256 KB quota limit for the Standard Tier of Azure Service Bus](./service-bus-quotas.md). You can [upgrade your Service Bus namespace from the standard tier to the premium tier](service-bus-migrate-standard-premium.md) to have higher [quotas and limits](service-bus-quotas.md).
+
+## Dead-lettering in auto forward scenarios
+
+Messages are sent to the dead-letter queue under the following conditions:
+
+- A message passes through more than four queues or topics that are [chained together](service-bus-auto-forwarding.md).
+- The destination queue or topic is disabled or deleted.
+- The destination queue or topic exceeds the maximum entity size.
+
+## Dead-lettering in send via scenarios
+
+- If the destination queue or topic is disabled, the message is sent to the transfer dead letter queue (TDLQ) of the source queue.
+- If the destination queue or entity exceeds the entity size, the message is sent to a TDLQ of the source queue.
+
+## Sending dead-lettered messages to be reprocessed
+
+Once you resolve the issue that caused the message to be dead lettered, you can resubmit it to the queue or topic to be reprocessed.
+In some cases, if there are many messages in the dead-letter queue that need to be moved, [code like this](https://stackoverflow.com/a/68632602/151350) can help move them all at once. Operators often prefer having a user interface so they can troubleshoot which message types failed processing, from which source queues, and for what reasons, while still being able to resubmit batches of messages to be reprocessed.
+
+### Available tools
+
+- [Azure Service Bus Explorer](./explorer.md) enables manual moving of messages between queues and topics. It allows you to look through the list of messages and resend them to be reprocessed. It's available through the Azure portal, regardless of the SDK you're using to send messages.
+- [ServicePulse with NServiceBus](https://docs.particular.net/servicepulse/intro-failed-messages) streamlines your error handling with this centralized dashboard. Quickly visualize, group, filter, and search errors, and efficiently retry individual or grouped messages. Available for NServiceBus endpoints.
+- [ServicePulse with MassTransit](https://docs.particular.net/platform/masstransit) provides a centralized dashboard for error management. You can visualize, group, filter, and search errors using various criteria. It also enables editing and retrying individual messages, or batch retrying groups of messages. Available for MassTransit endpoints.
+
+## Related content
+
+See [Enable dead lettering for a queue or subscription](enable-dead-letter.md) to learn about different ways of configuring the **dead lettering on message expiration** setting.

@@ -1,170 +1,145 @@
 ---
-title: Architectural concepts in Azure IoT Central | Microsoft Docs
-description: This article introduces key concepts relating the architecture of Azure IoT Central
+title: Azure IoT Central solution architecture
+description: This article introduces key IoT Central architectural concepts such as device management, security, integration, and extensibility.
 author: dominicbetts
 ms.author: dobett
-ms.date: 11/27/2019
+ms.date: 04/15/2025
 ms.topic: conceptual
-ms.service: iot-central
+ms.service: azure-iot-central
 services: iot-central
-manager: philmea
+ms.custom: [iot-central-frontdoor]
 ---
 
 # Azure IoT Central architecture
 
+IoT Central is a ready-made environment that lets you quickly evaluate your IoT scenario. It's an application platform as a service (aPaaS) IoT solution and its primary interface is a web UI. There's also a [REST API](#extend-with-rest-api) that lets you interact with your application programmatically.
 
+This article provides an overview of the key elements in an IoT Central solution architecture.
 
-This article provides an overview of the Microsoft Azure IoT Central architecture.
+:::image type="content" source="media/concepts-architecture/architecture.png" alt-text="Diagram that shows the high-level architecture of an I o T Central solution." border="false" lightbox="media/concepts-architecture/architecture.png":::
 
-![Top-level architecture](media/concepts-architecture/architecture.png)
+Key capabilities in an IoT Central application include:
+
+### Manage devices
+
+IoT Central lets you manage the fleet of [IoT devices](#devices) that are sending data to your solution. For example, you can:
+
+- Control which devices can [connect](overview-iot-central-developer.md#how-devices-connect) to your application and how they authenticate.
+- Use [device templates](concepts-device-templates.md) to define the types of device that can connect to your application.
+- Manage devices by setting properties or calling commands on connected devices. For example, set a target temperature property for a thermostat device or call a command to trigger a device to update its firmware. You can set properties and call commands on:
+  - Individual devices through a [customizable](concepts-device-templates.md#views) web UI.
+  - Multiple devices with scheduled or on-demand [jobs](howto-manage-devices-in-bulk.md).
+- Maintain [device metadata such](concepts-device-templates.md#cloud-properties) as customer address or last service date.
+
+### View and analyze data
+
+In an IoT Central application, you can view and analyze data for individual devices or for aggregated data from multiple devices:
+
+- Use [mapping](howto-map-data.md) to transform complex device telemetry into structured data inside IoT Central.
+- Use device templates to define [custom views](howto-set-up-template.md#views) for individual devices of specific types. For example, you can plot temperature over time for an individual thermostat or show the live location of a delivery truck.
+- Use the built-in [analytics](tutorial-use-device-groups.md) to view aggregate data for multiple devices. For example, you can see the total occupancy across multiple retail stores or identifying the stores with the highest or lowest occupancy rates.
+- Create custom [dashboards](howto-manage-dashboards.md) to help you manage your devices. For example, you can add maps, tiles, and charts to show device telemetry.  
+
+### Secure your solution
+
+In IoT Central, you can configure and manage security in the following areas:
+
+- User access to your application.
+- Device access to your application.
+- Programmatic access to your application.
+- Authentication to other services from your application.
+- Audit logs track activity in your application.
+
+To learn more, see the [IoT Central security guide](overview-iot-central-security.md).
 
 ## Devices
 
-Devices exchange data with your Azure IoT Central application. A device can:
+Devices collect data from sensors to send as a stream of telemetry to an IoT Central application. For example, a refrigeration unit sends a stream of temperature values or a delivery truck streams its location.
 
-- Send measurements such as telemetry.
-- Synchronize settings with your application.
+A device can use properties to report its state, such as whether a valve is open or closed. An IoT Central application can also use properties to set device state, for example setting a target temperature for a thermostat.
 
-In Azure IoT Central, the data that a device can exchange with your application is specified in a device template. For more information about device templates, see [Metadata management](#metadata-management).
+IoT Central can also control devices by calling commands on the device. For example, instructing a device to download and install a firmware update.
 
-To learn more about how devices connect to your Azure IoT Central application, see [Device connectivity](concepts-get-connected.md).
+The telemetry, properties, and commands that a device implements are collectively known as the device capabilities. You define these capabilities in a model that the device and the IoT Central application share. In IoT Central, this model is part of the device template that defines a specific type of device. To learn more, see [Assign a device to a device template](concepts-device-templates.md#assign-a-device-to-a-device-template).
 
-## Azure IoT Edge devices
+The device implementation should follow the [IoT Plug and Play conventions](../../iot/concepts-convention.md) to ensure that it can communicate with IoT Central. For more information, see the various language [SDKs and samples](../../iot/iot-sdks.md).
 
-As well as devices created using the [Azure IoT SDKs](https://github.com/Azure/azure-iot-sdks), you can also connect [Azure IoT Edge devices](../../iot-edge/about-iot-edge.md) to an IoT Central application. IoT Edge lets you run cloud intelligence and custom logic directly on IoT devices managed by IoT Central. The IoT Edge runtime enables you to:
+Devices connect to IoT Central using one the supported protocols: [MQTT, AMQP, or HTTP](../../iot-hub/iot-hub-devguide-protocols.md).
 
-- Install and update workloads on the device.
-- Maintain IoT Edge security standards on the device.
-- Ensure that IoT Edge modules are always running.
-- Report module health to the cloud for remote monitoring.
-- Manage communication between downstream leaf devices and an IoT Edge device, between modules on an IoT Edge device, and between an IoT Edge device and the cloud.
+## Gateways
 
-![Azure IoT Central with Azure IoT Edge](./media/concepts-architecture/iotedge.png)
+Local gateway devices are useful in several scenarios, such as:
 
-IoT Central enables the following capabilities to for IoT Edge devices:
+- Devices can't connect directly to IoT Central because they can't connect to the internet. For example, you might have a collection of Bluetooth enabled occupancy sensors that need to connect through a gateway device.
+- The quantity of data generated by your devices is high. To reduce costs, combine or aggregate the data in a local gateway before you send it to your IoT Central application.
+- Your solution requires fast responses to anomalies in the data. You can run rules on a gateway device that identify anomalies and take an action locally without the need to send data to your IoT Central application.
 
-- Device templates to describe the capabilities of an IoT Edge device, such as:
-  - Deployment manifest upload capability, which helps you manage a manifest for a fleet of devices.
-  - Modules that run on the IoT Edge device.
-  - The telemetry each module sends.
-  - The properties each module reports.
-  - The commands each module responds to.
-  - The relationships between an IoT Edge gateway device capability model and downstream device capability model.
-  - Cloud properties that aren't stored on the IoT Edge device.
-  - Customizations, dashboards, and forms that are part of your IoT Central application.
+Gateway devices typically require more processing power than a standalone device. One option to implement a gateway device is to use [Azure IoT Edge and apply one of the standard IoT Edge gateway patterns](concepts-iot-edge.md). You can also run your own custom gateway code on a suitable device.
 
-  For more information, see the [Connect Azure IoT Edge devices to an Azure IoT Central application](./concepts-iot-edge.md) article.
+## Export data
 
-- The ability to provision IoT Edge devices at scale using Azure IoT device provisioning service
-- Rules and actions.
-- Custom dashboards and analytics.
-- Continuous data export of telemetry from IoT Edge devices.
+Although IoT Central has built-in analytics features, you can export data to other services and applications.
 
-### IoT Edge device types
+[Transformations](howto-transform-data-internally.md) in an IoT Central data export definition let you manipulate the format and structure of the device data before exporting it to a destination.
 
-IoT Central classifies IoT Edge device types as follows:
+Reasons to export data include:
 
-- Leaf devices. An IoT Edge device can have downstream leaf devices, but these devices aren't provisioned in IoT Central.
-- Gateway devices with downstream devices. Both gateway device and downstream devices are provisioned in IoT Central
+### Storage and analysis
 
-![IoT Central with IoT Edge Overview](./media/concepts-architecture/gatewayedge.png)
+For long-term storage and control over archiving and retention policies, you can [continuously export your data](howto-export-to-blob-storage.md) to other storage destinations. The use of a separate storage service outside of IoT Central lets you use other analytics tools to derive insights from the data in your solution.
 
-### IoT Edge patterns
+### Business automation
 
-IoT Central supports the following IoT Edge device patterns:
+[Rules](howto-configure-rules-advanced.md) in IoT Central let your trigger external actions, such as to send an email or fire an event, in response to conditions within IoT Central. For example, you can notify an engineer if the ambient temperature for a device reaches a threshold.
 
-#### IoT Edge as leaf device
+### Additional computation
 
-![IoT Edge as leaf device](./media/concepts-architecture/edgeasleafdevice.png)
+You might need to [transform or do computations](howto-transform-data.md) on your data before it can be used either in IoT Central or another service. For example, you could add local weather information to the location data reported by a delivery truck.
 
-The IoT Edge device is provisioned in IoT Central and any downstream devices and their telemetry is represented as coming from the IoT Edge device. Downstream devices connected to the IoT Edge device aren't provisioned in IoT Central.
+## Extend with REST API
 
-#### IoT Edge gateway device connected to downstream devices with identity
+Build integrations that let other applications and services manage your application. For example, programmatically [manage the devices](howto-control-devices-with-rest-api.md) in your application or synchronize [user information](howto-manage-users-roles-with-rest-api.md) with an external system.
 
-![IoT Edge with downstream device identity](./media/concepts-architecture/edgewithdownstreamdeviceidentity.png)
+## Scalability
 
-The IoT Edge device is provisioned in IoT Central along with the downstream devices connected to the IoT Edge device. Runtime support for provisioning downstream devices through the gateway isn't currently supported.
+IoT Central applications internally use multiple Azure services such as IoT Hub and the Device Provisioning Service (DPS). Many of these underlying services are multi-tenanted. However, to ensure the full isolation of customer data, IoT Central uses single-tenant IoT hubs.
 
-#### IoT Edge gateway device connected to downstream devices with identity provided by the IoT Edge gateway
+IoT Central automatically scales its IoT hubs based on the load profiles in your application. IoT Central can scale up individual IoT hubs and scale out the number of IoT hubs in an application. IoT Central also automatically scales other underlying services.
 
-![IoT Edge with downstream device without identity](./media/concepts-architecture/edgewithoutdownstreamdeviceidentity.png)
+### Data export
 
-The IoT Edge device is provisioned in IoT Central along with the downstream devices connected to the IoT Edge device. Runtime support of gateway providing identity to downstream devices and provisioning of downstream devices isn't currently supported. If you bring your own identity translation module, IoT Central can support this pattern.
+IoT Central applications often use other, user configured services. For example, you can configure your IoT Central application to continuously export data to services such as Azure Event Hubs and Azure Blob Storage.
 
-## Cloud gateway
+If a configured data export can't write to its destination, IoT Central tries to retransmit the data for up to 15 minutes, after which IoT Central marks the destination as failed. Failed destinations are periodically checked to verify if they're writable.
 
-Azure IoT Central uses Azure IoT Hub as a cloud gateway that enables device connectivity. IoT Hub enables:
+You can force IoT Central to restart the failed exports by disabling and re-enabling the data export.
 
-- Data ingestion at scale in the cloud.
-- Device management.
-- Secure device connectivity.
+Review the high availability and scalability best practices for the data export destination service you're using:
 
-To learn more about IoT Hub, see [Azure IoT Hub](https://docs.microsoft.com/azure/iot-hub/).
+- Azure Blob Storage: [Azure Storage redundancy](../../storage/common/storage-redundancy.md) and [Performance and scalability checklist for Blob storage](../../storage/blobs/storage-performance-checklist.md)
+- Azure Event Hubs: [Availability and consistency in Event Hubs](../../event-hubs/event-hubs-availability-and-consistency.md) and [Scaling with Event Hubs](../../event-hubs/event-hubs-scalability.md)
+- Azure Service Bus: [Best practices for insulating applications against Service Bus outages and disasters](../../service-bus-messaging/service-bus-outages-disasters.md) and [Automatically update messaging units of an Azure Service Bus namespace](../../service-bus-messaging/automate-update-messaging-units.md)
 
-To learn more about device connectivity in Azure IoT Central, see [Device connectivity](concepts-get-connected.md).
+## High availability and disaster recovery
 
-## Data stores
+HADR capabilities depend on when you created your IoT Central application:
 
-Azure IoT Central stores application data in the cloud. Application data stored includes:
+### Applications created before April 2021
 
-- Device templates.
-- Device identities.
-- Device metadata.
-- User and role data.
+Some applications created before April 2021 use a single IoT hub. For these applications, IoT Central doesn't provide HADR capabilities. If the IoT hub becomes unavailable, the application becomes unavailable.
 
-Azure IoT Central uses a time series store for the measurement data sent from your devices. Time series data from devices used by the analytics service.
+Use the `az iot central device manual-failover` command to check if your application still uses a single IoT hub. This command returns an error if the application has a single IoT hub.
 
-## Analytics
+### Applications created after April 2021 and before April 2023
 
-The analytics service is responsible for generating the custom reporting data that the application displays. An operator can [customize the analytics](howto-create-analytics.md) displayed in the application. The analytics service is built on top of [Azure Time Series Insights](https://azure.microsoft.com/services/time-series-insights/) and processes the measurement data sent from your devices.
+For highly available device connectivity, an IoT Central application always has at least two IoT hubs. The number of hubs can grow or shrink as IoT Central scales the application in response to changes in the load profile.
 
-## Rules and actions
+IoT Central also uses [availability zones](../../reliability/availability-zones-overview.md) to make various services it uses highly available.
 
-[Rules and actions](tutorial-create-telemetry-rules.md) work closely together to automate tasks within the application. A builder can define rules based on device telemetry such as the temperature exceeding a defined threshold. Azure IoT Central uses a stream processor to determine when the rule conditions are met. When a rule condition is met, it triggers an action defined by the builder. For example, an action can send an email to notify an engineer that the temperature in a device is too high.
+An incident that requires disaster recovery could range from a subset of services becoming unavailable to a whole region becoming unavailable. IoT Central follows different recovery processes depending on the nature and scale of the incident. For example, if an entire Azure region becomes unavailable in the wake of a catastrophic failure, disaster recovery procedures failover applications to another region in the same geography.
 
-## Metadata management
+### Applications created after April 2023
 
-In an Azure IoT Central application, device templates define the behavior and capability of types of device. For example, a refrigerator device template specifies the telemetry a refrigerator sends to your application.
+IoT Central applications created after April 2023 initially have a single IoT hub. If the IoT hub becomes unavailable, the application becomes unavailable. However, IoT Central automatically scales the application and adds a new IoT hub for each 10,000 connected devices. If you require multiple IoT hubs for applications with fewer than 10,000 devices, submit a request to [IoT Central customer support](../../iot/iot-support-help.md?toc=%2Fazure%2Fiot-central%2Ftoc.json&bc=%2Fazure%2Fiot-central%2Fbreadcrumb%2Ftoc.json).
 
-![Template architecture](media/concepts-architecture/template-architecture.png)
-
-In an IoT Central application device template contains:
-
-- **Device capability models** specify the capabilities of a device such as the telemetry it sends, the properties that define the device state, and the commands the device responds to. Device capabilities are organized into one or more interfaces.
-- **Cloud properties** specify the properties IoT Central stores for a device. These properties are only stored in IoT Central and are never sent to a device.
-- **Views** specify the dashboards and forms the builder creates to let the operator monitor and manage the devices.
-- **Customizations** let the builder override some of the definitions in the device capability model to make them more relevant to the IoT Central application.
-
-An application can have one or more simulated and real devices based on each device template.
-
-## Data export
-
-In an Azure IoT Central application, you can [continuously export your data](howto-export-data.md) to your own Azure Event Hubs and Azure Service Bus instances. You can also periodically export your data to your Azure Blob storage account. IoT Central can export measurements, devices, and device templates.
-
-## Batch device updates
-
-In an Azure IoT Central application, you can [create and run jobs](howto-run-a-job.md) to manage connected devices. These jobs let you do bulk updates to device properties or settings, or run commands. For example, you can create a job to increase the fan speed for multiple refrigerated vending machines.
-
-## Role-based access control (RBAC)
-
-An [administrator can define access rules](howto-manage-users-roles.md) for an Azure IoT Central application using one of the predefined roles or by creating a custom role. Roles determine what areas of the application a user has access to and what actions they can perform.
-
-## Security
-
-Security features within Azure IoT Central include:
-
-- Data is encrypted in transit and at rest.
-- Authentication is provided either by Azure Active Directory or Microsoft Account. Two-factor authentication is supported.
-- Full tenant isolation.
-- Device level security.
-
-## UI shell
-
-The UI shell is a modern, responsive, HTML5 browser-based application.
-An administrator can customize the UI of the application by applying custom themes and modifying the help links to point to your own custom help resources. To learn more about UI customization, see [Customize the Azure IoT Central UI](howto-customize-ui.md) article.
-
-An operator can create personalized application dashboards. You can have several dashboards that display different data and switch between them.
-
-## Next steps
-
-Now that you've learned about the architecture of Azure IoT Central, the suggested next step is to learn about [device connectivity](concepts-get-connected.md) in Azure IoT Central.
+Use the `az iot central device manual-failover` command to check if your application currently uses a single IoT hub. This command returns an error if the application currently has a single IoT hub.

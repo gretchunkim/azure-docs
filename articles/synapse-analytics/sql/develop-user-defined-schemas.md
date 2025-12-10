@@ -1,14 +1,12 @@
 ---
 title: User-defined schemas within Synapse SQL
 description: In the sections below, you'll find various tips for using T-SQL user-defined schemas to develop solutions with the Synapse SQL capability of Azure Synapse Analytics.
-services: synapse-analytics 
 author: azaricstefan 
-ms.service: synapse-analytics
+ms.service: azure-synapse-analytics
 ms.topic: conceptual
 ms.subservice: sql
 ms.date: 04/15/2020 
-ms.author: v-stazar 
-ms.reviewer: jrasnick
+ms.author: stefanazaric 
 ---
 
 
@@ -23,7 +21,7 @@ Traditional analytics architecture often uses separate databases to create appli
 Instead, Synapse SQL runs the entire analytics workload within one database. Cross database joins aren't permitted. Synapse SQL expects all tables used by the warehouse to be stored within the one database.
 
 > [!NOTE]
-> SQL pools do not support cross database queries of any kind. Consequently, analytics implementations that leverage this pattern will need to be revised. SQL on-demand (preview) supports cross database queries.
+> Dedicated SQL pools do not support cross database queries of any kind. Consequently, analytics implementations that leverage this pattern will need to be revised. Serverless SQL pool supports cross database queries.
 
 ## User-defined schema recommendations
 
@@ -38,7 +36,7 @@ If user-defined schemas haven't been used previously, then you have a clean slat
 If schemas have already been used, then you have a few options:
 
 - Remove the legacy schema names and start fresh
-- Keep the legacy schema names by pre-pending the legacy schema name to the table name
+- Keep the legacy schema names by prepending the legacy schema name to the table name
 - Retain the legacy schema names by implementing views over the table in an extra schema, which re-creates the old schema structure.
 
 > [!NOTE]
@@ -66,7 +64,7 @@ CREATE TABLE [edw].[customer] -- create analytics tables in the edw schema
 );
 ```
 
-Keep the legacy schema names by pre-pending them to the table name. Use schemas for the workload boundary.
+Keep the legacy schema names by prepending them to the table name. Use schemas for the workload boundary.
 
 ```sql
 CREATE SCHEMA [stg]; -- stg defines the staging boundary
@@ -114,7 +112,7 @@ FROM    [edw].customer
 > [!NOTE]
 > Any change in schema strategy requires a review of the security model for the database. In many cases, you might be able to simplify the security model by assigning permissions at the schema level.
 
-If more granular permissions are required, you can use database roles. For more information about database roles, see the [Manage database roles and users](../../analysis-services/analysis-services-database-users.md) article.
+If more granular permissions are required, you can use database roles. For more information about database roles, see the [Manage database roles and users](/sql/relational-databases/security/authentication-access/database-level-roles) article.
 
 ## Next steps
 

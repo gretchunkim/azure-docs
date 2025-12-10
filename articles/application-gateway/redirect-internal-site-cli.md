@@ -3,11 +3,13 @@ title: Internal redirection using CLI
 titleSuffix: Azure Application Gateway
 description: Learn how to create an application gateway that redirects internal web traffic to the appropriate pool using the Azure CLI.
 services: application-gateway
-author: vhorne
-ms.service: application-gateway
+author: mbender-ms
+ms.service: azure-application-gateway
+ms.custom: devx-track-azurecli
 ms.topic: how-to
-ms.date: 11/14/2019
-ms.author: victorh
+ms.date: 04/27/2023
+ms.author: mbender
+# Customer intent: "As a cloud architect, I want to configure an application gateway for internal web traffic redirection using a command-line interface, so that I can effectively manage traffic across multiple domains and backend resources within my network."
 ---
 
 # Create an application gateway with internal redirection using the Azure CLI
@@ -22,11 +24,11 @@ In this article, you learn how to:
 * Create a virtual machine scale set with the backend pool
 * Create a CNAME record in your domain
 
-If you don't have an Azure subscription, create a [free account](https://azure.microsoft.com/free/?WT.mc_id=A261C142F) before you begin.
+[!INCLUDE [quickstarts-free-trial-note](~/reusable-content/ce-skilling/azure/includes/quickstarts-free-trial-note.md)]
 
-[!INCLUDE [cloud-shell-try-it.md](../../includes/cloud-shell-try-it.md)]
+[!INCLUDE [azure-cli-prepare-your-environment.md](~/reusable-content/azure-cli/azure-cli-prepare-your-environment.md)]
 
-If you choose to install and use the CLI locally, this quickstart requires that you are running the Azure CLI version 2.0.4 or later. To find the version, run `az --version`. If you need to install or upgrade, see [Install Azure CLI](/cli/azure/install-azure-cli).
+ - This tutorial requires version 2.0.4 or later of the Azure CLI. If using Azure Cloud Shell, the latest version is already installed.
 
 ## Create a resource group
 
@@ -34,11 +36,11 @@ A resource group is a logical container into which Azure resources are deployed 
 
 The following example creates a resource group named *myResourceGroupAG* in the *eastus* location.
 
-```azurecli-interactive 
+```azurecli-interactive
 az group create --name myResourceGroupAG --location eastus
 ```
 
-## Create network resources 
+## Create network resources
 
 Create the virtual network named *myVNet* and the subnet named *myAGSubnet* using [az network vnet create](/cli/azure/network/vnet). You can then add the subnet named *myBackendSubnet* that's needed by the backend pool of servers using [az network vnet subnet create](/cli/azure/network/vnet/subnet). Create the public IP address named *myAGPublicIPAddress* using [az network public-ip create](/cli/azure/network/public-ip#az-network-public-ip-create).
 
@@ -62,7 +64,7 @@ az network public-ip create \
 
 ## Create an application gateway
 
-You can use [az network application-gateway create](/cli/azure/network/application-gateway) to create the application gateway named *myAppGateway*. When you create an application gateway using the Azure CLI, you specify configuration information, such as capacity, sku, and HTTP settings. The application gateway is assigned to *myAGSubnet* and *myAGPublicIPAddress* that you previously created. 
+You can use [az network application-gateway create](/cli/azure/network/application-gateway) to create the application gateway named *myAppGateway*. When you create an application gateway using the Azure CLI, you specify configuration information, such as capacity, sku, and HTTP settings. The application gateway is assigned to *myAGSubnet* and *myAGPublicIPAddress* that you previously created.
 
 ```azurecli-interactive
 az network application-gateway create \
@@ -89,7 +91,7 @@ It may take several minutes for the application gateway to be created. After the
 - *rule1* - The default routing rule that is associated with *appGatewayHttpListener*.
 
 
-## Add listeners and rules 
+## Add listeners and rules
 
 A listener is required to enable the application gateway to route traffic appropriately to the backend pool. In this tutorial, you create two listeners for your two domains. In this example, listeners are created for the domains of *www\.contoso.com* and *www\.contoso.org*.
 
@@ -109,12 +111,12 @@ az network application-gateway http-listener create \
   --frontend-port appGatewayFrontendPort \
   --resource-group myResourceGroupAG \
   --gateway-name myAppGateway \
-  --host-name www.contoso.org   
+  --host-name www.contoso.org
   ```
 
 ### Add the redirection configuration
 
-Add the redirection configuration that sends traffic from *www\.consoto.org* to the listener for *www\.contoso.com* in the application gateway using [az network application-gateway redirect-config create](/cli/azure/network/application-gateway/redirect-config#az-network-application-gateway-redirect-config-create).
+Add the redirection configuration that sends traffic from *www\.contoso.org* to the listener for *www\.contoso.com* in the application gateway using [az network application-gateway redirect-config create](/cli/azure/network/application-gateway/redirect-config#az-network-application-gateway-redirect-config-create).
 
 ```azurecli-interactive
 az network application-gateway redirect-config create \
@@ -129,7 +131,7 @@ az network application-gateway redirect-config create \
 
 ### Add routing rules
 
-Rules are processed in the order in which they are created, and traffic is directed using the first rule that matches the URL sent to the application gateway. For example, if you have a rule using a basic listener and a rule using a multi-site listener both on the same port, the rule with the multi-site listener must be listed before the rule with the basic listener in order for the multi-site rule to function as expected. 
+Rules are processed in the order in which they are created, and traffic is directed using the first rule that matches the URL sent to the application gateway. For example, if you have a rule using a basic listener and a rule using a multi-site listener both on the same port, the rule with the multi-site listener must be listed before the rule with the basic listener in order for the multi-site rule to function as expected.
 
 In this example, you create two new rules and delete the default rule that was created.  You can add the rule using [az network application-gateway rule create](/cli/azure/network/application-gateway/rule#az-network-application-gateway-rule-create).
 
@@ -162,7 +164,7 @@ In this example, you create a virtual machine scale set that supports the backen
 az vmss create \
   --name myvmss \
   --resource-group myResourceGroupAG \
-  --image UbuntuLTS \
+  --image Ubuntu2204 \
   --admin-username azureuser \
   --admin-password Azure123456! \
   --instance-count 2 \

@@ -1,8 +1,13 @@
 ---
 title: Architecture Overview 
 description: Provides an overview of the architecture, components, and processes used by the Azure Backup service.
-ms.topic: conceptual
-ms.date: 02/19/2019
+ms.topic: overview
+ms.date: 11/18/2025
+ms.service: azure-backup
+author: AbhishekMallick-MS
+ms.author: v-mallicka
+ms.custom: engagement-fy24
+# Customer intent: "As a system administrator, I want to understand the architecture and features of the cloud backup solution, so that I can effectively manage data protection and recovery for both on-premises and Azure virtual machines."
 ---
 
 # Azure Backup architecture and components
@@ -30,18 +35,22 @@ Learn more about [what you can back up](backup-overview.md) and about [supported
 
 ## Where is data backed up?
 
-Azure Backup stores backed-up data in a Recovery Services vault. A vault is an online-storage entity in Azure that's used to hold data, such as backup copies, recovery points, and backup policies.
+Azure Backup stores backed-up data in vaults - Recovery Services vaults and Backup vaults. A vault is an online-storage entity in Azure that's used to hold data, such as backup copies, recovery points, and backup policies.
 
-Recovery Services vaults have the following features:
+Vaults have the following features:
 
 - Vaults make it easy to organize your backup data, while minimizing management overhead.
-- In each Azure subscription, you can create up to 500 vaults.
 - You can monitor backed-up items in a vault, including Azure VMs and on-premises machines.
-- You can manage vault access with [Azure role-based access control (Azure RBAC)](../role-based-access-control/role-assignments-portal.md).
+- You can manage vault access with [Azure role-based access control (Azure RBAC)](/azure/role-based-access-control/role-assignments-portal).
 - You specify how data in the vault is replicated for redundancy:
-  - **Locally redundant storage (LRS)**: To protect against failure in a datacenter, you can use LRS. LRS replicates data to a storage scale unit. [Learn more](../storage/common/storage-redundancy.md).
-  - **Geo-redundant storage (GRS)**: To protect against region-wide outages, you can use GRS. GRS replicates your data to a secondary region. [Learn more](../storage/common/storage-redundancy.md).
+  - **Locally redundant storage (LRS)**: To protect your data against server rack and drive failures, you can use LRS. LRS replicates your data three times within a single data center in the primary region. LRS provides at least 99.999999999% (11 nines) durability of objects over a given year. [Learn more](../storage/common/storage-redundancy.md#locally-redundant-storage)
+  - **Geo-redundant storage (GRS)**: To protect against region-wide outages, you can use GRS. GRS replicates your data to a secondary region. [Learn more](../storage/common/storage-redundancy.md#geo-redundant-storage).
+  - **Zone-redundant storage (ZRS)**: replicates your data in [availability zones](../reliability/availability-zones-overview.md), guaranteeing data residency and resiliency in the same region. [Learn more](../storage/common/storage-redundancy.md#zone-redundant-storage)
   - By default, Recovery Services vaults use GRS.
+
+Recovery Services vaults have the following additional features:
+
+- In each Azure subscription, you can create up to 500 vaults.
 
 ## Backup agents
 
@@ -72,16 +81,27 @@ The following table explains the different types of backups used for SQL Server 
 **Differential backup** | A differential backup is based on the most recent, previous full-data backup.<br/><br/> It captures only the data that's changed since the full backup. |  At most, you can trigger one differential backup per day.<br/><br/> You can't configure a full backup and a differential backup on the same day.
 **Transaction log backup** | A log backup enables point-in-time restoration up to a specific second. | At most, you can configure transactional log backups every 15 minutes.
 
-### Comparison of backup types
+## SAP HANA backup types
+
+The following table explains the different types of backups used for SAP HANA databases and how often they're used:
+
+| Backup type | Details | Usage |
+| --- | --- | --- |
+| **Full backup** | A full database backup backs up the entire database. This type of backup can be independently used to restore to a specific point. | At most, you can schedule one full backup per day. <br><br> You can choose to schedule a full backup on a daily or weekly interval. |
+| **Differential backup** | A differential backup is based on the most recent, previous full-data backup. <br><br> It captures only the data that's changed since the previous full backup. | At most, you can schedule one differential backup per day.  <br><br> You can't configure a full backup and a differential backup on the same day. |
+| **Incremental backup** | An incremental backup is based on the most recent, previous full/ differential/ incremental-data backup. <br><br> It captures only the data that's changed since this previous data backup. | At most, you can schedule one incremental backup per day. <br><br> You can't schedule both differential and incremental backups on a database, only one delta backup type can be scheduled. <br><br> You can't configure a full backup and a differential backup on the same day. |
+| **Transaction log backup** | A log backup enables point-in-time restoration up to a specific second. | At most, you can configure transactional log backups every 15 minutes. |
+
+## Comparison of backup types
 
 Storage consumption, recovery time objective (RTO), and network consumption varies for each type of backup. The following image shows a comparison of the backup types:
 
 - Data source A is composed of 10 storage blocks, A1-A10, which are backed up monthly.
 - Blocks A2, A3, A4, and A9 change in the first month, and block A5 changes in the next month.
-- For differential backups, in the second month, changed blocks A2, A3, A4, and A9 are backed up. In the third month, these same blocks are backed up again, along with changed block A5. The changed blocks continue to be backed up until the next full backup happens.
-- For incremental backups, in the second month, blocks A2, A3, A4, and A9 are marked as changed and transferred. In the third month, only changed block A5 is marked and transferred.
+- For differential backups, in the second month changed blocks A2, A3, A4, and A9 are backed up. In the third month, these same blocks are backed up again, along with changed block A5. The changed blocks continue to be backed up until the next full backup happens.
+- For incremental backups, in the second month blocks A2, A3, A4, and A9 are marked as changed and transferred. In the third month, only changed block A5 is marked and transferred.
 
-![Image showing comparisons of backup methods](./media/backup-architecture/backup-method-comparison.png)
+![Diagram showing that storage consumption, recovery time objective (RTO), and network consumption varies for each backup type.](./media/backup-architecture/backup-method-comparison.png)
 
 ## Backup features
 
@@ -115,6 +135,12 @@ Back up deduplicated disks | | | ![Partially][yellow]<br/><br/> For DPM/MABS ser
 - When a vault is created, a "DefaultPolicy" is also created and can be used to back up resources.
 - Any changes made to the retention period of a backup policy will be applied retroactively to all the older recovery points aside from the new ones.
 
+### Impact of policy change on recovery points
+
+- **Retention duration is increased / decreased:** When the retention duration is changed, the new retention duration is applied to the existing recovery points as well. As a result, some of the recovery points will be cleaned up. If the retention period is increased, the existing recovery points will have an increased retention as well.
+- **Changed from daily to weekly:** When the scheduled backups are changed from daily to weekly,  the existing daily recovery points are cleaned up.
+- **Changed from weekly to daily:** The existing weekly backups will be retained based on the number of days remaining according to the current retention policy.
+
 ### Additional reference
 
 - Azure VM machine: How to [create](./backup-azure-vms-first-look-arm.md#back-up-from-azure-vm-settings) and [modify](./backup-azure-manage-vms.md#manage-backup-policy-for-a-vm) policy.
@@ -122,28 +148,12 @@ Back up deduplicated disks | | | ![Partially][yellow]<br/><br/> For DPM/MABS ser
 - Azure File share: How to [create](./backup-afs.md) and [modify](./manage-afs-backup.md#modify-policy) policy.
 - SAP HANA: How to [create](./backup-azure-sap-hana-database.md#create-a-backup-policy) and [modify](./sap-hana-db-manage.md#change-policy) policy.
 - MARS: How to [create](./backup-windows-with-mars-agent.md#create-a-backup-policy) and [modify](./backup-azure-manage-mars.md#modify-a-backup-policy) policy.
-- [Are there any limitations on scheduling backup based on the type of workload?](./backup-azure-backup-faq.md#are-there-limits-on-backup-scheduling)
-- [What happens to the existing recovery points if I change the retention policy?](./backup-azure-backup-faq.md#what-happens-when-i-change-my-backup-policy)
+- [Are there any limitations on scheduling backup based on the type of workload?](./backup-azure-backup-faq.yml#are-there-limits-on-backup-scheduling-)
+- [What happens to the existing recovery points if I change the retention policy?](./backup-azure-backup-faq.yml#what-happens-when-i-change-my-backup-policy-)
 
 ## Architecture: Built-in Azure VM Backup
 
-1. When you enable backup for an Azure VM, a backup runs according to the schedule you specify.
-1. During the first backup, a backup extension is installed on the VM if the VM is running.
-    - For Windows VMs, the VMSnapshot extension is installed.
-    - For Linux VMs, the VMSnapshot Linux extension is installed.
-1. The extension takes a storage-level snapshot.
-    - For Windows VMs that are running, Backup coordinates with the Windows Volume Shadow Copy Service (VSS) to take an app-consistent snapshot of the VM. By default, Backup takes full VSS backups. If Backup is unable to take an app-consistent snapshot, then it takes a file-consistent snapshot.
-    - For Linux VMs, Backup takes a file-consistent snapshot. For app-consistent snapshots, you need to manually customize pre/post scripts.
-    - Backup is optimized by backing up each VM disk in parallel. For each disk being backed up, Azure Backup reads the blocks on disk and stores only the changed data.
-1. After the snapshot is taken, the data is transferred to the vault.
-    - Only blocks of data that changed since the last backup are copied.
-    - Data isn't encrypted. Azure Backup can back up Azure VMs that were encrypted by using Azure Disk Encryption.
-    - Snapshot data might not be immediately copied to the vault. At peak times, the backup might take some hours. Total backup time for a VM will be less than 24 hours for daily backup policies.
-1. After the data is sent to the vault, a recovery point is created. By default, snapshots are retained for two days before they are deleted. This feature allows restore operation from these snapshots, thereby cutting down the restore times. It reduces the time that's required to transform and copy data back from the vault. See [Azure Backup Instant Restore Capability](./backup-instant-restore-capability.md).
-
-You don't need to explicitly allow internet connectivity to back up your Azure VMs.
-
-![Backup of Azure VMs](./media/backup-architecture/architecture-azure-vm.png)
+[!INCLUDE [azure-vm-backup-process.md](../../includes/azure-vm-backup-process.md)]
 
 ## Architecture: Direct backup of on-premises Windows Server machines or Azure VM files or folders
 
@@ -152,7 +162,7 @@ You don't need to explicitly allow internet connectivity to back up your Azure V
 1. The MARS agent uses VSS to take a point-in-time snapshot of the volumes selected for backup.
     - The MARS agent uses only the Windows system write operation to capture the snapshot.
     - Because the agent doesn't use any application VSS writers, it doesn't capture app-consistent snapshots.
-1. After taking the snapshot with VSS, the MARS agent creates a virtual hard disk (VHD) in the cache folder you specified when you configured the backup. The agent also stores checksums for each data block.
+1. After taking the snapshot with VSS, the MARS agent creates a virtual hard disk (VHD) in the cache folder you specified when you configured the backup. The agent also stores checksums for each data block. These are later used to detect changed blocks for subsequent incremental backups.
 1. Incremental backups run according to the schedule you specify, unless you run an on-demand backup.
 1. In incremental backups, changed files are identified and a new VHD is created. The VHD is compressed and encrypted, and then it's sent to the vault.
 1. After the incremental backup finishes, the new VHD is merged with the VHD created after the initial replication. This merged VHD provides the latest state to be used for comparison for ongoing backup.
@@ -188,8 +198,8 @@ Azure VMs use disks to store their operating system, apps, and data. Each Azure 
 
 For more information about disk storage and the available disk types for VMs, see these articles:
 
-- [Azure managed disks for Linux VMs](../virtual-machines/managed-disks-overview.md)
-- [Available disk types for VMs](../virtual-machines/disks-types.md)
+- [Azure managed disks for Linux VMs](/azure/virtual-machines/managed-disks-overview)
+- [Available disk types for VMs](/azure/virtual-machines/disks-types)
 
 ### Back up and restore Azure VMs with premium storage
 
@@ -198,7 +208,7 @@ You can back up Azure VMs by using premium storage with Azure Backup:
 - During the process of backing up VMs with premium storage, the Backup service creates a temporary staging location, named *AzureBackup-*, in the storage account. The size of the staging location equals the size of the recovery point snapshot.
 - Make sure that the premium storage account has adequate free space to accommodate the temporary staging location. For more information, see [Scalability targets for premium page blob storage accounts](../storage/blobs/scalability-targets-premium-page-blobs.md). Don't modify the staging location.
 - After the backup job finishes, the staging location is deleted.
-- The price of storage used for the staging location is consistent with [premium storage pricing](../virtual-machines/disks-types.md#billing).
+- The price of storage used for the staging location is consistent with [premium storage pricing](/azure/virtual-machines/disks-types#billing).
 
 When you restore Azure VMs by using premium storage, you can restore them to premium or standard storage. Typically, you would restore them to premium storage. But if you need only a subset of files from the VM, it might be cost effective to restore them to standard storage.
 
@@ -215,6 +225,23 @@ When you restore VMs with managed disks, you can restore to a complete VM with m
 - During the restore process, Azure handles the managed disks. If you're using the storage account option, you manage the storage account that's created during the restore process.
 - If you restore a managed VM that's encrypted, make sure the VM's keys and secrets exist in the key vault before you start the restore process.
 
+## Data isolation with Azure Backup
+
+With Azure Backup, the vaulted backup data is stored in Microsoft-managed Azure subscription and tenant. External users or guests have no direct access to this backup storage or its contents, ensuring the isolation of backup data from the production environment where the data source resides.
+
+In Azure, all communications and data in transit is securely transferred with *HTTPS* and *TLS 1.2+* protocols. This data remains on the Azure backbone network ensuring reliable and efficient data transmission. The backup data at rest is encrypted by default using *Microsoft-managed keys*. You can also bring your own keys for encryption if you require greater control over the data. To enhance protection, you can use [immutability](backup-azure-immutable-vault-concept.md), which prevents data from being altered or deleted before its retention period.  Azure Backup gives you diverse options such as [soft delete](backup-azure-enhanced-soft-delete-about.md), stop backup and delete data or retain data if you need to stop backups at any time. To protect critical operations, you can add [Multi-User Authorization (MUA)](multi-user-authorization-concept.md) that adds additional layer of protection by using an Azure resource called Azure Resource Guard.
+
+This robust approach ensures that even in a compromised environment, existing backups cannot be tampered with or deleted by unauthorized users.
+
+Learn more about vaulted backup for the following datasources:
+
+- [Azure Files](azure-file-share-backup-overview.md?tabs=vault-standard#architecture-for-azure-files-backup)
+- [Azure Blob](blob-backup-overview.md?tabs=vaulted-backup#how-the-azure-blobs-backup-works)
+- [Azure Data Lake Storage](azure-data-lake-storage-backup-overview.md), [Azure Kubernetes](azure-kubernetes-service-backup-overview.md#which-backup-storage-tier-does-aks-backup-support)
+- [PostgreSQL - Flexible server](tutorial-create-first-backup-azure-database-postgresql-flex.md#configure-backup--for-the-database)
+- [PostgreSQL database](backup-azure-database-postgresql-overview.md#changes-to-vaulted-backups-for-postgresql-single-servers)
+- [SAP ASE (Sybase) database](sap-ase-database-about.md#key-benefits-of-sap-ase-sybase-database-backup)
+
 ## Next steps
 
 - Review the support matrix to [learn about supported features and limitations for backup scenarios](backup-support-matrix.md).
@@ -223,6 +250,9 @@ When you restore VMs with managed disks, you can restore to a complete VM with m
   - [Back up Windows machines directly](tutorial-backup-windows-server-to-azure.md), without a backup server.
   - [Set up MABS](backup-azure-microsoft-azure-backup.md) for backup to Azure, and then back up workloads to MABS.
   - [Set up DPM](backup-azure-dpm-introduction.md) for backup to Azure, and then back up workloads to DPM.
+  - [Back up a SharePoint farm on Azure Stack](backup-mabs-sharepoint-azure-stack.md).
+  - [Back up SQL Server on Azure Stack](backup-mabs-sql-azure-stack.md).
+
 
 [green]: ./media/backup-architecture/green.png
 [yellow]: ./media/backup-architecture/yellow.png

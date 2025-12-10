@@ -2,8 +2,10 @@
 title: Move a Service Bus namespace to another region | Microsoft Docs
 description: This article shows you how to move an Azure Service Bus namespace from the current region to another region. 
 ms.topic: how-to
-ms.date: 06/23/2020
-ms.custom: subject-moving-resources
+ms.date: 06/08/2021
+ms.custom:
+  - subject-moving-resources
+  - sfi-image-nochange
 ---
 
 # Move an Azure Service Bus namespace to another region
@@ -25,7 +27,7 @@ To get started, export a Resource Manager template. This template contains setti
 
 1. Sign in to the [Azure portal](https://portal.azure.com).
 2. Select **All resources** and then select your Service Bus namespace.
-3. Select > **Settings** > **Export template**.
+3. On the **Service Bus Namespace** page, select **Export template** under **Automation** in the left menu. 
 4. Choose **Download** in the **Export template** page.
 
     :::image type="content" source="./media/move-across-regions/download-template.png" alt-text="Download Resource Manager template":::

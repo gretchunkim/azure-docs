@@ -1,19 +1,24 @@
 ---
-title: Use Apache Kafka MirrorMaker - Azure Event Hubs | Microsoft Docs
+title: Use Apache Kafka Mirror Maker 1 - Azure Event Hubs | Microsoft Docs
 description: This article provides information on how to use Kafka MirrorMaker to mirror a Kafka cluster in AzureEvent Hubs.
 ms.topic: how-to
-ms.date: 06/23/2020
+ms.subservice: kafka
+ms.date: 03/06/2025
+ms.custom: sfi-ropc-nochange
 ---
 
-# Use Kafka MirrorMaker with Event Hubs for Apache Kafka
+# Replicate data from a Kafka cluster to Event Hubs using Apache Kafka Mirror Maker 1
 
-This tutorial shows how to mirror a Kafka broker in an event hub using Kafka MirrorMaker.
+
+This tutorial shows how to mirror a Kafka broker into an Azure Event Hubs using Kafka Mirror Maker 1. 
 
    ![Kafka MirrorMaker with Event Hubs](./media/event-hubs-kafka-mirror-maker-tutorial/evnent-hubs-mirror-maker1.png)
 
 > [!NOTE]
 > This sample is available on [GitHub](https://github.com/Azure/azure-event-hubs-for-kafka/tree/master/tutorials/mirror-maker)
 
+> [!NOTE]
+> This article contains references to a term that Microsoft no longer uses. When the term is removed from the software, we'll remove it from this article.
 
 In this tutorial, you learn how to:
 > [!div class="checklist"]
@@ -24,17 +29,20 @@ In this tutorial, you learn how to:
 > * Run Kafka MirrorMaker
 
 ## Introduction
-One major consideration for modern cloud scale apps is the ability to update, improve, and change infrastructure without interrupting service. This tutorial shows how an event hub and Kafka MirrorMaker can integrate an existing Kafka pipeline into Azure by "mirroring" the Kafka input stream in the Event Hubs service. 
+This tutorial shows how an event hub and Kafka MirrorMaker can integrate an existing Kafka pipeline into Azure by "mirroring" the Kafka input stream in the Event Hubs service, which allows for 
+integration of Apache Kafka streams using several [federation patterns](event-hubs-federation-overview.md). 
 
-An Azure Event Hubs Kafka endpoint enables you to connect to Azure Event Hubs using the Kafka protocol (that is, Kafka clients). By making minimal changes to a Kafka application, you can connect to Azure Event Hubs and enjoy the benefits of the Azure ecosystem. Event Hubs currently supports Kafka versions 1.0 and later.
+An Azure Event Hubs Kafka endpoint enables you to connect to Azure Event Hubs using the Kafka protocol (that is, Kafka clients). By making minimal changes to a Kafka application, you can connect to Azure Event Hubs and enjoy the benefits of the Azure ecosystem. Event Hubs currently supports the protocol of Apache Kafka versions 1.0 and later.
+
+You can use Apache Kafka's MirrorMaker 1 unidirectionally from Apache Kafka to Event Hubs. MirrorMaker 2 can be used in both directions, but the [`MirrorCheckpointConnector` and `MirrorHeartbeatConnector` that are configurable in MirrorMaker 2](https://cwiki.apache.org/confluence/display/KAFKA/KIP-382%3A+MirrorMaker+2.0) must both be configured to point to the Apache Kafka broker and not to Event Hubs. This tutorial shows configuring MirrorMaker 1.
 
 ## Prerequisites
 
 To complete this tutorial, make sure you have:
 
-* Read through the [Event Hubs for Apache Kafka](event-hubs-for-kafka-ecosystem-overview.md) article. 
-* An Azure subscription. If you do not have one, create a [free account](https://azure.microsoft.com/free/?ref=microsoft.com&utm_source=microsoft.com&utm_medium=docs&utm_campaign=visualstudio) before you begin.
-* [Java Development Kit (JDK) 1.7+](https://aka.ms/azure-jdks)
+* Read through the [Event Hubs for Apache Kafka](azure-event-hubs-apache-kafka-overview.md) article. 
+* An Azure subscription. If you don't have one, create a [free account](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn) before you begin.
+* [Java Development Kit (JDK) 1.7+](/azure/developer/java/fundamentals/java-support-on-azure)
     * On Ubuntu, run `apt-get install default-jdk` to install the JDK.
     * Be sure to set the JAVA_HOME environment variable to point to the folder where the JDK is installed.
 * [Download](https://maven.apache.org/download.cgi) and [install](https://maven.apache.org/install.html) a Maven binary archive
@@ -95,6 +103,9 @@ sasl.mechanism=PLAIN
 security.protocol=SASL_SSL
 sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="$ConnectionString" password="{YOUR.EVENTHUBS.CONNECTION.STRING}";
 ```
+
+> [!IMPORTANT]
+> Replace `{YOUR.EVENTHUBS.CONNECTION.STRING}` with the connection string for your Event Hubs namespace. For instructions on getting the connection string, see [Get an Event Hubs connection string](event-hubs-get-connection-string.md). Here's an example configuration: `sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="$ConnectionString" password="Endpoint=sb://mynamespace.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=XXXXXXXXXXXXXXXX";`
 
 ## Run Kafka MirrorMaker
 

@@ -1,8 +1,8 @@
 ---
 title: Details of the initiative definition structure
 description: Describes how policy initiative definitions are used to group policy definitions for deployment to Azure resources in your organization.
-ms.date: 08/17/2020
-ms.topic: conceptual
+ms.date: 03/04/2025
+ms.topic: reference
 ---
 # Azure Policy initiative definition structure
 
@@ -17,6 +17,7 @@ elements for:
 - display name
 - description
 - metadata
+- version
 - parameters
 - policy definitions
 - policy groups (this property is part of the [Regulatory Compliance (Preview) feature](./regulatory-compliance.md))
@@ -30,6 +31,7 @@ and `productName`. It uses two built-in policies to apply the default tag value.
         "displayName": "Billing Tags Policy",
         "policyType": "Custom",
         "description": "Specify cost Center tag and product name tag",
+        "version" : "1.0.0",
         "metadata": {
             "version": "1.0.0",
             "category": "Tags"
@@ -52,6 +54,7 @@ and `productName`. It uses two built-in policies to apply the default tag value.
         },
         "policyDefinitions": [{
                 "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/1e30110a-5ceb-460c-a204-c1c3969c6d62",
+                "definitionVersion": "1.*.*"
                 "parameters": {
                     "tagName": {
                         "value": "costCenter"
@@ -99,7 +102,7 @@ and `productName`. It uses two built-in policies to apply the default tag value.
 }
 ```
 
-Azure Policy built-ins and patterns are at [Azure Policy samples](../samples/index.md).
+Azure Policy built-ins and patterns are at [Azure Policy samples](/azure/governance/policy/samples/index).
 
 ## Metadata
 
@@ -110,8 +113,8 @@ there are some _common_ properties used by Azure Policy and in built-ins.
 ### Common metadata properties
 
 - `version` (string): Tracks details about the version of the contents of a policy initiative
-  definition.
-- `category` (string): Determines under which category in Azure portal the policy definition is
+  definition. For built-ins, this metadata version follows the version property of the built-in. It's recommended to use the version property over this metadata version.
+- `category` (string): Determines under which category in the Azure portal the policy definition is
   displayed.
 
   > [!NOTE]
@@ -122,24 +125,34 @@ there are some _common_ properties used by Azure Policy and in built-ins.
 - `deprecated` (boolean): True or false flag for if the policy initiative definition has been marked
   as _deprecated_.
 
-> [!NOTE]
-> The Azure Policy service uses `version`, `preview`, and `deprecated` properties to convey level of
-> change to a built-in policy definition or initiative and state. The format of `version` is:
-> `{Major}.{Minor}.{Patch}`. Specific states, such as _deprecated_ or _preview_, are appended to the
-> `version` property or in another property as a **boolean**. For more information about the way
+## Version (preview)
+Built-in policy initiatives can host multiple versions with the same `definitionID`. If no version number is specified, all experiences will show the latest version of the definition. To see a specific version of a built-in, it must be specified in API, SDK or UI. To reference a specific version of a definition within an assignment, see [definition version within assignment](../concepts/assignment-structure.md#policy-definition-id-and-version-preview)
+
+The Azure Policy service uses `version`, `preview`, and `deprecated` properties to convey state and level of change to a built-in policy definition or initiative. The format of `version` is: `{Major}.{Minor}.{Patch}`. When a policy definition is in preview state, the suffix _preview_ is appended to the `version` property and treated as a **boolean**. When a policy definition is deprecated, the deprecation is captured as a boolean in the definition's metadata using `"deprecated": "true"`.
+
+- Major Version (example: 2.0.0): introduce breaking changes such as major rule logic changes, removing parameters, adding an enforcement effect by default.
+- Minor Version (example: 2.1.0): introduce changes such as minor rule logic changes, adding new parameter allowed values, change to role definitionIds, adding or removing definitions within an initiative.
+- Patch Version (example: 2.1.4): introduce string or metadata changes and break glass security scenarios (rare).
+
+Built-in initiatives are versioned, and specific versions of built-in policy definitions can be referenced within built-in or custom initiatives as well. For more information, see [reference definition and versions](#policy-definition-properties).
+
+> While in preview, when creating an initiative through the portal, you will not be able to specify versions for built-in policy definition references. All built-in policy references in custom initiatives created through the portal will instead default to the latest version of the policy definition.
+>
+> For more information about
 > Azure Policy versions built-ins, see
 > [Built-in versioning](https://github.com/Azure/azure-policy/blob/master/built-in-policies/README.md).
+> To learn more about what it means for a policy to be _deprecated_ or in _preview_, see [Preview and deprecated policies](https://github.com/Azure/azure-policy/blob/master/built-in-policies/README.md#preview-and-deprecated-policies).
 
 ## Parameters
 
 Parameters help simplify your policy management by reducing the number of policy definitions. Think
-of parameters like the fields on a form – `name`, `address`, `city`, `state`. These parameters
+of parameters like the fields on a form - `name`, `address`, `city`, `state`. These parameters
 always stay the same, however their values change based on the individual filling out the form.
 Parameters work the same way when building policy initiatives. By including parameters in a policy
 initiative definition, you can reuse that parameter in the included policies.
 
 > [!NOTE]
-> Once an initiative is assigned, initative level parameters can't be altered. Due to this, the
+> Once an initiative is assigned, initiative level parameters can't be altered. Due to this, the
 > recommendation is to set a **defaultValue** when defining the parameter.
 
 ### Parameter properties
@@ -153,7 +166,7 @@ A parameter has the following properties that are used in the policy initiative 
   **integer**, **float**, or **datetime**.
 - `metadata`: Defines subproperties primarily used by the Azure portal to display user-friendly
   information:
-  - `description`: The explanation of what the parameter is used for. Can be used to provide
+  - `description`: (Optional) The explanation of what the parameter is used for. Can be used to provide
     examples of acceptable values.
   - `displayName`: The friendly name shown in the portal for the parameter.
   - `strongType`: (Optional) Used when assigning the policy definition through the portal. Provides
@@ -225,9 +238,9 @@ properties](#parameter-properties).
 
 ### strongType
 
-Within the `metadata` property, you can use **strongType** to provide a multi-select list of options
-within the Azure portal. **strongType** can be a supported _resource type_ or an allowed
-value. To determine if a _resource type_ is valid for **strongType**, use
+Within the `metadata` property, you can use **strongType** to provide a multiselect list of options
+within the Azure portal. **strongType** can be a supported _resource type_ or an allowed value. To
+determine whether a _resource type_ is valid for **strongType**, use
 [Get-AzResourceProvider](/powershell/module/az.resources/get-azresourceprovider).
 
 Some resource types not returned by **Get-AzResourceProvider** are supported. Those resource types
@@ -259,10 +272,11 @@ Each _array_ element that represents a policy definition has the following prope
 - `parameters`: (Optional) The name/value pairs for passing an initiative parameter to the
   included policy definition as a property in that policy definition. For more information, see
   [Parameters](#parameters).
+- `definitionVersion` : (Optional) The version of the built-in definition to refer to. If none is specified, it refers to the latest major version at assignment time and autoingest any minor updates. For more information, see [definition version](./definition-structure-basics.md#version-preview)
 - `groupNames` (array of strings): (Optional) The group the policy definition is a member of. For
   more information, see [Policy groups](#policy-definition-groups).
 
-Here is an example of `policyDefinitions` that has two included policy definitions that are each
+Here's an example of `policyDefinitions` that has two included policy definitions that are each
 passed the same initiative parameter:
 
 ```json
@@ -270,6 +284,7 @@ passed the same initiative parameter:
     {
         "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/0ec8fc28-d5b7-4603-8fec-39044f00a92b",
         "policyDefinitionReferenceId": "allowedLocationsSQL",
+        "definitionVersion": "1.2.*"
         "parameters": {
             "sql_locations": {
                 "value": "[parameters('init_allowedLocations')]"
@@ -288,24 +303,25 @@ passed the same initiative parameter:
 ]
 ```
 
-## <a name="policy-definition-groups"></a>Policy definitions groups (Preview)
+## Policy definition groups
 
-As part of Azure Policy's [Regulatory Compliance](./regulatory-compliance.md) (Preview) feature,
-policy definitions in an initiative definition can be grouped. This information is defined in the
-`policyDefinitionGroups` _array_ property. These groupings have additional details such as the
-**control** and **compliance domain** that the policy definition provides coverage towards.
-Additional grouping details may be found in a **policyMetadata** object created by Microsoft. For
-information, see [metadata objects](#metadata-objects).
+Policy definitions in an initiative definition can be grouped and categorized. Azure Policy's
+[Regulatory Compliance](./regulatory-compliance.md) (preview) feature uses this property to group
+definitions into **controls** and **compliance domains**. This information is defined in the
+`policyDefinitionGroups` _array_ property. More grouping details may be found in a
+**policyMetadata** object created by Microsoft. For information, see
+[metadata objects](#metadata-objects).
 
 ### Policy definition groups parameters
 
 Each _array_ element in `policyDefinitionGroups` must have both of the following properties:
 
-- `name` (string) \[required\]: The short name for the **control**. The value of this property is
-  used by `groupNames` in `policyDefinitions`.
-- `category` (string): The **compliance domain** of the control.
-- `displayName` (string): The friendly name for the **control**. Used by the portal.
-- `description` (string): A description of what the **control** does.
+- `name` (string) \[required\]: The short name for the **group**. In Regulatory Compliance, the
+  **control**. The value of this property is used by `groupNames` in `policyDefinitions`.
+- `category` (string): The hierarchy the group belongs to. In Regulatory Compliance, the
+  **compliance domain** of the control.
+- `displayName` (string): The friendly name for the **group** or **control**. Used by the portal.
+- `description` (string): A description of what the **group** or **control** covers.
 - `additionalMetadataId` (string): The location of the [policyMetadata](#metadata-objects) object
   that has additional details about the **control** and **compliance domain**.
 
@@ -333,7 +349,7 @@ This information is:
 - Displayed in the Azure portal on the overview of a **control** on a Regulatory Compliance
   initiative.
 - Available via REST API. See the `Microsoft.PolicyInsights` resource provider and the
-  [policyMetadata operation group](/rest/api/policy-insights/policymetadata/getresource).
+  [policyMetadata operation group](/rest/api/policy/policy-metadata/get-resource).
 - Available via Azure CLI. See the [az policy metadata](/cli/azure/policy/metadata) command.
 
 > [!IMPORTANT]
@@ -361,7 +377,7 @@ Below is an example of the **policyMetadata** object. This example metadata belo
     "category": "Access Control",
     "title": "Access Control Policy and Procedures",
     "owner": "Shared",
-    "description": "**The organization:**    \na. Develops, documents, and disseminates to [Assignment: organization-defined personnel or roles]:  \n1. An access control policy that addresses purpose, scope, roles, responsibilities, management commitment, coordination among organizational entities, and compliance; and  \n2. Procedures to facilitate the implementation of the access control policy and associated access controls; and  \n  
+    "description": "**The organization:**    \na. Develops, documents, and disseminates to [Assignment: organization-defined personnel or roles]:  \n1. An access control policy that addresses purpose, scope, roles, responsibilities, management commitment, coordination among organizational entities, and compliance; and  \n2. Procedures to facilitate the implementation of the access control policy and associated access controls; and  \n
 \nb. Reviews and updates the current:  \n1. Access control policy [Assignment: organization-defined frequency]; and  \n2. Access control procedures [Assignment: organization-defined frequency].",
     "requirements": "**a.**  The customer is responsible for developing, documenting, and disseminating access control policies and procedures. The customer access control policies and procedures address access to all customer-deployed resources and customer system access (e.g., access to customer-deployed virtual machines, access to customer-built applications).  \n**b.**  The customer is responsible for reviewing and updating access control policies and procedures in accordance with FedRAMP requirements.",
     "additionalContentUrl": "https://nvd.nist.gov/800-53/Rev4/control/AC-1"
@@ -374,9 +390,9 @@ Below is an example of the **policyMetadata** object. This example metadata belo
 
 ## Next steps
 
-- See the [definition structure](./definition-structure.md)
-- Review examples at [Azure Policy samples](../samples/index.md).
-- Review [Understanding policy effects](effects.md).
+- See the [definition structure](./definition-structure-basics.md)
+- Review examples at [Azure Policy samples](/azure/governance/policy/samples/index).
+- Review [Understanding policy effects](effect-basics.md).
 - Understand how to [programmatically create policies](../how-to/programmatically-create.md).
 - Learn how to [get compliance data](../how-to/get-compliance-data.md).
 - Learn how to [remediate non-compliant resources](../how-to/remediate-resources.md).

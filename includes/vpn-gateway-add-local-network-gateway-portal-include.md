@@ -1,29 +1,32 @@
 ---
- title: include file
- description: include file
- services: vpn-gateway
  author: cherylmc
- ms.service: vpn-gateway
+ ms.service: azure-vpn-gateway
  ms.topic: include
- ms.date: 09/03/2020
+ ms.date: 08/21/2024
  ms.author: cherylmc
- ms.custom: include file
+ ms.custom: sfi-image-nochange
 ---
-1. From the [Azure portal](https://portal.azure.com) menu, select **Create a resource**. 
 
-   ![Create a resource in the Azure portal](./media/vpn-gateway-add-local-network-gateway-portal-include/azure-portal-create-resource.png)
-2. In the **Search the marketplace** field, type **Local network gateway**, then press **Enter** to search. This will return a list of results. Click **Local network gateway**, then click the **Create** button to open the **Create local network gateway** page.
+Configuration considerations:
 
-   ![Create the local network gateway](./media/vpn-gateway-add-local-network-gateway-portal-include/create-local-network-gateway.png "Create the local network gateway")
+* VPN Gateway supports only one IPv4 address for each FQDN. If the domain name resolves to multiple IP addresses, VPN Gateway uses the first IP address returned by the DNS servers. To eliminate the uncertainty, we recommend that your FQDN always resolve to a single IPv4 address. IPv6 isn't supported.
+* VPN Gateway maintains a DNS cache that's refreshed every 5 minutes. The gateway tries to resolve the FQDNs for disconnected tunnels only. Resetting the gateway also triggers FQDN resolution.
+* Although VPN Gateway supports multiple connections to different local network gateways with different FQDNs, all FQDNs must resolve to different IP addresses.
 
-3. On the **Create local network gateway page**, specify the values for your local network gateway.
+1. In the portal, go to **Local network gateways** and open the **Create local network gateway** page.
+1. On the **Basics** tab, specify the values for your local network gateway.
 
-   - **Name:** Specify a name for your local network gateway object.
-   - **IP address:** This is the public IP address of the VPN device that you want Azure to connect to. Specify a valid public IP address. If you don't have the IP address right now, you can use the values shown in the example, but you'll need to go back and replace your placeholder IP address with the public IP address of your VPN device. Otherwise, Azure will not be able to connect.
-   - **Address Space** refers to the address ranges for the network that the local network object represents (your on-premises network). You add the address spaces that you want to route to your on-premises network. You can add multiple address space ranges. Make sure that the ranges you specify here do not overlap with ranges of other networks that you want to connect to. Azure will route the address range that you specify to the on-premises VPN device IP address. *Use your own values here if you want to connect to your on-premises site, not the values shown in the example*.
-   - **Configure BGP settings:** Use only when configuring BGP. Otherwise, don't select this.
-   - **Subscription:** Verify that the correct subscription is showing.
-   - **Resource Group:** Select the resource group that you want to use. You can either create a new resource group, or select one that you have already created.
-   - **Location:** The location is the same as **Region** in other settings. Select the location that this object will be created in. You may want to select the same location that your VNet resides in, but you are not required to do so.
+   :::image type="content" source="./media/vpn-gateway-add-local-network-gateway-portal-include/basics.png" alt-text="Screenshot that shows creating a local network gateway with IP address." lightbox ="./media/vpn-gateway-add-local-network-gateway-portal-include/basics.png":::
 
-4. When you have finished specifying the values, click the **Create** button at the bottom of the page to create the local network gateway.
+   * **Subscription**: Verify that the correct subscription is showing.
+   * **Resource group**: Select the resource group that you want to use. You can either create a new resource group or select one that you've already created.
+   * **Region**: Select the region for this object. You might want to select the same location where your virtual network resides, but you aren't required to do so.
+   * **Name**: Specify a name for your local network gateway object.
+   * **Endpoint**: Select the endpoint type for the on-premises VPN device as **IP address** or **FQDN (Fully Qualified Domain Name)**.
+      * **IP address**: If you have a static public IP address allocated from your internet service provider (ISP) for your VPN device, select the IP address option. Fill in the IP address as shown in the example. This address is the public IP address of the VPN device that you want Azure VPN Gateway to connect to. If you don't have the IP address right now, you can use the values shown in the example. Later, you must go back and replace your placeholder IP address with the public IP address of your VPN device. Otherwise, Azure can't connect.
+      * **FQDN**: If you have a dynamic public IP address that could change after a certain period of time, often determined by your ISP, you can use a constant DNS name with a Dynamic DNS service to point to your current public IP address of your VPN device. Your Azure VPN gateway resolves the FQDN to determine the public IP address to connect to.
+   * **Address space**: The address space refers to the address ranges for the network that this local network represents. You can add multiple address space ranges. Make sure that the ranges you specify here don't overlap with ranges of other networks that you want to connect to. Azure routes the address range that you specify to the on-premises VPN device IP address. *Use your own values here if you want to connect to your on-premises site, not the values shown in the example*.
+
+1. On the **Advanced** tab, you can configure BGP settings, if needed.
+1. After you specify the values, select **Review + create** at the bottom of the page to validate the page.
+1. Select **Create** to create the local network gateway object.

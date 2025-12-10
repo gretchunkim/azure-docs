@@ -1,69 +1,93 @@
 ---
-title: Configure load balancer TCP idle timeout in Azure
+title: Configure load balancer TCP reset and idle timeout
 titleSuffix: Azure Load Balancer
-description: In this article, learn how to configure Azure Load Balancer TCP idle timeout.
+description: In this article, learn how to configure Azure Load Balancer TCP idle timeout and reset.
 services: load-balancer
-documentationcenter: na
-author: asudbring
-ms.custom: seodec18
-ms.service: load-balancer
-ms.devlang: na
+author: mbender-ms
+ms.service: azure-load-balancer
 ms.topic: how-to
-ms.tgt_pltfrm: na
-ms.workload: infrastructure-services
-ms.date: 01/09/2020
-ms.author: allensu
+ms.date: 02/12/2025
+ms.author: mbender
+ms.custom:
+  - template-how-to
+  - sfi-image-nochange
+# Customer intent: "As a network administrator, I want to configure TCP reset and idle timeout settings for my load balancer, so that I can ensure proper session management and maintain connections for longer periods of inactivity."
 ---
 
-# Configure TCP idle timeout settings for Azure Load Balancer
+# Configure TCP reset and idle timeout for Azure Load Balancer
 
-[!INCLUDE [updated-for-az](../../includes/updated-for-az.md)]
+Azure Load Balancer rules have a default timeout range of 4 minutes to 100 minutes for Load Balancer rules, Outbound Rules, and Inbound NAT rules. The default setting is 4 minutes. If a period of inactivity is longer than the timeout value, there's no guarantee that the TCP or HTTP session is maintained between the client and your service. 
 
-[!INCLUDE [cloud-shell-try-it.md](../../includes/cloud-shell-try-it.md)]
+The following sections describe how to change idle timeout and tcp reset settings for load balancer resources.
 
-If you choose to install and use PowerShell locally, this article requires the Azure PowerShell module version 5.4.1 or later. Run `Get-Module -ListAvailable Az` to find the installed version. If you need to upgrade, see [Install Azure PowerShell module](/powershell/azure/install-Az-ps). If you're running PowerShell locally, you also need to run `Connect-AzAccount` to create a connection with Azure.
+## Set tcp reset and idle timeout
+---
+# [**Portal**](#tab/tcp-reset-idle-portal)
 
-## TCP Idle Timeout
-Azure Load Balancer has an idle timeout setting of 4 minutes to 30 minutes. By default, it is set to 4 minutes. If a period of inactivity is longer than the timeout value, there's no guarantee that the TCP or HTTP session is maintained between the client and your cloud service.
+To set the idle timeout and tcp reset for a load balancer, edit the load-balanced rule. 
 
-When the connection is closed, your client application may receive the following error message: "The underlying connection was closed: A connection that was expected to be kept alive was closed by the server."
+1. Sign in to the [Azure portal](https://portal.azure.com).
+1. In the left-hand menu, select **Resource groups**.
+1. Select the resource group for your load balancer. In this example, the resource group is named **myResourceGroup**.
+1. Select your load balancer. In this example, the load balancer is named **myLoadBalancer**.
+1. In **Settings**, select **Load balancing rules**.
+1. Select your load-balancing rule. In this example, the load-balancing rule is named **myLBrule**.
+1. In the load-balancing rule, input your timeout value into **Idle timeout (minutes)**.  
+1. Under **TCP reset**, select **Enabled**.
+1. Select **Save**.
 
-A common practice is to use a TCP keep-alive. This practice keeps the connection active for a longer period. For more information, see these [.NET examples](https://msdn.microsoft.com/library/system.net.servicepoint.settcpkeepalive.aspx). With keep-alive enabled, packets are sent during periods of inactivity on the connection. Keep-alive packets ensure the idle timeout value isn't reached and the connection is maintained for a long period.
+# [**PowerShell**](#tab/tcp-reset-idle-powershell)
 
-The setting works for inbound connections only. To avoid losing the connection, configure the TCP keep-alive with an interval less than the idle timeout setting or increase the idle timeout value. To support these scenarios, support for a configurable idle timeout has been added.
+To set the idle timeout and tcp reset, set values in the following load-balancing rule parameters with [Set-AzLoadBalancer](/powershell/module/az.network/set-azloadbalancer):
 
-TCP keep-alive works for scenarios where battery life isn't a constraint. It isn't recommended for mobile applications. Using a TCP keep-alive in a mobile application can drain the device battery faster.
+* **IdleTimeoutInMinutes**
+* **EnableTcpReset**
 
-![TCP timeout](./media/load-balancer-tcp-idle-timeout/image1.png)
+If you choose to install and use PowerShell locally, this article requires the Azure PowerShell module version 5.4.1 or later. Run `Get-Module -ListAvailable Az` to find the installed version. If you need to upgrade, see [Install Azure PowerShell module](/powershell/azure/install-azure-powershell). If you're running PowerShell locally, you also need to run `Connect-AzAccount` to create a connection with Azure.
 
-The following sections describe how to change idle timeout settings for public IP and load balancer resources.
+Replace the following examples with the values from your resources:
 
->[!NOTE]
-> TCP idle timeout does not affect load balancing rules on UDP protocol.
+* **myResourceGroup**
+* **myLoadBalancer**
 
-
-## Configure the TCP timeout for your instance-level public IP to 15 minutes
-
-```azurepowershell-interactive
-$publicIP = Get-AzPublicIpAddress -Name MyPublicIP -ResourceGroupName MyResourceGroup
-$publicIP.IdleTimeoutInMinutes = "15"
-Set-AzPublicIpAddress -PublicIpAddress $publicIP
+```azurepowershell
+$lb = Get-AzLoadBalancer -Name "myLoadBalancer" -ResourceGroup "myResourceGroup"
+$lb.LoadBalancingRules[0].IdleTimeoutInMinutes = '15'
+$lb.LoadBalancingRules[0].EnableTcpReset = 'true'
+Set-AzLoadBalancer -LoadBalancer $lb
 ```
 
-`IdleTimeoutInMinutes` is optional. If it isn't set, the default timeout is 4 minutes. The acceptable timeout range is 4 to 30 minutes.
+# [**Azure CLI**](#tab/tcp-reset-idle-cli)
 
-## Set the TCP timeout on a load-balanced rule to 15 minutes
+To set the idle timeout and tcp reset, use the following parameters for [az network lb rule update](/cli/azure/network/lb/rule?az_network_lb_rule_update):
 
-To set the idle timeout for a load balancer, the 'IdleTimeoutInMinutes' is set on the load-balanced rule. For example:
+* **--idle-timeout**
+* **--enable-tcp-reset**
 
-```azurepowershell-interactive
-$lb = Get-AzLoadBalancer -Name "MyLoadBalancer" -ResourceGroup "MyResourceGroup"
-$lb | Set-AzLoadBalancerRuleConfig -Name myLBrule -IdleTimeoutInMinutes 15
+Validate your environment before you begin:
+
+* Sign in to the Azure portal and check that your subscription is active by running `az login`.
+* Check your version of the Azure CLI in a terminal or command window by running `az --version`. For the latest version, see the [latest release notes](/cli/azure/release-notes-azure-cli?tabs=azure-cli).
+  * If you don't have the latest version, update your installation by following the [installation guide for your operating system or platform](/cli/azure/install-azure-cli).
+
+Replace the following examples with the values from your resources:
+
+* **myResourceGroup**
+* **myLoadBalancer**
+* **myLBrule**
+
+
+```azurecli
+az network lb rule update \
+    --resource-group myResourceGroup \
+    --name myLBrule \
+    --lb-name myLoadBalancer \
+    --idle-timeout 15 \
+    --enable-tcp-reset true
 ```
+---
 ## Next steps
 
-[Internal load balancer overview](load-balancer-internal-overview.md)
+For more information on tcp idle timeout and reset, see [Load Balancer TCP Reset and Idle Timeout](load-balancer-tcp-reset.md)
 
-[Get started configuring an Internet-facing load balancer](quickstart-load-balancer-standard-public-powershell.md)
-
-[Configure a load balancer distribution mode](load-balancer-distribution-mode.md)
+For more information on configuring the load balancer distribution mode, see [Configure a load balancer distribution mode](load-balancer-distribution-mode.md).

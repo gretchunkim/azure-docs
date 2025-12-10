@@ -1,54 +1,70 @@
 ---
-title: Configure Azure role-based access control (Azure RBAC) for Azure API for FHIR
-description: This article describes how to configure Azure RBAC for the Azure API for FHIR data plane
-author: matjazl
-ms.service: healthcare-apis
-ms.subservice: fhir
-ms.topic: reference 
-ms.date: 03/15/2020
-ms.author: matjazl
-ms.reviewer: dseven
----
-# Configure Azure RBAC for FHIR 
+title: Configure Azure RBAC role for the FHIR service in Azure Health Data Services
+description: Learn how to configure Azure RBAC for the FHIR service in Azure Health Data Services. Assign roles, manage access, and safeguard your data plane.
+author: chachachachami
+ms.service: azure-health-data-services
+ms.topic: tutorial
+ms.date: 06/02/2025
+ms.author: chrupa
+ms.custom: sfi-image-nochange
+--- 
+# Configure Azure RBAC roles for Azure Health Data Services
 
-In this article, you will learn how to use [Azure role-based access control (Azure RBAC)](https://docs.microsoft.com/azure/role-based-access-control/) to assign access to the Azure API for FHIR data plane. Azure RBAC is the preferred methods for assigning data plane access when data plane users are managed in the Azure Active Directory tenant associated with your Azure subscription. If you are using an external Azure Active Directory tenant, refer to the [local RBAC assignment reference](configure-local-rbac.md).
+In this article, you learn how to use [Azure role-based access control (RBAC)](../role-based-access-control/index.yml) to assign access to the Azure Health Data Services data plane. Using Azure RBAC roles is the preferred method for assigning data plane access when data plane users are managed in the Microsoft Entra tenant associated with your Azure subscription.
 
-## Confirm Azure RBAC mode
+You can complete role assignments in the Azure portal. The FHIR&reg; service and DICOM&reg; service define application roles differently. Add or remove one or more roles to manage user access controls.
 
-To use Azure RBAC, your Azure API for FHIR must be configured to use your Azure subscription tenant for data plane and there should be no assigned identity object IDs. You can verify your settings by inspecting the **Authentication** blade of your Azure API for FHIR:
+## Assign roles for the FHIR service
 
-:::image type="content" source="media/rbac/confirm-azure-rbac-mode.png" alt-text="Confirm Azure RBAC mode":::
+To grant users, service principals, or groups access to the FHIR data plane, go to the FHIR service in the Azure portal. Select **Access control (IAM)**, and then select the **Role assignments** tab. Select **+Add**, and then select **Add role assignment**.
 
-The **Authority** should be set to the Azure Active directory tenant associated with your subscription and there should be no GUIDs in the box labeled **Allowed object IDs**. You will also notice that the box is disabled and a label indicates that Azure RBAC should be used to assign data plane roles.
+If the role assignment option is grayed out, ask your Azure subscription administrator to grant you with the permissions to the subscription or the resource group, for example, **User Access Administrator**. For more information, see [Azure built-in roles](../role-based-access-control/built-in-roles.md).
 
-## Assign roles
+:::image type="content" source="media/rbac/select-role-assignment.png" alt-text="Screenshot showing role assignment selection." lightbox="media/rbac/select-role-assignment.png":::
 
-To grant users, service principals or groups access to the FHIR data plane, click **Access control (IAM)**, then click **Role assignments** and click **+ Add**:
+In the **Role** selection, search for one of the built-in roles for the FHIR data plane. You can choose from these roles:
 
-:::image type="content" source="media/rbac/add-azure-rbac-role-assignment.png" alt-text="Add Azure role assignment":::
+* **FHIR Data Reader**: Can read (and search) FHIR data.
+* **FHIR Data Writer**: Can read, write, and soft delete FHIR data.
+* **FHIR Data Exporter**: Can read and export ($export operator) data.
+* **FHIR Data Contributor**: Can perform all data plane operations.
+* **FHIR Data Converter**: Can use the converter to perform data conversion.
+* **FHIR SMART User**: Can read and write FHIR data according to the SMART IG V1.0.0 specifications.
 
-In the **Role** selection, search for one of the built-in roles for the FHIR data plane:
+In the **Select** section, type the client application registration name. If the name is found, the application name is listed. Select the application name, and then select **Save**.
 
-:::image type="content" source="media/rbac/built-in-fhir-data-roles.png" alt-text="Built-in FHIR data roles":::
+If the client application isn’t found, check your application registration. This is to ensure that the name is correct. Ensure that the client application is created in the same tenant where the FHIR service in Azure Health Data Services (hereby called the FHIR service) is deployed in.
+
+:::image type="content" source="media/rbac/select-role-assignment.png" alt-text="Screenshot showing selection of role assignment." lightbox="media/rbac/select-role-assignment.png":::
+
+You can verify the role assignment by selecting the **Role assignments** tab from the **Access control (IAM)** menu option.
+
+## Assign roles for the DICOM service
+
+To grant users, service principals, or groups access to the DICOM data plane, select the **Access control (IAM)** blade. Select the**Role assignments** tab, and select **+ Add**.
+
+:::image type="content" source="media/rbac/dicom-access-control.png" alt-text="Screenshot showing DICOM access control." lightbox="media/rbac/dicom-access-control.png":::
+
+In the **Role** selection, search for one of the built-in roles for the DICOM data plane:
+
+:::image type="content" source="media/rbac/rbac-add-role-assignment.png" alt-text="Screenshot showing how to add an RBAC role assignment." lightbox="media/rbac/rbac-add-role-assignment.png":::
 
 You can choose between:
 
-* FHIR Data Reader: Can read (and search) FHIR data.
-* FHIR Data Writer: Can read, write, and soft delete FHIR data.
-* FHIR Data Exporter: Can read and export (`$export` operator) data.
-* FHIR Data Contributor: Can perform all data plane operations.
+* DICOM Data Owner:  Full access to DICOM data.
+* DICOM Data Reader: Read and search DICOM data.
 
-If these roles are not sufficient for your need, you can also [create custom roles](https://docs.microsoft.com/azure/role-based-access-control/tutorial-custom-role-powershell).
+If these roles aren’t sufficient, you can use PowerShell to create custom roles. For information about creating custom roles, see [Create a custom role by using Azure PowerShell](../role-based-access-control/custom-roles-powershell.md).
 
-In the **Select** box, search for a user, service principal, or group that you wish to assign the role to.
+In the **Select** box, search for a user, service principal, or group that you want to assign the role to.
 
-## Caching behavior
-
-The Azure API for FHIR will cache decisions for up to 5 minutes. If you grant a user access to the FHIR server by adding them to the list of allowed object IDs, or you remove them from the list, you should expect it to take up to five minutes for changes in permissions to propagate.
+> [!NOTE]
+> If you can't access the FHIR or DICOM service in your application or other tools, you might need to wait a few more minutes for the role assignment to finish propagating in the system.
 
 ## Next steps
 
-In this article, you learned how to assign Azure roles for the FHIR data plane. Next learn about additional settings for the Azure API for FHIR:
- 
->[!div class="nextstepaction"]
->[Additional settings Azure API for FHIR](azure-api-for-fhir-additional-settings.md)
+[Access by using the REST Client](./fhir/using-rest-client.md)
+
+[Access by using cURL](./fhir/using-curl.md)
+
+[!INCLUDE [FHIR and DICOM trademark statement](./includes/healthcare-apis-fhir-dicom-trademark.md)]

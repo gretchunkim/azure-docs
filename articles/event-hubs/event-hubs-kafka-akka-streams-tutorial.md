@@ -2,11 +2,15 @@
 title: Using Akka Streams for Apache Kafka - Azure Event Hubs| Microsoft Docs
 description: This article provides information on how to connect Akka Streams to an Azure event hub. 
 ms.topic: how-to
-ms.date: 06/23/2020
+ms.date: 03/06/2025
+ms.subservice: kafka
+ms.devlang: java
+ms.custom: sfi-ropc-nochange
 ---
 
 # Using Akka Streams with Event Hubs for Apache Kafka
-This tutorial shows you how to connect Akka Streams to an event hub without changing your protocol clients or running your own clusters. Azure Event Hubs for the Kafka supports [Apache Kafka version 1.0.](https://kafka.apache.org/10/documentation.html)
+
+This tutorial shows you how to connect Akka Streams through the Event Hubs support for Apache Kafka without changing your protocol clients or running your own clusters. 
 
 In this tutorial, you learn how to:
 > [!div class="checklist"]
@@ -22,9 +26,9 @@ In this tutorial, you learn how to:
 
 To complete this tutorial, make sure you have the following prerequisites:
 
-* Read through the [Event Hubs for Apache Kafka](event-hubs-for-kafka-ecosystem-overview.md) article. 
-* An Azure subscription. If you do not have one, create a [free account](https://azure.microsoft.com/free/?ref=microsoft.com&utm_source=microsoft.com&utm_medium=docs&utm_campaign=visualstudio) before you begin.
-* [Java Development Kit (JDK) 1.8+](https://aka.ms/azure-jdks)
+* Read through the [Event Hubs for Apache Kafka](azure-event-hubs-apache-kafka-overview.md) article. 
+* An Azure subscription. If you don't have one, create a [free account](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn) before you begin.
+* [Java Development Kit (JDK) 1.8+](/azure/developer/java/fundamentals/java-support-on-azure)
     * On Ubuntu, run `apt-get install default-jdk` to install the JDK.
     * Be sure to set the JAVA_HOME environment variable to point to the folder where the JDK is installed.
 * [Download](https://maven.apache.org/download.cgi) and [install](https://maven.apache.org/install.html) a Maven binary archive
@@ -38,7 +42,7 @@ An Event Hubs namespace is required to send or receive from any Event Hubs servi
 
 ## Clone the example project
 
-Now that you have a Event Hubs connection string, clone the Azure Event Hubs for Kafka repository and navigate to the `akka` subfolder:
+Now that you have an Event Hubs connection string, clone the Azure Event Hubs for Kafka repository and navigate to the `akka` subfolder:
 
 ```shell
 git clone https://github.com/Azure/azure-event-hubs-for-kafka.git
@@ -71,9 +75,13 @@ akka.kafka.producer {
 }
 ```
 
+> [!IMPORTANT]
+> Replace `{YOUR.EVENTHUBS.CONNECTION.STRING}` with the connection string for your Event Hubs namespace. For instructions on getting the connection string, see [Get an Event Hubs connection string](event-hubs-get-connection-string.md). Here's an example configuration: `sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="$ConnectionString" password="Endpoint=sb://mynamespace.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=XXXXXXXXXXXXXXXX";`
+
+
 ### Run producer from the command line
 
-To run the producer from the command line, generate the JAR and then run from within Maven (or generate the JAR using Maven, then run in Java by adding the necessary Kafka JAR(s) to the classpath):
+To run the producer from the command line, generate the JAR and then run from within Maven (or generate the JAR using Maven, then run in Java by adding the necessary Kafka Java Archive files (JARs) to the classpath):
 
 ```shell
 mvn clean package
@@ -111,9 +119,13 @@ akka.kafka.consumer {
 }
 ```
 
+> [!IMPORTANT]
+> Replace `{YOUR.EVENTHUBS.CONNECTION.STRING}` with the connection string for your Event Hubs namespace. For instructions on getting the connection string, see [Get an Event Hubs connection string](event-hubs-get-connection-string.md). Here's an example configuration: `sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="$ConnectionString" password="Endpoint=sb://mynamespace.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=XXXXXXXXXXXXXXXX";`
+
+
 ### Run consumer from the command line
 
-To run the consumer from the command line, generate the JAR and then run from within Maven (or generate the JAR using Maven, then run in Java by adding the necessary Kafka JAR(s) to the classpath):
+To run the consumer from the command line, generate the JAR and then run from within Maven (or generate the JAR using Maven, then run in Java by adding the necessary Kafka JARs to the classpath):
 
 ```shell
 mvn clean package

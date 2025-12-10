@@ -1,12 +1,12 @@
 ---
 title: Create SignalR Service with App Service using Azure CLI
 description: Use Azure CLI to create SignalR Service with App Service. Learn all CLI commands for Azure SignalR Service.
-author: sffamily
-ms.service: signalr
+author: vicancy
+ms.service: azure-signalr-service
 ms.devlang: azurecli
 ms.topic: sample
-ms.date: 11/13/2018
-ms.author: zhshang
+ms.date: 03/30/2022
+ms.author: lianwei
 ms.custom: mvc, devx-track-azurecli
 ---
 
@@ -14,62 +14,31 @@ ms.custom: mvc, devx-track-azurecli
 
 This sample script creates a new Azure SignalR Service resource, which is used to push real-time content updates to clients. This script also adds a new Web App and App Service plan to host your ASP.NET Core Web App that uses the SignalR Service. The web app is configured with an App Setting named *AzureSignalRConnectionString* to connect to the new SignalR service resource.
 
-[!INCLUDE [quickstarts-free-trial-note](../../../includes/quickstarts-free-trial-note.md)]
+[!INCLUDE [quickstarts-free-trial-note](~/reusable-content/ce-skilling/azure/includes/quickstarts-free-trial-note.md)]
 
-[!INCLUDE [cloud-shell-try-it.md](../../../includes/cloud-shell-try-it.md)]
+[!INCLUDE [azure-cli-prepare-your-environment.md](~/reusable-content/azure-cli/azure-cli-prepare-your-environment.md)]
 
-If you choose to install and use the CLI locally, this article requires that you are running the Azure CLI version 2.0 or later. Run `az --version` to find the version. If you need to install or upgrade, see [Install the Azure CLI]( /cli/azure/install-azure-cli). 
+[!INCLUDE [Connection string security](../includes/signalr-connection-string-security.md)]
 
 ## Sample script
 
-This script uses the *signalr* extension for the Azure CLI. Execute the following command to install the *signalr* extension for the Azure CLI before using this sample script:
+[!INCLUDE [cli-launch-cloud-shell-sign-in.md](~/reusable-content/ce-skilling/azure/includes/cli-launch-cloud-shell-sign-in.md)]
 
-```azurecli-interactive
-#!/bin/bash
+### Run the script
 
-# Generate a unique suffix for the service name
-let randomNum=$RANDOM*$RANDOM
+[!INCLUDE [Connection string security comment](../includes/signalr-connection-string-security-comment.md)]
 
-# Generate unique names for the SignalR service, resource group, 
-# app service, and app service plan
-SignalRName=SignalRTestSvc$randomNum
-#resource name must be lowercase
-mySignalRSvcName=${SignalRName,,}
-myResourceGroupName=$SignalRName"Group"
-myWebAppName=SignalRTestWebApp$randomNum
-myAppSvcPlanName=$myAppSvcName"Plan"
+:::code language="azurecli" source="~/azure_cli_scripts/azure-signalr/create-signalr-with-app-service/create-signalr-with-app-service.sh" id="FullScript":::
 
-# Create resource group 
-az group create --name $myResourceGroupName --location eastus
+## Clean up resources
 
-# Create the Azure SignalR Service resource
-az signalr create \
-  --name $mySignalRSvcName \
-  --resource-group $myResourceGroupName \
-  --sku Standard_S1 \
-  --unit-count 1 \
-  --service-mode Default
+[!INCLUDE [cli-clean-up-resources.md](~/reusable-content/ce-skilling/azure/includes/cli-clean-up-resources.md)]
 
-# Create an App Service plan.
-az appservice plan create --name $myAppSvcPlanName --resource-group $myResourceGroupName --sku FREE
-
-# Create the Web App
-az webapp create --name $myWebAppName --resource-group $myResourceGroupName --plan $myAppSvcPlanName  
-
-# Get the SignalR primary connection string
-primaryConnectionString=$(az signalr key list --name $mySignalRSvcName \
-  --resource-group $myResourceGroupName --query primaryConnectionString -o tsv)
-
-#Add an app setting to the web app for the SignalR connection
-az webapp config appsettings set --name $myWebAppName --resource-group $myResourceGroupName \
-  --settings "AzureSignalRConnectionString=$primaryConnectionString"
+```azurecli
+az group delete --name $resourceGroup
 ```
 
-Make a note of the actual name generated for the new resource group. It will be shown in the output. You will use that resource group name when you want to delete all group resources.
-
-[!INCLUDE [cli-script-clean-up](../../../includes/cli-script-clean-up.md)]
-
-## Script explanation
+## Sample reference
 
 Each command in the table links to command specific documentation. This script uses the following commands:
 

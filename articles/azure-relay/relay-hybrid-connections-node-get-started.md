@@ -1,14 +1,14 @@
 ---
 title: Azure Relay Hybrid Connections - WebSockets in Node
-description: Write a Node.js console application for Azure Relay Hybrid Connections Websockets
-ms.topic: conceptual
-ms.date: 06/23/2020
-ms.custom: devx-track-javascript
+description: Write a Node.js console application for Azure Relay Hybrid Connections WebSockets.
+ms.topic: tutorial
+ms.date: 01/04/2024
+ms.custom: devx-track-js,  mode-ui, mode-api
 ---
 
 # Get started with Relay Hybrid Connections WebSockets in Node.js
 
-[!INCLUDE [relay-selector-hybrid-connections](../../includes/relay-selector-hybrid-connections.md)]
+[!INCLUDE [relay-selector-hybrid-connections](./includes/relay-selector-hybrid-connections.md)]
 
 In this quickstart, you create Node.js sender and receiver applications that send and receive messages by using Hybrid Connections WebSockets in Azure Relay. 
 To learn about Azure Relay in general, see [Azure Relay](relay-what-is-it.md). 
@@ -24,23 +24,23 @@ In this quickstart, you take the following steps:
 ## Prerequisites
 
 - [Node.js](https://nodejs.org/en/).
-- An Azure subscription. If you don't have one, [create a free account](https://azure.microsoft.com/free/) before you begin.
+- An Azure subscription. If you don't have one, [create a free account](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn) before you begin.
 
 ## Create a namespace
-[!INCLUDE [relay-create-namespace-portal](../../includes/relay-create-namespace-portal.md)]
+[!INCLUDE [relay-create-namespace-portal](./includes/relay-create-namespace-portal.md)]
 
 ## Create a hybrid connection
-[!INCLUDE [relay-create-hybrid-connection-portal](../../includes/relay-create-hybrid-connection-portal.md)]
+[!INCLUDE [relay-create-hybrid-connection-portal](./includes/relay-create-hybrid-connection-portal.md)]
 
 ## Create a server application (listener)
 To listen and receive messages from the Relay, write a Node.js console application.
 
-[!INCLUDE [relay-hybrid-connections-node-get-started-server](../../includes/relay-hybrid-connections-node-get-started-server.md)]
+[!INCLUDE [relay-hybrid-connections-node-get-started-server](./includes/relay-hybrid-connections-node-get-started-server.md)]
 
 ## Create a client application (sender)
 To send messages to the Relay, write a Node.js console application.
 
-[!INCLUDE [relay-hybrid-connections-node-get-started-client](../../includes/relay-hybrid-connections-node-get-started-client.md)]
+[!INCLUDE [relay-hybrid-connections-node-get-started-client](./includes/relay-hybrid-connections-node-get-started-client.md)]
 
 ## Run the applications
 
@@ -48,7 +48,7 @@ To send messages to the Relay, write a Node.js console application.
 2. Run the client application: from a Node.js command prompt type `node sender.js`, and enter some text.
 3. Ensure that the server application console outputs the text that was entered in the client application.
 
-    ![running-applications](./media/relay-hybrid-connections-node-get-started/running-applications.png)
+    ![Console windows testing both the server and client applications.](./media/relay-hybrid-connections-node-get-started/running-applications.png)
 
 Congratulations, you have created an end-to-end Hybrid Connections application using Node.js!
 

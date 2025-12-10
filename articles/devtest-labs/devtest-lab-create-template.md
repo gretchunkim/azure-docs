@@ -1,72 +1,70 @@
 ---
-title: Create an Azure DevTest Labs custom image from a VHD file | Microsoft Docs
-description: Learn how to create a custom image in Azure DevTest Labs from a VHD file using the Azure portal
-ms.topic: article
-ms.date: 06/26/2020
+title: Create custom images for lab VMs from VHD files
+description: Use the Azure portal to create an Azure DevTest Labs virtual machine (VM) custom image from a virtual hard disk (VHD) file.
+ms.topic: how-to
+ms.author: rosemalcolm
+author: RoseHJM
+ms.date: 03/31/2025
+ms.custom: UpdateFrequency2
+
+#customer intent: As a lab user, I want to create lab VM custom images by using VHD files, so I can provide a variety of images to lab users for creating VMs.
+
 ---
 
-# Create a custom image from a VHD file
+# Create a custom image for an Azure DevTest Labs virtual machine from a VHD file
 
 [!INCLUDE [devtest-lab-create-custom-image-from-vhd-selector](../../includes/devtest-lab-create-custom-image-from-vhd-selector.md)]
 
+In this article, you learn how to create an Azure DevTest Labs virtual machine (VM) custom image by using a virtual hard disk (VHD) file. This article describes how to create a custom image in the Azure portal. You can also [use PowerShell to create a custom image](devtest-lab-create-custom-image-from-vhd-using-powershell.md).
+
 [!INCLUDE [devtest-lab-custom-image-definition](../../includes/devtest-lab-custom-image-definition.md)]
 
-[!INCLUDE [devtest-lab-upload-vhd-options](../../includes/devtest-lab-upload-vhd-options.md)]
+## Prerequisites
 
-## Step-by-step instructions
+- **Owner** or **Contributor** permissions in the lab where you want to create the custom image.
+- A VHD file uploaded to the Azure Storage account for the lab. To upload a VHD file:
 
-The following steps walk you through creating a custom image from a VHD file using the Azure portal:
+  1. Go to your lab storage account in the Azure portal and select **Upload**.
+  1. Browse to and select the VHD file, select the **uploads** container or create a new container named **uploads**, and then select **Upload**.
 
-1. Sign in to the [Azure portal](https://go.microsoft.com/fwlink/p/?LinkID=525040).
+  You can also upload a VHD file by following the instructions in any of these articles:
 
-1. Select **All services**, and then select **DevTest Labs** from the list.
+  - [Upload a VHD file by using the AzCopy command-line utility](devtest-lab-upload-vhd-using-azcopy.md)
+  - [Upload a VHD file by using Microsoft Azure Storage Explorer](devtest-lab-upload-vhd-using-storage-explorer.md)
+  - [Upload a VHD file by using PowerShell](devtest-lab-upload-vhd-using-powershell.md)
 
-1. From the list of labs, select the desired lab.  
+## Create the custom image
 
-1. On the lab's main pane, select **Configuration and policies**. 
+To create a custom image for DevTest Labs from a VHD file, follow these steps:
 
-1. On the **Configuration and policies** pane, select **Custom images**.
+1. In the [Azure portal](https://go.microsoft.com/fwlink/p/?LinkID=525040), go to the lab that has the uploaded VHD file.
+1. On the lab **Overview** page, select **Configuration and policies** in the left navigation.
+1. On the **Configuration and policies** page, select **Custom images** under **Virtual machine bases** in the left navigation.
+1. On the **Custom images** page, select **Add**.
 
-1. On the **Custom images** pane, select **+Add**.
+   :::image type="content" source="media/devtest-lab-create-template/add-custom-image.png" alt-text="Screenshot that shows the Custom image page with the Add button.":::
 
-    ![Add Custom image](./media/devtest-lab-create-template/add-custom-image.png)
+1. Fill out the **Custom image** page as follows:
 
-1. Enter the name of the custom image. This name is displayed in the list of base images when creating a VM.
+   - **Name**: Enter a name for the custom image to display in the list of base images for creating a VM.
+   - **Description**: Enter an optional description to display in the base image list.
+   - **OS type**: Select whether the OS for the VHD and custom image is **Windows** or **Linux**.
+     - If you choose **Windows**, select the checkbox if you ran **sysprep** on the machine when you created the VHD file.
+     - If you choose **Linux**, select the checkbox if you ran **deprovision** on the machine when you created the VHD file.
+   - **VHD Generation**: Select whether you have a **V1** (VHD) or **V2** (VHDX) file.
+   - **VHD**: Select the uploaded VHD file for the custom image from the dropdown menu.
+   - **Plan name,** **Plan offer**, and **Plan publisher**: If the VHD isn't a licensed image published by Microsoft, optionally enter the name of the Marketplace image or SKU used to create the VHD, a product or offer name, and the plan publisher. If the image is a licensed image, these fields are prepopulated with the plan information.
 
-1. Enter the description of the custom image. This description is displayed in the list of base images when creating a VM.
+1. Select **OK**.
 
-1. For **OS type**, select either **Windows** or **Linux**.
+   :::image type="content" source="media/devtest-lab-create-template/create-custom-image.png" alt-text="Screenshot that shows the Custom image page.":::
 
-    - If you select **Windows**, specify via the checkbox whether *sysprep* has been run on the machine. 
-    - If you select **Linux**, specify via the checkbox whether *deprovision* has been run on the machine. 
+After creation, the custom image is stored in the lab's storage account. The image appears on the lab **Custom images** page and on the list of VM base images for the lab. Lab users can create new VMs based on the custom image.
 
-1. Select a **VHD** from the drop-down menu. This is the VHD that will be used to create the new custom image. If necessary, select to **Upload a VHD using PowerShell**.
+:::image type="content" source="media/devtest-lab-create-template/custom-image-available-as-base.png" alt-text="Screenshot that shows the Custom images available in the list of base images.":::
 
-1. You can also enter a plan name, plan offer, and plan publisher if the image used to create the custom image is not a licensed image (published by Microsoft).
+## Related content
 
-   - **Plan name:** Enter the name of the Marketplace image (SKU) from which this custom image is created 
-   - **Plan offer:** Enter the product (offer) of the Marketplace image from which this custom image is created 
-   - **Plan publisher:** Enter the publisher of the Marketplace image from which this custom image is created
-
-   > [!NOTE]
-   > If the image you are using to create a custom image is **not** a licensed image, then these fields are empty and can be filled in if you choose. If the image **is** a licensed image, then the fields are auto populated with the plan information. If you try to change them in this case, a warning message is displayed.
-   >
-   >
-
-1. Select **OK** to create the custom image.
-
-After a few minutes, the custom image is created and is stored inside the lab’s storage account. When a lab user wants to create a new VM, the image is available in the list of base images.
-
-![Custom image available in list of base images](./media/devtest-lab-create-template/custom-image-available-as-base.png)
-
-
-[!INCLUDE [devtest-lab-try-it-out](../../includes/devtest-lab-try-it-out.md)]
-
-## Related blog posts
-
-- [Custom images or formulas?](./devtest-lab-faq.md#blog-post)
-- [Copying Custom Images between Azure DevTest Labs](https://www.visualstudiogeeks.com/blog/DevOps/How-To-Move-CustomImages-VHD-Between-AzureDevTestLabs#copying-custom-images-between-azure-devtest-labs)
-
-## Next steps
-
-- [Add a VM to your lab](./devtest-lab-add-vm.md)
+- [Add a VM to your lab](devtest-lab-add-vm.md)
+- [Compare custom images and formulas in DevTest Labs](devtest-lab-comparing-vm-base-image-types.md)
+- [Copying Custom Images between Labs](https://www.visualstudiogeeks.com/blog/DevOps/How-To-Move-CustomImages-VHD-Between-AzureDevTestLabs#copying-custom-images-between-azure-devtest-labs)

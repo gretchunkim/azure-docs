@@ -1,14 +1,14 @@
 ---
 title: Analyze schema with arrays and nested structures
 description: How to analyze arrays and nested structures with Apache Spark and SQL
-services: synapse-analytics 
-author: ArnoMicrosoft
-ms.service: synapse-analytics 
+author: im-microsoft
+ms.service: azure-synapse-analytics
 ms.topic: how-to
-ms.subservice: 
+ms.subservice: spark
 ms.date: 06/15/2020
-ms.author: acomet
-ms.reviewer: jrasnick
+ms.author: imotiwala
+ms.custom: sfi-image-nochange
+
 ---
 
 # Analyze complex data types in Azure Synapse Analytics
@@ -23,7 +23,7 @@ Data engineers need to understand how to efficiently process complex data types 
 
 ## What are arrays and nested structures?
 
-The following object comes from [Application Insights](https://docs.microsoft.com/azure/azure-monitor/app/app-insights-overview). In this object, there are nested structures and arrays that contain nested structures.
+The following object comes from [Application Insights](/azure/azure-monitor/app/app-insights-overview). In this object, there are nested structures and arrays that contain nested structures.
 
 ```json
 {
@@ -215,5 +215,6 @@ There are two different types of operations:
 
 ## Next steps
 
-* [Learn how to query Synapse Link for Azure Cosmos DB with Spark](./synapse-link/how-to-query-analytical-store-spark.md)
-* [Query Parquet nested types](./sql/query-parquet-nested-types.md) 
+* [Learn how to query Synapse Link for Azure Cosmos DB with Spark 3](./synapse-link/how-to-query-analytical-store-spark-3.md)
+* [Learn how to query Synapse Link for Azure Cosmos DB with Spark 2](./synapse-link/how-to-query-analytical-store-spark.md)
+* [Query Parquet nested types](./sql/query-parquet-nested-types.md)

@@ -1,20 +1,21 @@
 ---
 title: Host multiple web sites using PowerShell
 titleSuffix: Azure Application Gateway
-description: Learn how to create an application gateway that hosts multiple web sites using Azure Powershell.
+description: Learn how to create an application gateway that hosts multiple web sites using Azure PowerShell.
 services: application-gateway
-author: vhorne
-ms.service: application-gateway
+author: mbender-ms
+ms.service: azure-application-gateway
 ms.topic: how-to
 ms.date: 07/20/2020
-ms.author: victorh
-ms.custom: mvc
+ms.author: mbender
+ms.custom: mvc, devx-track-azurepowershell
 #Customer intent: As an IT administrator, I want to use Azure PowerShell to configure Application Gateway to host multiple web sites , so I can ensure my customers can access the web information they need.
+# Customer intent: As an IT administrator, I want to configure an application gateway using Azure PowerShell to host multiple web sites, so that I can efficiently manage and direct web traffic for different domains within a unified service.
 ---
 
 # Create an application gateway that hosts multiple web sites using Azure PowerShell
 
-You can use Azure Powershell to [configure the hosting of multiple web sites](multiple-site-overview.md) when you create an [application gateway](overview.md). In this article, you define backend address pools using virtual machines scale sets. You then configure listeners and rules based on domains that you own to make sure web traffic arrives at the appropriate servers in the pools. This article assumes that you own multiple domains and uses examples of *www.contoso.com* and *www.fabrikam.com*.
+You can use Azure PowerShell to [configure the hosting of multiple web sites](multiple-site-overview.md) when you create an [application gateway](overview.md). In this article, you define backend address pools using virtual machines scale sets. You then configure listeners and rules based on domains that you own to make sure web traffic arrives at the appropriate servers in the pools. This article assumes that you own multiple domains and uses examples of `www.contoso.com` and `www.fabrikam.com`.
 
 In this article, you learn how to:
 
@@ -27,13 +28,13 @@ In this article, you learn how to:
 
 :::image type="content" source="./media/tutorial-multiple-sites-powershell/scenario.png" alt-text="Multi-site Application Gateway":::
 
-If you don't have an Azure subscription, create a [free account](https://azure.microsoft.com/free/?WT.mc_id=A261C142F) before you begin.
+If you don't have an Azure subscription, create a [free account](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn) before you begin.
 
-[!INCLUDE [updated-for-az](../../includes/updated-for-az.md)]
+[!INCLUDE [updated-for-az](~/reusable-content/ce-skilling/azure/includes/updated-for-az.md)]
 
-[!INCLUDE [cloud-shell-try-it.md](../../includes/cloud-shell-try-it.md)]
+[!INCLUDE [cloud-shell-try-it.md](~/reusable-content/ce-skilling/azure/includes/cloud-shell-try-it.md)]
 
-If you choose to install and use the PowerShell locally, this article requires the Azure PowerShell module version 1.0.0 or later. To find the version, run `Get-Module -ListAvailable Az` . If you need to upgrade, see [Install Azure PowerShell module](/powershell/azure/install-az-ps). If you're running PowerShell locally, you also need to run `Login-AzAccount` to create a connection with Azure.
+If you choose to install and use the PowerShell locally, this article requires the Azure PowerShell module version 1.0.0 or later. To find the version, run `Get-Module -ListAvailable Az` . If you need to upgrade, see [Install Azure PowerShell module](/powershell/azure/install-azure-powershell). If you're running PowerShell locally, you also need to run `Login-AzAccount` to create a connection with Azure.
 
 ## Create a resource group
 
@@ -122,8 +123,8 @@ Listeners are required to enable the application gateway to route traffic approp
 Create the first listener using [New-AzApplicationGatewayHttpListener](/powershell/module/az.network/new-azapplicationgatewayhttplistener) with the frontend configuration and frontend port that you previously created. A rule is required for the listener to know which backend pool to use for incoming traffic. Create a basic rule named *contosoRule* using [New-AzApplicationGatewayRequestRoutingRule](/powershell/module/az.network/new-azapplicationgatewayrequestroutingrule).
 
 >[!NOTE]
-> With Application Gateway or WAF v2 SKU, you can also configure up to 5 host names per listener and you can use wildcard characters in the host name. See [wildcard host names in listener](multiple-site-overview.md#wildcard-host-names-in-listener-preview) for more information.
->To use multiple host names and wildcard characters in a listener using Azure PowerShell, you must use `-HostNames` instead of `-HostName`. With HostNames, you can mention up to 5 host names as comma-separated values. For example, `-HostNames "*.contoso.com,*.fabrikam.com"`
+> With Application Gateway or WAF v2 SKU, you can also configure up to 5 host names per listener and you can use wildcard characters in the host name. See [wildcard host names in listener](multiple-site-overview.md#wildcard-host-names-in-listener) for more information.
+>To use multiple host names and wildcard characters in a listener using Azure PowerShell, you must use `-HostNames` instead of `-HostName`. With HostNames, you can mention up to 5 host names as comma-separated values. For example, `-HostNames "*.contoso.com","*.fabrikam.com"`
 
 ```azurepowershell-interactive
 $contosolistener = New-AzApplicationGatewayHttpListener `
@@ -152,6 +153,26 @@ $fabrikamRule = New-AzApplicationGatewayRequestRoutingRule `
   -RuleType Basic `
   -HttpListener $fabrikamListener `
   -BackendAddressPool $fabrikamPool `
+  -BackendHttpSettings $poolSettings
+```
+
+### Add priority to routing rules
+
+```azurepowershell-interactive
+$contosoRule = New-AzApplicationGatewayRequestRoutingRule `
+  -Name wccontosoRule `
+  -RuleType Basic `
+  -Priority 200 `
+  -HttpListener $wccontosoListener `
+  -BackendAddressPool $wccontosoPool `
+  -BackendHttpSettings $poolSettings
+
+$fabrikamRule = New-AzApplicationGatewayRequestRoutingRule `
+  -Name shopcontosoRule `
+  -RuleType Basic `
+  -Priority 100 `
+  -HttpListener $shopcontosoListener `
+  -BackendAddressPool $shopcontosoPool `
   -BackendHttpSettings $poolSettings
 ```
 

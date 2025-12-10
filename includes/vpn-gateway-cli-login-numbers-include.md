@@ -3,11 +3,11 @@
  description: include file
  services: vpn-gateway
  author: cherylmc
- ms.service: vpn-gateway
+ ms.service: azure-vpn-gateway
  ms.topic: include
  ms.date: 03/21/2018
  ms.author: cherylmc
- ms.custom: include file
+ ms.custom: include file, devex-tag-azurecli
 ---
 1. Sign in to your Azure subscription with the [az login](/cli/azure/) command and follow the on-screen directions. For more information about signing in, see [Get Started with Azure CLI](/cli/azure/get-started-with-azure-cli).
 

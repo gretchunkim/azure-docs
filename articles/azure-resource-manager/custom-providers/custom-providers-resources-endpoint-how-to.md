@@ -1,7 +1,7 @@
----
+﻿---
 title: Adding custom resources to Azure REST API
 description: Learn how to add custom resources to the Azure REST API. This article will walk through the requirements and best practices for endpoints that wish to implement custom resources.
-ms.topic: conceptual
+ms.topic: article
 ms.author: jobreen
 author: jjbfour
 ms.date: 06/20/2019
@@ -41,13 +41,13 @@ An **endpoint** that implements an **resourceType** must handle the request and 
 
 Manipulate Single Resource (`PUT`, `GET`, and `DELETE`):
 
-``` JSON
+```http
 /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.CustomProviders/resourceProviders/{resourceProviderName}/myCustomResource/{myCustomResourceName}
 ```
 
 Retrieve All Resources (`GET`):
 
-``` JSON
+```http
 /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.CustomProviders/resourceProviders/{resourceProviderName}/myCustomResource
 ```
 
@@ -132,7 +132,7 @@ Azure Resource Manager Templates require that `id`, `name`, and `type` are retur
 
 Sample **endpoint** response:
 
-``` JSON
+```json
 {
   "properties": {
     "myProperty1": "myPropertyValue1",
@@ -171,7 +171,7 @@ Sample Azure Resource Manager Template:
 
 Parameter | Required | Description
 ---|---|---
-resourceTypeName | *yes* | The **name** of the **resourceType** defined in the custom provider.
+resourceTypeName | *yes* | The **name** of the **resourceType** defined in the custom resource provider.
 resourceProviderName | *yes* | The custom resource provider instance name.
 customResourceName | *yes* | The custom resource name.
 
@@ -183,3 +183,4 @@ customResourceName | *yes* | The custom resource name.
 - [How To: Adding Custom Actions to Azure REST API](./custom-providers-action-endpoint-how-to.md)
 - [Reference: Custom Resource Proxy Reference](proxy-resource-endpoint-reference.md)
 - [Reference: Custom Resource Cache Reference](proxy-cache-resource-endpoint-reference.md)
+

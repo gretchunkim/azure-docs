@@ -1,32 +1,41 @@
 ---
-title: Quotas in Azure Static Web Apps Preview
-description: Learn about quotas associated with Azure Static Web Apps Preview
+title: Quotas in Azure Static Web Apps
+description: Learn about quotas associated with Azure Static Web Apps
 services: static-web-apps
-author: craigshoemaker
-ms.service: static-web-apps
+author: v1212
+ms.service: azure-static-web-apps
 ms.topic:  overview
-ms.date: 05/08/2020
-ms.author: cshoe
+ms.date: 05/30/2024
+ms.author: wujia
 ---
 
-# Quotas in Azure Static Web Apps Preview
+# Quotas in Azure Static Web Apps
 
-The following quotas exist for Azure Static Web Apps Preview.
+Subscription limits:
 
-> [!IMPORTANT]
-> Azure Static Web Apps is in public preview and is not intended for production use.
+| Feature                             | Free plan   | Standard plan | Dedicated plan (Preview) |
+|-------------------------------------|-------------|---------------|--------------------------|
+| Included bandwidth (per month)      | 100 GB      | 100 GB        | 100 GB                   |
+| Overage bandwidth                   | Unavailable | $0.20 per GB  | $0.20 per GB             |
+| Apps                                | 10          | 100           | 1                        |
 
-| Feature                     | Free plan        |
-|-----------------------------|------------------|
-| Included bandwidth          | 100 GB per month |
-| Overage bandwidth           | Unavailable      |
-| Apps per Azure subscription | 10               |
-| App size                    | 100 MB           |
-| Pre-production environments | 1                |
-| Custom domains              | 1                |
-| Authorization<br><br>With custom roles and routing rules | Max 25 end-users invited and assigned roles |
-| Azure Functions             | Available        |
-| SLA                         | None             |
+If you need more apps on the Standard plan, contact Azure Support.
+
+App limits:
+
+| Feature                             | Free plan   | Standard plan | Dedicated plan (Preview) |
+|-------------------------------------|-------------|---------------|--------------------------|
+| [Preview environments][3]           | 3           | 10            | 10                       |
+| Total storage (all environments)    | 500 MB      | 2 GB          | 2 GB                     |
+| Storage (single environment)        | 250 MB      | 500 MB        | 500 MB                   |
+| File count                          | 15,000      | 15,000        | 15,000                   |
+| [Custom domains][1]                 | 2           | 6             | 6                        |
+| [Private endpoint][4]               | Unavailable | 1             | 1                        |
+| Allowed IP range restrictions       | Unavailable | 25            | 25                       |
+| [Authorization (custom roles)][2]   |             |               |                          |
+| &nbsp;&nbsp;&nbsp;&nbsp;via invitations | 25 | 25 | 25 |
+| &nbsp;&nbsp;&nbsp;&nbsp;via serverless functions | Unavailable | Unlimited | Unlimited |
+| Request Size Limit                  | 30 MB       | 30 MB         | 30 MB                    |
 
 ## GitHub storage
 
@@ -40,4 +49,10 @@ See the following resources for more detail:
 
 ## Next steps
 
-- [Overview](overview.md)
+- [Azure Static Web Apps overview](overview.md)
+
+<!-- Links -->
+[1]: custom-domain.md
+[2]: authentication-custom.md#manage-roles
+[3]: preview-environments.md
+[4]: private-endpoint.md

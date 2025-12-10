@@ -1,12 +1,13 @@
 ---
 title: Disaster recovery for Azure VMs using Azure PowerShell and Azure Site Recovery
 description: Learn how to set up disaster recovery for Azure virtual machines with Azure Site Recovery using Azure PowerShell.
-services: site-recovery
-author: sujayt
-manager: rochakm
-ms.topic: article
-ms.date: 3/29/2019
-ms.author: sutalasi
+ms.service: azure-site-recovery
+author: Jeronika-MS
+ms.topic: how-to
+ms.author: v-gajeronika 
+ms.date: 09/09/2025
+ms.custom: devx-track-azurepowershell
+# Customer intent: "As an IT administrator, I want to set up and manage disaster recovery for Azure virtual machines using PowerShell, so that I can ensure business continuity during unexpected outages."
 ---
 
 # Set up disaster recovery for Azure virtual machines using Azure PowerShell
@@ -29,14 +30,14 @@ You learn how to:
 > Not all scenario capabilities available through the portal may be available through Azure PowerShell. Some of the scenario capabilities not currently supported through Azure PowerShell are:
 > - The ability to specify that all disks in a virtual machine should be replicated without having to explicitly specify each disk of the virtual machine.
 
-[!INCLUDE [updated-for-az](../../includes/updated-for-az.md)]
+[!INCLUDE [updated-for-az](~/reusable-content/ce-skilling/azure/includes/updated-for-az.md)]
 
 ## Prerequisites
 
 Before you start:
 - Make sure that you understand the [scenario architecture and components](azure-to-azure-architecture.md).
 - Review the [support requirements](azure-to-azure-support-matrix.md) for all components.
-- You have the Azure PowerShell `Az` module. If you need to install or upgrade Azure PowerShell, follow this [Guide to install and configure Azure PowerShell](/powershell/azure/install-az-ps).
+- You have the Azure PowerShell `Az` module. If you need to install or upgrade Azure PowerShell, follow this [Guide to install and configure Azure PowerShell](/powershell/azure/install-azure-powershell).
 
 ## Sign in to your Microsoft Azure subscription
 
@@ -91,8 +92,8 @@ $DataDisk1VhdURI = $VM.StorageProfile.DataDisks[0].Vhd
 Create a resource group in which to create the Recovery Services vault.
 
 > [!IMPORTANT]
-> * The Recovery services vault and the virtual machines being protected, must be in different Azure locations.
-> * The resource group of the Recovery services vault, and the virtual machines being protected, must be in different Azure locations.
+> * The Recovery services vault and the virtual machines being protected must be in different Azure locations.
+> * The resource group of the Recovery services vault, and the virtual machines being protected must be in different Azure locations.
 > * The Recovery services vault, and the resource group to which it belongs, can be in the same Azure location.
 
 In the example in this article, the virtual machine being protected is in the East US region. The recovery region selected for disaster recovery is the West US 2 region. The recovery services vault, and the resource group of the vault, are both in the recovery region, West US 2.
@@ -244,6 +245,15 @@ Write-Output $TempASRJob.State
 $RecoveryProtContainer = Get-AzRecoveryServicesAsrProtectionContainer -Fabric $RecoveryFabric -Name "A2AWestUSProtectionContainer"
 ```
 
+#### Fabric and container creation when enabling zone to zone replication
+
+When enabling zone to zone replication, only one fabric will be created. But there will be two containers. Assuming that the region is West Europe, use following commands to get the primary and protection containers -
+
+```azurepowershell
+$primaryProtectionContainer = Get-AzRecoveryServicesAsrProtectionContainer -Fabric $fabric -Name "asr-a2a-default-westeurope-container"
+$recoveryProtectionContainer = Get-AzRecoveryServicesAsrProtectionContainer -Fabric $fabric -Name "asr-a2a-default-westeurope-t-container"
+```
+
 ### Create a replication policy
 
 ```azurepowershell
@@ -282,6 +292,14 @@ Write-Output $TempASRJob.State
 $EusToWusPCMapping = Get-AzRecoveryServicesAsrProtectionContainerMapping -ProtectionContainer $PrimaryProtContainer -Name "A2APrimaryToRecovery"
 ```
 
+#### Protection container mapping creation when enabling zone to zone replication
+
+When enabling zone to zone replication, use the below command to create protection container mapping. Assuming that the region is West Europe, the command will be -
+
+```azurepowershell
+$protContainerMapping = Get-AzRecoveryServicesAsrProtectionContainerMapping -ProtectionContainer $PrimprotectionContainer -Name "westeurope-westeurope-24-hour-retention-policy-s"
+```
+
 ### Create a protection container mapping for failback (reverse replication after a failover)
 
 After a failover, when you're ready to bring the failed over virtual machine back to the original Azure region, you do a failback. To fail back, the failed over virtual machine is reverse replicated from the failed over region to the original region. For reverse replication the roles of the original region and the recovery region switch. The original region now becomes the new recovery region, and what was originally the recovery region now becomes the primary region. The protection container mapping for reverse replication represents the switched roles of the original and recovery regions.
@@ -304,7 +322,7 @@ $WusToEusPCMapping = Get-AzRecoveryServicesAsrProtectionContainerMapping -Protec
 
 ## Create cache storage account and target storage account
 
-A cache storage account is a standard storage account in the same Azure region as the virtual machine being replicated. The cache storage account is used to hold replication changes temporarily, before the changes are moved to the recovery Azure region. You can choose to, but it's not necessary, to specify different cache storage accounts for the different disks of a virtual machine.
+A cache storage account is a standard storage account in the same Azure region as the virtual machine being replicated. The cache storage account is used to hold replication changes temporarily, before the changes are moved to the recovery Azure region. High churn support is also available in Azure Site Recovery to get higher churn limits. To use this feature, create a Premium Block Blob type of storage accounts and then use it as the cache storage account. Azure Site Recovery for Premium SSD v2/Ultra disks is supported only using high churn. Use **SkuName Premium_LRS** and **Kind BlockBlobStorage** to enable high churn. You can choose to, but it's not necessary, to specify different cache storage accounts for the different disks of a virtual machine. If you use different cache storage accounts, ensure they are of the same type (Standard or Premium Block Blobs). For more information, see [Azure VM Disaster Recovery - High Churn Support](./concepts-azure-to-azure-high-churn-support.md).
 
 ```azurepowershell
 #Create Cache storage account for replication logs in the primary region
@@ -411,6 +429,9 @@ $OSDiskReplicationConfig = New-AzRecoveryServicesAsrAzureToAzureDiskReplicationC
 # Data disk
 $datadiskId1 = $vm.StorageProfile.DataDisks[0].ManagedDisk.Id
 $RecoveryReplicaDiskAccountType = $vm.StorageProfile.DataDisks[0].ManagedDisk.StorageAccountType
+if ($RecoveryReplicaDiskAccountType -in @("PremiumV2_LRS", "Ultra_LRS")) {
+    $RecoveryReplicaDiskAccountType = "Premium_LRS"
+}
 $RecoveryTargetDiskAccountType = $vm.StorageProfile.DataDisks[0].ManagedDisk.StorageAccountType
 
 $DataDisk1ReplicationConfig  = New-AzRecoveryServicesAsrAzureToAzureDiskReplicationConfig -ManagedDisk -LogStorageAccountId $EastUSCacheStorageAccount.Id `
@@ -460,7 +481,7 @@ Once the start replication operation succeeds, virtual machine data is replicate
 
 The replication process starts by initially seeding a copy of the replicating disks of the virtual machine in the recovery region. This phase is called the initial replication phase.
 
-AFter initial replication completes, replication moves to the differential synchronization phase. At this point, the virtual machine is protected and a test failover operation can be performed on it. The replication state of the replicated item representing the virtual machine goes to the **Protected** state after initial replication completes.
+After initial replication completes, replication moves to the differential synchronization phase. At this point, the virtual machine is protected and a test failover operation can be performed on it. The replication state of the replicated item representing the virtual machine goes to the **Protected** state after initial replication completes.
 
 Monitor the replication state and replication health for the virtual machine by getting details of the replication protected item corresponding to it.
 
@@ -513,7 +534,7 @@ State            : Succeeded
 StateDescription : Completed
 StartTime        : 4/25/2018 4:29:43 AM
 EndTime          : 4/25/2018 4:33:06 AM
-TargetObjectId   : ce86206c-bd78-53b4-b004-39b722c1ac3a
+TargetObjectId   : aaaaaaaa-0000-1111-2222-bbbbbbbbbbbb
 TargetObjectType : ProtectionEntity
 TargetObjectName : azuredemovm
 AllowedActions   :
@@ -588,7 +609,7 @@ State            : Succeeded
 StateDescription : Completed
 StartTime        : 4/25/2018 4:50:58 AM
 EndTime          : 4/25/2018 4:51:01 AM
-TargetObjectId   : ce86206c-bd78-53b4-b004-39b722c1ac3a
+TargetObjectId   : aaaaaaaa-0000-1111-2222-bbbbbbbbbbbb
 TargetObjectType : ProtectionEntity
 TargetObjectName : azuredemovm
 AllowedActions   :
@@ -618,7 +639,7 @@ After reprotection is complete, you can fail over in the reverse direction, West
 You can disable replication with the `Remove-AzRecoveryServicesAsrReplicationProtectedItem` cmdlet.
 
 ```azurepowershell
-Remove-AzRecoveryServicesAsrReplicationProtectedItem -ReplicationProtectedItem $ReplicatedItem
+Remove-AzRecoveryServicesAsrReplicationProtectedItem -ReplicationProtectedItem $ReplicationProtectedItem
 ```
 
 ## Next steps

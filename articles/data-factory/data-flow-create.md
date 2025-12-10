@@ -1,40 +1,72 @@
 ---
-title: Create a mapping data flow
-description: How to create an Azure Data Factory mapping data flow
-author: kromerm
-ms.author: makromer
-ms.service: data-factory
-ms.topic: conceptual
-ms.custom: seo-lt-2019
-ms.date: 02/12/2019
+title: Create a Mapping Data Flow
+description: Learn how to create a mapping data flow in Azure Data Factory and Azure Synapse Analytics.
+author: whhender
+ms.author: whhender
+ms.reviewer: makromer
+ms.subservice: data-flows
+ms.topic: quickstart
+ms.date: 02/13/2025
+ms.custom: sfi-image-nochange
 ---
 
-# Create Azure Data Factory Data Flow
+# Quickstart: Create a mapping data flow in Azure Data Factory and Azure Synapse Analytics
 
-[!INCLUDE[appliesto-adf-xxx-md](includes/appliesto-adf-xxx-md.md)]
+[!INCLUDE[appliesto-adf-asa-md](includes/appliesto-adf-asa-md.md)]
 
-Mapping Data Flows in ADF provide a way to transform data at scale without any coding required. You can design a data transformation job in the data flow designer by constructing a series of transformations. Start with any number of source transformations followed by data transformation steps. Then, complete your data flow with sink to land your results in a destination.
+[!INCLUDE[data-flow-preamble](includes/data-flow-preamble.md)]
 
-Get started by first creating a new V2 Data Factory from the Azure portal. After creating your new factory, click on the "Author & Monitor" tile to launch the Data Factory UI.
+A mapping data flow provides a way to transform data at scale without any coding required. You can design a data transformation job in the data flow designer by constructing a series of transformations. Start with any number of source transformations, followed by data transformation steps. Then, complete your data flow with a sink to land your results in a destination.
 
-![Data Flow options](media/data-flow/v2portal.png "data flow create")
+## Steps to create a new data flow
 
-Once you are in the Data Factory UI, you can use sample Data Flows. The samples are available from the ADF Template Gallery. In ADF, create "Pipeline from Template" and select the Data Flow category from the template gallery.
+# [Azure Data Factory](#tab/data-factory)
 
-![Data Flow options](media/data-flow/template.png "data flow create")
+1. [Create a new V2 data factory by using the Azure portal](quickstart-create-data-factory-portal.md).
 
-You will be prompted to enter your Azure Blob Storage account information.
+1. In the portal, go to your data factory. Select **Overview**, and then select the **Open Azure Data Factory Studio** tile.
 
-![Data Flow options](media/data-flow/template2.png "data flow create 2")
+   :::image type="content" source="media/data-flow-create/open-data-factory-studio-from-portal.png" alt-text="Screenshot that shows the tile for opening Azure Data Factory Studio in the Azure portal.":::
 
-[The data used for these samples can be found here](https://github.com/kromerm/adfdataflowdocs/tree/master/sampledata). Download the sample data and store the files in your Azure Blob storage accounts so that you can execute the samples.
+1. In Azure Data Factory Studio, you can add sample data flows from the template gallery. To browse the gallery, go to the **Author** tab. Select the plus sign, and then choose **Pipeline** > **Template gallery**.
 
-## Create new data flow
+   :::image type="content" source="media/data-flow-create/open-template-gallery-from-data-factory.png" alt-text="Screenshot that shows selections for opening the template gallery in Azure Data Factory Studio.":::
 
-Use the Create Resource "plus sign" button in the ADF UI to create Data Flows.
+1. Filter by the **Data flow** category to choose from the available templates.
 
-![Data Flow options](media/data-flow/newresource.png "New Resource")
+   :::image type="content" source="media/data-flow-create/template-gallery-filtered-for-data-flow.png" alt-text="Screenshot that shows the template gallery filtered for data flows.":::
 
-## Next steps
+You can also add data flows directly to your data factory without using a template. On the **Author** tab in Azure Data Factory Studio, select the plus sign, and then choose **Data flow** > **Data flow**.  
 
-Begin building your data transformation with a [source transformation](data-flow-source.md).
+:::image type="content" source="media/data-flow-create/create-data-flow-directly.png" alt-text="Screenshot that shows selections for creating an empty data flow directly.":::
+
+# [Azure Synapse Analytics](#tab/synapse-analytics)
+
+1. [Create a new Azure Synapse Analytics workspace by using the Azure portal](../synapse-analytics/quickstart-create-workspace.md).
+
+1. In the portal, go to your workspace. Select **Overview**, and then select the **Open Synapse Studio** tile.
+
+   :::image type="content" source="media/data-flow-create/open-synapse-studio-from-portal.png" alt-text="Screenshot that shows the tile for opening Azure Synapse Analytics Studio in the Azure portal.":::
+
+1. In Azure Synapse Analytics Studio, you can add sample data flows from the template gallery. To browse the gallery, go to the **Integrate** tab. Select the plus sign, and then choose **Browse gallery**.
+
+   :::image type="content" source="media/data-flow-create/open-template-gallery-from-synapse.png" alt-text="Screenshot that shows selections for opening the template gallery in Azure Synapse Analytics Studio.":::
+
+1. Filter by the **Data flow** category to choose from the available templates.
+
+   :::image type="content" source="media/data-flow-create/synapse-template-gallery-filtered-for-data-flow.png" alt-text="Screenshot that shows the template gallery filtered for data flows.":::
+
+You can also add data flows directly to your workspace without using a template. On the **Integrate** tab in Azure Synapse Analytics Studio, select the plus sign, and then choose **Pipeline**.
+
+:::image type="content" source="media/data-flow-create/create-pipeline-in-synapse.png" alt-text="Screenshot that shows selections for creating an empty pipeline directly.":::
+
+Then, in your pipeline, expand the **Move & transform** > **Activities** section and drag **Data flow** onto the canvas for the pipeline.
+
+:::image type="content" source="media/data-flow-create/add-data-flow-to-pipeline-synapse.png" alt-text="Screenshot that shows selections for adding an empty data flow to a pipeline directly.":::
+
+---
+
+## Related content
+
+* [Tutorial: Transform data using mapping data flows](tutorial-data-flow.md)
+* [Source transformation in mapping data flows](data-flow-source.md)

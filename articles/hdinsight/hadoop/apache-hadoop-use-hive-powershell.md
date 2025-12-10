@@ -1,18 +1,18 @@
 ---
 title: Use Apache Hive with PowerShell in HDInsight - Azure 
 description: Use PowerShell to run Apache Hive queries in Apache Hadoop in Azure HDInsight
-author: hrasheed-msft
-ms.author: hrasheed
-ms.reviewer: jasonh
-ms.service: hdinsight
+ms.service: azure-hdinsight
 ms.topic: how-to
-ms.custom: hdinsightactive
-ms.date: 12/24/2019
+ms.custom: hdinsightactive, devx-track-azurepowershell
+author: hareshg
+ms.author: hgowrisankar
+ms.reviewer: nijelsf
+ms.date: 09/06/2024
 ---
 
 # Run Apache Hive queries using PowerShell
 
-[!INCLUDE [hive-selector](../../../includes/hdinsight-selector-use-hive.md)]
+[!INCLUDE [hive-selector](../includes/hdinsight-selector-use-hive.md)]
 
 This document provides an example of using Azure PowerShell to run Apache Hive queries in an Apache Hadoop on HDInsight cluster.
 
@@ -23,7 +23,7 @@ This document provides an example of using Azure PowerShell to run Apache Hive q
 
 * An Apache Hadoop cluster on HDInsight. See [Get Started with HDInsight on Linux](./apache-hadoop-linux-tutorial-get-started.md).
 
-* The PowerShell [Az Module](https://docs.microsoft.com/powershell/azure/) installed.
+* The PowerShell [Az Module](/powershell/azure/) installed.
 
 ## Run a Hive query
 
@@ -79,7 +79,7 @@ The following steps demonstrate how to use these cmdlets to run a job in your HD
    >
    > `Invoke-AzHDInsightHiveJob -File "wasbs://<ContainerName>@<StorageAccountName>/<Path>/query.hql"`
    >
-   > For more information about **Here-Strings**, see <a href="https://technet.microsoft.com/library/ee692792.aspx" target="_blank">Using Windows PowerShell Here-Strings</a>.
+   > For more information about **Here-Strings**, see [HERE-STRINGS](/powershell/module/microsoft.powershell.core/about/about_quoting_rules#here-strings).
 
 ## Troubleshooting
 

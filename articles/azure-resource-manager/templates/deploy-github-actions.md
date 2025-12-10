@@ -1,152 +1,163 @@
 ---
 title: Deploy Resource Manager templates by using GitHub Actions
-description: Describes how to deploy Azure Resource Manager templates by using GitHub Actions.
-ms.topic: conceptual
-ms.date: 07/02/2020
+description: Describes how to deploy Azure Resource Manager templates (ARM templates) by using GitHub Actions.
+ms.topic: how-to
+ms.date: 04/28/2025
+ms.custom: github-actions-azure, devx-track-arm-template
 ---
 
-# Deploy Azure Resource Manager templates by using GitHub Actions
+# Deploy ARM templates by using GitHub Actions
 
-[GitHub Actions](https://help.github.com/en/actions) enables you to create custom software development life-cycle workflows directly in your GitHub repository where your Azure Resource Manager (ARM) templates are stored. A [workflow](https://help.github.com/actions/reference/workflow-syntax-for-github-actions) is defined by a YAML file. Workflows have one or more jobs with each job containing a set of steps that perform individual tasks. Steps can run commands or use an action. You can create your own actions or use actions shared by the [GitHub community](https://github.com/marketplace?type=actions) and customize them as needed. This article shows how to use [Azure CLI Action](https://github.com/marketplace/actions/azure-cli-action) to deploy Resource Manager templates.
+[GitHub Actions](https://docs.github.com/en/actions) is a suite of features in GitHub to automate your software development workflows in the same place you store code and collaborate on pull requests and issues.
 
-Azure CLI Action has two dependent actions:
-
-- **[Checkout](https://github.com/marketplace/actions/checkout)**: Check out your repository so the workflow can access any specified Resource Manager template.
-- **[Azure Login](https://github.com/marketplace/actions/azure-login)**: Log in with your Azure credentials
-
-A basic workflow for deploying a Resource Manager template can have three steps:
-
-1. Check out a template file.
-2. Sign in to Azure.
-3. Deploy a Resource Manager template
+Use the [Deploy Azure Resource Manager Template Action](https://github.com/marketplace/actions/deploy-azure-resource-manager-arm-template) to automate deploying an Azure Resource Manager template (ARM template) to Azure.
 
 ## Prerequisites
 
-You need a GitHub repository to store your Resource Manager templates and your workflow files. To create one, see [Creating a new repository](https://help.github.com/en/enterprise/2.14/user/articles/creating-a-new-repository).
+- An Azure account with an active subscription. [Create an account for free](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn).
+- A GitHub account. If you don't have one, sign up for [free](https://github.com/join).
 
-## Configure deployment credentials
+  - A GitHub repository to store your Resource Manager templates and your workflow files. To create one, see [Creating a new repository](https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/creating-a-new-repository).
 
-The Azure login action uses a service principal to authenticate against Azure. The principal of a CI/CD workflow typically needs the built-in contributor right in order to deploy Azure resources.
+## Workflow file overview
 
-The following Azure CLI script shows how to generate an Azure Service Principal with Contributor permissions on an Azure resource group. This resource group is where the workflow deploys the resources defined in your Resource Manager template.
+A workflow is defined by a YAML (.yml) file in the `/.github/workflows/` path in your repository. This definition contains the various steps and parameters that make up the workflow.
 
-```azurecli
-$projectName="[EnterAProjectName]"
-$location="centralus"
-$resourceGroupName="${projectName}rg"
-$appName="http://${projectName}"
-$scope=$(az group create --name $resourceGroupName --location $location --query 'id')
-az ad sp create-for-rbac --name $appName --role Contributor --scopes $scope --sdk-auth
-```
+The file has two sections:
 
-Customize the value of **$projectName** and **$location** in the script. The resource group name is the project name with **rg** appended. You need to specify the resource group name in your workflow.
+|Section  |Tasks  |
+|---------|---------|
+|**Authentication** | 1. Generate deployment credentials. |
+|**Deploy** | 1. Deploy the Resource Manager template. |
 
-The script outputs a JSON object similar to this:
+## Generate deployment credentials
 
-```json
-{
-   "clientId": "<GUID>",
-   "clientSecret": "<GUID>",
-   "subscriptionId": "<GUID>",
-   "tenantId": "<GUID>",
-   (...)
-}
-```
+[!INCLUDE [include](~/reusable-content/github-actions/generate-deployment-credentials.md)]
 
-Copy the JSON output and store it as a GitHub secret within your GitHub repository. See [Prerequisite](#prerequisites) if you don't have a repository yet.
+## Configure the GitHub secrets
 
-1. From your GitHub repository, select the **Settings** tab.
-1. Select **Secrets** from the left menu.
-1. Enter the following values:
-
-    - **Name**: AZURE_CREDENTIALS
-    - **Value**: (Paste the JSON output)
-1. Select **Add secret**.
-
-You need to specify the secret name in the workflow.
+[!INCLUDE [include](~/reusable-content/github-actions/create-secrets-with-openid.md)]
 
 ## Add Resource Manager template
 
-Add a Resource Manager template to the GitHub repository. If you don't have one, you can use the following template. The template creates a storage account.
+Add a Resource Manager template to your GitHub repository. This template creates a storage account.
 
 ```url
-https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/101-storage-account-create/azuredeploy.json
+https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/quickstarts/microsoft.storage/storage-account-create/azuredeploy.json
 ```
 
-You can put the file anywhere in the repository. The workflow sample in the next section assumes the template file is named **azuredeploy.json**, and it is stored in a folder called **templates** at the root of your repository.
+You can put the file anywhere in the repository. The workflow sample in the next section assumes the template file is named **azuredeploy.json**, and it's stored at the root of your repository.
 
 ## Create workflow
 
 The workflow file must be stored in the **.github/workflows** folder at the root of your repository. The workflow file extension can be either **.yml** or **.yaml**.
-
-You can either create a workflow file and then push/upload the file to the repository, or use the following procedure:
 
 1. From your GitHub repository, select **Actions** from the top menu.
 1. Select **New workflow**.
 1. Select **set up a workflow yourself**.
 1. Rename the workflow file if you prefer a different name other than **main.yml**. For example: **deployStorageAccount.yml**.
 1. Replace the content of the yml file with the following:
+  # [Service principal](#tab/userlevel)
 
-    ```yml
-    name: Deploy ARM Template
-
-    on:
-      push:
-        branches:
-          - master
-        paths:
-          - ".github/workflows/deployStorageAccount.yml"
-          - "templates/azuredeploy.json"
-
+  ```yml
+    on: [push]
+    name: Azure ARM
     jobs:
-      deploy-storage-account-template:
+      build-and-deploy:
         runs-on: ubuntu-latest
         steps:
-          - name: Checkout source code
-            uses: actions/checkout@master
 
-          - name: Login to Azure
-            uses: azure/login@v1
-            with:
-              creds: ${{ secrets.AZURE_CREDENTIALS }}
+          # Checkout code
+        - uses: actions/checkout@main
 
+          # Log into Azure
+        - uses: azure/login@v1
+          with:
+            creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-          - name: Deploy ARM Template
-            uses: azure/CLI@v1
-            with:
-              inlineScript: |
-                az deployment group create --resource-group myResourceGroup --template-file ./templates/azuredeploy.json
-    ```
+          # Deploy ARM template
+        - name: Run ARM deploy
+          uses: azure/arm-deploy@v1
+          with:
+            subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
+            resourceGroupName: ${{ secrets.AZURE_RG }}
+            template: ./azuredeploy.json
+            parameters: storageAccountType=Standard_LRS
 
-    The workflow file has three sections:
+          # output containerName variable from template
+        - run: echo ${{ steps.deploy.outputs.containerName }}
+  ```
 
-    - **name**: The name of the workflow.
-    - **on**: The name of the GitHub events that triggers the workflow. The workflow is trigger when there is a push event on the master branch, which modifies at least one of the two files specified. The two files are the workflow file and the template file.
+  > [!NOTE]
+  > You can specify a JSON format parameters file instead in the ARM Deploy action (example: `.azuredeploy.parameters.json`).
 
-        > [!IMPORTANT]
-        > Verify the two files and their paths match yours.
-    - **jobs**: A workflow run is made up of one or more jobs. There is only one job called **deploy-storage-account-template**.  This job has three steps:
+  The first section of the workflow file includes:
 
-        - **Checkout source code**.
-        - **Login to Azure**.
+  - **name**: The name of the workflow.
+  - **on**: The name of the GitHub events that triggers the workflow. The workflow is trigger when there's a push event on the main branch, which modifies at least one of the two files specified. The two files are the workflow file and the template file.
 
-            > [!IMPORTANT]
-            > Verify the secret name matches to what you saved to your repository. See [Configure deployment credentials](#configure-deployment-credentials).
-        - **Deploy ARM template**. Replace the value of **resourceGroupName**.  If you used the Azure CLI script in [Configure deployment credentials](#configure-deployment-credentials), the generated resource group name is the project name with **rg** appended. Verify the value of **templateLocation**.
+  # [OpenID Connect](#tab/openid)
+
+  ```yml
+    on: [push]
+    name: Azure ARM
+    jobs:
+      build-and-deploy:
+        runs-on: ubuntu-latest
+        steps:
+
+          # Checkout code
+        - uses: actions/checkout@main
+
+          # Log into Azure
+        - uses: azure/login@v1
+          with:
+            client-id: ${{ secrets.AZURE_CLIENT_ID }}
+            tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+            subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+          # Deploy ARM template
+        - name: Run ARM deploy
+          uses: azure/arm-deploy@v1
+          with:
+            subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
+            resourceGroupName: ${{ secrets.AZURE_RG }}
+            template: ./azuredeploy.json
+            parameters: storageAccountType=Standard_LRS
+
+          # output containerName variable from template
+        - run: echo ${{ steps.deploy.outputs.containerName }}
+  ```
+
+  > [!NOTE]
+  > You can specify a JSON format parameters file instead in the ARM Deploy action (example: `.azuredeploy.parameters.json`).
+
+  The first section of the workflow file includes:
+
+  - **name**: The name of the workflow.
+  - **on**: The name of the GitHub events that triggers the workflow. The workflow is trigger when there's a push event on the main branch, which modifies at least one of the two files specified. The two files are the workflow file and the template file.
+  ---
 
 1. Select **Start commit**.
-1. Select **Commit directly to the master branch**.
+1. Select **Commit directly to the main branch**.
 1. Select **Commit new file** (or **Commit changes**).
 
 Because the workflow is configured to be triggered by either the workflow file or the template file being updated, the workflow starts right after you commit the changes.
 
 ## Check workflow status
 
-1. Select the **Actions** tab. You shall see a **Create deployStorageAccount.yml** workflow listed. It takes 1-2 minutes to execute the workflow.
+1. Select the **Actions** tab. You see a **Create deployStorageAccount.yml** workflow listed. It takes 1-2 minutes to run the workflow.
 1. Select the workflow to open it.
-1. Select **deploy-storage-account-template** (job name) from the left menu. The job name is defined in the workflow.
-1. Select **Deploy ARM Template** (step name) to expand it. You can see the REST API response.
+1. Select **Run ARM deploy** from the menu to verify the deployment.
+
+## Clean up resources
+
+When your resource group and repository are no longer needed, clean up the resources you deployed by deleting the resource group and your GitHub repository.
 
 ## Next steps
 
-For a step-by-step tutorial that guides you through the process of creating a template, see [Tutorial: Create and deploy your first ARM template](template-tutorial-create-first-template.md).
+> [!div class="nextstepaction"]
+> [Create your first ARM template](./template-tutorial-create-first-template.md)
+
+> [!div class="nextstepaction"]
+> [Learn module: Automate the deployment of ARM templates by using GitHub Actions](/training/modules/deploy-templates-command-line-github-actions/)

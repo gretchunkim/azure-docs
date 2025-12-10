@@ -1,38 +1,46 @@
 ---
-title: Copy Synapse Link for Azure Cosmos DB data into a SQL pool using Apache Spark
-description: Load the data into a Spark dataframe, curate the data, and load it into a SQL pool table
-services: synapse-analytics 
-author: ArnoMicrosoft
-ms.service: synapse-analytics 
+title: Copy Azure Synapse Link for Azure Cosmos DB data into a dedicated SQL pool using Apache Spark
+description: Load the data into a Spark dataframe, curate the data, and load it into a dedicated SQL pool table
+author: im-microsoft
+ms.author: imotiwala
+ms.reviewer: sidandrews
+ms.service: azure-synapse-analytics
 ms.topic: quickstart
 ms.subservice: synapse-link
-ms.date: 08/10/2020
-ms.author: acomet
-ms.reviewer: jrasnick
+ms.date: 10/31/2025
+ms.update-cycle: 1825-days
+ms.custom: cosmos-db, mode-other
 ---
 
-# Copy data from Azure Cosmos DB into a SQL pool using Apache Spark
+# Copy data from Azure Cosmos DB into a dedicated SQL pool using Apache Spark
 
-Azure Synapse Link for Azure Cosmos DB enables users to run near real-time analytics over operational data in Azure Cosmos DB. However, there are times when some data needs to be aggregated and enriched to serve data warehouse users. Curating and exporting Synapse Link data can be done with just a few cells in a notebook.
+Azure Synapse Link for Azure Cosmos DB enables users to run near real-time analytics over operational data in Azure Cosmos DB. However, there are times when some data needs to be aggregated and enriched to serve data warehouse users. Curating and exporting Azure Synapse Link data can be done with just a few cells in a notebook.
+
+> [!IMPORTANT]
+> **Mirroring to Microsoft Fabric is now available.** Mirroring to Fabric provides all the capabilities of Azure Synapse Link with better analytical performance, the ability to unify your data estate with OneLake in Fabric, and open access to your data in Delta Parquet format. Instead of Azure Synapse Link, use Fabric Mirroring. 
+>
+> With Mirroring to Microsoft Fabric, you can continuously replicate your existing data estate directly into OneLake in Fabric, including data from Cosmos DB, SQL Server 2016+, Azure SQL Database, Azure SQL Managed Instance, Oracle, Snowflake, and more. 
+> 
+> For more information, see [Microsoft Fabric mirrored databases](/fabric/database/mirrored-database/overview).
 
 ## Prerequisites
 * [Provision a Synapse workspace](../quickstart-create-workspace.md) with:
-    * [Spark pool](../quickstart-create-apache-spark-pool-studio.md)
-    * [SQL pool](../quickstart-create-sql-pool-studio.md)
-* [Provision a Cosmos DB account with a HTAP container with data](../../cosmos-db/configure-synapse-link.md)
+    * [Serverless Apache Spark pool](../quickstart-create-apache-spark-pool-studio.md)
+    * [dedicated SQL pool](../quickstart-create-sql-pool-studio.md)
+* [Provision an Azure Cosmos DB account with a HTAP container with data](/azure/cosmos-db/configure-synapse-link)
 * [Connect the Azure Cosmos DB HTAP container to the workspace](./how-to-connect-synapse-link-cosmos-db.md)
-* [Have the right setup to import data into a SQL pool from Spark](../spark/synapse-spark-sql-pool-import-export.md)
+* [Have the right setup to import data into a dedicated SQL pool from Spark](../spark/synapse-spark-sql-pool-import-export.md)
 
 ## Steps
-In this tutorial, you will connect to the analytical store so there is no impact on the transactional store (it will not consume any Request Units). We will go through the following steps:
-1. Read the Cosmos DB HTAP container into a Spark dataframe
+In this tutorial, you'll connect to the analytical store so there's no impact on the transactional store (it won't consume any Request Units). We'll go through the following steps:
+1. Read the Azure Cosmos DB HTAP container into a Spark dataframe
 2. Aggregate the results in a new dataframe
-3. Ingest the data into a SQL pool
+3. Ingest the data into a dedicated SQL pool
 
-[![Spark to SQL Steps](../media/synapse-link-spark-to-sql/synapse-spark-to-sql.png)](../media/synapse-link-spark-to-sql/synapse-spark-to-sql.png#lightbox)
+[![Spark to SQL Steps 1](../media/synapse-link-spark-to-sql/synapse-spark-to-sql.png)](../media/synapse-link-spark-to-sql/synapse-spark-to-sql.png#lightbox)
 
 ## Data
-In that example, we use an HTAP container called **RetailSales**. It is part of a linked service called **ConnectedData**, and has the following schema:
+In that example, we use an HTAP container called **RetailSales**. It's part of a linked service called **ConnectedData**, and has the following schema:
 * _rid: string (nullable = true)
 * _ts: long (nullable = true)
 * logQuantity: double (nullable = true)
@@ -45,13 +53,13 @@ In that example, we use an HTAP container called **RetailSales**. It is part of 
 * weekStarting: long (nullable = true)
 * _etag: string (nullable = true)
 
-We will aggregate the sales (*quantity*, *revenue* (price x quantity) by *productCode* and *weekStarting* for reporting purposes. Finally, we will export that data into a SQL pool table called **dbo.productsales**.
+We'll aggregate the sales (*quantity*, *revenue* (price x quantity) by *productCode* and *weekStarting* for reporting purposes. Finally, we'll export that data into a dedicated SQL pool table called `dbo.productsales`.
 
 ## Configure a Spark Notebook
 Create a Spark notebook with Scala as Spark (Scala) as the main language. We use the notebook's default setting for the session.
 
 ## Read the data in Spark
-Read the Cosmos DB HTAP container with Spark into a dataframe in the first cell.
+Read the Azure Cosmos DB HTAP container with Spark into a dataframe in the first cell.
 
 ```java
 val df_olap = spark.read.format("cosmos.olap").
@@ -62,7 +70,7 @@ val df_olap = spark.read.format("cosmos.olap").
 
 ## Aggregate the results in a new dataframe
 
-In the second cell, we run the transformation and aggregates needed for the new dataframe before loading it into a SQL pool database.
+In the second cell, we run the transformation and aggregates needed for the new dataframe before loading it into a dedicated SQL pool database.
 
 ```java
 // Select relevant columns and create revenue
@@ -72,12 +80,12 @@ val df_olap_aggr = df_olap_step1.groupBy("productCode","weekStarting").agg(sum("
     withColumn("AvgPrice",col("Sum_revenue")/col("Sum_quantity"))
 ```
 
-## Load the results into a SQL pool
+## Load the results into a dedicated SQL pool
 
-In the third cell, we load the data into a SQL pool. It will automatically create a temporary external table, external data source, and external file format that will be deleted once the job is done.
+In the third cell, we load the data into a dedicated SQL pool. It will automatically create a temporary external table, external data source, and external file format that will be deleted once the job is done.
 
 ```java
-df_olap_aggr.write.sqlanalytics("arnaudpool.dbo.productsales", Constants.INTERNAL)
+df_olap_aggr.write.sqlanalytics("userpool.dbo.productsales", Constants.INTERNAL)
 ```
 
 ## Query the results with SQL
@@ -93,7 +101,8 @@ SELECT  [productCode]
 ```
 
 Your query will present the following results in a chart mode:
-[![Spark to SQL Steps](../media/synapse-link-spark-to-sql/sql-script-spark-sql.png)](../media/synapse-link-spark-to-sql/sql-script-spark-sql.png#lightbox)
+[![Spark to SQL Steps 2](../media/synapse-link-spark-to-sql/sql-script-spark-sql.png)](../media/synapse-link-spark-to-sql/sql-script-spark-sql.png#lightbox)
 
 ## Next steps
-* [Query Azure Cosmos DB Analytical Store with Apache Spark](./how-to-query-analytical-store-spark.md)
+* [Query Azure Cosmos DB Analytical Store with Apache Spark 3](./how-to-query-analytical-store-spark-3.md)
+* [Query Azure Cosmos DB Analytical Store with Apache Spark 2](./how-to-query-analytical-store-spark.md)

@@ -1,30 +1,33 @@
 ---
-title: Understand how the reservation discount is applied to Azure Data Explorer
+title: Reservation discount for Azure Data Explorer
 description: Learn how the reservation discount is applied to Azure Data Explorer markup meter.
 author: avneraa
 ms.author: avnera
 ms.reviewer: orspodek
-ms.service: data-explorer
+ms.service: azure-data-explorer
 ms.topic: conceptual
-ms.date: 02/12/2020
+ms.date: 07/08/2025
+ms.custom: kr2b-contr-experiment
 ---
 
-# Understand how the reservation discount is applied to Azure Data Explorer
+# How the reservation discount is applied to Azure Data Explorer
 
 After you buy an Azure Data Explorer reserved capacity, the reservation discount is automatically applied to Azure Data Explorer resources that match the attributes and quantity of the reservation. A reservation includes the Azure Data Explorer markup charges. It doesn't include compute, networking, storage, or any other Azure resource used to operate Azure Data Explorer cluster. Reservations for these resources should be bought separately.
 
-## How reservation discount is applied
+## Reservation discount usage
 
-A reservation discount is on a "*use-it-or-lose-it*" basis. So, if you don't have matching resources for any hour, then you lose a reservation quantity for that hour. You can't carry forward unused reserved hours.
+A reservation discount is on a "*use-it-or-lose-it*" basis. So, if you don't have matching resources for any hour, then you lose a reservation quantity for that hour. You can't carry forward discounts for unused reserved hours.
 
 When you shut down a resource, the reservation discount automatically applies to another matching resource in the specified scope. If no matching resources are found in the specified scope, then the reserved hours are *lost*.
 
-## Reservation discount applied to Azure Data Explorer clusters
+Stopped or suspended Azure Data Explorer clusters are not using reservation hours for compute and Azure Data Explorer markup since the cluster's underlying compute resources are deallocated when the cluster is stopped or suspended.
+
+## Discount for other resources
 
 A reservation discount is applied to Azure Data Explorer markup consumption on an hour-by-hour basis. For Azure Data Explorer resources that don't run the full hour, the reservation discount is automatically applied to other Data Explorer resources that match the reservation attributes. The discount can apply to Azure Data Explorer resources that are running concurrently. If you don't have Azure Data Explorer resources that run for the full hour and that match the reservation attributes, you don't get the full benefit of the reservation discount for that hour.
 
 > [!NOTE]
-> * It is **highly recommended** to purchase [reservation capacity](../../virtual-machines/windows/prepay-reserved-vm-instances.md) for the virtual machines used for the Azure Data Explorer cluster to maximize the reserved capacity savings.
+> * It is **highly recommended** to purchase [reservation capacity](/azure/virtual-machines/prepay-reserved-vm-instances) for the virtual machines used for the Azure Data Explorer cluster to maximize the reserved capacity savings.
 > * The reservation purchase will apply discounts to all regions.
 
 ## Examples
@@ -56,13 +59,13 @@ To understand and view the application of your Azure Reservations in billing usa
 
 If you have questions or need help, [create a support request](https://go.microsoft.com/fwlink/?linkid=2083458).
 
-## Next steps
+## Related content
 
 To learn more about Azure reservations, see the following articles:
 
-* [Prepay for Azure Data Explorer compute resources with Azure Azure Data Explorer reserved capacity](/azure/data-explorer/pricing-reserved-capacity)  
-* [What are reservations for Azure](save-compute-costs-reservations.md)  
+* [Prepay for Azure Data Explorer compute resources with Azure Data Explorer reserved capacity](/azure/data-explorer/pricing-reserved-capacity)  
+* [What are reservations for Azure?](save-compute-costs-reservations.md)  
 * [Manage Azure reservations](manage-reserved-vm-instance.md)  
-* [Understand reservation usage for your Pay-As-You-Go subscription](understand-reserved-instance-usage.md)
+* [Understand reservation usage for your pay-as-you-go subscription](understand-reserved-instance-usage.md)
 * [Understand reservation usage for your Enterprise enrollment](understand-reserved-instance-usage-ea.md)
-* [Understand reservation usage for CSP subscriptions](https://docs.microsoft.com/partner-center/azure-reservations)
+* [Understand reservation usage for CSP subscriptions](/partner-center/azure-reservations)

@@ -1,91 +1,130 @@
 ---
 title: Azure Security Services and Technologies | Microsoft Docs
-description: The article provides a curated list of Azure Security services and technologies.
+description: This article provides an overview of the main Azure security services and technologies with links to detailed documentation.
 services: security
-documentationcenter: na
-author: terrylanfear
-manager: barbkess
-editor: TomSh
+author: msmbaldwin
 
 ms.assetid: a5a7f60a-97e2-49b4-a8c5-7c010ff27ef8
 ms.service: security
 ms.subservice: security-fundamentals
-ms.devlang: na
 ms.topic: conceptual
-ms.tgt_pltfrm: na
-ms.workload: na
-ms.date: 1/29/2019
-ms.author: terrylan
+ms.date: 11/04/2025
+ms.author: mbaldwin
 
 ---
 # Security services and technologies available on Azure
 
-In our discussions with current and future Azure customers, we’re often asked “do you have a list of all the security-related services and technologies that Azure has to offer?”
+Azure provides comprehensive security services and technologies across all layers of your cloud deployments. This article introduces the main security capabilities organized by domain, with links to detailed overview articles for more information.
 
-When you evaluate cloud service provider options, it’s helpful to have this information. So we have provided this list to get you started.
+For specific security best practices and detailed implementation guidance, refer to the domain-specific overview articles linked throughout this document.
 
-Over time, this list will change and grow, just as Azure does. Make sure to check this page on a regular basis to stay up-to-date on our security-related services and technologies.
 
-## General Azure security
+## Threat detection and response
+
 |Service|Description|
 |--------|--------|
-|[Azure&nbsp;Security&nbsp;Center](/azure/security-center/security-center-intro)| A cloud workload protection solution that provides security management and advanced threat protection across hybrid cloud workloads.|
-|[Azure Key Vault](/azure/key-vault/key-vault-overview)| A secure secrets store for the passwords, connection strings, and other information you need to keep your apps working. |
-|[Azure Monitor logs](/azure/log-analytics/log-analytics-overview)|A monitoring service that collects telemetry and other data, and provides a query language and analytics engine to deliver operational insights for your apps and resources. Can be used alone or with other services such as Security Center. |
-|[Azure Dev/Test Labs](/azure/lab-services/devtest-lab-overview)|A service that helps developers and testers quickly create environments in Azure while minimizing waste and controlling cost.  |
+|[Microsoft Defender for Cloud](/azure/defender-for-cloud/defender-for-cloud-introduction)| Cloud workload protection with continuous security assessment, recommendations, and advanced threat detection across Azure, hybrid, and multicloud resources.|
+|[Microsoft Sentinel](/azure/sentinel/overview)| Cloud-native SIEM and SOAR solution delivering intelligent security analytics, threat intelligence, attack detection, proactive hunting, and automated response.|
 
-<!---|[Azure&nbsp;Disk&nbsp;Encryption](/azure/azure-security-disk-encryption-overview)| THIS WILL GO TO THE NEW OVERVIEW TOPIC MEGHAN STEWART IS WRITING|--->
-
-## Storage security
-|Service|Description|
-|------|--------|
-| [Azure&nbsp;Storage&nbsp;Service&nbsp;Encryption](/azure/storage/common/storage-service-encryption)|A security feature that automatically encrypts your data in Azure storage.   |
-|[StorSimple Encrypted Hybrid Storage](/azure/storsimple/storsimple-ova-overview)| An integrated storage solution that manages storage tasks between on-premises devices and Azure cloud storage.|
-|[Azure Client-Side Encryption](/azure/storage/common/storage-client-side-encryption)| A client-side encryption solution that encrypts data inside client applications before uploading to Azure Storage; also decrypts the data while downloading. |
-| [Azure Storage Shared Access Signatures](/azure/storage/common/storage-dotnet-shared-access-signature-part-1)|A shared access signature provides delegated access to resources in your storage account.  |
-|[Azure Storage Account Keys](/azure/storage/common/storage-create-storage-account)| An access control method for Azure storage that is used for authentication when the storage account is accessed. |
-|[Azure File shares with SMB 3.0 Encryption](/azure/storage/files/storage-files-introduction)|A network security technology that enables automatic network encryption for the Server Message Block (SMB) file sharing protocol. |
-|[Azure Storage Analytics](/rest/api/storageservices/Storage-Analytics)| A logging and metrics-generating technology for data in your storage account. |
-
-<!------>
-
-## Database security
-|Service|Description|
-|------|--------|
-| [Azure&nbsp;SQL&nbsp;Firewall](/azure/sql-database/sql-database-firewall-configure)|A network access control feature that protects against network-based attacks to database. |
-|[Azure&nbsp;SQL&nbsp;Cell&nbsp;Level Encryption](https://blogs.msdn.microsoft.com/sqlsecurity/2015/05/12/recommendations-for-using-cell-level-encryption-in-azure-sql-database/)| A database security technology that provides encryption at a granular level.  |
-| [Azure&nbsp;SQL&nbsp;Connection Encryption](/azure/sql-database/sql-database-control-access)|To provide security, SQL Database controls access with firewall rules limiting connectivity by IP address, authentication mechanisms requiring users to prove their identity, and authorization mechanisms limiting users to specific actions and data. |
-| [Azure SQL Always Encryption](/sql/relational-databases/security/encryption/always-encrypted-database-engine?view=sql-server-2017)|Protects sensitive data, such as credit card numbers or national identification numbers (for example, U.S. social security numbers), stored in Azure SQL Database or SQL Server databases.  |
-| [Azure&nbsp;SQL&nbsp;Transparent Data Encryption](/sql/relational-databases/security/encryption/transparent-data-encryption-azure-sql?view=azuresqldb-current)| A database security feature that encrypts the storage of an entire database. |
-| [Azure SQL Database Auditing](/azure/sql-database/sql-database-auditing)|A database auditing feature that tracks database events and writes them to an audit log in your Azure storage account.  |
-
+For comprehensive information about threat detection capabilities and best practices, see [Azure threat protection](/azure/security/fundamentals/threat-detection).
 
 ## Identity and access management
+
 |Service|Description|
-|------|--------|
-| [Azure&nbsp;Role&nbsp;Based&nbsp;Access Control](/azure/active-directory/role-based-access-control-configure)|An access control feature designed to allow users to access only the resources they are required to access based on their roles within the organization.  |
-| [Azure Active Directory](/azure/active-directory/fundamentals/active-directory-whatis)|A cloud-based authentication repository that supports a multi-tenant, cloud-based directory and multiple identity management services within Azure.  |
-| [Azure Active Directory B2C](/azure/active-directory-b2c/active-directory-b2c-overview)|An identity management service that enables control over how customers sign-up, sign-in, and manage their profiles when using Azure-based applications.   |
-| [Azure Active Directory Domain Services](/azure/active-directory-domain-services/overview)| A cloud-based and managed version of Active Directory Domain Services. |
-| [Azure Multi-Factor Authentication](/azure/active-directory/authentication/multi-factor-authentication)| A security provision that employs several different forms of authentication and verification before allowing access to secured information. |
+|--------|--------|
+|[Microsoft Entra ID](/entra/fundamentals/whatis)| Cloud-based identity and access management service supporting single sign-on, multifactor authentication, Conditional Access, and identity protection.|
+|[Azure role-based access control](/azure/role-based-access-control/overview)|Fine-grained access management enabling you to grant users only the permissions needed to perform their jobs.|
+|[Microsoft Entra Privileged Identity Management](/entra/id-governance/privileged-identity-management/pim-configure)|Just-in-time privileged access to Azure and Microsoft Entra roles with approval workflows and access reviews.|
+
+For detailed identity security capabilities and best practices, see [Azure identity management security overview](/azure/security/fundamentals/identity-management-overview).
+
+## Key and secrets management
+
+|Service|Description|
+|--------|--------|
+|[Azure Key Vault](/azure/key-vault/general/overview)| Secure storage for keys, secrets, and certificates with FIPS 140-2 Level 1 (Standard tier) or FIPS 140-3 Level 3 (Premium tier with HSM) validation.|
+|[Azure Key Vault Managed HSM](/azure/key-vault/managed-hsm/overview)| Single-tenant, FIPS 140-2 Level 3 validated HSM service offering full control with confidential key support.|
+
+For comprehensive key management options including Azure Dedicated HSM and Azure Payment HSM, see [Key management in Azure](/azure/security/fundamentals/key-management).
+
+## Data encryption
+
+|Service|Description|
+|--------|--------|
+|[Azure Storage Service Encryption](/azure/storage/common/storage-service-encryption)|Automatic encryption for data at rest in Azure storage using AES 256 encryption.|
+|[Azure SQL Database Transparent Data Encryption](/sql/relational-databases/security/encryption/transparent-data-encryption-azure-sql)| Real-time encryption of databases, backups, and transaction logs without application changes.|
+|[Azure Disk Encryption](/azure/virtual-machines/disk-encryption-overview)|Encryption for OS and data disks of Azure virtual machines using platform-managed or customer-managed keys.|
+
+For detailed encryption options and best practices, see [Azure encryption overview](/azure/security/fundamentals/encryption-overview).
+
+## Network security
+
+|Service|Description|
+|--------|--------|
+|[Azure Firewall](/azure/firewall/overview)|Cloud-native network firewall with threat intelligence, IDPS capabilities (Premium SKU), and TLS inspection.|
+|[Azure DDoS Protection](/azure/ddos-protection/ddos-protection-overview)|Always-on traffic monitoring and real-time mitigation of network-level DDoS attacks.|
+|[Azure Virtual Network](/azure/virtual-network/virtual-networks-overview)|Network isolation with Network Security Groups, service endpoints, and Private Link for secure connectivity.|
+|[Azure VPN Gateway](/azure/vpn-gateway/vpn-gateway-about-vpngateways)|Secure cross-premises connectivity to Azure virtual networks over IPsec/IKE VPN tunnels.|
+|[Azure Application Gateway with WAF](/azure/web-application-firewall/ag/ag-overview)|Layer 7 load balancing with integrated web application firewall protecting against OWASP Top 10 vulnerabilities.|
+|[Azure Front Door](/azure/frontdoor/front-door-overview)|Global HTTP load balancer with integrated WAF, DDoS protection, and SSL/TLS offloading.|
+
+For comprehensive network security guidance and best practices, see [Azure network security overview](/azure/security/fundamentals/network-overview).
+
+## Monitoring and governance
+
+|Service|Description|
+|--------|--------|
+|[Azure Monitor](/azure/azure-monitor/overview)|Comprehensive monitoring solution collecting and analyzing telemetry with Log Analytics workspaces, metrics, alerts, and workbooks.|
+|[Azure Policy](/azure/governance/policy/overview)|Governance service enforcing organizational standards, assessing compliance at scale, and providing automatic remediation.|
+|[Microsoft Defender for Cloud regulatory compliance](/azure/defender-for-cloud/regulatory-compliance-dashboard)|Built-in and custom compliance assessments aligned with standards like Microsoft cloud security benchmark, ISO 27001, and NIST.|
+
+For detailed security management capabilities and best practices, see [Azure security management and monitoring overview](/azure/security/fundamentals/management-monitoring-overview).
+
+## Database security
+
+|Service|Description|
+|--------|--------|
+|[Azure SQL Database security](/azure/azure-sql/database/security-overview)|Network access control, authentication, authorization, encryption at rest and in transit, auditing, and threat detection.|
+|[Microsoft Defender for SQL](/azure/defender-for-cloud/defender-for-sql-introduction)|Advanced threat protection detecting vulnerabilities, anomalous activities, and SQL injection attempts.|
+|[Azure Cosmos DB security](/azure/cosmos-db/database-security)|Encryption at rest and in transit, network isolation, RBAC, and audit logging for NoSQL workloads.|
+
+For a comprehensive database security checklist, see [Azure database security checklist](/azure/security/fundamentals/database-security-checklist).
+
+## Virtual machine security
+
+|Service|Description|
+|--------|--------|
+|[Trusted launch](/azure/virtual-machines/trusted-launch)|Default for Gen2 VMs providing Secure Boot, vTPM, and Boot Integrity Monitoring to protect against boot kits and rootkits.|
+|[Azure confidential computing](/azure/confidential-computing/overview)|Hardware-based trusted execution environments using AMD SEV-SNP for data protection while in use.|
+|[Microsoft Defender for Servers](/azure/defender-for-cloud/defender-for-servers-introduction)|Threat detection and vulnerability management for Windows and Linux virtual machines.|
+
+For comprehensive VM security features and guidance, see [Azure Virtual Machines security overview](/azure/security/fundamentals/virtual-machines-overview).
+
+## Platform integrity
+
+|Service|Description|
+|--------|--------|
+|[Azure platform security](/azure/security/fundamentals/infrastructure)|Hardware and firmware security including Project Cerberus, measured boot, and host attestation.|
+|[Secure Boot and code integrity](/azure/security/fundamentals/secure-boot)|UEFI Secure Boot and code integrity policies protecting Azure infrastructure from malicious code.|
+
+For detailed platform security architecture, see [Azure platform integrity and security overview](/azure/security/fundamentals/platform).
 
 ## Backup and disaster recovery
-|Service|Description|
-|------|--------|
-| [Azure&nbsp;Backup](/azure/backup/backup-introduction-to-azure-backup)| An Azure-based service used to back up and restore data in the Azure cloud. |
-| [Azure&nbsp;Site&nbsp;Recovery](/azure/site-recovery/site-recovery-overview)|An online service that replicates workloads running on physical and virtual machines (VMs) from a primary site to a secondary location to enable recovery of services after a failure. |
 
-## Networking
 |Service|Description|
-|------|--------|
-| [Network&nbsp;Security&nbsp;Groups](/azure/virtual-network/virtual-networks-nsg)| A network-based access control feature using a 5-tuple to make allow or deny decisions.  |
-| [Azure VPN Gateway](/azure/vpn-gateway/vpn-gateway-about-vpngateways)| A network device used as a VPN endpoint to allow cross-premises access to Azure Virtual Networks.  |
-| [Azure Application Gateway](/azure/application-gateway/application-gateway-introduction)|An advanced web application load balancer that can route based on URL and perform SSL-offloading. |
-|[Web application firewall](/azure/frontdoor/waf-overview) (WAF)|A feature of Application Gateway that provides centralized protection of your web applications from common exploits and vulnerabilities|
-| [Azure Load Balancer](/azure/load-balancer/load-balancer-overview)|A TCP/UDP application network load balancer. |
-| [Azure ExpressRoute](/azure/expressroute/expressroute-introduction)| A dedicated WAN link between on-premises networks and Azure Virtual Networks. |
-| [Azure Traffic Manager](/azure/traffic-manager/traffic-manager-overview)| A global DNS load balancer.|
-| [Azure Application Proxy](/azure/active-directory/active-directory-application-proxy-get-started)| An authenticating front-end used to secure remote access for web applications hosted on-premises. |
-|[Azure Firewall](/azure/firewall/overview)|A managed, cloud-based network security service that protects your Azure Virtual Network resources.|
-|[Azure DDoS protection](/azure/virtual-network/ddos-protection-overview)|Combined with application design best practices, provides defense against DDoS attacks.|
-|[Virtual Network service endpoints](/azure/virtual-network/virtual-network-service-endpoints-overview)|Extends your virtual network private address space and the identity of your VNet to the Azure services, over a direct connection.|
+|--------|--------|
+|[Azure Backup](/azure/backup/backup-overview)| Independent and isolated backups protecting application data with zero capital investment and built-in management.|
+|[Azure Site Recovery](/azure/site-recovery/site-recovery-overview)|Disaster recovery orchestration for replication, failover, and recovery of workloads to secondary locations or Azure.|
+
+## PaaS deployment security
+
+For guidance on securing platform-as-a-service deployments, including App Service, Azure Functions, and container services, see [Securing PaaS deployments](/azure/security/fundamentals/paas-deployments).
+
+
+
+## Next steps
+
+- [End-to-end security in Azure](/azure/security/fundamentals/end-to-end) - Comprehensive overview of Azure's security architecture and capabilities
+- [Azure security best practices and patterns](/azure/security/fundamentals/best-practices-and-patterns) - Collection of security best practices for various scenarios
+- [Microsoft cloud security benchmark](/security/benchmark/azure/introduction) - Comprehensive security guidance for Azure services
+- [Shared responsibility in the cloud](/azure/security/fundamentals/shared-responsibility) - Understanding the security responsibilities shared between you and Microsoft

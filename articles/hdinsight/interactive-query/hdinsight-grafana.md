@@ -1,12 +1,12 @@
 ---
 title: Use Grafana on Azure HDInsight
 description: Learn how to access the Grafana dashboard with Apache Hadoop clusters in Azure HDInsight
-author: hrasheed-msft
-ms.author: hrasheed
-ms.reviewer: jasonh
-ms.service: hdinsight
+ms.service: azure-hdinsight
 ms.topic: how-to
-ms.date: 12/27/2019
+author: abhishjain002
+ms.author: abhishjain
+ms.reviewer: nijelsf
+ms.date: 05/09/2024
 ---
 
 # Access Grafana in Azure HDInsight
@@ -15,7 +15,7 @@ ms.date: 12/27/2019
 
 Currently, in Azure HDInsight, Grafana is supported with the Spark, HBase, Kafka and Interactive Query cluster types. It is not supported for clusters with Enterprise Security Pack enabled.
 
-If you don’t have an Azure subscription, create a [free account](https://azure.microsoft.com/free/?WT.mc_id=A261C142F) before you begin.
+If you don’t have an Azure subscription, create a [free account](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn) before you begin.
 
 ## Create an Apache Hadoop cluster
 
@@ -29,7 +29,7 @@ See [Create Apache Hadoop clusters using the Azure portal](../hdinsight-hadoop-c
 
 1. The Grafana dashboard appears and looks like this example:
 
-    ![HDInsight Grafana web dashboard](./media/hdinsight-grafana/hdinsight-grafana-dashboard.png "HDInsight Grafana dashboard")
+    :::image type="content" source="./media/hdinsight-grafana/hdinsight-grafana-dashboard.png " alt-text="HDInsight Grafana web dashboard." border="true":::
 
 ## Clean up resources
 

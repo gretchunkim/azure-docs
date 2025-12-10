@@ -1,33 +1,38 @@
 ---
-title: Azure CLI Script Example - Create Batch account - user subscription
-description: This script creates an Azure Batch account in user subscription mode. This account allocates compute nodes into your subscription.
+title: Azure CLI Script Example - Create Batch account - user subscription | Microsoft Docs
+description: Learn how to create an Azure Batch account in user subscription mode. This account allocates compute nodes into your subscription.
 ms.topic: sample
-ms.date: 01/29/2018 
-ms.custom: devx-track-azurecli
+ms.date: 06/24/2024
+ms.custom: devx-track-azurecli, seo-azure-cli
+keywords: batch, azure cli samples, azure cli examples, azure cli code samples
+# Customer intent: "As a cloud administrator, I want to create an Azure Batch account in user subscription mode, so that I can allocate compute nodes and manage resources within my subscription effectively."
 ---
 
 # CLI example: Create a Batch account in user subscription mode
 
-This script creates an Azure Batch account in user subscription mode. An account that allocates compute nodes into your subscription must be authenticated via an Azure Active Directory token. The compute nodes allocated count toward your subscription's vCPU (core) quota. 
+This script creates an Azure Batch account in user subscription mode. An account that allocates compute nodes into your subscription must be authenticated via a Microsoft Entra token. The compute nodes allocated count toward your subscription's vCPU (core) quota.
 
-[!INCLUDE [cloud-shell-try-it.md](../../../includes/cloud-shell-try-it.md)]
+[!INCLUDE [quickstarts-free-trial-note](~/reusable-content/ce-skilling/azure/includes/quickstarts-free-trial-note.md)]
 
-If you choose to install and use the CLI locally, this article requires that you are running the Azure CLI version 2.0.20 or later. Run `az --version` to find the version. If you need to install or upgrade, see [Install Azure CLI](/cli/azure/install-azure-cli). 
+[!INCLUDE [azure-cli-prepare-your-environment.md](~/reusable-content/azure-cli/azure-cli-prepare-your-environment.md)]
 
-## Example script
+## Sample script
 
-[!code-azurecli-interactive[main](../../../cli_scripts/batch/create-account/create-account-user-subscription.sh "Create Account using user subscription")]
+[!INCLUDE [cli-launch-cloud-shell-sign-in.md](~/reusable-content/ce-skilling/azure/includes/cli-launch-cloud-shell-sign-in.md)]
 
-## Clean up deployment
+### Run the script
 
-Run the following command to remove the
-resource group and all resources associated with it.
+:::code language="azurecli" source="~/azure_cli_scripts/batch/create-account/create-account-user-subscription.sh" id="FullScript":::
 
-```azurecli-interactive
-az group delete --name myResourceGroup
+## Clean up resources
+
+[!INCLUDE [cli-clean-up-resources.md](~/reusable-content/ce-skilling/azure/includes/cli-clean-up-resources.md)]
+
+```azurecli
+az group delete --name $resourceGroup
 ```
 
-## Script explanation
+## Sample reference
 
 This script uses the following commands. Each command in the table links to command-specific documentation.
 

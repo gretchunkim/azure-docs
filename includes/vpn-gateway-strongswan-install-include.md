@@ -1,39 +1,38 @@
 ---
- title: include file
- description: include file
- services: vpn-gateway
  author: cherylmc
- ms.service: vpn-gateway
+ ms.service: azure-vpn-gateway
  ms.topic: include
- ms.date: 08/14/2019
+ ms.date: 03/21/2024
  ms.author: cherylmc
- ms.custom: include file
 ---
 
-The following configuration was used for the steps below:
+The following configuration was used when specifying commands:
 
-- Computer: Ubuntu Server 18.04
-- Dependencies: strongSwan
-
+* Computer: Ubuntu Server 18.04
+* Dependencies: strongSwan
 
 Use the following commands to install the required strongSwan configuration:
 
+```CLI
+sudo apt-get update
 ```
+
+```CLI
+sudo apt-get upgrade
+```
+
+```CLI
 sudo apt install strongswan
 ```
 
-```
+```CLI
 sudo apt install strongswan-pki
 ```
 
-```
+```CLI
 sudo apt install libstrongswan-extra-plugins
 ```
 
-Use the following command to install the Azure command-line interface:
-
+```CLI
+sudo apt install libtss2-tcti-tabrmd0
 ```
-curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
-```
-
-[Additional instructions on how to install the Azure CLI](https://docs.microsoft.com/cli/azure/install-azure-cli-apt?view=azure-cli-latest)

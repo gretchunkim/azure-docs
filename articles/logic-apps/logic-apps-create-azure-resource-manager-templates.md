@@ -1,38 +1,30 @@
 ---
-title: Create logic app templates for deployment
-description: Learn how to create Azure Resource Manager templates for automating deployment in Azure Logic Apps
+title: Create Consumption logic app templates for deployment
+description: Create Azure Resource Manager templates to automate deployment for Consumption logic apps in Azure Logic Apps.
 services: logic-apps
 ms.suite: integration
-ms.reviewer: klam, logicappspm
-ms.topic: article
-ms.date: 07/26/2019
+ms.reviewer: estfan, azla
+ms.topic: how-to
+ms.custom: devx-track-azurepowershell, devx-track-arm-template
+ms.date: 02/19/2025
 ---
 
-# Create Azure Resource Manager templates to automate deployment for Azure Logic Apps
+# Create Azure Resource Manager templates to automate Consumption logic app deployment for Azure Logic Apps
 
-To help you automate creating and deploying your logic app, this article describes the ways that you can create an [Azure Resource Manager template](../azure-resource-manager/management/overview.md) for your logic app. For an overview about the structure and syntax for a template that includes your workflow definition and other resources necessary for deployment, see [Overview: Automate deployment for logic apps with Azure Resource Manager templates](logic-apps-azure-resource-manager-templates-overview.md).
+[!INCLUDE [logic-apps-sku-consumption](~/reusable-content/ce-skilling/azure/includes/logic-apps-sku-consumption.md)]
 
-Azure Logic Apps provides a [prebuilt logic app Azure Resource Manager template](https://github.com/Azure/azure-quickstart-templates/blob/master/101-logic-app-create/azuredeploy.json) that you can reuse, not only for creating logic apps, but also to define the resources and parameters to use for deployment. You can use this template for your own business scenarios or customize the template to meet your requirements.
+To help you automatically create and deploy a Consumption logic app, this article describes the ways that you can create an [Azure Resource Manager template](../azure-resource-manager/management/overview.md). Azure Logic Apps also provides a [prebuilt logic app Azure Resource Manager template](https://github.com/Azure/azure-quickstart-templates/blob/master/quickstarts/microsoft.logic/logic-app-create/azuredeploy.json) that you can reuse, not only to create Consumption logic apps, but also to define the resources and parameters for deployment. You can use this template for your own business scenarios or customize the template to meet your requirements. For an overview about the structure and syntax for a template that contains a workflow definition and other resources necessary for deployment, see [Overview: Automate deployment for logic apps with Azure Resource Manager templates](logic-apps-azure-resource-manager-templates-overview.md).
 
 > [!IMPORTANT]
-> Make sure that connections in your template use the same Azure resource group and location as your logic app.
+> 
+> This article applies only to Consumption logic apps, not Standard logic apps. Make sure that 
+> connections in your template use the same Azure resource group and location as your logic app. 
 
-For more about Azure Resource Manager templates, see these topics:
+For more information about Azure Resource Manager templates, see the following topics:
 
-* [Azure Resource Manager template structure and syntax](../azure-resource-manager/templates/template-syntax.md)
-* [Author Azure Resource Manager templates](../azure-resource-manager/templates/template-syntax.md)
-* [Develop Azure Resource Manager templates for cloud consistency](../azure-resource-manager/templates/templates-cloud-consistency.md)
-
-<a name="visual-studio"></a>
-
-## Create templates with Visual Studio
-
-For the easiest way to create valid parameterized logic app templates that are mostly ready for deployment, use Visual Studio (free Community edition or greater) and the Azure Logic Apps Tools for Visual Studio. You can then either [create your logic app in Visual Studio](../logic-apps/quickstart-create-logic-apps-with-visual-studio.md) or [find and download an existing logic app from the Azure portal into Visual Studio](../logic-apps/manage-logic-apps-with-visual-studio.md).
-
-By downloading your logic app, you get a template that includes the definitions for your logic app and other resources such as connections. The template also *parameterizes*, or defines parameters for, the values used for deploying your logic app and other resources. You can provide the values for these parameters in a separate parameters file. That way, you can more easily change these values based on your deployment needs. For more information, see these topics:
-
-* [Create logic apps with Visual Studio](../logic-apps/quickstart-create-logic-apps-with-visual-studio.md)
-* [Manage logic apps with Visual Studio](../logic-apps/manage-logic-apps-with-visual-studio.md)
+* [Azure Resource Manager template structure and syntax](../azure-resource-manager/templates/syntax.md)
+* [Author Azure Resource Manager templates](../azure-resource-manager/templates/syntax.md)
+* [Develop Azure Resource Manager templates for cloud consistency](../azure-resource-manager/templates/template-cloud-consistency.md)
 
 <a name="azure-powershell"></a>
 
@@ -44,25 +36,26 @@ For example, suppose you have a logic app that receives a message from an Azure 
 
 These samples show how to create and deploy logic apps by using Azure Resource Manager templates, Azure Pipelines in Azure DevOps, and Azure PowerShell:
 
-* [Sample: Connect to Azure Service Bus queues from Azure Logic Apps](/samples/azure-samples/azure-logic-apps-deployment-samples/connect-to-azure-service-bus-queues-from-azure-logic-apps-and-deploy-with-azure-devops-pipelines/)
-* [Sample: Connect to Azure Storage accounts from Azure Logic Apps](/samples/azure-samples/azure-logic-apps-deployment-samples/connect-to-azure-storage-accounts-from-azure-logic-apps-and-deploy-with-azure-devops-pipelines/)
-* [Sample: Set up a function app action for Azure Logic Apps](/samples/azure-samples/azure-logic-apps-deployment-samples/set-up-an-azure-function-app-action-for-azure-logic-apps-and-deploy-with-azure-devops-pipelines/)
-* [Sample: Connect to an integration account from Azure Logic Apps](/samples/azure-samples/azure-logic-apps-deployment-samples/connect-to-an-integration-account-from-azure-logic-apps-and-deploy-by-using-azure-devops-pipelines/)
+* [Sample: Orchestrate Azure Pipelines by using Azure Logic Apps](https://github.com/Azure-Samples/azure-logic-apps-pipeline-orchestration)
+* [Sample: Connect to Azure Storage accounts from Azure Logic Apps and deploy with Azure Pipelines in Azure DevOps](https://github.com/Azure-Samples/azure-logic-apps-deployment-samples/tree/master/storage-account-connections)
+* [Sample: Connect to Azure Service Bus queues from Azure Logic Apps and deploy with Azure Pipelines in Azure DevOps](https://github.com/Azure-Samples/azure-logic-apps-deployment-samples/tree/master/service-bus-connections)
+* [Sample: Set up an Azure Functions action for Azure Logic Apps and deploy with Azure Pipelines in Azure DevOps](https://github.com/Azure-Samples/azure-logic-apps-deployment-samples/tree/master/function-app-actions)
+* [Sample: Connect to an integration account from Azure Logic Apps and deploy with Azure Pipelines in Azure DevOps](https://github.com/Azure-Samples/azure-logic-apps-deployment-samples/tree/master/integration-account-connections)
 
 ### Install PowerShell modules
 
-1. If you haven't already, install [Azure PowerShell](/powershell/azure/install-az-ps).
+1. If you haven't already, install [Azure PowerShell](/powershell/azure/install-azure-powershell).
 
 1. For the easiest way to install the LogicAppTemplate module from the [PowerShell Gallery](https://www.powershellgallery.com/packages/LogicAppTemplate), run this command:
 
-   ```text
-   PS> Install-Module -Name LogicAppTemplate
+   ```powershell
+   Install-Module -Name LogicAppTemplate
    ```
 
    To update to the latest version, run this command:
 
-   ```text
-   PS> Update-Module -Name LogicAppTemplate
+   ```powershell
+   Update-Module -Name LogicAppTemplate
    ```
 
 Or, to install manually, follow the steps in GitHub for [Logic App Template Creator](https://github.com/jeffhollan/LogicAppTemplateCreator).
@@ -75,28 +68,43 @@ When you run the `Get-LogicAppTemplate` command with this tool, the command firs
 
 ### Generate template with PowerShell
 
-To generate your template after installing the LogicAppTemplate module and [Azure CLI](/cli/azure/?view=azure-cli-latest), run this PowerShell command:
+To generate your template after installing the LogicAppTemplate module and [Azure CLI](/cli/azure/), run this PowerShell command:
 
-```text
-PS> Get-LogicAppTemplate -Token (az account get-access-token | ConvertFrom-Json).accessToken -LogicApp <logic-app-name> -ResourceGroup <Azure-resource-group-name> -SubscriptionId $SubscriptionId -Verbose | Out-File C:\template.json
+```powershell
+$parameters = @{
+    Token = (az account get-access-token | ConvertFrom-Json).accessToken
+    LogicApp = '<logic-app-name>'
+    ResourceGroup = '<Azure-resource-group-name>'
+    SubscriptionId = $SubscriptionId
+    Verbose = $true
+}
+
+Get-LogicAppTemplate @parameters | Out-File C:\template.json
 ```
 
 To follow the recommendation for piping in a token from the [Azure Resource Manager client tool](https://github.com/projectkudu/ARMClient), run this command instead where `$SubscriptionId` is your Azure subscription ID:
 
-```text
-PS> armclient token $SubscriptionId | Get-LogicAppTemplate -LogicApp <logic-app-name> -ResourceGroup <Azure-resource-group-name> -SubscriptionId $SubscriptionId -Verbose | Out-File C:\template.json
+```powershell
+$parameters = @{
+    LogicApp = '<logic-app-name>'
+    ResourceGroup = '<Azure-resource-group-name>'
+    SubscriptionId = $SubscriptionId
+    Verbose = $true
+}
+
+armclient token $SubscriptionId | Get-LogicAppTemplate @parameters | Out-File C:\template.json
 ```
 
 After extraction, you can then create a parameters file from your template by running this command:
 
-```text
-PS> Get-ParameterTemplate -TemplateFile $filename | Out-File '<parameters-file-name>.json'
+```powershell
+Get-ParameterTemplate -TemplateFile $filename | Out-File '<parameters-file-name>.json'
 ```
 
 For extraction with Azure Key Vault references (static only), run this command:
 
-```text
-PS> Get-ParameterTemplate -TemplateFile $filename -KeyVault Static | Out-File $fileNameParameter
+```powershell
+Get-ParameterTemplate -TemplateFile $filename -KeyVault Static | Out-File $fileNameParameter
 ```
 
 | Parameters | Required | Description |

@@ -1,71 +1,66 @@
 ---
-title: Encrypt an Azure storage account used by a lab in Azure DevTest Labs
-description: Learn how to configure encryption of an Azure storage used by a lab in Azure DevTest Labs 
+title: Manage Azure storage accounts for labs
+titleSuffix: Azure DevTest Labs
+description: Learn about Azure storage accounts for DevTest Labs, including encryption, customer-managed keys, and setting expiration dates for artifact results storage.
 ms.topic: how-to
-ms.date: 07/29/2020
+ms.author: rosemalcolm
+author: RoseHJM
+ms.date: 05/30/2024
+ms.custom:
+  - UpdateFrequency2
+  - sfi-image-nochange
+
+#customer intent: As a developer, I want to manage the Azure storage account for my DevTest Labs resource so that I can perform tasks like setting the expiration for artifact results.
 ---
 
-# Encrypt Azure storage used by a lab in Azure DevTest Labs
-Every lab created in Azure DevTest Labs is created with an associated Azure storage account. The storage account is used for the following purposes: 
+# Manage Azure storage accounts for DevTest Labs
 
-- Storing [formula](devtest-lab-manage-formulas.md) documents that can be used to create virtual machines.
-- Storing artifact results that include deployment and extension logs generated from applying artifacts. 
-- [Uploading virtual hard disks (VHDs) to create custom images in the lab.](devtest-lab-create-template.md)
-- Caching frequently used [artifacts](add-artifact-vm.md) and [Azure Resource Manager templates](devtest-lab-create-environment-from-arm.md) for faster retrieval during virtual machine/environment creation.
+This article explains how to view and manage the Azure storage accounts associated with your Azure DevTest Labs resources.
 
-> [!NOTE]
-> The information above is critical for the lab to operate. It's stored for the life of the lab (and lab resources) unless explicitly deleted. Manually deleting these resources can lead to errors in creating lab VMs and/or formulas becoming corrupt for future use. 
+## View storage account contents
 
-## Locate the storage account and view its contents
+When you create a new lab, an Azure storage account is automatically created for the resource.
 
-1. On the home page for the lab, select the **resource group** on the **Overview** page. You should see the **Resource group** page for the resource group that contains the lab. 
+To see a lab's storage account and the information it holds, follow these steps:
 
-    :::image type="content" source="./media/encrypt-storage/overview-resource-group-link.png" alt-text="Select resource group on the Overview page":::
-1. Select the Azure storage account of the lab. The naming convention for the lab storage account is: `a<labNameWithoutInvalidCharacters><4-digit number>`. For example, if the lab name is `contosolab`, the storage account name could be `acontosolab7576`. 
+1. In the [Azure portal](https://portal.azure.com), go to your DevTest Labs resource.
 
-    :::image type="content" source="./media/encrypt-storage/select-storage-account.png" alt-text="Select storage account in the resource group of the lab":::
-3. On the **Storage account** page, select **Storage Explorer (preview)** on the left menu, and then select **BLOB CONTAINERS** to find relevant lab-related content. 
+1. On the lab **Overview** page, select the **Resource group**:
 
-   :::image type="content" source="./media/encrypt-storage/storage-explorer.png" alt-text="Storage Explorer (Preview)" lightbox="./media/encrypt-storage/storage-explorer.png":::
+   :::image type="content" source="./media/encrypt-storage/overview-resource-group-link.png" alt-text="Screenshot that shows how to select the resource group for the DevTest Labs resource on the lab Overview page." border="false" lightbox="./media/encrypt-storage/overview-resource-group-link.png":::
 
-## Encrypt the lab storage account
-Azure Storage automatically encrypts your data when it's persisted to the cloud. Azure Storage encryption protects your data and helps you to meet your organizational security and compliance commitments. For more information, see [Azure Storage encryption for data at rest](../storage/common/storage-service-encryption.md).
+1. On the **Overview** page, in the **Resources** list, select the lab's storage account:
 
-Data in the lab storage account is encrypted with a **Microsoft-managed key**. You can rely on Microsoft-managed keys for the encryption of your data, or you can manage encryption with your own keys. If you choose to manage encryption with your own keys for the lab’s storage account, you can specify a **customer-managed key** with Azure Key Vault to use for encrypting/decrypting data in Blob storage and in Azure Files. For more information about customer-managed keys, see [Use customer-managed keys with Azure Key Vault to manage Azure Storage encryption](../storage/common/encryption-customer-managed-keys.md).
+   :::image type="content" source="./media/encrypt-storage/select-storage-account.png" alt-text="Screenshot that shows how to select the storage account for the DevTest Labs resource." border="false" lightbox="./media/encrypt-storage/select-storage-account.png":::
 
-To learn how to configure customer-managed keys for Azure Storage encryption, see the following articles: 
+   The naming convention for the lab storage account is `a<labName><4-digit number>`. If the lab name is `contosolab`, an example storage account name is `acontosolab5237`. If your lab name includes special characters like the hyphen `-`, these characters aren't included in the storage account name.
 
-- [Azure portal](../storage/common/storage-encryption-keys-portal.md)
-- [Azure PowerShell](../storage/common/storage-encryption-keys-powershell.md)
-- [Azure CLI](../storage/common/storage-encryption-keys-cli.md)
+1. On the **Storage account** page, select **Storage browser**, and then select **Blob containers** to see relevant lab-related content:
 
+   :::image type="content" source="./media/encrypt-storage/storage-explorer.png" alt-text="Screenshot that shows the Storage browser view for the storage account with relative Azure Blob containers." border="false" lightbox="./media/encrypt-storage/storage-explorer.png":::
 
-## Manage the Azure Blob storage life cycle
-As mentioned, the information stored in the Lab’s storage account is critical for the lab to operate without any errors. Unless explicitly deleted, this data will continue to remain in the lab’s storage account for the life of the lab or the life of specific lab virtual machines, depending on the type of data.
+## Manage Azure Storage lifecycle
 
-### Uploaded VHDs
-These VHDs are used to create custom images. Removing them will make it no longer possible to create custom images from these VHDs.
+The lab storage account stores the following information:
 
-### Artifacts Cache
-These caches will be re-created any time artifacts are applied. They'll be refreshed with the latest content from the respective referenced repositories. So, if you delete this information to save Storage-related expenses, the relief will be temporary.
+- [Formula documents](devtest-lab-manage-formulas.md) to use for creating a lab virtual machine (VM)
+- [Virtual hard disks (VHDs)](devtest-lab-create-template.md) (uploaded to DevTest Labs) to use for creating custom VM images
+- [Artifact](add-artifact-vm.md) and [Azure Resource Manager (ARM) template](devtest-lab-create-environment-from-arm.md) caches for faster retrieval during VM and environment creation
+- Artifact results, which are deployment and extension logs generated from applying artifacts
 
-### Azure Resource Manager template Cache
-These caches will be re-created any time Azure Resource Manager-based template repositories are connected and spun up in the lab. They'll be refreshed with the latest content from the respective referenced repositories. So, if you delete this information to save Storage-related expenses, the relief will be temporary.
+The information in the lab storage account persists for the life of the lab and its resources, unless explicitly deleted. Most of this information is critical for the lab to operate. Manually deleting storage account information can cause data corruption or VM creation errors.
 
-### Formulas
-These documents are used to support the option to both create formulas from existing VMs, and creating VMs from formulas. Deleting these formula documents may lead to errors while doing the following operations:
+As you interact with the storage account information, keep in mind the following behavior:
 
-- Creating a formula from an existing lab VM
-- Creating or updating formulas 
-- Creating a VM from a formula.
+- Removing uploaded VHDs makes it no longer possible to create custom images from the VHDs.
+- Deleting formula documents can lead to errors when creating VMs from formulas, updating formulas, or creating new formulas.
+- Connecting the lab to artifact or template repositories refreshes the artifact and ARM template caches. If you remove the caches manually, DevTest Labs recreates the caches the next time the lab connects to the repositories.
 
-### Artifact results
-As artifacts are applied, the size of the respective artifact results can increase over time depending on the number and type of artifacts being run on lab VMs. So, as a lab owner, you may want to control the lifecycle of such documents. For more information, see [Manage the Azure Blob storage lifecycle](../storage/blobs/storage-lifecycle-management-concepts.md).
+## Set expiration for artifact results
 
-> [!IMPORTANT]
-> We recommend that you do this step to reduce expenses associated with the Azure Storage account. 
+The artifact results size can increase over time as artifacts are applied. You can set an expiration rule for artifact results to regularly delete older results from the storage account. This practice reduces storage account size and helps control costs.
 
-For example, the following rule is used to set a 90-day expiration rule specifically for artifact results. It ensures that older artifact results are recycled from the storage account on a regular cadence.
+The following rule sets a 90-day expiration specifically for artifact results:
 
 ```json
 {
@@ -93,11 +88,17 @@ For example, the following rule is used to set a 90-day expiration rule specific
 }
 ```
 
-## Next steps
-To learn how to configure customer-managed keys for Azure Storage encryption, see the following articles: 
+## Set storage encryption and customer-managed keys
 
-- [Azure portal](../storage/common/storage-encryption-keys-portal.md)
-- [Azure PowerShell](../storage/common/storage-encryption-keys-powershell.md)
-- [Azure CLI](../storage/common/storage-encryption-keys-cli.md)
+Azure Storage automatically encrypts all data in the lab storage account. Azure Storage encryption protects your data and helps meet organizational security and compliance commitments. For more information, see [Azure Storage encryption for data at rest](../storage/common/storage-service-encryption.md).
 
+Azure Storage encrypts lab data with a Microsoft-managed key. Optionally, you can manage encryption with your own keys. If you choose to manage lab storage account encryption with your own key, you can use Azure Key Vault to specify a customer-managed key for encrypting and decrypting data.
 
+For more information and instructions on configuring customer-managed keys for Azure Storage encryption, see:
+
+- [Manage Azure Storage encryption by using customer-managed keys with Azure Key Vault](../storage/common/customer-managed-keys-overview.md)
+- [Configure encryption with customer-managed keys stored in Azure Key Vault](../storage/common/customer-managed-keys-configure-key-vault.md)
+
+## Related content
+
+- [Optimize costs by automatically managing the data lifecycle](../storage/blobs/lifecycle-management-overview.md)

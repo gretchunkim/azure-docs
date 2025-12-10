@@ -1,51 +1,37 @@
 ---
-title: Use the Azure portal to configure file upload | Microsoft Docs
+title: Configure file upload in IoT Hub
 description: How to use the Azure portal to configure your IoT hub to enable file uploads from connected devices. Includes information about configuring the destination Azure storage account.
-author: robinsh
-manager: philmea
-ms.service: iot-hub
-services: iot-hub
-ms.topic: conceptual
-ms.date: 07/03/2017
-ms.author: robinsh
+author: SoniaLopezBravo
+ms.author: sonialopez
+ms.service: azure-iot-hub
+ms.topic: how-to
+ms.date: 07/20/2021
+zone_pivot_groups: service-portal-azcli-powershell
 ---
 
 # Configure IoT Hub file uploads using the Azure portal
 
-[!INCLUDE [iot-hub-file-upload-selector](../../includes/iot-hub-file-upload-selector.md)]
 
-## File upload
+Configuring file uploads in your IoT hub enables your connected devices to upload files to an Azure storage account. This article shows you how to configure file uploads on your IoT hub using the Azure portal, Azure CLI, and Azure PowerShell.
 
-To use the [file upload functionality in IoT Hub](iot-hub-devguide-file-upload.md), you must first associate an Azure Storage account with your hub. Select **File upload** to display a list of file upload properties for the IoT hub that is being modified.
+To use the [file upload functionality in IoT Hub](iot-hub-devguide-file-upload.md), you must first associate an Azure storage account and blob container with your IoT hub. IoT Hub automatically generates SAS URIs with write permissions to this blob container for devices to use when they upload files. In addition to the storage account and blob container, you can set the time-to-live for the SAS URI and the type of authentication that IoT Hub uses with Azure storage. You can also configure settings for the optional file upload notifications that IoT Hub can deliver to backend services.
 
-![View IoT Hub file upload settings in the portal](./media/iot-hub-configure-file-upload/file-upload-settings.png)
+:::zone pivot="azure-portal"
 
-* **Storage container**: Use the Azure portal to select a blob container in an Azure Storage account in your current Azure subscription to associate with your IoT Hub. If necessary, you can create an Azure Storage account on the **Storage accounts** blade and blob container on the **Containers** blade. IoT Hub automatically generates SAS URIs with write permissions to this blob container for devices to use when they upload files.
+[!INCLUDE [iot-hub-configure-file-portal](../../includes/iot-hub-configure-file-upload-portal.md)]
 
-   ![View storage containers for file upload in the portal](./media/iot-hub-configure-file-upload/file-upload-container-selection.png)
+:::zone-end
 
-* **Receive notifications for uploaded files**: Enable or disable file upload notifications via the toggle.
+:::zone pivot="azure-cli"
 
-* **SAS TTL**: This setting is the time-to-live of the SAS URIs returned to the device by IoT Hub. Set to one hour by default but can be customized to other values using the slider.
+[!INCLUDE [iot-hub-configure-file-cli](../../includes/iot-hub-configure-file-upload-cli.md)]
 
-* **File notification settings default TTL**: The time-to-live of a file upload notification before it is expired. Set to one day by default but can be customized to other values using the slider.
+:::zone-end
 
-* **File notification maximum delivery count**: The number of times the IoT Hub attempts to deliver a file upload notification. Set to 10 by default but can be customized to other values using the slider.
+:::zone pivot="powershell"
 
-   ![Configure IoT Hub file upload in the portal](./media/iot-hub-configure-file-upload/file-upload-selected-container.png)
+[!INCLUDE [iot-hub-configure-file-powershell](../../includes/iot-hub-configure-file-upload-powershell.md)]
 
-## Next steps
+:::zone-end
 
-For more information about the file upload capabilities of IoT Hub, see [Upload files from a device](iot-hub-devguide-file-upload.md) in the IoT Hub developer guide.
 
-Follow these links to learn more about managing Azure IoT Hub:
-
-* [Bulk manage IoT devices](iot-hub-bulk-identity-mgmt.md)
-* [IoT Hub metrics](iot-hub-metrics.md)
-* [Operations monitoring](iot-hub-operations-monitoring.md)
-
-To further explore the capabilities of IoT Hub, see:
-
-* [IoT Hub developer guide](iot-hub-devguide.md)
-* [Deploying AI to edge devices with Azure IoT Edge](../iot-edge/tutorial-simulate-device-linux.md)
-* [Secure your IoT solution from the ground up](../iot-fundamentals/iot-security-ground-up.md)

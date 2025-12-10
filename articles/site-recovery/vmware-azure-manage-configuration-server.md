@@ -1,11 +1,15 @@
 ---
 title: Manage the configuration server for disaster recovery with Azure Site Recovery
-author: Rajeswari-Mamilla
-manager: rochakm
-ms.service: site-recovery
-ms.topic: conceptual
-ms.date: 04/15/2019
-ms.author: ramamill
+description: Learn about the common tasks to manage an on-premises configuration server for disaster recovery of VMware VMs and physical servers to Azure with Azure Site Recovery.
+author: Jeronika-MS
+ms.service: azure-site-recovery
+ms.topic: how-to
+ms.author: v-gajeronika
+ms.date: 12/01/2025
+ms.custom:
+  - sfi-image-nochange
+  - sfi-ropc-nochange
+# Customer intent: As a system administrator managing disaster recovery of VMware VMs, I want to effectively configure and maintain the on-premises configuration server, so that I can ensure reliable data replication and recovery to Azure.
 ---
 
 # Manage the configuration server for VMware VM/physical server disaster recovery
@@ -13,7 +17,7 @@ ms.author: ramamill
 You set up an on-premises configuration server when you use [Azure Site Recovery](site-recovery-overview.md) for disaster recovery of VMware VMs and physical servers to Azure. The configuration server coordinates communications between on-premises VMware and Azure and manages data replication. This article summarizes common tasks for managing the configuration server after it's deployed.
 
 
-[!INCLUDE [updated-for-az](../../includes/updated-for-az.md)]
+[!INCLUDE [updated-for-az](~/reusable-content/ce-skilling/azure/includes/updated-for-az.md)]
 
 ## Update Windows license
 
@@ -66,7 +70,7 @@ If you missed adding credentials during OVF deployment of configuration server,
 
 1. After [sign-in](#access-configuration-server), select **Manage virtual machine credentials**.
 2. Click on **Add virtual machine credentials**.
-    ![add-mobility-credentials](media/vmware-azure-manage-configuration-server/add-mobility-credentials.png)
+    ![Screenshot shows Manage virtual machine credentials pane with the Add virtual machine credentials link.](media/vmware-azure-manage-configuration-server/add-mobility-credentials.png)
 3. Enter the new credentials and click on **Add**.
 
 You can also add credentials through CSPSConfigtool.exe.
@@ -110,8 +114,8 @@ The expiry date appears under **Configuration Server health**. For configuration
 ### If certificates have already expired
 
 1. Post expiry, certificates **cannot be renewed from Azure portal**. Before proceeding, ensure all components scale-out process servers, master target servers and mobility agents on all protected machines are on latest versions and are in connected state.
-2. **Follow this procedure only if certificates have already expired.** Login to configuration server, navigate to C drive > Program Data > Site Recovery > home > svsystems > bin and execute "RenewCerts" executor tool as administrator.
-3. A PowerShell execution window pops-up and triggers renewal of certificates. This can take up to 15 minutes. Do not close the window until completion of renewal.
+2. **Follow this procedure only if certificates have already expired.** Log in to configuration server, navigate to *C:\ProgramData\ASR\home\svsystems\bin* and execute **RenewCerts** executor tool as administrator.
+3. A PowerShell execution window pops up and triggers renewal of certificates. This can take up to 15 minutes. Do not close the window until completion of renewal.
 
 :::image type="content" source="media/vmware-azure-manage-configuration-server/renew-certificates.png" alt-text="RenewCertificates":::
 
@@ -165,12 +169,12 @@ You run update rollups to update the configuration server. Updates can be applie
 - If you run 9.7, 9.8, 9.9, or 9.10, you can upgrade directly to 9.11.
 - If you run 9.6 or earlier and you want to upgrade to 9.11, you must first upgrade to version 9.7. before 9.11.
 
-For detailed guidance on Azure Site Recovery components support statement refer [here](https://aka.ms/asr_support_statement).
-Links to update rollups for upgrading to all versions of the configuration server are available [here](https://aka.ms/asr_update_rollups).
+For detailed guidance on Azure Site Recovery components support statement refer [here](./service-updates-how-to.md#support-statement-for-azure-site-recovery).
+Links to update rollups for upgrading to all versions of the configuration server are available [here](/azure/site-recovery/service-updates-how-to#updates-support).
 
 > [!IMPORTANT]
 > With every new version 'N' of an Azure Site Recovery component that is released, all versions below 'N-4' is considered out of support. It is always advisable to upgrade to the latest versions available.</br>
-> For detailed guidance on Azure Site Recovery components support statement refer [here](https://aka.ms/asr_support_statement).
+> For detailed guidance on Azure Site Recovery components support statement refer [here](./service-updates-how-to.md#support-statement-for-azure-site-recovery).
 
 Upgrade the server as follows:
 
@@ -179,16 +183,16 @@ Upgrade the server as follows:
     ![Update](./media/vmware-azure-manage-configuration-server/update2.png)
 3. Download the update installer file to the configuration server.
 
-    ![Update](./media/vmware-azure-manage-configuration-server/update1.png)
+    ![Screenshot that shows where to click to download the update installer file.](./media/vmware-azure-manage-configuration-server/update1.png)
 
 4. Double-click to run the installer.
 5. The installer detects the current version running on the machine. Click **Yes** to start the upgrade.
 6. When the upgrade completes the server configuration validates.
 
-    ![Update](./media/vmware-azure-manage-configuration-server/update3.png)
+    ![Screenshot that shows the completed server validation configuration.](./media/vmware-azure-manage-configuration-server/update3.png)
 
 7. Click **Finish** to close the installer.
-8. To upgrade rest of the Site Recovery components, refer to our [upgrade guidance](https://aka.ms/asr_vmware_upgrades).
+8. To upgrade rest of the Site Recovery components, refer to our [upgrade guidance](./service-updates-how-to.md#vmware-vmphysical-server-disaster-recovery-to-azure).
 
 ## Upgrade configuration server/process server from the command line
 
@@ -218,7 +222,7 @@ Run the installation file as follows:
 |/PSIP|Required|IP address of the NIC to be used for replication data transfer| Any valid IP Address|
 |/CSIP|Required|The IP address of the NIC on which the configuration server is listening on| Any valid IP Address|
 |/PassphraseFilePath|Required|The full path to location of the passphrase file|Valid file path|
-|/BypassProxy|Optional|Specifies that the configuration server connects to Azure without a proxy|To do get this value from Venu|
+|/BypassProxy|Optional|Specifies that the configuration server connects to Azure without a proxy||
 |/ProxySettingsFilePath|Optional|Proxy settings (The default proxy requires authentication, or a custom proxy)|The file should be in the format specified below|
 |DataTransferSecurePort|Optional|Port number on the PSIP to be used for replication data| Valid Port Number (default value is 9433)|
 |/SkipSpaceCheck|Optional|Skip space check for cache disk| |
@@ -249,6 +253,8 @@ ProxyPassword="Password"
 
 ## Delete or unregister a configuration server
 
+If you replicate VMware VMs or Windows/Linux physical servers to Azure, you can unregister an unconnected configuration server from a vault as follows:
+
 1. [Disable protection](site-recovery-manage-registration-and-protection.md#disable-protection-for-a-vmware-vm-or-physical-server-vmware-to-azure) for all VMs under the configuration server.
 2. [Disassociate](vmware-azure-set-up-replication.md#disassociate-or-delete-a-replication-policy) and [delete](vmware-azure-set-up-replication.md#disassociate-or-delete-a-replication-policy) all replication policies from the configuration server.
 3. [Delete](vmware-azure-manage-vcenter.md#delete-a-vcenter-server) all vCenter servers/vSphere hosts that are associated with the configuration server.
@@ -262,7 +268,7 @@ ProxyPassword="Password"
 
 You can optionally delete the configuration server by using PowerShell.
 
-1. [Install](/powershell/azure/install-Az-ps) the Azure PowerShell module.
+1. [Install](/powershell/azure/install-azure-powershell) the Azure PowerShell module.
 2. Sign in to your Azure account by using this command:
 
     `Connect-AzAccount`
@@ -273,17 +279,17 @@ You can optionally delete the configuration server by using PowerShell.
 
     ```
     $vault = Get-AzRecoveryServicesVault -Name <name of your vault>
-    Set-AzSiteRecoveryVaultSettings -ARSVault $vault
+    Set-AzRecoveryServicesAsrVaultContext -Vault $vault
     ```
 4. Retrieve the configuration server.
 
-    `$fabric = Get-AzSiteRecoveryFabric -FriendlyName <name of your configuration server>`
+    `$fabric =  Get-AzRecoveryServicesAsrFabric -FriendlyName <name of your configuration server>`
 6. Delete the configuration server.
 
-    `Remove-AzSiteRecoveryFabric -Fabric $fabric [-Force]`
+    `Remove-AzRecoveryServicesAsrFabric -Fabric $fabric [-Force]`
 
 > [!NOTE]
-> You can use the **-Force** option in Remove-AzSiteRecoveryFabric for forced deletion of the configuration server.
+> You can use the **-Force** option in Remove-AzRecoveryServicesAsrFabric for forced deletion of the configuration server.
 
 ## Generate configuration server Passphrase
 

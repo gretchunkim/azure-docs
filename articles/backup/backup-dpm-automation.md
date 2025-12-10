@@ -1,14 +1,19 @@
 ---
 title: Use PowerShell to back up DPM workloads
 description: Learn how to deploy and manage Azure Backup for Data Protection Manager (DPM) using PowerShell
-ms.topic: conceptual
-ms.date: 01/23/2017
+ms.service: azure-backup
+ms.topic: how-to
+ms.date: 11/14/2025
+ms.custom: devx-track-azurepowershell, engagement-fy24
+author: AbhishekMallick-MS
+ms.author: v-mallicka
+# Customer intent: "As an IT administrator using PowerShell, I want to deploy and manage Azure Backup for Data Protection Manager (DPM) workloads, so that I can automate backup processes and ensure data protection with efficient recovery solutions."
 ---
 # Deploy and manage backup to Azure for Data Protection Manager (DPM) servers using PowerShell
 
-This article shows you how to use PowerShell to setup Azure Backup on a DPM server, and to manage backup and recovery.
+This article describes how to use PowerShell to set up Azure Backup on a DPM server, and to manage backup and recovery.
 
-## Setting up the PowerShell environment
+## Set up the PowerShell environment for DPM
 
 Before you can use PowerShell to manage backups from Data Protection Manager to Azure, you need to have the right environment in PowerShell. At the start of the PowerShell session, ensure that you run the following command to import the right modules and allow you to correctly reference the DPM cmdlets:
 
@@ -27,11 +32,11 @@ Get definition of a cmdlet: Get-Command <cmdlet-name> -Syntax
 Sample DPM scripts: Get-DPMSampleScript
 ```
 
-## Setup and Registration
+## Setup and Registration of DPM to Azure Backup using PowerShell
 
-[!INCLUDE [updated-for-az](../../includes/updated-for-az.md)]
+[!INCLUDE [updated-for-az](~/reusable-content/ce-skilling/azure/includes/updated-for-az.md)]
 
-To begin, [download the latest Azure PowerShell](/powershell/azure/install-az-ps).
+To begin, [download the latest Azure PowerShell](/powershell/azure/install-azure-powershell).
 
 The following setup and registration tasks can be automated with PowerShell:
 
@@ -63,7 +68,7 @@ The following steps lead you through creating a Recovery Services vault. A Recov
     New-AzRecoveryServicesVault -Name "testvault" -ResourceGroupName " test-rg" -Location "West US"
     ```
 
-4. Specify the type of storage redundancy to use. You can use [Locally Redundant Storage (LRS)](../storage/common/storage-redundancy.md) or [Geo-redundant Storage (GRS)](../storage/common/storage-redundancy.md). The following example shows the -BackupStorageRedundancy option for testVault is set to GeoRedundant.
+4. Specify the type of storage redundancy to use. You can use [Locally Redundant Storage (LRS)](../storage/common/storage-redundancy.md#locally-redundant-storage), [Geo-redundant Storage (GRS)](../storage/common/storage-redundancy.md#geo-redundant-storage), or [Zone-redundant storage (ZRS)](../storage/common/storage-redundancy.md#zone-redundant-storage). The following example shows the **BackupStorageRedundancy** option for *testVault*  set to **GeoRedundant**.
 
    > [!TIP]
    > Many Azure Backup cmdlets require the Recovery Services vault object as an input. For this reason, it's convenient to store the Backup Recovery Services vault object in a variable.
@@ -134,7 +139,7 @@ The available options include:
 | /pu |Proxy Host UserName |- |
 | /pw |Proxy Password |- |
 
-## Registering DPM to a Recovery Services vault
+## Register DPM to a Recovery Services vault
 
 After you created the Recovery Services vault, download the latest agent and the vault credentials and store it in a convenient location like C:\Downloads.
 
@@ -157,7 +162,7 @@ Start-OBRegistration-VaultCredentials $cred -Confirm:$false
 
 ```Output
 CertThumbprint      :7a2ef2caa2e74b6ed1222a5e89288ddad438df2
-SubscriptionID      : ef4ab577-c2c0-43e4-af80-af49f485f3d1
+SubscriptionID      : aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e
 ServiceResourceName: testvault
 Region              :West US
 Machine registration succeeded.
@@ -165,21 +170,21 @@ Machine registration succeeded.
 
 ### Initial configuration settings
 
-Once the DPM Server is registered with the Recovery Services vault, it starts with default subscription settings. These subscription settings include Networking, Encryption and the Staging area. To change subscription settings you need to first get a handle on the existing (default) settings using the [Get-DPMCloudSubscriptionSetting](/powershell/module/dataprotectionmanager/get-dpmcloudsubscriptionsetting?view=systemcenter-ps-2019) cmdlet:
+Once the DPM Server is registered with the Recovery Services vault, it starts with default subscription settings. These subscription settings include Networking, Encryption and the Staging area. To change subscription settings you need to first get a handle on the existing (default) settings using the [Get-DPMCloudSubscriptionSetting](/powershell/module/dataprotectionmanager/get-dpmcloudsubscriptionsetting) cmdlet:
 
 ```powershell
 $setting = Get-DPMCloudSubscriptionSetting -DPMServerName "TestingServer"
 ```
 
-All modifications are made to this local PowerShell object ```$setting```  and then the full object is committed to DPM and Azure Backup to save them using the [Set-DPMCloudSubscriptionSetting](/powershell/module/dataprotectionmanager/set-dpmcloudsubscriptionsetting?view=systemcenter-ps-2019) cmdlet. You need to use the ```–Commit``` flag to ensure that the changes are persisted. The settings won't be applied and used by Azure Backup unless committed.
+All modifications are made to this local PowerShell object ```$setting```  and then the full object is committed to DPM and Azure Backup to save them using the [Set-DPMCloudSubscriptionSetting](/powershell/module/dataprotectionmanager/set-dpmcloudsubscriptionsetting) cmdlet. You need to use the ```–Commit``` flag to ensure that the changes are persisted. The settings won't be applied and used by Azure Backup unless committed.
 
 ```powershell
 Set-DPMCloudSubscriptionSetting -DPMServerName "TestingServer" -SubscriptionSetting $setting -Commit
 ```
 
-## Networking
+## Networking settings of DPM to Azure Backup
 
-If the connectivity of the DPM machine to the Azure Backup service on the internet is through a proxy server, then the proxy server settings should be provided for successful backups. This is done by using the ```-ProxyServer```and ```-ProxyPort```, ```-ProxyUsername``` and the ```ProxyPassword``` parameters with the [Set-DPMCloudSubscriptionSetting](/powershell/module/dataprotectionmanager/set-dpmcloudsubscriptionsetting?view=systemcenter-ps-2019) cmdlet. In this example, there's no proxy server so we're explicitly clearing any proxy-related information.
+If the connectivity of the DPM machine to the Azure Backup service on the internet is through a proxy server, then the proxy server settings should be provided for successful backups. This is done by using the ```-ProxyServer```and ```-ProxyPort```, ```-ProxyUsername``` and the ```ProxyPassword``` parameters with the [Set-DPMCloudSubscriptionSetting](/powershell/module/dataprotectionmanager/set-dpmcloudsubscriptionsetting) cmdlet. In this example, there's no proxy server so we're explicitly clearing any proxy-related information.
 
 ```powershell
 Set-DPMCloudSubscriptionSetting -DPMServerName "TestingServer" -SubscriptionSetting $setting -NoProxy
@@ -191,9 +196,9 @@ Bandwidth usage can also be controlled with options of ```-WorkHourBandwidth``` 
 Set-DPMCloudSubscriptionSetting -DPMServerName "TestingServer" -SubscriptionSetting $setting -NoThrottle
 ```
 
-## Configuring the staging Area
+## Configure the staging Area of DPM to Azure Backup
 
-The Azure Backup agent running on the DPM server needs temporary storage for data restored from the cloud (local staging area). Configure the staging area using the [Set-DPMCloudSubscriptionSetting](/powershell/module/dataprotectionmanager/set-dpmcloudsubscriptionsetting?view=systemcenter-ps-2019) cmdlet and the ```-StagingAreaPath``` parameter.
+The Azure Backup agent running on the DPM server needs temporary storage for data restored from the cloud (local staging area). Configure the staging area using the [Set-DPMCloudSubscriptionSetting](/powershell/module/dataprotectionmanager/set-dpmcloudsubscriptionsetting) cmdlet and the ```-StagingAreaPath``` parameter.
 
 ```powershell
 Set-DPMCloudSubscriptionSetting -DPMServerName "TestingServer" -SubscriptionSetting $setting -StagingAreaPath "C:\StagingArea"
@@ -205,7 +210,7 @@ In the example above, the staging area will be set to *C:\StagingArea* in the Po
 
 The backup data sent to Azure Backup is encrypted to protect the confidentiality of the data. The encryption passphrase is the "password" to decrypt the data at the time of restore. It's important to keep this information safe and secure once it's set.
 
-In the example below, the first command converts the string ```passphrase123456789``` to a secure string and assigns the secure string to the variable named ```$Passphrase```. the second command sets the secure string in ```$Passphrase``` as the password for encrypting backups.
+In the example below, the first command converts the string ```passphrase123456789``` to a secure string and assigns the secure string to the variable named ```$Passphrase```. The second command sets the secure string in ```$Passphrase``` as the password for encrypting backups.
 
 ```powershell
 $Passphrase = ConvertTo-SecureString -string "passphrase123456789" -AsPlainText -Force
@@ -226,28 +231,28 @@ Set-DPMCloudSubscriptionSetting -DPMServerName "TestingServer" -SubscriptionSett
 
 ## Protect data to Azure Backup
 
-In this section, you'll add a production server to DPM and then protect the data to local DPM storage and then to Azure Backup. In the examples, we'll demonstrate how to back up files and folders. The logic can easily be extended to backup any DPM-supported data source. All your DPM backups are governed by a Protection Group (PG) with four parts:
+In this section, you'll add a production server to DPM and then protect the data to local DPM storage and then to Azure Backup. In the examples, we'll demonstrate how to back up files and folders. The logic can easily be extended to back up any DPM-supported data source. All your DPM backups are governed by a Protection Group (PG) with four parts:
 
-1. **Group members** is a list of all the protectable objects (also known as *Datasources* in DPM) that you want to protect in the same protection group. For example, you may want to protect production VMs in one protection group and SQL Server databases in another protection group as they may have different backup requirements. Before you can back up any datasource on a production server you need to make sure the DPM Agent is installed on the server and is managed by DPM. Follow the steps for [installing the DPM Agent](/system-center/dpm/deploy-dpm-protection-agent?view=sc-dpm-2019) and linking it to the appropriate DPM Server.
+1. **Group members** is a list of all the protectable objects (also known as *Datasources* in DPM) that you want to protect in the same protection group. For example, you may want to protect production VMs in one protection group and SQL Server databases in another protection group as they may have different backup requirements. Before you can back up any datasource on a production server you need to make sure the DPM Agent is installed on the server and is managed by DPM. Follow the steps for [installing the DPM Agent](/system-center/dpm/deploy-dpm-protection-agent) and linking it to the appropriate DPM Server.
 2. **Data protection method** specifies the target backup locations - tape, disk, and cloud. In our example, we'll protect data to the local disk and to the cloud.
 3. A **backup schedule** that specifies when backups need to be taken and how often the data should be synchronized between the DPM Server and the production server.
 4. A **retention schedule** that specifies how long to retain the recovery points in Azure.
 
-### Creating a protection group
+### Create a protection group
 
-Start by creating a new Protection Group using the [New-DPMProtectionGroup](/powershell/module/dataprotectionmanager/new-dpmprotectiongroup?view=systemcenter-ps-2019) cmdlet.
+Start by creating a new Protection Group using the [New-DPMProtectionGroup](/powershell/module/dataprotectionmanager/new-dpmprotectiongroup) cmdlet.
 
 ```powershell
 $PG = New-DPMProtectionGroup -DPMServerName " TestingServer " -Name "ProtectGroup01"
 ```
 
-The above cmdlet will create a Protection Group named *ProtectGroup01*. An existing protection group can also be modified later to add backup to the Azure cloud. However, to make any changes to the Protection Group - new or existing - we need to get a handle on a *modifiable* object using the [Get-DPMModifiableProtectionGroup](/powershell/module/dataprotectionmanager/get-dpmmodifiableprotectiongroup?view=systemcenter-ps-2019) cmdlet.
+The above cmdlet will create a Protection Group named *ProtectGroup01*. An existing protection group can also be modified later to add backup to the Azure cloud. However, to make any changes to the Protection Group - new or existing - we need to get a handle on a *modifiable* object using the [Get-DPMModifiableProtectionGroup](/powershell/module/dataprotectionmanager/get-dpmmodifiableprotectiongroup) cmdlet.
 
 ```powershell
 $MPG = Get-ModifiableProtectionGroup $PG
 ```
 
-### Adding group members to the Protection Group
+### Add group members to the Protection Group
 
 Each DPM Agent knows the list of datasources on the server that it's installed on. To add a datasource to the Protection Group, the DPM Agent needs to first send a list of the datasources back to the DPM server. One or more datasources are then selected and added to the Protection Group. The PowerShell steps needed to achieve this are:
 
@@ -256,13 +261,13 @@ Each DPM Agent knows the list of datasources on the server that it's installed o
 3. Fetch a list of all datasources on the server.
 4. Choose one or more datasources and add them to the Protection Group
 
-The list of servers on which the DPM Agent is installed and is being managed by the DPM Server is acquired with the [Get-DPMProductionServer](/powershell/module/dataprotectionmanager/get-dpmproductionserver?view=systemcenter-ps-2019) cmdlet. In this example, we'll filter and only configure PowerShell with the name *productionserver01* for backup.
+The list of servers on which the DPM Agent is installed and is being managed by the DPM Server is acquired with the [Get-DPMProductionServer](/powershell/module/dataprotectionmanager/get-dpmproductionserver) cmdlet. In this example, we'll filter and only configure PowerShell with the name *productionserver01* for backup.
 
 ```powershell
 $server = Get-ProductionServer -DPMServerName "TestingServer" | Where-Object {($_.servername) –contains "productionserver01"}
 ```
 
-Now fetch the list of datasources on ```$server``` using the [Get-DPMDatasource](/powershell/module/dataprotectionmanager/get-dpmdatasource?view=systemcenter-ps-2019) cmdlet. In this example we're filtering for the volume `D:\` that we want to configure for backup. This datasource is then added to the Protection Group using the [Add-DPMChildDatasource](/powershell/module/dataprotectionmanager/add-dpmchilddatasource?view=systemcenter-ps-2019) cmdlet. Remember to use the *modifiable* protection group object ```$MPG``` to make the additions.
+Now fetch the list of datasources on ```$server``` using the [Get-DPMDatasource](/powershell/module/dataprotectionmanager/get-dpmdatasource) cmdlet. In this example we're filtering for the volume `D:\` that we want to configure for backup. This datasource is then added to the Protection Group using the [Add-DPMChildDatasource](/powershell/module/dataprotectionmanager/add-dpmchilddatasource) cmdlet. Remember to use the *modifiable* protection group object ```$MPG``` to make the additions.
 
 ```powershell
 $DS = Get-Datasource -ProductionServer $server -Inquire | Where-Object { $_.Name -contains "D:\" }
@@ -272,18 +277,18 @@ Add-DPMChildDatasource -ProtectionGroup $MPG -ChildDatasource $DS
 
 Repeat this step as many times as required, until you've added all the chosen datasources to the protection group. You can also start with just one datasource, and complete the workflow for creating the Protection Group, and at a later point add more datasources to the Protection Group.
 
-### Selecting the data protection method
+### Select the data protection method
 
-Once the datasources have been added to the Protection Group, the next step is to specify the protection method using the [Set-DPMProtectionType](/powershell/module/dataprotectionmanager/set-dpmprotectiontype?view=systemcenter-ps-2019) cmdlet. In this example, the Protection Group is setup for local disk and cloud backup. You also need to specify the datasource that you want to protect to cloud using the [Add-DPMChildDatasource](/powershell/module/dataprotectionmanager/add-dpmchilddatasource?view=systemcenter-ps-2019) cmdlet with -Online flag.
+Once the datasources have been added to the Protection Group, the next step is to specify the protection method using the [Set-DPMProtectionType](/powershell/module/dataprotectionmanager/set-dpmprotectiontype) cmdlet. In this example, the Protection Group is set up for local disk and cloud backup. You also need to specify the datasource that you want to protect to cloud using the [Add-DPMChildDatasource](/powershell/module/dataprotectionmanager/add-dpmchilddatasource) cmdlet with -Online flag.
 
 ```powershell
 Set-DPMProtectionType -ProtectionGroup $MPG -ShortTerm Disk –LongTerm Online
 Add-DPMChildDatasource -ProtectionGroup $MPG -ChildDatasource $DS –Online
 ```
 
-### Setting the retention range
+### Set the retention range
 
-Set the retention for the backup points using the [Set-DPMPolicyObjective](/powershell/module/dataprotectionmanager/set-dpmpolicyobjective?view=systemcenter-ps-2019) cmdlet. While it might seem odd to set the retention before the backup schedule has been defined, using the ```Set-DPMPolicyObjective``` cmdlet automatically sets a default backup schedule that can then be modified. It's always possible to set the backup schedule first and the retention policy after.
+Set the retention for the backup points using the [Set-DPMPolicyObjective](/powershell/module/dataprotectionmanager/set-dpmpolicyobjective) cmdlet. While it might seem odd to set the retention before the backup schedule has been defined, using the ```Set-DPMPolicyObjective``` cmdlet automatically sets a default backup schedule that can then be modified. It's always possible to set the backup schedule first and the retention policy after.
 
 In the example below, the cmdlet sets the retention parameters for disk backups. This will retain backups for 10 days, and sync data every 6 hours between the production server and the DPM server. The ```SynchronizationFrequencyMinutes``` doesn't define how often a backup point is created, but how often data is copied to the DPM server.  This setting prevents backups from becoming too large.
 
@@ -291,7 +296,7 @@ In the example below, the cmdlet sets the retention parameters for disk backups.
 Set-DPMPolicyObjective –ProtectionGroup $MPG -RetentionRangeInDays 10 -SynchronizationFrequencyMinutes 360
 ```
 
-For backups going to Azure (DPM refers to them as Online backups) the retention ranges can be configured for [long term retention using a Grandfather-Father-Son scheme (GFS)](backup-azure-backup-cloud-as-tape.md). That is, you can define a combined retention policy involving daily, weekly, monthly and yearly retention policies. In this example, we create an array representing the complex retention scheme that we want, and then configure the retention range using the [Set-DPMPolicyObjective](/powershell/module/dataprotectionmanager/set-dpmpolicyobjective?view=systemcenter-ps-2019) cmdlet.
+For backups going to Azure (DPM refers to them as Online backups) the retention ranges can be configured for [long term retention using a Grandfather-Father-Son scheme (GFS)](backup-azure-backup-cloud-as-tape.md). That is, you can define a combined retention policy involving daily, weekly, monthly and yearly retention policies. In this example, we create an array representing the complex retention scheme that we want, and then configure the retention range using the [Set-DPMPolicyObjective](/powershell/module/dataprotectionmanager/set-dpmpolicyobjective) cmdlet.
 
 ```powershell
 $RRlist = @()
@@ -304,7 +309,7 @@ Set-DPMPolicyObjective –ProtectionGroup $MPG -OnlineRetentionRangeList $RRlist
 
 ### Set the backup schedule
 
-DPM sets a default backup schedule automatically if you specify the protection objective using the ```Set-DPMPolicyObjective``` cmdlet. To change the default schedules, use the [Get-DPMPolicySchedule](/powershell/module/dataprotectionmanager/get-dpmpolicyschedule?view=systemcenter-ps-2019) cmdlet followed by the [Set-DPMPolicySchedule](/powershell/module/dataprotectionmanager/set-dpmpolicyschedule?view=systemcenter-ps-2019) cmdlet.
+DPM sets a default backup schedule automatically if you specify the protection objective using the ```Set-DPMPolicyObjective``` cmdlet. To change the default schedules, use the [Get-DPMPolicySchedule](/powershell/module/dataprotectionmanager/get-dpmpolicyschedule) cmdlet followed by the [Set-DPMPolicySchedule](/powershell/module/dataprotectionmanager/set-dpmpolicyschedule) cmdlet.
 
 ```powershell
 $onlineSch = Get-DPMPolicySchedule -ProtectionGroup $mpg -LongTerm Online
@@ -315,32 +320,32 @@ Set-DPMPolicySchedule -ProtectionGroup $MPG -Schedule $onlineSch[3] -TimesOfDay 
 Set-DPMProtectionGroup -ProtectionGroup $MPG
 ```
 
-In the example above, ```$onlineSch``` is an array with four elements that contains the existing online protection schedule for the Protection Group in the GFS scheme:
+In the example above, `$onlineSch` is an array with four elements that contains the existing online protection schedule for the Protection Group in the GFS scheme:
 
-1. ```$onlineSch[0]``` contains the daily schedule
-2. ```$onlineSch[1]``` contains the weekly schedule
-3. ```$onlineSch[2]``` contains the monthly schedule
-4. ```$onlineSch[3]``` contains the yearly schedule
+1. `$onlineSch[0]` contains the daily schedule
+2. `$onlineSch[1]` contains the weekly schedule
+3. `$onlineSch[2]` contains the monthly schedule
+4. `$onlineSch[3]` contains the yearly schedule
 
 So if you need to modify the weekly schedule, you need to refer to the ```$onlineSch[1]```.
 
 ### Initial backup
 
-When backing up a datasource for the first time, DPM needs creates initial replica that creates a full copy of the datasource to be protected on DPM replica volume. This activity can either be scheduled for a specific time, or can be triggered manually, using the [Set-DPMReplicaCreationMethod](/powershell/module/dataprotectionmanager/set-dpmreplicacreationmethod?view=systemcenter-ps-2019) cmdlet with the parameter ```-NOW```.
+When you back up a datasource for the first time, DPM needs creates initial replica that creates a full copy of the datasource to be protected on DPM replica volume. This activity can either be scheduled for a specific time, or can be triggered manually, using the [Set-DPMReplicaCreationMethod](/powershell/module/dataprotectionmanager/set-dpmreplicacreationmethod) cmdlet with the parameter ```-NOW```.
 
 ```powershell
 Set-DPMReplicaCreationMethod -ProtectionGroup $MPG -NOW
 ```
 
-### Changing the size of DPM Replica & recovery point volume
+### Change the size of DPM Replica & recovery point volume
 
-You can also change the size of DPM Replica volume and Shadow Copy volume using [Set-DPMDatasourceDiskAllocation](/powershell/module/dataprotectionmanager/set-dpmdatasourcediskallocation?view=systemcenter-ps-2019) cmdlet as in the following example:
+You can also change the size of DPM Replica volume and Shadow Copy volume using [Set-DPMDatasourceDiskAllocation](/powershell/module/dataprotectionmanager/set-dpmdatasourcediskallocation) cmdlet as in the following example:
 Get-DatasourceDiskAllocation -Datasource $DS
 Set-DatasourceDiskAllocation -Datasource $DS -ProtectionGroup $MPG -manual -ReplicaArea (2gb) -ShadowCopyArea (2gb)
 
-### Committing the changes to the Protection Group
+### Commit the changes to the Protection Group
 
-Finally, the changes need to be committed before DPM can take the backup per the new Protection Group configuration. This can be achieved using the [Set-DPMProtectionGroup](/powershell/module/dataprotectionmanager/set-dpmprotectiongroup?view=systemcenter-ps-2019) cmdlet.
+Finally, the changes need to be committed before DPM can take the backup per the new Protection Group configuration. This can be achieved using the [Set-DPMProtectionGroup](/powershell/module/dataprotectionmanager/set-dpmprotectiongroup) cmdlet.
 
 ```powershell
 Set-DPMProtectionGroup -ProtectionGroup $MPG
@@ -348,7 +353,7 @@ Set-DPMProtectionGroup -ProtectionGroup $MPG
 
 ## View the backup points
 
-You can use the [Get-DPMRecoveryPoint](/powershell/module/dataprotectionmanager/get-dpmrecoverypoint?view=systemcenter-ps-2019) cmdlet to get a list of all recovery points for a datasource. In this example, we will:
+You can use the [Get-DPMRecoveryPoint](/powershell/module/dataprotectionmanager/get-dpmrecoverypoint) cmdlet to get a list of all recovery points for a datasource. In this example, we will:
 
 * fetch all the PGs on the DPM server and stored in an array ```$PG```
 * get the datasources corresponding to the ```$PG[0]```
@@ -366,7 +371,7 @@ Restoring data is a combination of a ```RecoverableItem``` object and a ```Recov
 
 In the example below, we demonstrate how to restore a Hyper-V virtual machine from Azure Backup by combining backup points with the target for recovery. This example includes:
 
-* Creating a recovery option using the  [New-DPMRecoveryOption](/powershell/module/dataprotectionmanager/new-dpmrecoveryoption?view=systemcenter-ps-2019) cmdlet.
+* Creating a recovery option using the  [New-DPMRecoveryOption](/powershell/module/dataprotectionmanager/new-dpmrecoveryoption) cmdlet.
 * Fetching the array of backup points using the ```Get-DPMRecoveryPoint``` cmdlet.
 * Choosing a backup point to restore from.
 

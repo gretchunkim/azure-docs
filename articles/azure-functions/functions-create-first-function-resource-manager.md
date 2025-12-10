@@ -1,176 +1,178 @@
 ---
-title: Create your first function using Azure Resource Manager templates
+title: Create your function app resources using Azure Resource Manager templates
 description: Create and deploy to Azure a simple HTTP triggered serverless function by using an Azure Resource Manager template (ARM template).
-ms.date: 3/5/2020
+ms.date: 03/17/2025
 ms.topic: quickstart
 ms.service: azure-functions
-ms.custom: subject-armqs
+zone_pivot_groups: programming-languages-set-functions
+ms.custom: subject-armqs, mode-arm, devx-track-arm-template
 ---
 
 # Quickstart: Create and deploy Azure Functions resources from an ARM template
 
-In this article, you use an Azure Resource Manager template (ARM template) to create a function that responds to HTTP requests. 
+In this article, you use an Azure Resource Manager template (ARM template) to create a function app in a Flex Consumption plan in Azure, along with its required Azure resources. The function app provides a serverless execution context for your function code executions. The app uses Microsoft Entra ID with managed identities to connect to other Azure resources.    
 
 Completing this quickstart incurs a small cost of a few USD cents or less in your Azure account. 
 
-[!INCLUDE [About Azure Resource Manager](../../includes/resource-manager-quickstart-introduction.md)]
+[!INCLUDE [About Azure Resource Manager](~/reusable-content/ce-skilling/azure/includes/resource-manager-quickstart-introduction.md)]
 
-If your environment meets the prerequisites and you're familiar with using ARM templates, select the **Deploy to Azure** button. The template will open in the Azure portal.
+If your environment meets the prerequisites and you're familiar with using ARM templates, select the **Deploy to Azure** button. The template opens in the Azure portal.
 
-[![Deploy to Azure](../media/template-deployments/deploy-to-azure.svg)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fazure-quickstart-templates%2Fmaster%2F101-function-app-create-dynamic%2Fazuredeploy.json)
+:::image type="content" source="~/reusable-content/ce-skilling/azure/media/template-deployments/deploy-to-azure-button.svg" alt-text="Button to deploy the Resource Manager template to Azure." border="false" link="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fazure-quickstart-templates%2Fmaster%2Fquickstarts%2Fmicrosoft.web%2Ffunction-app-flex-managed-identities%2Fazuredeploy.json":::
+
+After you create the function app, you can deploy your Azure Functions project code to that app. A final code deployment step is outside the scope of this quickstart article.
 
 ## Prerequisites
 
 ### Azure account 
 
-Before you begin, you must have an Azure account with an active subscription. [Create an account for free](https://azure.microsoft.com/free/).
-
-### Create a local functions project
-
-This article requires a local functions code project to run on the Azure resources that you create. If you don't first create a project to publish, you won't be able to complete the deployment section of this article. 
-
-Choose one of the following tabs, follow the link, and complete the section to create a function app in the language of your choice:
-
-# [Visual Studio Code](#tab/visual-studio-code)
-
-[Create your local functions project in Visual Studio Code](functions-create-first-function-vs-code.md#create-an-azure-functions-project)
-
-# [Visual Studio](#tab/visual-studio)
-
-[Create your local functions project in Visual Studio](functions-create-your-first-function-visual-studio.md#create-a-function-app-project)
-
-# [Command line](#tab/command-line)
-
-[Create your local functions project from the command line](functions-create-first-azure-function-azure-cli.md#create-a-local-function-project)
-
----
-
-After you've created your project locally, you create the resources required to run your new function in Azure. 
+Before you begin, you must have an Azure account with an active subscription. [Create an account for free](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn).
 
 ## Review the template
 
-The template used in this quickstart is from [Azure Quickstart Templates](https://azure.microsoft.com/resources/templates/101-function-app-create-dynamic/).
+The template used in this quickstart is from [Azure Quickstart Templates](/samples/azure/azure-quickstart-templates/function-app-flex-managed-identities/).
 
-:::code language="json" source="~/quickstart-templates/101-function-app-create-dynamic/azuredeploy.json":::
+:::code language="json" source="~/quickstart-templates/quickstarts/microsoft.web/function-app-flex-managed-identities/azuredeploy.json":::
 
-The following four Azure resources are created by this template:
+This template creates these Azure resources needed by a function app that securely connects to Azure services:
 
-+ [**Microsoft.Storage/storageAccounts**](/azure/templates/microsoft.storage/storageaccounts): create an Azure Storage account, which is required by Functions.
-+ [**Microsoft.Web/serverfarms**](/azure/templates/microsoft.web/serverfarms): create a serverless Consumption hosting plan for the function app.
-+ [**Microsoft.Web/sites**](/azure/templates/microsoft.web/sites): create a function app.
-+ [**microsoft.insights/components**](/azure/templates/microsoft.insights/components): create an Application Insights instance for monitoring.
+[!INCLUDE [functions-azure-resources-list](../../includes/functions-azure-resources-list.md)]
+
+[!INCLUDE [functions-deployment-considerations-infra](../../includes/functions-deployment-considerations-infra.md)]
 
 ## Deploy the template
 
-# [Azure CLI](#tab/azure-cli)
-```azurecli-interactive
-read -p "Enter a resource group name that is used for generating resource names:" resourceGroupName &&
-read -p "Enter the location (like 'eastus' or 'northeurope'):" location &&
-templateUri="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/101-function-app-create-dynamic/azuredeploy.json" &&
+These scripts are designed for and tested in [Azure Cloud Shell](../cloud-shell/overview.md). Choose **Try It** to open a Cloud Shell instance right in your browser. When prompted, enter the name of a region that [supports the Flex Consumption plan](./flex-consumption-how-to.md#view-currently-supported-regions), such as `eastus` or `northeurope`.
+
+### [Azure CLI](#tab/azure-cli)
+::: zone pivot="programming-language-csharp"  
+```azurecli-interactive 
+read -p "Enter a supported Azure region: " location &&
+resourceGroupName=exampleRG &&
+templateUri="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/quickstarts/microsoft.web/function-app-flex-managed-identities/azuredeploy.json" &&
 az group create --name $resourceGroupName --location "$location" &&
-az deployment group create --resource-group $resourceGroupName --template-uri  $templateUri &&
+az deployment group create --resource-group $resourceGroupName --template-uri  $templateUri --parameters functionAppRuntime=dotnet-isolated functionAppRuntimeVersion=8.0 &&
 echo "Press [ENTER] to continue ..." &&
 read
 ```
-# [PowerShell](#tab/powershell)
+::: zone-end  
+::: zone pivot="programming-language-java" 
+```azurecli-interactive 
+read -p "Enter a supported Azure region: " location &&
+resourceGroupName=exampleRG &&
+templateUri="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/quickstarts/microsoft.web/function-app-flex-managed-identities/azuredeploy.json" &&
+az group create --name $resourceGroupName --location "$location" &&
+az deployment group create --resource-group $resourceGroupName --template-uri  $templateUri --parameters functionAppRuntime=java functionAppRuntimeVersion=17 &&
+echo "Press [ENTER] to continue ..." &&
+read
+```
+::: zone-end  
+::: zone pivot="programming-language-javascript,programming-language-typescript"  
+```azurecli-interactive 
+read -p "Enter a supported Azure region: " location &&
+resourceGroupName=exampleRG &&
+templateUri="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/quickstarts/microsoft.web/function-app-flex-managed-identities/azuredeploy.json" &&
+az group create --name $resourceGroupName --location "$location" &&
+az deployment group create --resource-group $resourceGroupName --template-uri  $templateUri --parameters functionAppRuntime=node functionAppRuntimeVersion=20 &&
+echo "Press [ENTER] to continue ..." &&
+read
+```
+::: zone-end 
+::: zone pivot="programming-language-python"  
+```azurecli-interactive 
+read -p "Enter a supported Azure region: " location &&
+resourceGroupName=exampleRG &&
+templateUri="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/quickstarts/microsoft.web/function-app-flex-managed-identities/azuredeploy.json" &&
+az group create --name $resourceGroupName --location "$location" &&
+az deployment group create --resource-group $resourceGroupName --template-uri  $templateUri --parameters functionAppRuntime=python functionAppRuntimeVersion=3.11 &&
+echo "Press [ENTER] to continue ..." &&
+read
+```
+::: zone-end  
+::: zone pivot="programming-language-powershell"  
+```azurecli-interactive 
+read -p "Enter a supported Azure region: " location &&
+resourceGroupName=exampleRG &&
+templateUri="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/quickstarts/microsoft.web/function-app-flex-managed-identities/azuredeploy.json" &&
+az group create --name $resourceGroupName --location "$location" &&
+az deployment group create --resource-group $resourceGroupName --template-uri  $templateUri --parameters functionAppRuntime=powerShell functionAppRuntimeVersion=7.4 &&
+echo "Press [ENTER] to continue ..." &&
+read
+```
+::: zone-end 
 
+### [Azure PowerShell](#tab/azure-powershell)
+::: zone pivot="programming-language-csharp"  
 ```powershell-interactive
-$resourceGroupName = Read-Host -Prompt "Enter a resource group name that is used for generating resource names"
-$location = Read-Host -Prompt "Enter the location (like 'eastus' or 'northeurope')"
-$templateUri = "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/101-function-app-create-dynamic/azuredeploy.json"
+$resourceGroupName = "exampleRG"
+$location = Read-Host -Prompt "Enter a supported Azure region"
+$templateUri = "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/quickstarts/microsoft.web/function-app-flex-managed-identities/azuredeploy.json"
 
 New-AzResourceGroup -Name $resourceGroupName -Location "$location"
-New-AzResourceGroupDeployment -ResourceGroupName $resourceGroupName -TemplateUri $templateUri
+New-AzResourceGroupDeployment -ResourceGroupName $resourceGroupName -TemplateUri $templateUri -functionAppRuntime "dotnet-isolated" -functionAppRuntimeVersion "8.0"
 
 Read-Host -Prompt "Press [ENTER] to continue ..."
 ```
----
+::: zone-end  
+::: zone pivot="programming-language-java"  
+```powershell-interactive
+$resourceGroupName = "exampleRG"
+$location = Read-Host -Prompt "Enter a supported Azure region"
+$templateUri = "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/quickstarts/microsoft.web/function-app-flex-managed-identities/azuredeploy.json"
 
-## Validate the deployment
+New-AzResourceGroup -Name $resourceGroupName -Location "$location"
+New-AzResourceGroupDeployment -ResourceGroupName $resourceGroupName -TemplateUri $templateUri -functionAppRuntime "java" -functionAppRuntimeVersion "17"
 
-Next you validate the function app hosting resources you created by publishing your project to Azure and calling the HTTP endpoint of the function.
-
-### Publish the function project to Azure
-
-Use the following steps to publish your project to the new Azure resources:
-
-# [Visual Studio Code](#tab/visual-studio-code)
-
-[!INCLUDE [functions-republish-vscode](../../includes/functions-republish-vscode.md)]
-
-In the output, copy the URL of the HTTP trigger. You use this to test your function running in Azure. 
-
-# [Visual Studio](#tab/visual-studio)
-
-1. In **Solution Explorer**, right-click the project and select **Publish**.
-
-1. In **Pick a publish target**, choose **Azure Functions Consumption plan** with **Select existing** and select **Create profile**.
-
-    :::image type="content" source="media/functions-create-first-function-arm/choose-publish-target-visual-studio.png" alt-text="Choose an existing publish target":::
-
-1. Choose your **Subscription**, expand the resource group, select your function app, and select **OK**.
-
-1. After the publish completes, copy the **Site URL**.
-
-    :::image type="content" source="media/functions-create-first-function-arm/publish-summary-site-url.png" alt-text="Copy the site URL from the publish summary":::
-
-1. Append the path `/api/<FUNCTION_NAME>?name=Functions`, where `<FUNCTION_NAME>` is the name of your function. The URL that calls your HTTP trigger function is in the following format:
-
-    `http://<APP_NAME>.azurewebsites.net/api/<FUNCTION_NAME>?name=Functions`
-
-You use this URL to test your HTTP trigger function running in Azure.
-
-# [Command line](#tab/command-line)
-
-To publish your local code to a function app in Azure, use the `publish` command:
-
-```cmd
-func azure functionapp publish <FUNCTION_APP_NAME>
+Read-Host -Prompt "Press [ENTER] to continue ..."
 ```
+::: zone-end  
+::: zone pivot="programming-language-javascript,programming-language-typescript"  
+```powershell-interactive
+$resourceGroupName = "exampleRG"
+$location = Read-Host -Prompt "Enter a supported Azure region"
+$templateUri = "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/quickstarts/microsoft.web/function-app-flex-managed-identities/azuredeploy.json"
 
-In this example, replace `<FUNCTION_APP_NAME>` with the name of your function app. You may need to sign in again by using `az login`. 
+New-AzResourceGroup -Name $resourceGroupName -Location "$location"
+New-AzResourceGroupDeployment -ResourceGroupName $resourceGroupName -TemplateUri $templateUri -functionAppRuntime "node" -functionAppRuntimeVersion "20"
 
-In the output, copy the URL of the HTTP trigger. You use this to test your function running in Azure.
+Read-Host -Prompt "Press [ENTER] to continue ..."
+```
+::: zone-end  
+::: zone pivot="programming-language-python"  
+```powershell-interactive
+$resourceGroupName = "exampleRG"
+$location = Read-Host -Prompt "Enter a supported Azure region"
+$templateUri = "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/quickstarts/microsoft.web/function-app-flex-managed-identities/azuredeploy.json"
+
+New-AzResourceGroup -Name $resourceGroupName -Location "$location"
+New-AzResourceGroupDeployment -ResourceGroupName $resourceGroupName -TemplateUri $templateUri -functionAppRuntime "python" -functionAppRuntimeVersion "3.11"
+
+Read-Host -Prompt "Press [ENTER] to continue ..."
+```
+::: zone-end  
+::: zone pivot="programming-language-powershell"  
+```powershell-interactive
+$resourceGroupName = "exampleRG"
+$location = Read-Host -Prompt "Enter a supported Azure region"
+$templateUri = "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/quickstarts/microsoft.web/function-app-flex-managed-identities/azuredeploy.json"
+
+New-AzResourceGroup -Name $resourceGroupName -Location "$location"
+New-AzResourceGroupDeployment -ResourceGroupName $resourceGroupName -TemplateUri $templateUri -functionAppRuntime "powershell" -functionAppRuntimeVersion "7.4"
+
+Read-Host -Prompt "Press [ENTER] to continue ..."
+```
+::: zone-end  
 
 ---
 
-### Invoke the function on Azure
+When the deployment finishes, you should see a message indicating the deployment succeeded.
 
-Paste the URL you copied for the HTTP request into your browser's address bar, make sure that the `name` query string as `?name=Functions` has been appended to the end of this URL, and then execute the request. 
-
-You should see a response like:
-
-<pre>Hello Functions!</pre>
+[!INCLUDE [functions-welcome-page](../../includes/functions-welcome-page.md)]
 
 ## Clean up resources
 
-If you continue to the next step and add an Azure Storage queue output binding, keep all your resources in place as you'll build on what you've already done.
-
-Otherwise, use the following command to delete the resource group and all its contained resources to avoid incurring further costs.
-
-```azurecli
-az group delete --name <RESOURCE_GROUP_NAME>
-```
-
-Replace `<RESOURCE_GROUP_NAME>` with the name of your resource group.
+[!INCLUDE [functions-cleanup-resources-infra](../../includes/functions-cleanup-resources-infra.md)]
 
 ## Next steps
 
-Now that you've publish your first function, learn more by adding an output binding to your function.
-
-# [Visual Studio Code](#tab/visual-studio-code)
-
-> [!div class="nextstepaction"]
-> [Connect to an Azure Storage queue](functions-add-output-binding-storage-queue-vs-code.md)
-
-# [Visual Studio](#tab/visual-studio)
-
-> [!div class="nextstepaction"]
-> [Connect to an Azure Storage queue](functions-add-output-binding-storage-queue-vs.md)
-
-# [Command line](#tab/command-line)
-
-> [!div class="nextstepaction"]
-> [Connect to an Azure Storage queue](functions-add-output-binding-storage-queue-cli.md)
-
----
+[!INCLUDE [functions-quickstarts-infra-next-steps](../../includes/functions-quickstarts-infra-next-steps.md)]

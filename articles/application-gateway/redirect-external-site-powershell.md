@@ -1,18 +1,20 @@
 ---
 title: External redirection using PowerShell
 titleSuffix: Azure Application Gateway
-description: Learn how to create an application gateway that redirects web traffic to an external site using Azure Powershell.
+description: Learn how to create an application gateway that redirects web traffic to an external site using Azure PowerShell.
 services: application-gateway
-author: vhorne
-ms.service: application-gateway
+author: mbender-ms
+ms.service: azure-application-gateway
 ms.topic: how-to
-ms.date: 11/14/2019
-ms.author: victorh
+ms.date: 07/11/2025
+ms.author: mbender 
+ms.custom: devx-track-azurepowershell
+# Customer intent: As a cloud architect, I want to configure an application gateway for external web traffic redirection using PowerShell, so that I can efficiently manage and route traffic to external sites from my Azure environment.
 ---
 
 # Create an application gateway with external redirection using Azure PowerShell
 
-You can use Azure Powershell to configure [web traffic redirection](multiple-site-overview.md) when you create an [application gateway](overview.md). In this tutorial, you configure a listener and rule that redirects web traffic that arrives at the application gateway to an external site.
+You can use Azure PowerShell to configure [web traffic redirection](multiple-site-overview.md) when you create an [application gateway](overview.md). In this tutorial, you configure a listener and rule that redirects web traffic that arrives at the application gateway to an external site.
 
 In this article, you learn how to:
 
@@ -20,13 +22,13 @@ In this article, you learn how to:
 * Create a listener and redirection rule
 * Create an application gateway
 
-If you don't have an Azure subscription, create a [free account](https://azure.microsoft.com/free/?WT.mc_id=A261C142F) before you begin.
+If you don't have an Azure subscription, create a [free account](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn) before you begin.
 
-[!INCLUDE [updated-for-az](../../includes/updated-for-az.md)]
+[!INCLUDE [updated-for-az](~/reusable-content/ce-skilling/azure/includes/updated-for-az.md)]
 
-[!INCLUDE [cloud-shell-try-it.md](../../includes/cloud-shell-try-it.md)]
+[!INCLUDE [cloud-shell-try-it.md](~/reusable-content/ce-skilling/azure/includes/cloud-shell-try-it.md)]
 
-If you choose to install and use the PowerShell locally, this tutorial requires the Azure PowerShell module version 1.0.0 or later. To find the version, run `Get-Module -ListAvailable Az` . If you need to upgrade, see [Install Azure PowerShell module](/powershell/azure/install-az-ps). If you are running PowerShell locally, you also need to run `Login-AzAccount` to create a connection with Azure.
+If you choose to install and use the PowerShell locally, this tutorial requires the Azure PowerShell module version Az 5.0.0 or later. To find the version, run `Get-Module -ListAvailable Az`. If you need to upgrade, see [Install Azure PowerShell module](/powershell/azure/install-azure-powershell). If you're running PowerShell locally, you also need to run `Connect-AzAccount` to create a connection with Azure.
 
 ## Create a resource group
 
@@ -59,7 +61,7 @@ $pip = New-AzPublicIpAddress `
 
 ## Create an application gateway
 
-### Create the IP configurations and frontend port
+### Create the frontend IP configurations and frontend port
 
 Associate *myAGSubnet* that you previously created to the application gateway using [New-AzApplicationGatewayIPConfiguration](/powershell/module/az.network/new-azapplicationgatewayipconfiguration). Assign the public IP address to the application gateway using [New-AzApplicationGatewayFrontendIPConfig](/powershell/module/az.network/new-azapplicationgatewayfrontendipconfig). And then you can create the HTTP port using [New-AzApplicationGatewayFrontendPort](/powershell/module/az.network/new-azapplicationgatewayfrontendport).
 
@@ -151,9 +153,4 @@ You should see *bing.com* appear in your browser.
 
 ## Next steps
 
-In this article, you learned how to:
-
-> [!div class="checklist"]
-> * Set up the network
-> * Create a listener and redirection rule
-> * Create an application gateway
+- [Create an application gateway with internal redirection using Azure PowerShell](redirect-internal-site-powershell.md)

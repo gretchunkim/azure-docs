@@ -1,20 +1,14 @@
----
+﻿---
 title: Manage resources - Azure CLI
 description: Use Azure CLI and Azure Resource Manager to manage your resources. Shows how to deploy and delete resources. 
-author: mumian
-ms.topic: conceptual
-ms.date: 02/11/2019
-ms.author: jgao 
-ms.custom: devx-track-azurecli
+ms.topic: article
+ms.date: 02/10/2025
+ms.custom: devx-track-azurecli, devx-track-arm-template
 ---
+
 # Manage Azure resources by using Azure CLI
 
 Learn how to use Azure CLI with [Azure Resource Manager](overview.md) to manage your Azure resources. For managing resource groups, see [Manage Azure resource groups by using Azure CLI](manage-resource-groups-cli.md).
-
-Other articles about managing resources:
-
-- [Manage Azure resources by using the Azure portal](manage-resources-portal.md)
-- [Manage Azure resources by using Azure PowerShell](manage-resources-powershell.md)
 
 ## Deploy resources to an existing resource group
 
@@ -37,14 +31,14 @@ az storage account show --resource-group $resourceGroupName --name $storageAccou
 
 ### Deploy a template
 
-The following script creates deploy a Quickstart template to create a storage account. For more information, see [Quickstart: Create Azure Resource Manager templates by using Visual Studio Code](../templates/quickstart-create-templates-use-visual-studio-code.md?tabs=PowerShell).
+The following script creates a Quickstart template to create a storage account. For more information, see [Quickstart: Create ARM templates with Visual Studio Code](../templates/quickstart-create-templates-use-visual-studio-code.md?tabs=PowerShell).
 
 ```azurecli-interactive
 echo "Enter the Resource Group name:" &&
 read resourceGroupName &&
 echo "Enter the location (i.e. centralus):" &&
 read location &&
-az group deployment create --resource-group $resourceGroupName --template-uri "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/101-storage-account-create/azuredeploy.json"
+az deployment group create --resource-group $resourceGroupName --template-uri "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/quickstarts/microsoft.storage/storage-account-create/azuredeploy.json"
 ```
 
 For more information, see [Deploy resources with Resource Manager templates and Azure CLI](../templates/deploy-cli.md).
@@ -55,7 +49,7 @@ You can create a resource group and deploy resources to the group. For more info
 
 ## Deploy resources to multiple subscriptions or resource groups
 
-Typically, you deploy all the resources in your template to a single resource group. However, there are scenarios where you want to deploy a set of resources together but place them in different resource groups or subscriptions. For more information, see [Deploy Azure resources to multiple subscriptions or resource groups](../templates/cross-scope-deployment.md).
+Typically, you deploy all the resources in your template to a single resource group. However, there are scenarios where you want to deploy a set of resources together but place them in different resource groups or subscriptions. For more information, see [Deploy Azure resources to multiple subscriptions or resource groups](../templates/deploy-to-resource-group.md).
 
 ## Delete resources
 
@@ -90,7 +84,7 @@ For more information, see [Move resources to new resource group or subscription]
 
 ## Lock resources
 
-Locking prevents other users in your organization from accidentally deleting or modifying critical resources, such as Azure subscription, resource group, or resource. 
+Locking prevents other users in your organization from accidentally deleting or modifying critical resources, such as Azure subscription, resource group, or resource.
 
 The following script locks a storage account so the account can't be deleted.
 
@@ -127,15 +121,16 @@ For more information, see [Lock resources with Azure Resource Manager](lock-reso
 
 ## Tag resources
 
-Tagging helps organizing your resource group and resources logically. For information, see [Using tags to organize your Azure resources](tag-resources.md#azure-cli).
+Tagging helps you organize your resource group and resources logically. For information, see [Using tags to organize your Azure resources](tag-resources-cli.md).
 
 ## Manage access to resources
 
-[Azure role-based access control (Azure RBAC)](../../role-based-access-control/overview.md) is the way that you manage access to resources in Azure. For more information, see [Manage access using RBAC and Azure CLI](../../role-based-access-control/role-assignments-cli.md).
+[Azure role-based access control (Azure RBAC)](../../role-based-access-control/overview.md) is the way that you manage access to resources in Azure. For more information, see [Add or remove Azure role assignments using Azure CLI](../../role-based-access-control/role-assignments-cli.md).
 
 ## Next steps
 
 - To learn Azure Resource Manager, see [Azure Resource Manager overview](overview.md).
-- To learn the Resource Manager template syntax, see [Understand the structure and syntax of Azure Resource Manager templates](../templates/template-syntax.md).
+- To learn the Resource Manager template syntax, see [Understand the structure and syntax of Azure Resource Manager templates](../templates/syntax.md).
 - To learn how to develop templates, see the [step-by-step tutorials](../index.yml).
 - To view the Azure Resource Manager template schemas, see [template reference](/azure/templates/).
+

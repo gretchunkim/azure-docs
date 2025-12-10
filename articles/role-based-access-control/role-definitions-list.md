@@ -1,27 +1,24 @@
 ---
 title: List Azure role definitions - Azure RBAC
 description: Learn how to list Azure built-in and custom roles using Azure portal, Azure PowerShell, Azure CLI, or REST API.
-services: active-directory
-documentationcenter: ''
 author: rolyon
-manager: mtillman
-
-ms.assetid: 8078f366-a2c4-4fbb-a44b-fc39fd89df81
-ms.service: role-based-access-control
-ms.devlang: na
-ms.topic: how-to
-ms.tgt_pltfrm: na
-ms.workload: identity
-ms.date: 06/17/2020
 ms.author: rolyon
-ms.reviewer: bagovind
+manager: pmwongera
+ms.date: 10/23/2025
+ms.service: role-based-access-control
+ms.topic: how-to
+ms.custom:
+  - devx-track-azurepowershell
+  - devx-track-azurecli
+  - ge-structured-content-pilot
+ms.devlang: azurecli
 ---
 
 # List Azure role definitions
 
 A role definition is a collection of permissions that can be performed, such as read, write, and delete. It's typically just called a role. [Azure role-based access control (Azure RBAC)](overview.md) has over 120 [built-in roles](built-in-roles.md) or you can create your own custom roles. This article describes how to list the built-in and custom roles that you can use to grant access to Azure resources.
 
-To see the list of administrator roles for Azure Active Directory, see [Administrator role permissions in Azure Active Directory](../active-directory/users-groups-roles/directory-assign-admin-roles.md).
+To see the list of administrator roles for Microsoft Entra ID, see [Administrator role permissions in Microsoft Entra ID](../active-directory/roles/permissions-reference.md).
 
 ## Azure portal
 
@@ -37,9 +34,15 @@ Follow these steps to list all roles in the Azure portal.
 
 1. Click the **Roles** tab to see a list of all the built-in and custom roles.
 
-   You can see the number of users and groups that are assigned to each role at the current scope.
+   ![Screenshot showing Roles list using new experience.](./media/shared/roles-list.png)
 
-   ![Roles list](./media/role-definitions-list/roles-list.png)
+1. To see the permissions for a particular role, in the **Details** column, click the **View** link.
+
+   A permissions pane appears.
+
+1. Click the **Permissions** tab to view and search the permissions for the selected role.
+
+   ![Screenshot showing role permissions using new experience.](./media/role-definitions-list/role-permissions.png)
 
 ## Azure PowerShell
 
@@ -82,7 +85,7 @@ IsCustom         : False
 Description      : Lets you manage everything except access to resources.
 Actions          : {*}
 NotActions       : {Microsoft.Authorization/*/Delete, Microsoft.Authorization/*/Write,
-                   Microsoft.Authorization/elevateAccess/Action}
+                  Microsoft.Authorization/elevateAccess/Action}
 DataActions      : {}
 NotDataActions   : {}
 AssignableScopes : {/}
@@ -135,8 +138,8 @@ PS C:\> Get-AzRoleDefinition "Contributor" | FL Actions, NotActions
 
 Actions    : {*}
 NotActions : {Microsoft.Authorization/*/Delete, Microsoft.Authorization/*/Write,
-             Microsoft.Authorization/elevateAccess/Action,
-             Microsoft.Blueprint/blueprintAssignments/write...}
+            Microsoft.Authorization/elevateAccess/Action,
+            Microsoft.Blueprint/blueprintAssignments/write...}
 ```
 
 ```azurepowershell
@@ -327,127 +330,232 @@ az role definition list --name "Virtual Machine Contributor" --output json --que
 
 ## REST API
 
+### Prerequisites
+
+You must use the following version:
+
+- `2015-07-01` or later
+
+For more information, see [API versions of Azure RBAC REST APIs](/rest/api/authorization/versions).
+
+### List all role definitions
+
+To list role definitions in a tenant, use the [Role Definitions - List](/rest/api/authorization/role-definitions/list) REST API.
+
+- The following example lists all role definitions in a tenant:
+
+    **Request**
+    
+    ```http
+    GET https://management.azure.com/providers/Microsoft.Authorization/roleDefinitions?api-version=2022-04-01
+    ```
+    
+    **Response**
+    
+    ```json
+    {
+        "value": [
+            {
+                "properties": {
+                    "roleName": "Billing Reader Plus",
+                    "type": "CustomRole",
+                    "description": "Read billing data and download invoices",
+                    "assignableScopes": [
+                        "/subscriptions/eeee4e4e-ff5f-aa6a-bb7b-cccccc8c8c8c"
+                    ],
+                    "permissions": [
+                        {
+                            "actions": [
+                                "Microsoft.Authorization/*/read",
+                                "Microsoft.Billing/*/read",
+                                "Microsoft.Commerce/*/read",
+                                "Microsoft.Consumption/*/read",
+                                "Microsoft.Management/managementGroups/read",
+                                "Microsoft.CostManagement/*/read",
+                                "Microsoft.Billing/invoices/download/action",
+                                "Microsoft.CostManagement/exports/*"
+                            ],
+                            "notActions": [
+                                "Microsoft.CostManagement/exports/delete"
+                            ],
+                            "dataActions": [],
+                            "notDataActions": []
+                        }
+                    ],
+                    "createdOn": "2021-05-22T21:57:23.5764138Z",
+                    "updatedOn": "2021-05-22T21:57:23.5764138Z",
+                    "createdBy": "68f66d4c-c0eb-4009-819b-e5315d677d70",
+                    "updatedBy": "68f66d4c-c0eb-4009-819b-e5315d677d70"
+                },
+                "id": "/providers/Microsoft.Authorization/roleDefinitions/17adabda-4bf1-4f4e-8c97-1f0cab6dea1c",
+                "type": "Microsoft.Authorization/roleDefinitions",
+                "name": "17adabda-4bf1-4f4e-8c97-1f0cab6dea1c"
+            },
+            {
+                "properties": {
+                    "roleName": "AcrPush",
+                    "type": "BuiltInRole",
+                    "description": "acr push",
+                    "assignableScopes": [
+                        "/"
+                    ],
+                    "permissions": [
+                        {
+                            "actions": [
+                                "Microsoft.ContainerRegistry/registries/pull/read",
+                                "Microsoft.ContainerRegistry/registries/push/write"
+                            ],
+                            "notActions": [],
+                            "dataActions": [],
+                            "notDataActions": []
+                        }
+                    ],
+                    "createdOn": "2018-10-29T17:52:32.5201177Z",
+                    "updatedOn": "2021-11-11T20:13:07.4993029Z",
+                    "createdBy": null,
+                    "updatedBy": null
+                },
+                "id": "/providers/Microsoft.Authorization/roleDefinitions/8311e382-0749-4cb8-b61a-304f252e45ec",
+                "type": "Microsoft.Authorization/roleDefinitions",
+                "name": "8311e382-0749-4cb8-b61a-304f252e45ec"
+            }
+        ]
+    }
+    ```
+
 ### List role definitions
 
-To list role definitions, use the [Role Definitions - List](/rest/api/authorization/roledefinitions/list) REST API. To refine your results, you specify a scope and an optional filter.
+To list role definitions, use the [Role Definitions - List](/rest/api/authorization/role-definitions/list) REST API. To refine your results, you specify a scope and an optional filter.
 
 1. Start with the following request:
 
-    ```http
-    GET https://management.azure.com/{scope}/providers/Microsoft.Authorization/roleDefinitions?$filter={$filter}&api-version=2015-07-01
-    ```
+   ```http
+   GET https://management.azure.com/{scope}/providers/Microsoft.Authorization/roleDefinitions?$filter={$filter}&api-version=2022-04-01
+   ```
+
+   For a tenant-level scope, you can use this request:
+
+   ```http
+   GET https://management.azure.com/providers/Microsoft.Authorization/roleDefinitions?filter={$filter}&api-version=2022-04-01
+   ```
 
 1. Within the URI, replace *{scope}* with the scope for which you want to list the role definitions.
 
-    > [!div class="mx-tableFixed"]
-    > | Scope | Type |
-    > | --- | --- |
-    > | `providers/Microsoft.Management/managementGroups/{groupId1}` | Management group |
-    > | `subscriptions/{subscriptionId1}` | Subscription |
-    > | `subscriptions/{subscriptionId1}/resourceGroups/myresourcegroup1` | Resource group |
-    > | `subscriptions/{subscriptionId1}/resourceGroups/myresourcegroup1/providers/Microsoft.Web/sites/mysite1` | Resource |
+   > [!div class="mx-tableFixed"]
+   > | Scope | Type |
+   > | --- | --- |
+   > | `providers/Microsoft.Management/managementGroups/{groupId1}` | Management group |
+   > | `subscriptions/{subscriptionId1}` | Subscription |
+   > | `subscriptions/{subscriptionId1}/resourceGroups/myresourcegroup1` | Resource group |
+   > | `subscriptions/{subscriptionId1}/resourceGroups/myresourcegroup1/providers/Microsoft.Web/sites/mysite1` | Resource |
 
-    In the previous example, microsoft.web is a resource provider that refers to an App Service instance. Similarly, you can use any other resource providers and specify the scope. For more information, see [Azure Resource providers and types](../azure-resource-manager/management/resource-providers-and-types.md) and supported [Azure Resource Manager resource provider operations](resource-provider-operations.md).  
-     
+   In the previous example, microsoft.web is a resource provider that refers to an App Service instance. Similarly, you can use any other resource providers and specify the scope. For more information, see [Azure Resource providers and types](../azure-resource-manager/management/resource-providers-and-types.md) and supported [Azure resource provider operations](resource-provider-operations.md).  
+
 1. Replace *{filter}* with the condition that you want to apply to filter the role definition list.
 
-    > [!div class="mx-tableFixed"]
-    > | Filter | Description |
-    > | --- | --- |
-    > | `$filter=atScopeAndBelow()` | Lists role definitions for the specified scope and any subscopes. |
-    > | `$filter=type+eq+'{type}'` | Lists role definitions of the specified type. Type of role can be `CustomRole` or `BuiltInRole`. |
+   > [!div class="mx-tableFixed"]
+   > | Filter | Description |
+   > | --- | --- |
+   > | `$filter=type+eq+'{type}'` | Lists role definitions of the specified type. Type of role can be `CustomRole` or `BuiltInRole`. |
+   > | `$filter=roleName+eq+'{roleName}'` | Lists role definition with the specified role name, such as 'Virtual Machine Contributor'. |
 
-The following request lists custom role definitions at subscription scope:
+   The following example lists all custom roles in a tenant:
 
-```http
-GET https://management.azure.com/subscriptions/{subscriptionId1}/providers/Microsoft.Authorization/roleDefinitions?api-version=2015-07-01&$filter=type+eq+'CustomRole'
-```
-
-The following shows an example of the output:
-
-```json
-{
-    "value": [
-        {
-            "properties": {
-                "roleName": "Billing Reader Plus",
-                "type": "CustomRole",
-                "description": "Read billing data and download invoices",
-                "assignableScopes": [
-                    "/subscriptions/{subscriptionId1}"
-                ],
-                "permissions": [
-                    {
-                        "actions": [
-                            "Microsoft.Authorization/*/read",
-                            "Microsoft.Billing/*/read",
-                            "Microsoft.Commerce/*/read",
-                            "Microsoft.Consumption/*/read",
-                            "Microsoft.Management/managementGroups/read",
-                            "Microsoft.CostManagement/*/read",
-                            "Microsoft.Billing/invoices/download/action",
-                            "Microsoft.CostManagement/exports/*"
-                        ],
-                        "notActions": [
-                            "Microsoft.CostManagement/exports/delete"
-                        ]
-                    }
-                ],
-                "createdOn": "2020-02-21T04:49:13.7679452Z",
-                "updatedOn": "2020-02-21T04:49:13.7679452Z",
-                "createdBy": "{createdByObjectId1}",
-                "updatedBy": "{updatedByObjectId1}"
-            },
-            "id": "/subscriptions/{subscriptionId1}/providers/Microsoft.Authorization/roleDefinitions/{roleDefinitionId1}",
-            "type": "Microsoft.Authorization/roleDefinitions",
-            "name": "{roleDefinitionId1}"
-        }
-    ]
-}
-```
+   **Request**
+   
+   ```http
+   GET https://management.azure.com/providers/Microsoft.Authorization/roleDefinitions?$filter=type+eq+'CustomRole'&api-version=2022-04-01
+   ```
+   
+   **Response**
+   
+   ```json
+   {
+       "value": [
+           {
+               "properties": {
+                   "roleName": "Billing Reader Plus",
+                   "type": "CustomRole",
+                   "description": "Read billing data and download invoices",
+                   "assignableScopes": [
+                       "/subscriptions/eeee4e4e-ff5f-aa6a-bb7b-cccccc8c8c8c"
+                   ],
+                   "permissions": [
+                       {
+                           "actions": [
+                               "Microsoft.Authorization/*/read",
+                               "Microsoft.Billing/*/read",
+                               "Microsoft.Commerce/*/read",
+                               "Microsoft.Consumption/*/read",
+                               "Microsoft.Management/managementGroups/read",
+                               "Microsoft.CostManagement/*/read",
+                               "Microsoft.Billing/invoices/download/action",
+                               "Microsoft.CostManagement/exports/*"
+                           ],
+                           "notActions": [
+                               "Microsoft.CostManagement/exports/delete"
+                           ],
+                           "dataActions": [],
+                           "notDataActions": []
+                       }
+                   ],
+                   "createdOn": "2021-05-22T21:57:23.5764138Z",
+                   "updatedOn": "2021-05-22T21:57:23.5764138Z",
+                   "createdBy": "68f66d4c-c0eb-4009-819b-e5315d677d70",
+                   "updatedBy": "68f66d4c-c0eb-4009-819b-e5315d677d70"
+               },
+               "id": "/providers/Microsoft.Authorization/roleDefinitions/17adabda-4bf1-4f4e-8c97-1f0cab6dea1c",
+               "type": "Microsoft.Authorization/roleDefinitions",
+               "name": "17adabda-4bf1-4f4e-8c97-1f0cab6dea1c"
+           }
+       ]
+   }
+   ```
 
 ### List a role definition
 
-To list the details of a specific role, use the [Role Definitions - Get](/rest/api/authorization/roledefinitions/get) or [Role Definitions - Get By Id](/rest/api/authorization/roledefinitions/getbyid) REST API.
+To list the details of a specific role, use the [Role Definitions - Get](/rest/api/authorization/role-definitions/get) or [Role Definitions - Get By ID](/rest/api/authorization/role-definitions/get-by-id) REST API.
 
 1. Start with the following request:
 
-    ```http
-    GET https://management.azure.com/{scope}/providers/Microsoft.Authorization/roleDefinitions/{roleDefinitionId}?api-version=2015-07-01
-    ```
+   ```http
+   GET https://management.azure.com/{scope}/providers/Microsoft.Authorization/roleDefinitions/{roleDefinitionId}?api-version=2022-04-01
+   ```
 
-    For a directory-level role definition, you can use this request:
+   For a tenant-level role definition, you can use this request:
 
-    ```http
-    GET https://management.azure.com/providers/Microsoft.Authorization/roleDefinitions/{roleDefinitionId}?api-version=2015-07-01
-    ```
+   ```http
+   GET https://management.azure.com/providers/Microsoft.Authorization/roleDefinitions/{roleDefinitionId}?api-version=2022-04-01
+   ```
 
 1. Within the URI, replace *{scope}* with the scope for which you want to list the role definition.
 
-    > [!div class="mx-tableFixed"]
-    > | Scope | Type |
-    > | --- | --- |
-    > | `providers/Microsoft.Management/managementGroups/{groupId1}` | Management group |
-    > | `subscriptions/{subscriptionId1}` | Subscription |
-    > | `subscriptions/{subscriptionId1}/resourceGroups/myresourcegroup1` | Resource group |
-    > | `subscriptions/{subscriptionId1}/resourceGroups/myresourcegroup1/providers/Microsoft.Web/sites/mysite1` | Resource |
-     
+   > [!div class="mx-tableFixed"]
+   > | Scope | Type |
+   > | --- | --- |
+   > | `providers/Microsoft.Management/managementGroups/{groupId1}` | Management group |
+   > | `subscriptions/{subscriptionId1}` | Subscription |
+   > | `subscriptions/{subscriptionId1}/resourceGroups/myresourcegroup1` | Resource group |
+   > | `subscriptions/{subscriptionId1}/resourceGroups/myresourcegroup1/providers/Microsoft.Web/sites/mysite1` | Resource |
+
 1. Replace *{roleDefinitionId}* with the role definition identifier.
 
-The following request lists the [Reader](built-in-roles.md#reader) role definition:
+   The following example lists the [Reader](built-in-roles.md#reader) role definition:
+
+**Request**
 
 ```http
-GET https://management.azure.com/providers/Microsoft.Authorization/roleDefinitions/acdd72a7-3385-48ef-bd42-f606fba81ae7?api-version=2015-07-01
+GET https://management.azure.com/providers/Microsoft.Authorization/roleDefinitions/acdd72a7-3385-48ef-bd42-f606fba81ae7?api-version=2022-04-01
 ```
 
-The following shows an example of the output:
+**Response**
 
 ```json
 {
     "properties": {
         "roleName": "Reader",
         "type": "BuiltInRole",
-        "description": "Lets you view everything, but not make any changes.",
+        "description": "View all resources, but does not allow you to make any changes.",
         "assignableScopes": [
             "/"
         ],
@@ -456,11 +564,13 @@ The following shows an example of the output:
                 "actions": [
                     "*/read"
                 ],
-                "notActions": []
+                "notActions": [],
+                "dataActions": [],
+                "notDataActions": []
             }
         ],
         "createdOn": "2015-02-02T21:55:09.8806423Z",
-        "updatedOn": "2019-02-05T21:24:35.7424745Z",
+        "updatedOn": "2021-11-11T20:13:47.8628684Z",
         "createdBy": null,
         "updatedBy": null
     },
@@ -470,9 +580,8 @@ The following shows an example of the output:
 }
 ```
 
-## Next steps
+## Related content
 
 - [Azure built-in roles](built-in-roles.md)
 - [Azure custom roles](custom-roles.md)
-- [List Azure role assignments using the Azure portal](role-assignments-list-portal.md)
-- [Add or remove Azure role assignments using the Azure portal](role-assignments-portal.md)
+- [List Azure role assignments using the Azure portal](/azure/role-based-access-control/role-assignments-list-portal)

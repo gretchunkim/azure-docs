@@ -1,10 +1,16 @@
 ---
-title: Replicate Azure Stack VMs to Azure using Azure Site Recovery | Microsoft Docs
-description: Learn how to set up disaster recovery to Azure for Azure Stack VMs with the Azure Site Recovery service.
-ms.topic: conceptual
-ms.date: 08/05/2019
+title: Replicate Azure Stack Hub to Azure using Azure Site Recovery
+description: Learn how to set up disaster recovery to Azure for Azure Stack Hub with the Azure Site Recovery service.
+ms.topic: how-to
+ms.date: 08/29/2025
+ms.author: v-gajeronika
+ms.service: azure-site-recovery
+ms.custom:
+  - engagement-fy23
+  - sfi-image-nochange
+# Customer intent: "As a cloud architect, I want to set up disaster recovery for Azure Stack VMs to Azure using site recovery, so that I can ensure business continuity during outages and maintain access to critical workloads."
 ---
-# Replicate Azure Stack VMs to Azure
+# Replicate Azure Stack VMs to Azure using Azure Site Recovery
 
 This article shows you how to set up disaster recovery Azure Stack VMs to Azure, using the [Azure Site Recovery service](site-recovery-overview.md).
 
@@ -23,18 +29,18 @@ In this article, you learn how to:
 > * **Step 2: Set up a Recovery Services vault**. Set up a vault for Site Recovery, and specify what you want to replicate. Site Recovery components and actions are configured and managed in the vault.
 > * **Step 3: Set up the source replication environment**. Set up a Site Recovery configuration server. The configuration server is a single Azure Stack VM that runs all the components needed by Site Recovery. After you've set up the configuration server, you register it in the vault.
 > * **Step 4: Set up the target replication environment**. Select your Azure account, and the Azure storage account and network that you want to use. During replication, VM data is copied to Azure storage. After failover, Azure VMs are joined to the specified network.
-> * **Step 5: Enable replication**. Configure replication settings, and enable replication for VMs. The Mobility service will be installed on a VM when replication is enabled. Site Recovery performs an initial replication of the VM, and then ongoing replication begins.
+> * **Step 5: Enable replication**. Configure replication settings, and enable replication for VMs. The Mobility service will be installed on a VM when replication is enabled. Site Recovery performs an initial replication of the VM, and then ongoing replication begins. Learn how to [install the Mobility service using command prompt (Modernized)](vmware-physical-mobility-service-overview.md#install-the-mobility-service-using-command-prompt-modernized).   
 > * **Step 6: Run a disaster recovery drill**: After replication is up and running, you verify that failover will work as expected by running a drill. To initiate the drill, you run a test failover in Site Recovery. The test failover doesn't impact your production environment.
 
 With these steps complete, you can then run a full failover to Azure as and when you need to.
 
 ## Architecture
 
-![Architecture](./media/azure-stack-site-recovery/architecture.png)
+![Diagram shows Recovery Services vaults for two tenants in clouds associated with tenant subscriptions both on a common Azure Stack infrastructure.](./media/azure-stack-site-recovery/architecture.png)
 
 **Location** | **Component** |**Details**
 --- | --- | ---
-**Configuration server** | Runs on a single Azure Stack VM. | In each subscription you set up a configuration server VM. This VM runs the following Site Recovery components:<br/><br/> - Configuration server: Coordinates communications between on-premises and Azure, and manages data replication. - Process server: Acts as a replication gateway. It receives replication data, optimizes with caching, compression, and encryption; and sends it to Azure storage.<br/><br/> If VMs you want to replicate exceed the limits stated below, you can set up a separate standalone process server. [Learn more](vmware-azure-set-up-process-server-scale.md).
+**Configuration server** | Runs on a single Azure Stack VM. | In each subscription you set up a configuration server VM. This VM runs the following Site Recovery components:<br/><br/> - **Configuration server**: Coordinates communications between on-premises and Azure, and manages data replication. <br> <br> - **Process server**: Acts as a replication gateway. It receives replication data, optimizes with caching, compression, and encryption; and sends it to Azure storage.<br/><br/> If VMs you want to replicate exceed the limits stated below, you can set up a separate standalone process server. [Learn more](vmware-azure-set-up-process-server-scale.md).
 **Mobility service** | Installed on each VM you want to replicate. | In the steps in this article, we prepare an account so that the Mobility service is installed automatically on a VM when replication is enabled. If you don't want to install the service automatically, there are a number of other methods you can use. [Learn more](vmware-azure-install-mobility-service.md).
 **Azure** | In Azure you need a Recovery Services vault, a storage account, and a virtual network. |  Replicated data is stored in the storage account. Azure VMs are added to the Azure network when failover occurs.
 
@@ -44,11 +50,11 @@ Replication works as follows:
 1. In the vault, you specify the replication source and target, set up the configuration server, create a replication policy, and enable replication.
 2. The Mobility service is installed on the machine (if you've used push installation), and machines begin replication in accordance with the replication policy.
 3. An initial copy of the server data is replicated to Azure storage.
-4. After initial replication finishes, replication of delta changes to Azure begins. Tracked changes for a machine are held in a .hrl file.
+4. After initial replication finishes, replication of delta changes to Azure begins. Tracked changes for a machine are held in an .hrl file.
 5. The configuration server orchestrates replication management with Azure (port HTTPS 443 outbound).
 6. The process server receives data from source machines, optimizes and encrypts it, and sends it to Azure storage (port 443 outbound).
 7. Replicated machines communicate with the configuration server (port HTTPS 443 inbound, for replication management. Machines send replication data to the process server (port HTTPS 9443 inbound - can be modified).
-8. Traffic is replicated to Azure storage public endpoints, over the internet. Alternately, you can use Azure ExpressRoute public peering. Replicating traffic over a site-to-site VPN from an on-premises site to Azure isn't supported.
+8. Traffic is replicated to Azure storage public endpoints, over the internet. Alternately, you can use Azure ExpressRoute public peering or Azure Peering Service. Replicating traffic over a site-to-site VPN from an on-premises site to Azure isn't supported.
 
 ## Prerequisites
 
@@ -76,8 +82,7 @@ Make sure that the VMs are running one of the operating systems summarized in th
 
 **Operating system** | **Details**
 --- | ---
-**64-bit Windows** | Windows Server 2016, Windows Server 2012 R2, Windows Server 2012, Windows Server 2008 R2 (from SP1)
-**CentOS** | 5.2 to 5.11, 6.1 to 6.9, 7.0 to 7.3
+**64-bit Windows** | Windows Server 2019, Windows Server 2016, Windows Server 2012 R2, Windows Server 2012, Windows Server 2008 R2 (from SP1)
 **Ubuntu** | 14.04 LTS server, 16.04 LTS server. Review [supported kernels](vmware-physical-azure-support-matrix.md#ubuntu-kernel-versions)
 
 ### Prepare for Mobility service installation
@@ -158,13 +163,13 @@ Set up the configuration server machine, register it in the vault, and discover 
 1. Click **Prepare Infrastructure** > **Source**.
 2. In **Prepare source**, click **+Configuration server**.
 
-    ![Set up source](./media/azure-stack-site-recovery/plus-config-srv.png)
+    ![Screenshot of the +Configuration Server dialog with the message "Click on +Configuration Server in the command bar above to setup one…".](./media/azure-stack-site-recovery/plus-config-srv.png)
 
 3. In **Add Server**, check that **Configuration Server** appears in **Server type**.
 5. Download the Site Recovery Unified Setup installation file.
 6. Download the vault registration key. You need the registration key when you run Unified Setup. The key is valid for five days after you generate it.
 
-    ![Set up source](./media/azure-stack-site-recovery/set-source2.png)
+    ![Screenshot of the Add Server dialog with Server Type set to Configuration Server and the Download the vault registration key button highlighted.](./media/azure-stack-site-recovery/set-source2.png)
 
 
 ### Run Azure Site Recovery Unified Setup
@@ -254,9 +259,9 @@ Before you run a test failover, verify the machine properties, and make sure tha
 
 1. In **Protected Items**, click **Replicated Items** > VM.
 2. In the **Replicated item** pane, there's a summary of VM information, health status, and the latest available recovery points. Click **Properties** to view more details.
-3. In **Compute and Network**, modify settings as needed.
+3. In **Compute** and **Network** settings, modify settings as needed.
 
-    - You can modify the Azure VM name, resource group, target size, [availability set](../virtual-machines/windows/tutorial-availability-sets.md), and managed disk settings.
+    - You can modify the Azure VM name, resource group, target size, [availability set](/azure/virtual-machines/windows/tutorial-availability-sets), and managed disk settings.
     - You can also view and modify network settings. These include the network/subnet to which the Azure VM is joined after failover, and the IP address that will be assigned to the VM.
 1. In **Disks**, view information about the operating system and data disks on the VM.
 
@@ -309,26 +314,7 @@ Then run a failover as follows:
 
 ### Fail back to Azure Stack
 
-When your primary site is up and running again, you can fail back from Azure to Azure Stack. To do this, you need to download the Azure VM VHD, and upload it to Azure Stack.
-
-1. Shut down the Azure VM, so that the VHD can be downloaded.
-2. To start downloading the VHD, install [Azure Storage Explorer](https://azure.microsoft.com/features/storage-explorer/).
-3. Navigate to the VM in the Azure Portal (using the VM name).
-4. In **Disks**, click on the disk name, and gather settings.
-
-    - As an example, the VHD URI used in our test: `https://502055westcentralus.blob.core.windows.net/wahv9b8d2ceb284fb59287/copied-3676553984.vhd` can be broken down to get the following input parameters that are used to download the VHD.
-        - Storage Account: 502055westcentralus
-        - Container: wahv9b8d2ceb284fb59287
-        - VHD Name: copied-3676553984.vhd
-
-5. Now, use Azure Storage Explorer to download the VHD.
-6. Upload the VHD to Azure Stack with [these steps](/azure-stack/user/azure-stack-manage-vm-disks#use-powershell-to-add-multiple-disks-to-a-vm).
-7. In the existing VM or new VM, attach the uploaded VHDs.
-8. Check that the OS Disk is correct, and start the VM.
-
-
-At this stage failback is complete.
-
+When your primary site is up and running again, you can fail back from Azure to Azure Stack. To do this, follow the steps listed out [here](/azure-stack/operator/site-recovery-failback).
 
 ## Conclusion
 
@@ -336,5 +322,4 @@ In this article we replicated Azure Stack VMs to Azure. With replication in plac
 
 ## Next steps
 
-After failing back, you can reprotect the VM and start replicating it to Azure again To do this, repeat the steps in this article.
-
+After failing back, you can reprotect the VM and start replicating it to Azure again. To do this, repeat the steps in this article.

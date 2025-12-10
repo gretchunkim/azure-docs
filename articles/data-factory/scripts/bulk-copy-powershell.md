@@ -1,22 +1,19 @@
 ---
 title: Copy data in bulk using PowerShell
-description: This PowerShell script shows how to use Azure Data Factory to copy data from a source data store to a destination data store in bulk. 
-services: data-factory
-ms.author: jingwang
-author: linda33wj
-manager: shwang
-ms.service: data-factory
-ms.workload: data-services
+description: This PowerShell script shows how to use Azure Data Factory to copy data from a source data store to a destination data store in bulk.
+ms.author: jianleishen
+author: jianleishen
+ms.subservice: data-movement
 ms.topic: article
-ms.custom: seo-lt-2019
-ms.date: 10/31/2017
+ms.custom: devx-track-azurepowershell
+ms.date: 01/05/2024
 ---
 
 # PowerShell script - copy multiple tables in bulk by using Azure Data Factory
 
-This sample PowerShell script copies data from multiple tables in Azure SQL Database to Azure Synapse Analytics (formerly SQL Data Warehouse).
+This sample PowerShell script copies data from multiple tables in Azure SQL Database to Azure Synapse Analytics.
 
-[!INCLUDE [updated-for-az](../../../includes/updated-for-az.md)]
+[!INCLUDE [updated-for-az](~/reusable-content/ce-skilling/azure/includes/updated-for-az.md)]
 
 [!INCLUDE [sample-powershell-install](../../../includes/sample-powershell-install-no-ssh-az.md)]
 
@@ -58,8 +55,8 @@ This script uses the following commands:
 | [Remove-AzResourceGroup](/powershell/module/az.resources/remove-azresourcegroup) | Deletes a resource group including all nested resources. |
 |||
 
-## Next steps
+## Related content
 
-For more information on the Azure PowerShell, see [Azure PowerShell documentation](https://docs.microsoft.com/powershell/).
+For more information on the Azure PowerShell, see [Azure PowerShell documentation](/powershell/).
 
 Additional Azure Data Factory PowerShell script samples can be found in the [Azure Data Factory PowerShell scripts](../samples-powershell.md).

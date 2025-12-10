@@ -1,18 +1,17 @@
 ---
 title: Open and save files with SSIS packages deployed in Azure
 description: Learn how to open and save files on premises and in Azure when you lift and shift SSIS packages that use local file systems into SSIS in Azure
-ms.date: "06/27/2018"
+ms.date: 01/05/2024
 ms.topic: conceptual
-ms.prod: sql  
-ms.technology: integration-services
-author: swinarko
-ms.author: sawinark
-ms.reviewer: maghan
+ms.subservice: integration-services
+author: chugugrace
+ms.author: chugu
+ms.reviewer: whhender
 ---
 
 # Open and save files on premises and in Azure with SSIS packages deployed in Azure
 
-[!INCLUDE[appliesto-adf-xxx-md](includes/appliesto-adf-xxx-md.md)]
+[!INCLUDE[appliesto-adf-asa-md](includes/appliesto-adf-asa-md.md)]
 
 This article describes how to open and save files on premises and in Azure when you lift and shift SSIS packages that use local file systems into SSIS in Azure.
 
@@ -28,7 +27,7 @@ To continue to use **on-premises file shares** when you lift and shift packages 
 
 2. Join the on-premises file shares to an Azure virtual network.
 
-3. Join your Azure-SSIS IR to the same virtual network. For more info, see [Join an Azure-SSIS integration runtime to a virtual network](https://docs.microsoft.com/azure/data-factory/join-azure-ssis-integration-runtime-virtual-network).
+3. Join your Azure-SSIS IR to the same virtual network. For more info, see [Join an Azure-SSIS integration runtime to a virtual network](./join-azure-ssis-integration-runtime-virtual-network.md).
 
 4. Connect your Azure-SSIS IR to the on-premises file shares inside the same virtual network by setting up access credentials that use Windows authentication. For more info, see [Connect to data and file shares with Windows Authentication](ssis-azure-connect-with-windows-auth.md).
 
@@ -44,8 +43,8 @@ To use **Azure Files** when you lift and shift packages that use local file syst
 
 3. Update local file paths in your packages to UNC paths pointing to Azure Files. For example, update `C:\abc.txt` to `\\<storage-account-name>.file.core.windows.net\<share-name>\abc.txt`.
 
-## Next steps
+## Related content
 
-- Deploy your packages. For more info, see [Deploy an SSIS project to Azure with SSMS](https://docs.microsoft.com/sql/integration-services/ssis-quickstart-deploy-ssms).
-- Run your packages. For more info, see [Run SSIS packages in Azure with SSMS](https://docs.microsoft.com/sql/integration-services/ssis-quickstart-run-ssms).
-- Schedule your packages. For more info, see [Schedule SSIS packages in Azure](https://docs.microsoft.com/sql/integration-services/lift-shift/ssis-azure-schedule-packages-ssms?view=sql-server-ver15).
+- Deploy your packages. For more info, see [Deploy an SSIS project to Azure with SSMS](/sql/integration-services/ssis-quickstart-deploy-ssms).
+- Run your packages. For more info, see [Run SSIS packages in Azure with SSMS](/sql/integration-services/ssis-quickstart-run-ssms).
+- Schedule your packages. For more info, see [Schedule SSIS packages in Azure](/sql/integration-services/lift-shift/ssis-azure-schedule-packages-ssms).

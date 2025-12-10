@@ -1,712 +1,947 @@
 ---
-title: 'Tutorial: PHP app with MySQL' 
-description: Learn how to get a PHP app working in Azure, with connection to a MySQL database in Azure. Laravel is used in the tutorial.
-
+title: 'Tutorial: PHP app with MySQL and Redis'
+description: Learn how to get a PHP app working in Azure, with connection to a MySQL database and a Redis cache in Azure. Laravel is used in the tutorial.
+author: msangapu-msft
+ms.author: msangapu
 ms.assetid: 14feb4f3-5095-496e-9a40-690e1414bd73
 ms.devlang: php
 ms.topic: tutorial
-ms.date: 06/15/2020
-ms.custom: mvc, cli-validate, seodec18
-zone_pivot_groups: app-service-platform-windows-linux
+ms.date: 11/19/2025
+ms.update-cycle: 180-days
+zone_pivot_groups: app-service-portal-azd
+ms.collection: ce-skilling-ai-copilot
+ms.service: azure-app-service
+ms.custom:
+  - mvc
+  - cli-validate
+  - devdivchpfy22
+  - AppServiceConnectivity
+  - build-2025
+  - sfi-image-nochange
+#customer intent: As an Azure Web App developer, I want to connect a database to my app in Azure App Services.
 ---
 
-# Tutorial: Build a PHP and MySQL app in Azure App Service
+# Tutorial: Deploy a PHP, MySQL, and Redis app to Azure App Service
 
-::: zone pivot="platform-windows"  
+This tutorial shows how to create a secure PHP app in Azure App Service connects to a MySQL database using Azure Database for MySQL Flexible Server. You also deploy an Azure Cache for Redis to enable the caching code in your application. Azure App Service is a highly scalable, self-patching, web-hosting service that can easily deploy apps on Windows or Linux. When you're finished, you have a Laravel app running on Azure App Service on Linux.
 
-[Azure App Service](overview.md) provides a highly scalable, self-patching web hosting service using the Windows operating system. This tutorial shows how to create a PHP app in Azure and connect it to a MySQL database. When you're finished, you'll have a [Laravel](https://laravel.com/) app running on Azure App Service on Windows.
-
-::: zone-end
-
-::: zone pivot="platform-linux"
-
-[Azure App Service](overview.md) provides a highly scalable, self-patching web hosting service using the Linux operating system. This tutorial shows how to create a PHP app in Azure and connect it to a MySQL database. When you're finished, you'll have a [Laravel](https://laravel.com/) app running on Azure App Service on Linux.
-
-::: zone-end
-
-![PHP app running in Azure App Service](./media/tutorial-php-mysql-app/complete-checkbox-published.png)
-
-In this tutorial, you learn how to:
-
-> [!div class="checklist"]
-> * Create a MySQL database in Azure
-> * Connect a PHP app to MySQL
-> * Deploy the app to Azure
-> * Update the data model and redeploy the app
-> * Stream diagnostic logs from Azure
-> * Manage the app in the Azure portal
-
-[!INCLUDE [quickstarts-free-trial-note](../../includes/quickstarts-free-trial-note.md)]
+:::image type="content" source="./media/tutorial-php-mysql-app/azure-portal-browse-app-2.png" alt-text="Screenshot of the Azure app example titled Task List showing new tasks added.":::
 
 ## Prerequisites
 
-To complete this tutorial:
+- An Azure account with an active subscription. If you don't have an Azure account, you [can create one for free](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn).
+- A GitHub account. You can also [get one for free](https://github.com/join).
+- Knowledge of [PHP with Laravel development](https://laravel.com/).
+- **(Optional)** To try GitHub Copilot, a [GitHub Copilot account](https://docs.github.com/copilot/using-github-copilot/using-github-copilot-code-suggestions-in-your-editor). A 30-day free trial is available.
 
-* [Install Git](https://git-scm.com/)
-* [Install PHP 5.6.4 or above](https://php.net/downloads.php)
-* [Install Composer](https://getcomposer.org/doc/00-intro.md)
-* Enable the following PHP extensions Laravel needs: OpenSSL, PDO-MySQL, Mbstring, Tokenizer, XML
-* [Install and start MySQL](https://dev.mysql.com/doc/refman/5.7/en/installing.html) 
+## Run the sample
 
-## Prepare local MySQL
+Set up a sample data-driven app as a starting point. The [sample repository](https://github.com/Azure-Samples/laravel-tasks) includes a [dev container](https://docs.github.com/codespaces/setting-up-your-project-for-codespaces/adding-a-dev-container-configuration/introduction-to-dev-containers) configuration. The dev container has everything you need to develop an application, including the database, cache, and all environment variables needed by the sample application. The dev container can run in a [GitHub codespace](https://docs.github.com/en/codespaces/overview), which means you can run the sample on any computer with a web browser.
 
-In this step, you create a database in your local MySQL server for your use in this tutorial.
+:::row:::
+    :::column span="2":::
+        **Step 1:** In a new browser window:
+        1. Sign in to your GitHub account.
+        1. Navigate to [https://github.com/Azure-Samples/laravel-tasks/fork](https://github.com/Azure-Samples/laravel-tasks/fork).
+        1. Select **Create fork**.
+    :::column-end:::
+    :::column:::
+        :::image type="content" source="./media/tutorial-php-mysql-app/azure-portal-run-sample-application-1.png" alt-text="Screenshot showing how to create a fork of the sample GitHub repository." lightbox="./media/tutorial-php-mysql-app/azure-portal-run-sample-application-1.png":::
+    :::column-end:::
+:::row-end:::
+:::row:::
+    :::column span="2":::
+        **Step 2:** In the GitHub fork:
+        1. Select **Code** > **Create codespace on main**.
+        The codespace takes a few minutes to set up. Also, the provided *.env* file already contains a dummy `APP_KEY` [variable that Laravel needs to run locally](https://laravel.com/docs/11.x/encryption#configuration). 
+    :::column-end:::
+    :::column:::
+        :::image type="content" source="./media/tutorial-php-mysql-app/azure-portal-run-sample-application-2.png" alt-text="Screenshot showing how to create a codespace in GitHub." lightbox="./media/tutorial-php-mysql-app/azure-portal-run-sample-application-2.png":::
+    :::column-end:::
+:::row-end:::
+:::row:::
+    :::column span="2":::
+        **Step 3:** In the codespace terminal:
+        1. Run `composer install`.
+        1. Run database migrations with `php artisan migrate`.
+        1. Run the app with `php artisan serve`.
+        1. When you see the notification `Your application running on port 80 is available.`, select **Open in Browser**. You should see the sample application in a new browser tab. To stop the application, type **Ctrl** + **C**.
+    :::column-end:::
+    :::column:::
+        :::image type="content" source="./media/tutorial-php-mysql-app/azure-portal-run-sample-application-3.png" alt-text="Screenshot showing how to run the sample application inside the GitHub codespace." lightbox="./media/tutorial-php-mysql-app/azure-portal-run-sample-application-3.png":::
+    :::column-end:::
+:::row-end:::
 
-### Connect to local MySQL server
-
-In a terminal window, connect to your local MySQL server. You can use this terminal window to run all the commands in this tutorial.
-
-```bash
-mysql -u root -p
-```
-
-If you're prompted for a password, enter the password for the `root` account. If you don't remember your root account password, see [MySQL: How to Reset the Root Password](https://dev.mysql.com/doc/refman/5.7/en/resetting-permissions.html).
-
-If your command runs successfully, then your MySQL server is running. If not, make sure that your local MySQL server is started by following the [MySQL post-installation steps](https://dev.mysql.com/doc/refman/5.7/en/postinstallation.html).
-
-### Create a database locally
-
-At the `mysql` prompt, create a database.
-
-```sql 
-CREATE DATABASE sampledb;
-```
-
-Exit your server connection by typing `quit`.
-
-```sql
-quit
-```
-
-<a name="step2"></a>
-
-## Create a PHP app locally
-In this step, you get a Laravel sample application, configure its database connection, and run it locally. 
-
-### Clone the sample
-
-In the terminal window, `cd` to a working directory.
-
-Run the following command to clone the sample repository.
-
-```bash
-git clone https://github.com/Azure-Samples/laravel-tasks
-```
-
-`cd` to your cloned directory.
-Install the required packages.
-
-```bash
-cd laravel-tasks
-composer install
-```
-
-### Configure MySQL connection
-
-In the repository root, create a file named *.env*. Copy the following variables into the *.env* file. Replace the _&lt;root_password>_ placeholder with the MySQL root user's password.
-
-```txt
-APP_ENV=local
-APP_DEBUG=true
-APP_KEY=
-
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_DATABASE=sampledb
-DB_USERNAME=root
-DB_PASSWORD=<root_password>
-```
-
-For information on how Laravel uses the _.env_ file, see [Laravel Environment Configuration](https://laravel.com/docs/5.4/configuration#environment-configuration).
-
-### Run the sample locally
-
-Run [Laravel database migrations](https://laravel.com/docs/5.4/migrations) to create the tables the application needs. To see which tables are created in the migrations, look in the _database/migrations_ directory in the Git repository.
-
-```bash
-php artisan migrate
-```
-
-Generate a new Laravel application key.
-
-```bash
-php artisan key:generate
-```
-
-Run the application.
-
-```bash
-php artisan serve
-```
-
-Navigate to `http://localhost:8000` in a browser. Add a few tasks in the page.
-
-![PHP connects successfully to MySQL](./media/tutorial-php-mysql-app/mysql-connect-success.png)
-
-To stop PHP, type `Ctrl + C` in the terminal.
-
-[!INCLUDE [cloud-shell-try-it.md](../../includes/cloud-shell-try-it.md)]
-
-## Create MySQL in Azure
-
-In this step, you create a MySQL database in [Azure Database for MySQL](/azure/mysql). Later, you configure the PHP application to connect to this database.
-
-### Create a resource group
-
-[!INCLUDE [Create resource group](../../includes/app-service-web-create-resource-group-no-h.md)] 
-
-### Create a MySQL server
-
-In the Cloud Shell, create a server in Azure Database for MySQL with the [`az mysql server create`](/cli/azure/mysql/server?view=azure-cli-latest#az-mysql-server-create) command.
-
-In the following command, substitute a unique server name for the *\<mysql-server-name>* placeholder, a user name for the *\<admin-user>*, and a password for the *\<admin-password>*  placeholder. The server name is used as part of your MySQL endpoint (`https://<mysql-server-name>.mysql.database.azure.com`), so the name needs to be unique across all servers in Azure. For details on selecting MySQL DB SKU, please see [Create an Azure Database for MySQL server](https://docs.microsoft.com/azure/mysql/quickstart-create-mysql-server-database-using-azure-cli#create-an-azure-database-for-mysql-server).
-
-```azurecli-interactive
-az mysql server create --resource-group myResourceGroup --name <mysql-server-name> --location "West Europe" --admin-user <admin-user> --admin-password <admin-password> --sku-name B_Gen5_1
-```
-
-When the MySQL server is created, the Azure CLI shows information similar to the following example:
-
-<pre>
-{
-  "administratorLogin": "&lt;admin-user&gt;",
-  "administratorLoginPassword": null,
-  "fullyQualifiedDomainName": "&lt;mysql-server-name&gt;.mysql.database.azure.com",
-  "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myResourceGroup/providers/Microsoft.DBforMySQL/servers/&lt;mysql-server-name&gt;",
-  "location": "westeurope",
-  "name": "&lt;mysql-server-name&gt;",
-  "resourceGroup": "myResourceGroup",
-  ...
-  -  &lt; Output has been truncated for readability &gt;
-}
-</pre>
-
-### Configure server firewall
-
-In the Cloud Shell, create a firewall rule for your MySQL server to allow client connections by using the [`az mysql server firewall-rule create`](/cli/azure/mysql/server/firewall-rule?view=azure-cli-latest#az-mysql-server-firewall-rule-create) command. When both starting IP and end IP are set to 0.0.0.0, the firewall is only opened for other Azure resources. 
-
-```azurecli-interactive
-az mysql server firewall-rule create --name allAzureIPs --server <mysql-server-name> --resource-group myResourceGroup --start-ip-address 0.0.0.0 --end-ip-address 0.0.0.0
-```
-
-> [!TIP] 
-> You can be even more restrictive in your firewall rule by [using only the outbound IP addresses your app uses](overview-inbound-outbound-ips.md#find-outbound-ips).
+<!-- > [!TIP]
+> You can ask [GitHub Copilot](https://docs.github.com/copilot/using-github-copilot/using-github-copilot-code-suggestions-in-your-editor) about this repository. For example:
 >
+> * *@workspace What does this project do?*
+> * *@workspace What does the .devcontainer folder do?* -->
 
-In the Cloud Shell, run the command again to allow access from your local computer by replacing *\<your-ip-address>* with [your local IPv4 IP address](https://www.whatsmyip.org/).
+Having issues? Check the [Troubleshooting section](#troubleshooting).
 
-```azurecli-interactive
-az mysql server firewall-rule create --name AllowLocalClient --server <mysql-server-name> --resource-group myResourceGroup --start-ip-address=<your-ip-address> --end-ip-address=<your-ip-address>
-```
+::: zone pivot="azure-portal"  
 
-### Connect to production MySQL server locally
+## Create App Service, database, and cache
 
-In the local terminal window, connect to the MySQL server in Azure. Use the value you specified previously for _&lt;admin-user>_ and _&lt;mysql-server-name>_. When prompted for a password, use the password you specified when you created the database in Azure.
+In this step, you create the Azure resources. The steps used in this tutorial create a set of secure-by-default resources that include App Service, Azure Database for MySQL, and Azure Cache for Redis. For the creation process, you specify:
 
-```bash
-mysql -u <admin-user>@<mysql-server-name> -h <mysql-server-name>.mysql.database.azure.com -P 3306 -p
-```
+- The **Name** for the web app. It's used as part of the DNS name for your app.
+- The **Region** to run the app physically in the world. It's also part of the DNS name for your app.
+- The **Runtime stack** for the app. It's where you select the version of PHP to use for your app.
+- The **Hosting plan** for the app. It's the pricing tier that includes the set of features and scaling capacity for your app.
+- The **Resource Group** for the app. A resource group lets you group all the Azure resources needed for the application in a logical container.
 
-### Create a production database
+Sign in to the [Azure portal](https://portal.azure.com/). Follow these steps to create your Azure App Service resources.
 
-At the `mysql` prompt, create a database.
+:::row:::
+    :::column span="2":::
+        **Step 1:** In the Azure portal:
+        1. In the top search bar, type *app service*.
+        1. Select the item labeled **App Service** under the **Services** heading.
+        1. Select **Create** > **Web App**.
+        You can also navigate to [Create Web App](https://portal.azure.com/#create/Microsoft.WebSite) directly.
+    :::column-end:::
+    :::column:::
+        :::image type="content" source="./media/tutorial-php-mysql-app/azure-portal-create-app-mysql-1.png" alt-text="Screenshot showing how to use the search box in the top tool bar to find the Web App creation wizard." lightbox="./media/tutorial-php-mysql-app/azure-portal-create-app-mysql-1.png":::
+    :::column-end:::
+:::row-end:::
+:::row:::
+    :::column span="2":::
+        **Step 2:** In the **Create Web App** page, fill out the form as follows.
+        1. *Name*: **msdocs-laravel-mysql**. The Azure portal creates a resource group named **msdocs-laravel-mysql_group**.
+        1. *Runtime stack*: **PHP 8.4**.
+        1. *Operating system*: **Linux**.
+        1. *Region*: Any Azure region near you.
+        1. *Linux Plan*: **Create new** and use the name **msdocs-laravel-mysql**.
+        1. *Pricing plan*: **Basic**. When you're ready, you can [scale up](manage-scale-up.md) to a different pricing tier.
+    :::column-end:::
+    :::column:::
+        :::image type="content" source="./media/tutorial-php-mysql-app/azure-portal-create-app-mysql-2.png" alt-text="Screenshot showing how to configure a new app in the Web App wizard." lightbox="./media/tutorial-php-mysql-app/azure-portal-create-app-mysql-2.png":::
+    :::column-end:::
+:::row-end:::
+:::row:::
+    :::column span="2":::
+        **Step 3:**
+        1. Select **Next** to proceed to the **Database** tab.
+        1. Select **Create a Database**.
+        1. In **Engine**, select **MySQL - Flexible Server**.
+        1. Select **Create an Azure Cache for Redis**.
+        1. In **Name** (under Cache), enter a name for the cache.
+        1. In **SKU**, select **Basic**.
+     :::column-end:::
+    :::column:::
+        :::image type="content" source="./media/tutorial-php-mysql-app/azure-portal-create-app-mysql-3.png" alt-text="Screenshot showing the database configuration in the Web App wizard." lightbox="./media/tutorial-php-mysql-app/azure-portal-create-app-mysql-3.png":::
+    :::column-end:::
+:::row-end:::
+:::row:::
+    :::column span="2":::
+        **Step 4:**
+        1. Select **Next** to proceed to the **Deployment** tab.
+        1. Enable **Continuous deployment**.
+        1. In **Organization**, select your GitHub alias.
+        1. In **Repository**, select **laravel-tasks**.
+        1. In **Branch**, select **main**.
+        1. Make sure **Basic authentication** is disabled.
+        1. Select **Review + create**.
+        1. After validation completes, select **Create**.
+    :::column-end:::
+    :::column:::
+        :::image type="content" source="./media/tutorial-php-mysql-app/azure-portal-create-app-mysql-4.png" alt-text="Screenshot showing the deployment configuration in the Web App wizard." lightbox="./media/tutorial-php-mysql-app/azure-portal-create-app-mysql-4.png":::
+    :::column-end:::
+:::row-end:::
+:::row:::
+    :::column span="2":::
+        **Step 5:** The deployment takes a few minutes to complete. To see the web app, select **Go to resource**. Deployment creates the following resources:
+        - **Resource group**: The container for all the created resources.
+        - **App Service plan**: Defines the compute resources for App Service. A Linux plan in the *Basic* tier is created.
+        - **App Service**: Represents your app and runs in the App Service plan.
+        - **Virtual network**: Integrated with the App Service app and isolates back-end network traffic.
+        - **Private endpoints**: Access endpoints for the database server and the Redis cache in the virtual network.
+        - **Network interfaces**: Represents private IP addresses, one for each of the private endpoints.
+        - **Azure Database for MySQL Flexible Server**: Accessible only from behind its private endpoint. A database and a user are created for you on the server.
+        - **Azure Cache for Redis**: Accessible only from behind its private endpoint.
+        - **Private DNS zones**: Enable DNS resolution of the database server and the Redis cache in the virtual network.
+    :::column-end:::    
+    :::column:::
+        :::image type="content" source="./media/tutorial-php-mysql-app/azure-portal-create-app-mysql-5.png" alt-text="Screenshot showing the deployment process completed." lightbox="./media/tutorial-php-mysql-app/azure-portal-create-app-mysql-5.png":::
+    :::column-end:::
+:::row-end:::
 
-```sql
-CREATE DATABASE sampledb;
-```
+## Secure connection secrets
 
-### Create a user with permissions
+Deployment generated the connectivity variables for you already as [app settings](configure-common.md#configure-app-settings). The security best practice is to keep secrets out of App Service completely. Move your secrets to a key vault and change your app setting to [Key Vault references](app-service-key-vault-references.md) with the help of Service Connectors.
 
-Create a database user called _phpappuser_ and give it all privileges in the `sampledb` database. For simplicity of the tutorial, use _MySQLAzure2017_ as the password.
+:::row:::
+    :::column span="2":::
+        **Step 1:** Retrieve the existing connection string.
+        1. In the left menu of the App Service page, select **Settings** > **Environment variables**. 
+        1. Select **Connection strings**.
+        1. Select **AZURE_MYSQL_CONNECTIONSTRING**. 
+        1. In **Add/Edit application setting**, in the **Value** field, copy the username and password for use later.
+        The connection string lets you connect to the MySQL database secured behind private endpoints. The secrets are saved directly in the App Service app, which isn't the best. You'll change this configuration.
+    :::column-end:::
+    :::column:::
+        :::image type="content" source="./media/tutorial-php-mysql-app/azure-portal-secure-connection-secrets-1.png" alt-text="Screenshot showing how to see the value of an app setting." lightbox="./media/tutorial-php-mysql-app/azure-portal-secure-connection-secrets-1.png":::
+    :::column-end:::
+:::row-end:::
+:::row:::
+    :::column span="2":::
+        **Step 2:**  Create a key vault for secure management of secrets.
+        1. In the top search bar, type "*key vault*", then select **Marketplace** > **Key Vault**.
+        1. In **Resource Group**, select **msdocs-laravel-mysql_group**.
+        1. In **Key vault name**, enter a name that consists of only letters and numbers.
+        1. In **Region**, select the same location as the resource group.
+    :::column-end:::
+    :::column:::
+        :::image type="content" source="./media/tutorial-php-mysql-app/azure-portal-secure-connection-secrets-2.png" alt-text="Screenshot showing how to create a key vault." lightbox="./media/tutorial-php-mysql-app/azure-portal-secure-connection-secrets-2.png":::
+    :::column-end:::
+:::row-end:::
+:::row:::
+    :::column span="2":::
+        **Step 3:** Secure the key vault with a Private Endpoint.
+        1. Select the **Networking** tab.
+        1. Unselect **Enable public access**.
+        1. Select **Create a private endpoint**.
+        1. In **Resource Group**, select **msdocs-laravel-mysql_group**.
+        1. In the dialog, in **Location**, select the same location as your App Service app.
+        1. In **Name**, enter *msdocs-laravel-mysqlVaultEndpoint*.
+        1. In **Virtual network**, select the virtual network in the **msdocs-laravel-mysql_group** group.
+        1. In **Subnet**, select the available compatible subnet.
+        1. Select **OK**.
+        1. Select **Review + create**, then select **Create**. Wait for the key vault deployment to finish. You should see **Your deployment is complete**.
+    :::column-end:::
+    :::column:::
+        :::image type="content" source="./media/tutorial-php-mysql-app/azure-portal-secure-connection-secrets-3.png" alt-text="Screenshot showing how to secure a key vault with a private endpoint." lightbox="./media/tutorial-php-mysql-app/azure-portal-secure-connection-secrets-3.png":::
+    :::column-end:::
+:::row-end:::
+:::row:::
+    :::column span="2":::
+        **Step 4:** Create the MySQL connector.
+        1. In the top search bar, enter *msdocs-laravel-mysql*, then select the App Service resource called **msdocs-laravel-mysql**.
+        1. In the App Service page, in the left menu, select **Settings** > **Service Connector**.
+        1. Select **Create**.
+        1. For **Service type**, select **DB for MySQL flexible server**.
+        1. For **MySQL flexible server**, select your server, for example, **msdocs-laravel-mysql-server**.
+        1. For **MySQL database**, select your database, for example, **msdocs-laravel-mysql-database**.
+    :::column-end:::
+    :::column:::
+        :::image type="content" source="./media/tutorial-php-mysql-app/azure-portal-secure-connection-secrets-4.png" alt-text="Screenshot showing how to edit a service connector with a key vault connection." lightbox="./media/tutorial-php-mysql-app/azure-portal-secure-connection-secrets-4.png":::
+    :::column-end:::
+:::row-end:::
+:::row:::
+    :::column span="2":::
+        **Step 5:** Configure authentication for the MySQL connector.
+        1. Select the **Authentication** tab.
+        1. Select **Connection string**.
+        1. In **Password**, paste the password you copied earlier.
+        1. Select **Store Secret in Key Vault**.
+        1. Under **Key Vault Connection**, select **Create new**. 
+        A **Create connection** dialog is opened on top of the edit dialog.
+    :::column-end:::
+    :::column:::
+        :::image type="content" source="./media/tutorial-php-mysql-app/azure-portal-secure-connection-secrets-5.png" alt-text="Screenshot that shows how to edit a service connector with a key vault connection." lightbox="./media/tutorial-php-mysql-app/azure-portal-secure-connection-secrets-5.png":::
+    :::column-end:::
+:::row-end:::
+:::row:::
+    :::column span="2":::
+        **Step 6:** Establish the Key Vault connection.
+        1. In the **Create connection** dialog for the Key Vault connection, in **Key Vault**, select the key vault you created earlier.
+        1. Select **Review + Create**.
+        1. When validation completes, select **Create**.
+    :::column-end:::
+    :::column:::
+        :::image type="content" source="./media/tutorial-php-mysql-app/azure-portal-secure-connection-secrets-6.png" alt-text="Screenshot showing how to configure a key vault service connector." lightbox="./media/tutorial-php-mysql-app/azure-portal-secure-connection-secrets-6.png":::
+    :::column-end:::
+:::row-end:::
+:::row:::
+    :::column span="2":::
+        **Step 7:** Finalize the MySQL connector settings.
+        1. You're back in the MySQL connector dialog. In the **Authentication** tab, wait for the key vault connector to be created. When it's finished, **Key Vault Connection** automatically selects it.
+        1. Select **Review + Create**.
+        1. Select **Create**. Wait until the **Update succeeded** notification appears.
+    :::column-end:::
+    :::column:::
+        :::image type="content" source="./media/tutorial-php-mysql-app/azure-portal-secure-connection-secrets-6.png" alt-text="Screenshot showing the key vault connection selected in the defaultConnector." lightbox="./media/tutorial-php-mysql-app/azure-portal-secure-connection-secrets-6.png":::
+    :::column-end:::
+:::row-end:::
+:::row:::
+    :::column span="2":::
+        **Step 8:** Configure the Redis connector to use Key Vault secrets.
+        1. In the Service Connectors page, select the checkbox next to the Cache for Redis connector, then select **Edit**.
+        1. Select the **Authentication** tab.
+        1. Select **Store Secret in Key Vault**.
+        1. Under **Key Vault Connection**, select the key vault you created. 
+        1. Select **Next: Networking**.
+        1. Select **Configure firewall rules to enable access to target service**. The app creation wizard already secured the SQL database with a private endpoint.
+        1. Select **Save**. Wait until the **Update succeeded** notification appears.
+    :::column-end:::
+    :::column:::
+        :::image type="content" source="./media/tutorial-php-mysql-app/azure-portal-secure-connection-secrets-7.png" alt-text="Screenshot showing how to edit the Cache for Redis service connector with a key vault connection." lightbox="./media/tutorial-php-mysql-app/azure-portal-secure-connection-secrets-7.png":::
+    :::column-end:::
+:::row-end:::
+:::row:::
+    :::column span="2":::
+        **Step 9:** Verify the Key Vault integration.
+        1. From the left menu, select **Settings** > **Environment variables** again.
+        1. Next to **AZURE_MYSQL_PASSWORD**, select **Show value**. The value should be `@Microsoft.KeyVault(...)`, which means that it's a [key vault reference](app-service-key-vault-references.md) because the secret is now managed in the key vault.
+        1. To verify the Redis connection string, select **Show value** next to **AZURE_REDIS_CONNECTIONSTRING**.
+    :::column-end:::
+    :::column:::
+        :::image type="content" source="./media/tutorial-php-mysql-app/azure-portal-secure-connection-secrets-8.png" alt-text="A screenshot showing how to see the value of MySQL password in Azure." lightbox="./media/tutorial-php-mysql-app/azure-portal-secure-connection-secrets-8.png":::
+    :::column-end:::
+:::row-end:::
 
-```sql
-CREATE USER 'phpappuser' IDENTIFIED BY 'MySQLAzure2017'; 
-GRANT ALL PRIVILEGES ON sampledb.* TO 'phpappuser';
-```
+To summarize, the process for securing your connection secrets involved:
 
-Exit the server connection by typing `quit`.
+- Retrieving the connection secrets from the App Service app's environment variables.
+- Creating a key vault.
+- Creating a Key Vault connection with the system-assigned managed identity.
+- Updating the service connectors to store the secrets in the key vault.
 
-```sql
-quit
-```
+Having issues? Check the [Troubleshooting section](#troubleshooting).
 
-## Connect app to Azure MySQL
+-----
 
-In this step, you connect the PHP application to the MySQL database you created in Azure Database for MySQL.
+## Configure Laravel variables
 
-<a name="devconfig"></a>
+:::row:::
+    :::column span="2":::
+        **Step 1:** Create `CACHE_DRIVER` as an app setting.
+        1. In your web app, select **Settings** > **Environment variables**.
+        1. In the **App settings** tab, select **Add**.
+        1. For **Name**, enter *CACHE_DRIVER*.
+        1. For **Value**, enter *redis*.
+        1. Select **Apply**, then **Apply** again, then **Confirm**.
+    :::column-end:::
+    :::column:::
+        :::image type="content" source="./media/tutorial-php-mysql-app/azure-portal-configure-laravel-variables-1.png" alt-text="Screenshot showing the Add/Edit application setting dialog for the CACHE_DRIVER setting." lightbox="./media/tutorial-php-mysql-app/azure-portal-configure-laravel-variables-1.png":::
+    :::column-end:::
+:::row-end:::
+:::row:::
+    :::column span="2":::
+        **Step 2:** Using the same steps in **Step 1**, create the following app settings. After you finish, select **Apply** to update your **App settings**.
+        - **MYSQL_ATTR_SSL_CA**: Use */home/site/wwwroot/ssl/DigiCertGlobalRootCA.crt.pem* as the value. This app setting points to the path of the [TLS/SSL certificate you need to access the MySQL server](/azure/mysql/flexible-server/how-to-connect-tls-ssl#download-the-public-ssl-certificate). It's included in the sample repository.
+        - **LOG_CHANNEL**: Use *stderr* as the value. This setting tells Laravel to pipe logs to stderr, which makes it available to the App Service logs.
+        - **APP_DEBUG**: Use *true* as the value. It's a [Laravel debugging variable](https://laravel.com/docs/10.x/errors#configuration) that enables debug mode pages.
+        - **APP_KEY**: Use *base64:Dsz40HWwbCqnq0oxMsjq7fItmKIeBfCBGORfspaI1Kw=* as the value. It's a [Laravel encryption variable](https://laravel.com/docs/10.x/encryption#configuration).
+    :::column-end:::
+    :::column:::
+        :::image type="content" source="./media/tutorial-php-mysql-app/azure-portal-configure-laravel-variables-2.png" alt-text="Screenshot showing how to save settings in the configuration page." lightbox="./media/tutorial-php-mysql-app/azure-portal-configure-laravel-variables-2.png":::
+    :::column-end:::
+:::row-end:::
 
-### Configure the database connection
+> [!IMPORTANT]
+> The `APP_KEY` value is used here for convenience. For production scenarios, it should be generated specifically for your deployment using `php artisan key:generate --show` in the command line.
+>
+> Ideally, the `APP_KEY` app setting should be configured as a key vault reference too, which is a multi-step process. For more information, see [How do I change the APP_KEY app setting to a Key Vault reference?](#how-do-i-change-the-app_key-app-setting-to-a-key-vault-reference) 
 
-In the repository root, create an _.env.production_ file and copy the following variables into it. Replace the placeholder_&lt;mysql-server-name>_ in both *DB_HOST* and *DB_USERNAME*.
 
-```
-APP_ENV=production
-APP_DEBUG=true
-APP_KEY=
+## Deploy sample code
 
-DB_CONNECTION=mysql
-DB_HOST=<mysql-server-name>.mysql.database.azure.com
-DB_DATABASE=sampledb
-DB_USERNAME=phpappuser@<mysql-server-name>
-DB_PASSWORD=MySQLAzure2017
-MYSQL_SSL=true
-```
+In this step, you configure GitHub deployment using GitHub Actions. It's just one of many ways to deploy to App Service, but also a great way to have continuous integration in your deployment process. By default, every `git push` to your GitHub repository kicks off the build and deploy action.
 
-Save the changes.
+:::row:::
+    :::column span="2":::
+        **Step 1:** Back in the GitHub codespace of your sample fork, run `git pull origin main`. 
+        This command pulls the newly committed workflow file into your codespace.
+    :::column-end:::
+    :::column:::
+        :::image type="content" source="./media/tutorial-php-mysql-app/azure-portal-deploy-sample-code-1.png" alt-text="Screenshot showing git pull inside a GitHub codespace." lightbox="./media/tutorial-php-mysql-app/azure-portal-deploy-sample-code-1.png":::
+    :::column-end:::
+:::row-end:::
+:::row:::
+    :::column span="2":::
+        **Step 2 (Option 1: with GitHub Copilot):**  
+        1. Start a new chat session by selecting the **Chat** view, then selecting **+**.
+        1. Ask, "*@workspace How does the app connect to the database and redis?*" Copilot might give you some explanation about how the settings are configured in *config/database.php*. 
+        1. Ask, "*@workspace In production mode, my app is running in an App Service web app, which uses Azure Service Connector to connect to a MySQL flexible server. What are the environment variable names I need to use?*" Copilot might give you a code suggestion similar to the one in the **Option 2: without GitHub Copilot** steps and even tell you to make the change in the *config/database.php* file. 
+        1. Open *config/database.php* in the explorer and add the code suggestion.
+        1. Ask, "*@workspace My App Service app also uses Azure Service Connector to connect to a Cache for Redis using the Django client type. What are the environment variable names I need to use?*" Copilot might give you a code suggestion similar to the one in the **Option 2: without GitHub Copilot** steps and even tell you to make the change in the *config/database.php* file. If prompted, sign into GitHub Copilot for Azure to get more accurate answers.
+        1. Add the code suggestion.
+        
+        GitHub Copilot doesn't give you the same response every time, and it's not always correct. You might need to ask more questions to fine-tune its response. For tips, see [What can I do with GitHub Copilot in my codespace?](#what-can-i-do-with-github-copilot-in-my-codespace).
+    :::column-end:::
+    :::column:::
+        :::image type="content" source="media/tutorial-php-mysql-app/github-copilot-1.png" alt-text="Screenshot showing how to ask a question in a new GitHub Copilot chat session." lightbox="media/tutorial-php-mysql-app/github-copilot-1.png":::
+    :::column-end:::
+:::row-end:::
+:::row:::
+    :::column span="2":::
+        **Step 2 (Option 2: without GitHub Copilot):**  
+        1. Open *config/database.php* in the explorer. Find the `mysql` section and make the following changes:
+            1. Replace `DB_HOST` (line 49) with `AZURE_MYSQL_HOST`.
+            1. Replace `DB_DATABASE` (line 51) with `AZURE_MYSQL_DBNAME`.
+            1. Replace `DB_USERNAME` (line 52) with `AZURE_MYSQL_USERNAME`.
+            1. Replace `DB_PASSWORD` (line 53) with `AZURE_MYSQL_PASSWORD`.
+            1. Replace `DB_PORT` (line 50) with `AZURE_MYSQL_PORT`.
+        1. Scroll to the Redis `cache` section and make the following changes:
+            1. Replace `REDIS_HOST` (line 142) with `AZURE_REDIS_HOST`.
+            1. Replace `REDIS_PASSWORD` (line 144) with `AZURE_REDIS_PASSWORD`.
+            1. Replace `REDIS_PORT` (line 145) with `AZURE_REDIS_PORT`.
+            1. Replace `REDIS_CACHE_DB` (line 146) with `AZURE_REDIS_DATABASE`.
+            1. In the same section, add a line with `'scheme' => 'tls',`. This configuration tells Laravel to use encryption to connect to Redis.
+    :::column-end:::
+    :::column:::
+        :::image type="content" source="./media/tutorial-php-mysql-app/azure-portal-deploy-sample-code-2.png" alt-text="Screenshot showing a GitHub codespace and config/database.php opened." lightbox="./media/tutorial-php-mysql-app/azure-portal-deploy-sample-code-2.png":::
+    :::column-end:::
+:::row-end:::
+:::row:::
+    :::column span="2":::
+        **Step 3:**
+        1. Select the **Source Control** extension.
+        1. In the textbox, type a commit message like *Configure Azure database and cache connections*. Or, select :::image type="icon" source="media/quickstart-dotnetcore/github-copilot-in-editor.png" border="false"::: and let GitHub Copilot generate a commit message for you.
+        1. Select **Commit**, then confirm with **Yes**.
+        1. Select **Sync changes 1**, then confirm with **OK**.
+    :::column-end:::
+    :::column:::
+        :::image type="content" source="./media/tutorial-php-mysql-app/azure-portal-deploy-sample-code-3.png" alt-text="Screenshot showing the changes being committed and pushed to GitHub." lightbox="./media/tutorial-php-mysql-app/azure-portal-deploy-sample-code-3.png":::
+    :::column-end:::
+:::row-end:::
+:::row:::
+    :::column span="2":::
+        **Step 4:**
+        1. In the Azure portal, open your web app and then select **Deployment** > **Deployment Center**.
+        1. Select **Logs**, then select **Refresh** to see the new deployment run.
+        1. In the log item for the deployment run, select the **Build/Deploy Logs** entry with the latest timestamp.
+    :::column-end:::
+    :::column:::
+        :::image type="content" source="./media/tutorial-php-mysql-app/azure-portal-deploy-sample-code-4.png" alt-text="Screenshot showing how to open deployment logs in the deployment center." lightbox="./media/tutorial-php-mysql-app/azure-portal-deploy-sample-code-4.png":::
+    :::column-end:::
+:::row-end:::
+:::row:::
+    :::column span="2":::
+        **Step 5:** You're taken to your GitHub repository and see that the GitHub action is running. The workflow file defines two separate stages, build and deploy. Wait for the GitHub run to show a status of **Success**. It takes about 10 minutes.
+    :::column-end:::
+    :::column:::
+        :::image type="content" source="./media/tutorial-php-mysql-app/azure-portal-deploy-sample-code-5.png" alt-text="Screenshot showing a GitHub run in progress." lightbox="./media/tutorial-php-mysql-app/azure-portal-deploy-sample-code-5.png":::
+    :::column-end:::
+:::row-end:::
+
+Having issues? Check the [Troubleshooting section](#troubleshooting).
+
+## Generate database schema
+
+The creation wizard puts the MySQL database server behind a private endpoint, so it's accessible only from the virtual network. Because the App Service app is already integrated with the virtual network, the easiest way to run database migrations with your database is directly from within the App Service container.
+
+:::row:::
+    :::column span="2":::
+        **Step 1:** Back in the App Service page, in the left menu:
+        1. Select **Development Tools** > **SSH**.
+        1. Select **Go**.
+    :::column-end:::
+    :::column:::
+        :::image type="content" source="./media/tutorial-php-mysql-app/azure-portal-generate-db-schema-1.png" alt-text="Screenshot showing how to open the SSH shell for your app from the Azure portal." lightbox="./media/tutorial-php-mysql-app/azure-portal-generate-db-schema-1.png":::
+    :::column-end:::
+:::row-end:::
+:::row:::
+    :::column span="2":::
+        **Step 2:** In the SSH terminal:
+        1. Run `cd /home/site/wwwroot`. Here are all your deployed files.
+        1. Run `php artisan migrate --force`. If it succeeds, App Service is connecting successfully to the MySQL database.
+    :::column-end:::
+    :::column:::
+        :::image type="content" source="./media/tutorial-php-mysql-app/azure-portal-generate-db-schema-2.png" alt-text="Screenshot showing the commands to run in the SSH shell and their output." lightbox="./media/tutorial-php-mysql-app/azure-portal-generate-db-schema-2.png":::
+    :::column-end:::
+:::row-end:::
 
 > [!TIP]
-> To secure your MySQL connection information, this file is already excluded from the Git repository (See _.gitignore_ in the repository root). Later, you learn how to configure environment variables in App Service to connect to your database in Azure Database for MySQL. With environment variables, you don't need the *.env* file in App Service.
->
-
-### Configure TLS/SSL certificate
-
-By default, Azure Database for MySQL enforces TLS connections from clients. To connect to your MySQL database in Azure, you must use the [_.pem_ certificate supplied by Azure Database for MySQL](../mysql/howto-configure-ssl.md).
-
-Open _config/database.php_ and add the `sslmode` and `options` parameters to `connections.mysql`, as shown in the following code.
-
-::: zone pivot="platform-windows"  
-
-```php
-'mysql' => [
-    ...
-    'sslmode' => env('DB_SSLMODE', 'prefer'),
-    'options' => (env('MYSQL_SSL')) ? [
-        PDO::MYSQL_ATTR_SSL_KEY    => '/ssl/BaltimoreCyberTrustRoot.crt.pem', 
-    ] : []
-],
-```
-
-::: zone-end
-
-::: zone pivot="platform-linux"
-
-```php
-'mysql' => [
-    ...
-    'sslmode' => env('DB_SSLMODE', 'prefer'),
-    'options' => (env('MYSQL_SSL') && extension_loaded('pdo_mysql')) ? [
-        PDO::MYSQL_ATTR_SSL_KEY    => '/ssl/BaltimoreCyberTrustRoot.crt.pem',
-    ] : []
-],
-```
-
-::: zone-end
-
-The certificate `BaltimoreCyberTrustRoot.crt.pem` is provided in the repository for convenience in this tutorial. 
-
-### Test the application locally
-
-Run Laravel database migrations with _.env.production_ as the environment file to create the tables in your MySQL database in Azure Database for MySQL. Remember that _.env.production_ has the connection information to your MySQL database in Azure.
-
-```bash
-php artisan migrate --env=production --force
-```
-
-_.env.production_ doesn't have a valid application key yet. Generate a new one for it in the terminal.
-
-```bash
-php artisan key:generate --env=production --force
-```
-
-Run the sample application with _.env.production_ as the environment file.
-
-```bash
-php artisan serve --env=production
-```
-
-Navigate to `http://localhost:8000`. If the page loads without errors, the PHP application is connecting to the MySQL database in Azure.
-
-Add a few tasks in the page.
-
-![PHP connects successfully to Azure Database for MySQL](./media/tutorial-php-mysql-app/mysql-connect-success.png)
-
-To stop PHP, type `Ctrl + C` in the terminal.
-
-### Commit your changes
-
-Run the following Git commands to commit your changes:
-
-```bash
-git add .
-git commit -m "database.php updates"
-```
-
-Your app is ready to be deployed.
-
-## Deploy to Azure
-
-In this step, you deploy the MySQL-connected PHP application to Azure App Service.
-
-### Configure a deployment user
-
-[!INCLUDE [Configure deployment user](../../includes/configure-deployment-user-no-h.md)]
-
-### Create an App Service plan
-
-::: zone pivot="platform-windows"  
-
-[!INCLUDE [Create app service plan no h](../../includes/app-service-web-create-app-service-plan-no-h.md)]
-
-::: zone-end
-
-::: zone pivot="platform-linux"
-
-[!INCLUDE [Create app service plan no h](../../includes/app-service-web-create-app-service-plan-linux-no-h.md)]
-
-::: zone-end
-
-<a name="create"></a>
-### Create a web app
-
-::: zone pivot="platform-windows"  
-
-[!INCLUDE [Create web app no h](../../includes/app-service-web-create-web-app-php-no-h.md)] 
-
-::: zone-end
-
-::: zone pivot="platform-linux"
-
-[!INCLUDE [Create web app](../../includes/app-service-web-create-web-app-php-linux-no-h.md)] 
-
-::: zone-end
-
-### Configure database settings
-
-In App Service, you set environment variables as _app settings_ by using the [`az webapp config appsettings set`](/cli/azure/webapp/config/appsettings?view=azure-cli-latest#az-webapp-config-appsettings-set) command.
-
-The following command configures the app settings `DB_HOST`, `DB_DATABASE`, `DB_USERNAME`, and `DB_PASSWORD`. Replace the placeholders _&lt;app-name>_ and _&lt;mysql-server-name>_.
-
-```azurecli-interactive
-az webapp config appsettings set --name <app-name> --resource-group myResourceGroup --settings DB_HOST="<mysql-server-name>.mysql.database.azure.com" DB_DATABASE="sampledb" DB_USERNAME="phpappuser@<mysql-server-name>" DB_PASSWORD="MySQLAzure2017" MYSQL_SSL="true"
-```
-
-You can use the PHP [getenv](https://www.php.net/manual/en/function.getenv.php) method to access the settings. the Laravel code uses an [env](https://laravel.com/docs/5.4/helpers#method-env) wrapper over the PHP `getenv`. For example, the MySQL configuration in _config/database.php_ looks like the following code:
-
-```php
-'mysql' => [
-    'driver'    => 'mysql',
-    'host'      => env('DB_HOST', 'localhost'),
-    'database'  => env('DB_DATABASE', 'forge'),
-    'username'  => env('DB_USERNAME', 'forge'),
-    'password'  => env('DB_PASSWORD', ''),
-    ...
-],
-```
-
-### Configure Laravel environment variables
-
-Laravel needs an application key in App Service. You can configure it with app settings.
-
-In the local terminal window, use `php artisan` to generate a new application key without saving it to _.env_.
-
-```bash
-php artisan key:generate --show
-```
-
-In the Cloud Shell, set the application key in the App Service app by using the [`az webapp config appsettings set`](/cli/azure/webapp/config/appsettings?view=azure-cli-latest#az-webapp-config-appsettings-set) command. Replace the placeholders _&lt;app-name>_ and _&lt;outputofphpartisankey:generate>_.
-
-```azurecli-interactive
-az webapp config appsettings set --name <app-name> --resource-group myResourceGroup --settings APP_KEY="<output_of_php_artisan_key:generate>" APP_DEBUG="true"
-```
-
-`APP_DEBUG="true"` tells Laravel to return debugging information when the deployed app encounters errors. When running a production application, set it to `false`, which is more secure.
-
-### Set the virtual application path
-
-::: zone pivot="platform-windows"  
-
-Set the virtual application path for the app. This step is required because the [Laravel application lifecycle](https://laravel.com/docs/5.4/lifecycle) begins in the _public_ directory instead of the application's root directory. Other PHP frameworks whose lifecycle start in the root directory can work without manual configuration of the virtual application path.
-
-In the Cloud Shell, set the virtual application path by using the [`az resource update`](/cli/azure/resource#az-resource-update) command. Replace the _&lt;app-name>_ placeholder.
-
-```azurecli-interactive
-az resource update --name web --resource-group myResourceGroup --namespace Microsoft.Web --resource-type config --parent sites/<app_name> --set properties.virtualApplications[0].physicalPath="site\wwwroot\public" --api-version 2015-06-01
-```
-
-By default, Azure App Service points the root virtual application path (_/_) to the root directory of the deployed application files (_sites\wwwroot_).
-
-::: zone-end
-
-::: zone pivot="platform-linux"
-
-[Laravel application lifecycle](https://laravel.com/docs/5.4/lifecycle) begins in the _public_ directory instead of the application's root directory. The default PHP Docker image for App Service uses Apache, and it doesn't let you customize the `DocumentRoot` for Laravel. However, you can use `.htaccess` to rewrite all requests to point to _/public_ instead of the root directory. In the repository root, an `.htaccess` is added already for this purpose. With it, your Laravel application is ready to be deployed.
-
-For more information, see [Change site root](configure-language-php.md#change-site-root).
-
-::: zone-end
-
-### Push to Azure from Git
-
-::: zone pivot="platform-windows"  
-
-[!INCLUDE [app-service-plan-no-h](../../includes/app-service-web-git-push-to-azure-no-h.md)]
-
-<pre>
-Counting objects: 3, done.
-Delta compression using up to 8 threads.
-Compressing objects: 100% (3/3), done.
-Writing objects: 100% (3/3), 291 bytes | 0 bytes/s, done.
-Total 3 (delta 2), reused 0 (delta 0)
-remote: Updating branch 'master'.
-remote: Updating submodules.
-remote: Preparing deployment for commit id 'a5e076db9c'.
-remote: Running custom deployment command...
-remote: Running deployment command...
-...
-&lt; Output has been truncated for readability &gt;
-</pre>
-
-> [!NOTE]
-> You may notice that the deployment process installs [Composer](https://getcomposer.org/) packages at the end. App Service does not run these automations during default deployment, so this sample repository has three additional files in its root directory to enable it:
->
-> - `.deployment` - This file tells App Service to run `bash deploy.sh` as the custom deployment script.
-> - `deploy.sh` - The custom deployment script. If you review the file, you will see that it runs `php composer.phar install` after `npm install`.
-> - `composer.phar` - The Composer package manager.
->
-> You can use this approach to add any step to your Git-based deployment to App Service. For more information, see [Custom Deployment Script](https://github.com/projectkudu/kudu/wiki/Custom-Deployment-Script).
->
-
-::: zone-end
-
-::: zone pivot="platform-linux"
-
-[!INCLUDE [app-service-plan-no-h](../../includes/app-service-web-git-push-to-azure-no-h.md)]
-
-<pre>
-Counting objects: 3, done.
-Delta compression using up to 8 threads.
-Compressing objects: 100% (3/3), done.
-Writing objects: 100% (3/3), 291 bytes | 0 bytes/s, done.
-Total 3 (delta 2), reused 0 (delta 0)
-remote: Updating branch 'master'.
-remote: Updating submodules.
-remote: Preparing deployment for commit id 'a5e076db9c'.
-remote: Running custom deployment command...
-remote: Running deployment command...
-...
-&lt; Output has been truncated for readability &gt;
-</pre>
-
-::: zone-end
-
-### Browse to the Azure app
-
-Browse to `http://<app-name>.azurewebsites.net` and add a few tasks to the list.
-
-![PHP app running in Azure App Service](./media/tutorial-php-mysql-app/php-mysql-in-azure.png)
-
-Congratulations, you're running a data-driven PHP app in Azure App Service.
-
-## Update model locally and redeploy
-
-In this step, you make a simple change to the `task` data model and the webapp, and then publish the update to Azure.
-
-For the tasks scenario, you modify the application so that you can mark a task as complete.
-
-### Add a column
-
-In the local terminal window, navigate to the root of the Git repository.
-
-Generate a new database migration for the `tasks` table:
-
-```bash
-php artisan make:migration add_complete_column --table=tasks
-```
-
-This command shows you the name of the migration file that's generated. Find this file in _database/migrations_ and open it.
-
-Replace the `up` method with the following code:
-
-```php
-public function up()
-{
-    Schema::table('tasks', function (Blueprint $table) {
-        $table->boolean('complete')->default(False);
-    });
-}
-```
-
-The preceding code adds a boolean column in the `tasks` table called `complete`.
-
-Replace the `down` method with the following code for the rollback action:
-
-```php
-public function down()
-{
-    Schema::table('tasks', function (Blueprint $table) {
-        $table->dropColumn('complete');
-    });
-}
-```
-
-In the local terminal window, run Laravel database migrations to make the change in the local database.
-
-```bash
-php artisan migrate
-```
-
-Based on the [Laravel naming convention](https://laravel.com/docs/5.4/eloquent#defining-models), the model `Task` (see _app/Task.php_) maps to the `tasks` table by default.
-
-### Update application logic
-
-Open the *routes/web.php* file. The application defines its routes and business logic here.
-
-At the end of the file, add a route with the following code:
-
-```php
-/**
- * Toggle Task completeness
- */
-Route::post('/task/{id}', function ($id) {
-    error_log('INFO: post /task/'.$id);
-    $task = Task::findOrFail($id);
-
-    $task->complete = !$task->complete;
-    $task->save();
-
-    return redirect('/');
-});
-```
-
-The preceding code makes a simple update to the data model by toggling the value of `complete`.
-
-### Update the view
-
-Open the *resources/views/tasks.blade.php* file. Find the `<tr>` opening tag and replace it with:
-
-```html
-<tr class="{{ $task->complete ? 'success' : 'active' }}" >
-```
-
-The preceding code changes the row color depending on whether the task is complete.
-
-In the next line, you have the following code:
-
-```html
-<td class="table-text"><div>{{ $task->name }}</div></td>
-```
-
-Replace the entire line with the following code:
-
-```html
-<td>
-    <form action="{{ url('task/'.$task->id) }}" method="POST">
-        {{ csrf_field() }}
-
-        <button type="submit" class="btn btn-xs">
-            <i class="fa {{$task->complete ? 'fa-check-square-o' : 'fa-square-o'}}"></i>
-        </button>
-        {{ $task->name }}
-    </form>
-</td>
-```
-
-The preceding code adds the submit button that references the route that you defined earlier.
-
-### Test the changes locally
-
-In the local terminal window, run the development server from the root directory of the Git repository.
-
-```bash
-php artisan serve
-```
-
-To see the task status change, navigate to `http://localhost:8000` and select the checkbox.
-
-![Added check box to task](./media/tutorial-php-mysql-app/complete-checkbox.png)
-
-To stop PHP, type `Ctrl + C` in the terminal.
-
-### Publish changes to Azure
-
-In the local terminal window, run Laravel database migrations with the production connection string to make the change in the Azure database.
-
-```bash
-php artisan migrate --env=production --force
-```
-
-Commit all the changes in Git, and then push the code changes to Azure.
-
-```bash
-git add .
-git commit -m "added complete checkbox"
-git push azure master
-```
-
-Once the `git push` is complete, navigate to the Azure app and test the new functionality.
-
-![Model and database changes published to Azure](media/tutorial-php-mysql-app/complete-checkbox-published.png)
-
-If you added any tasks, they are retained in the database. Updates to the data schema leave existing data intact.
+> In the SSH session, only changes to files in `/home` can persist beyond app restarts. Changes outside of `/home` aren't persisted.
+
+## Change site root
+
+[Laravel application lifecycle](https://laravel.com/docs/10.x/lifecycle#lifecycle-overview) begins in the **/public** directory instead. The default PHP container for App Service uses Nginx, which starts in the application's root directory. To change the site root, you need to change the Nginx configuration file in the PHP container (*/etc/nginx/sites-available/default*). The sample repository contains a custom configuration file called *default*. As noted previously, you don't want to replace this file using the SSH shell. The change is outside of `/home` and is lost after an app restart. 
+
+:::row:::
+    :::column span="2":::
+        **Step 1:**
+        1. From the left menu, select **Settings** > **Configuration**.
+        1. Select the **General settings** tab.
+    :::column-end:::
+    :::column:::
+        :::image type="content" source="./media/tutorial-php-mysql-app/azure-portal-change-site-root-1.png" alt-text="Screenshot showing how to open the general settings tab in the configuration page of App Service." lightbox="./media/tutorial-php-mysql-app/azure-portal-change-site-root-1.png":::
+    :::column-end:::
+:::row-end:::
+:::row:::
+    :::column span="2":::
+        **Step 2:** In the **General settings** tab:
+        1. In the **Startup Command** box, enter the following command: *cp /home/site/wwwroot/default /etc/nginx/sites-available/default && service nginx reload*.
+        1. Select **Save**, then select **Continue**.
+        The command replaces the Nginx configuration file in the PHP container and restarts Nginx. This configuration ensures that the same change is made to the container each time it starts.
+    :::column-end:::
+    :::column:::
+        :::image type="content" source="./media/tutorial-php-mysql-app/azure-portal-change-site-root-2.png" alt-text="Screenshot showing how to configure a startup command in App Service." lightbox="./media/tutorial-php-mysql-app/azure-portal-change-site-root-2.png":::
+    :::column-end:::
+:::row-end:::
+
+## Browse to the app
+
+:::row:::
+    :::column span="2":::
+        **Step 1:** In the App Service page:
+        1. From the left menu, select **Overview**.
+        1. Select the **Default domain** of your app.
+    :::column-end:::
+    :::column:::
+        :::image type="content" source="./media/tutorial-php-mysql-app/azure-portal-browse-app-1.png" alt-text="Screenshot showing how to launch an App Service from the Azure portal." lightbox="./media/tutorial-php-mysql-app/azure-portal-browse-app-1.png":::
+    :::column-end:::
+:::row-end:::
+:::row:::
+    :::column span="2":::
+        **Step 2:** Add a few tasks to the list.
+        Congratulations, you're running a secure data-driven PHP app in Azure App Service.
+    :::column-end:::
+    :::column:::
+        :::image type="content" source="./media/tutorial-php-mysql-app/azure-portal-browse-app-2.png" alt-text="Screenshot of the Laravel app running in App Service." lightbox="./media/tutorial-php-mysql-app/azure-portal-browse-app-2.png":::
+    :::column-end:::
+:::row-end:::
+
+> [!TIP]
+> The sample application implements the [cache-aside](/azure/architecture/patterns/cache-aside) pattern. When you reload the page after making data changes, **Response time** in the webpage shows a much faster time because it's loading the data from the cache instead of the database.
 
 ## Stream diagnostic logs
 
-::: zone pivot="platform-windows"  
+Azure App Service captures all messages logged to the console to assist you in diagnosing issues with your application. The sample app outputs console log messages in each of its endpoints to demonstrate this capability. By default, Laravel's logging functionality, for example, `Log::info()`, outputs to a local file. Your `LOG_CHANNEL` app setting from earlier makes log entries accessible from the App Service log stream.
 
-While the PHP application runs in Azure App Service, you can get the console logs piped to your terminal. That way, you can get the same diagnostic messages to help you debug application errors.
+:::row:::
+    :::column span="2":::
+        **Step 1:** In the App Service page:
+        1. From the left menu, select **Monitoring** > **App Service logs**.
+        1. Under **Application logging**, select **File System**.
+    :::column-end:::
+    :::column:::
+        :::image type="content" source="./media/tutorial-php-mysql-app/azure-portal-stream-diagnostic-logs-1.png" alt-text="Screenshot showing how to enable native logs in App Service in the Azure portal." lightbox="./media/tutorial-php-mysql-app/azure-portal-stream-diagnostic-logs-1.png":::
+    :::column-end:::
+:::row-end:::
+:::row:::
+    :::column span="2":::
+        **Step 2:** From the left menu, select **Log stream**. You see the logs for your app, including platform logs and logs from inside the container.
+    :::column-end:::
+    :::column:::
+        :::image type="content" source="./media/tutorial-php-mysql-app/azure-portal-stream-diagnostic-logs-2.png" alt-text="Screenshot showing how to view the log stream in the Azure portal." lightbox="./media/tutorial-php-mysql-app/azure-portal-stream-diagnostic-logs-2.png":::
+    :::column-end:::
+:::row-end:::
 
-To start log streaming, use the [`az webapp log tail`](/cli/azure/webapp/log?view=azure-cli-latest#az-webapp-log-tail) command in the Cloud Shell.
+## Clean up resources
 
-```azurecli-interactive
-az webapp log tail --name <app_name> --resource-group myResourceGroup
-```
+When you're finished, you can delete all of the resources from your Azure subscription by deleting the resource group.
 
-Once log streaming has started, refresh the Azure app in the browser to get some web traffic. You can now see console logs piped to the terminal. If you don't see console logs immediately, check again in 30 seconds.
-
-To stop log streaming at anytime, type `Ctrl`+`C`.
+:::row:::
+    :::column span="2":::
+        **Step 1:** In the search bar at the top of the Azure portal:
+        1. Enter the resource group name.
+        1. Select the resource group.
+    :::column-end:::
+    :::column:::
+        :::image type="content" source="./media/tutorial-php-mysql-app/azure-portal-clean-up-resources-1.png" alt-text="Screenshot showing how to search for and navigate to a resource group in the Azure portal." lightbox="./media/tutorial-php-mysql-app/azure-portal-clean-up-resources-1.png":::
+    :::column-end:::
+:::row-end:::
+:::row:::
+    :::column span="2":::
+        **Step 2:** In the resource group page, select **Delete resource group**.
+    :::column-end:::
+    :::column:::
+        :::image type="content" source="./media/tutorial-php-mysql-app/azure-portal-clean-up-resources-2.png" alt-text="Screenshot showing the location of the Delete Resource Group button in the Azure portal." lightbox="./media/tutorial-php-mysql-app/azure-portal-clean-up-resources-2.png":::
+    :::column-end:::
+:::row-end:::
+:::row:::
+    :::column span="2":::
+        **Step 3:** 
+        1. To confirm your deletion, enter the resource group name.
+        1. Select **Delete**.
+    :::column-end:::
+    :::column:::
+        :::image type="content" source="./media/tutorial-php-mysql-app/azure-portal-clean-up-resources-3.png" alt-text="Screenshot of the confirmation dialog for deleting a resource group in the Azure portal." lightbox="./media/tutorial-php-mysql-app/azure-portal-clean-up-resources-3.png":::
+    :::column-end:::
+:::row-end:::
 
 ::: zone-end
 
-::: zone pivot="platform-linux"
+::: zone pivot="azure-developer-cli"
 
-[!INCLUDE [Access diagnostic logs](../../includes/app-service-web-logs-access-no-h.md)]
+## Create Azure resources and deploy a sample app
 
-::: zone-end
+In this step, you create the Azure resources and deploy a sample app to App Service on Linux. The steps used in this tutorial create a set of secure-by-default resources that include App Service and Azure Database for MySQL.
+
+The GitHub codespace already has the [Azure Developer CLI](/azure/developer/azure-developer-cli/install-azd) (AZD).
+
+1. Generate a Laravel encryption key with `php artisan key:generate --show`:
+
+    ```bash
+    php artisan key:generate --show
+    ```  
+
+1. Sign into Azure by running the `azd auth login` command and following the prompt:
+
+    ```bash
+    azd auth login
+    ```  
+
+1. Create the necessary Azure resources and deploy the app code with the `azd up` command. Follow the prompt to select the desired subscription and location for the Azure resources.
+
+    ```bash
+    azd up
+    ```  
+
+1. When prompted, give the following answers:
+    
+    | Question | Answer |
+    |----------|--------|
+    | Enter a new environment name     | Type a unique name. The AZD template uses this name as part of the DNS name of your web app in Azure (`<app-name>-<hash>.azurewebsites.net`). Alphanumeric characters and hyphens are allowed.          |
+    | Select an Azure Subscription to use | Select your subscription. |
+    | Select an Azure location to use | Select a location. |
+    | Enter a value for the 'appKey' infrastructure secured parameter | Use the output of `php artisan key:generate --show` here. The AZD template creates a Key Vault secret for it that you can use in your app. |
+    | Enter a value for the 'databasePassword' infrastructure secured parameter | Database password for MySQL. It must be at least 8 characters long and contain uppercase letters, lowercase letters, numbers, and special characters.|
+
+    The `azd up` command takes about 15 minutes to complete. The Redis cache takes the most time. The command also compiles and deploys your application code, but you modify your code later to work with App Service. While it's running, the command provides messages about the provisioning and deployment process, including a link to the deployment in Azure. When it finishes, the command also displays a link to the deploy application.
+
+    This AZD template contains files (*azure.yaml* and the *infra* directory) that generate a secure-by-default architecture with the following Azure resources:
+
+    - **Resource group**: The container for all the created resources.
+    - **App Service plan**: Defines the compute resources for App Service. A Linux plan in the *B1* tier is created.
+    - **App Service**: Represents your app and runs in the App Service plan.
+    - **Virtual network**: Integrated with the App Service app and isolates back-end network traffic.
+    - **Azure Database for MySQL Flexible Server**: Accessible only from the virtual network through the DNS zone integration. A database is created for you on the server.
+    - **Azure Cache for Redis**: Accessible only from within the virtual network.
+    - **Private endpoints**: Access endpoints for the key vault and the Redis cache in the virtual network.
+    - **Private DNS zones**: Enable DNS resolution of the key vault, the database server, and the Redis cache in the virtual network.
+    - **Log Analytics workspace**: Acts as the target container for your app to ship its logs, where you can also query the logs.
+    - **Key vault**: Used to keep your database password the same when you redeploy with AZD.
+
+Having issues? Check the [Troubleshooting section](#troubleshooting).
+
+## Use Azure connection strings in application code
+
+The AZD template you use generated the connectivity variables for you already as [app settings](configure-common.md#configure-app-settings) and outputs them to the terminal. App settings are one way to keep connection secrets out of your code repository.
+
+1. In the AZD output, find the app settings that begin with `AZURE_MYSQL_` and `AZURE_REDIS_`. Only the setting names are displayed. They look like this in the AZD output:
+
+    ```bash
+    App Service app has the following app settings:
+            - AZURE_KEYVAULT_RESOURCEENDPOINT
+            - AZURE_KEYVAULT_SCOPE
+            - AZURE_MYSQL_DBNAME
+            - AZURE_MYSQL_FLAG
+            - AZURE_MYSQL_HOST
+            - AZURE_MYSQL_PASSWORD
+            - AZURE_MYSQL_PORT
+            - AZURE_MYSQL_USERNAME
+            - AZURE_REDIS_DATABASE
+            - AZURE_REDIS_HOST
+            - AZURE_REDIS_PASSWORD
+            - AZURE_REDIS_PORT
+            - AZURE_REDIS_SSL
+    ```
+
+    Settings beginning with `AZURE_MYSQL_` are connection variables for the MySQL database. Settings beginning with `AZURE_REDIS_` are for the Redis cache. You need to use them in your code later. The AZD template shows you the direct link to the app's app settings page in the Azure portal.
+
+1. From the explorer, open *config/database.php*. This file is the configuration file for database and Redis cache connections.
+
+1. Find the part that defines the `mysql` connection (lines 46-64) and replace `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, and `DB_PASSWORD` with the `AZURE_MYSQL_` app settings from the AZD output. Your `mysql` connection should look like the following code.
+
+    ```php
+    'mysql' => [
+        'driver' => 'mysql',
+        'url' => env('DATABASE_URL'),
+        'host' => env('AZURE_MYSQL_HOST', '127.0.0.1'),
+        'port' => env('AZURE_MYSQL_PORT', '3306'),
+        'database' => env('AZURE_MYSQL_DBNAME', 'forge'),
+        'username' => env('AZURE_MYSQL_USERNAME', 'forge'),
+        'password' => env('AZURE_MYSQL_PASSWORD', ''),
+        'unix_socket' => env('DB_SOCKET', ''),
+        'charset' => 'utf8mb4',
+        'collation' => 'utf8mb4_unicode_ci',
+        'prefix' => '',
+        'prefix_indexes' => true,
+        'strict' => true,
+        'engine' => null,
+        'options' => extension_loaded('pdo_mysql') ? array_filter([
+            PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+        ]) : [],
+    ],
+    ```
+
+    For more information on database configuration in Laravel, see [Laravel documentation](https://laravel.com/docs/10.x/database).
+
+1. Find the part that defines the Redis cache connection (lines 140-147) and replace `REDIS_HOST`, `REDIS_PASSWORD`, `REDIS_PORT`, and `REDIS_CACHE_DB` with the `Azure_REDIS_` app settings from the AZD output. Also, add `'scheme' => 'tls',` to the connection. Your cache connection should look like the following code:
+
+    ```php
+    'cache' => [
+        'scheme' => 'tls',
+        'url' => env('REDIS_URL'),
+        'host' => env('AZURE_REDIS_HOST', '127.0.0.1'),
+        'username' => env('REDIS_USERNAME'),
+        'password' => env('AZURE_REDIS_PASSWORD'),
+        'port' => env('AZURE_REDIS_PORT', '6379'),
+        'database' => env('AZURE_REDIS_DATABASE', '1'),
+    ],
+    ```
+    
+    For more information on Redis cache configuration in Laravel, see [Laravel documentation](https://laravel.com/docs/10.x/redis#configuration).
+
+    > [!NOTE]
+    > Remember that your changes aren't deployed yet. You deploy them at the end of the next step.
+
+## Configure Laravel settings in web app
+
+1. From the explorer, open *infra/resources.bicep*. This file is the Bicep file that defines the created Azure resources.
+
+1. Find the part that defines the app settings (lines 510-514) and uncomment them. These app settings are:
+    
+    |Setting  |Description  |
+    |---------|---------|
+    |`CACHE_DRIVER`     | Tells Laravel to use Redis as its cache (see [Laravel documentation](https://laravel.com/docs/10.x/cache#configuration)).        |
+    |`MYSQL_ATTR_SSL_CA`     | Needed to [open a TLS connection to MySQL in Azure](/azure/mysql/flexible-server/how-to-connect-tls-ssl). The certificate file is included in the sample repository for convenience. This variable is used by the mysql connection in *config/database.php*      |
+    |`LOG_CHANNEL`     | Tells Laravel to pipe logs to `stderr`, which makes it available to the App Service logs (see [Laravel documentation](https://laravel.com/docs/10.x/logging)).       |
+    |`APP_DEBUG`     | Enable debug mode pages in Laravel (see [Laravel documentation](https://laravel.com/docs/10.x/configuration#debug-mode)).      |
+    |`APP_KEY`     | [Laravel encryption variable](https://laravel.com/docs/10.x/encryption#configuration). The AZD template already created a Key Vault secret (lines 212-217), so you access it with a [Key Vault reference](app-service-key-vault-references.md).       |
+
+1. In *infra/resources.bicep*, find the resource definition for the App Service app and uncomment line 315: 
+
+    ```bicep
+    appCommandLine: 'cp /home/site/wwwroot/default /etc/nginx/sites-available/default && service nginx reload'
+    ```
+
+    [Laravel application lifecycle](https://laravel.com/docs/10.x/lifecycle#lifecycle-overview) begins in the */public* directory instead of the application root. The default PHP container for App Service uses Nginx, which starts in the application root. To change the site root, you need to change the Nginx configuration file in the PHP container (*/etc/nginx/sites-available/default*).
+
+    The sample repository contains a replacement configuration file called *default*, which tells Nginx to look in the */public* directory. This custom command in `appCommandLine` runs every time the app starts to apply the file replacement each time the Linux container is reloaded from a clean state.
+
+1. Back in the codespace terminal, run `azd up` again.
+ 
+    ```bash
+    azd up
+    ```
 
 > [!TIP]
-> A PHP application can use the standard [error_log()](https://php.net/manual/function.error-log.php) to output to the console. The sample application uses this approach in _app/Http/routes.php_.
+> `azd up` runs `azd package`, `azd provision`, and `azd deploy` together because you're making both infrastructure and application changes. To make infrastructure changes only, run `azd provision`. To just deploy changes to application code, run `azd deploy`.
+
+Having issues? Check the [Troubleshooting section](#troubleshooting).
+
+## Generate database schema
+
+With the MySQL database protected by the virtual network, the easiest way to run Laravel database migrations is in an SSH session with the Linux container in App Service.
+
+1. In the AZD output, find the URL for the SSH session and navigate to it in the browser. It looks like this in the output:
+
+    ```bash
+    Open SSH session to App Service container at: <URL>
+    ```
+
+1. In the SSH session, run database migrations from the */home/site/wwwroot* directory:
+
+    ```bash
+    cd /home/site/wwwroot
+    php artisan migrate --force
+    ```
+    
+    If it succeeds, App Service is [connecting successfully to the database](#i-get-the-error-during-database-migrations-php_network_getaddresses-getaddrinfo-for-mysqldb-failed-no-address-associated-with-hostname).
+
+> [!NOTE]
+> Only changes to files in `/home` can persist beyond app restarts.
 >
-> As a web framework, [Laravel uses Monolog](https://laravel.com/docs/5.4/errors) as the logging provider. To see how to get Monolog to output messages to the console, see [PHP: How to use monolog to log to console (php://out)](https://stackoverflow.com/questions/25787258/php-how-to-use-monolog-to-log-to-console-php-out).
->
->
 
-## Manage the Azure app
+Having issues? Check the [Troubleshooting section](#troubleshooting).
 
-Go to the [Azure portal](https://portal.azure.com) to manage the app you created.
+## Browse to the app
 
-From the left menu, click **App Services**, and then click the name of your Azure app.
+1. In the AZD output, find the URL of your app and navigate to it in the browser. The URL looks like this in the AZD output:
 
-![Portal navigation to Azure app](./media/tutorial-php-mysql-app/access-portal.png)
+    ```bash
+    Deploying services (azd deploy)
+    
+      (✓) Done: Deploying service web
+      - Endpoint: <URL>
+    ```
 
-You see your app's Overview page. Here, you can perform basic management tasks like  stop, start, restart, browse, and delete.
+1. Add a few tasks to the list.
 
-The left menu provides pages for configuring your app.
+    :::image type="content" source="./media/tutorial-php-mysql-app/azure-portal-browse-app-2.png" alt-text="Screenshot of the Laravel web app with MySQL running in Azure showing tasks.":::
 
-![App Service page in Azure portal](./media/tutorial-php-mysql-app/web-app-blade.png)
+    Congratulations, you're running a web app in Azure App Service, with secure connectivity to Azure Database for MySQL.
 
-[!INCLUDE [cli-samples-clean-up](../../includes/cli-samples-clean-up.md)]
+Having issues? Check the [Troubleshooting section](#troubleshooting).
+
+## Stream diagnostic logs
+
+Azure App Service captures all messages logged to the console to assist you in diagnosing issues with your application. For convenience, the AZD template already [enabled logging to the local file system](troubleshoot-diagnostic-logs.md#enable-application-logging-linuxcontainer) and is [shipping the logs to a Log Analytics workspace](troubleshoot-diagnostic-logs.md#send-logs-to-azure-monitor).
+
+The sample app outputs console log messages in each of its endpoints to demonstrate this capability. By default, Laravel's logging functionality, for example, `Log::info()`, outputs to a local file. Your `LOG_CHANNEL` app setting from earlier makes log entries accessible from the App Service log stream.
+
+:::code language="php" source="~/laravel-tasks/routes/web.php" range="25-36" highlight="2":::
+
+In the AZD output, find the link to stream App Service logs and navigate to it in the browser. The link looks like this in the AZD output:
+
+```bash
+Stream App Service logs at: &lt;URL>
+```
+
+Having issues? Check the [Troubleshooting section](#troubleshooting).
+
+## Clean up resources
+
+To delete all Azure resources in the current deployment environment, run `azd down` and follow the prompts.
+
+```bash
+azd down
+```
+
+::: zone-end
+
+## Troubleshooting
+
+#### I get the error during database migrations `php_network_getaddresses: getaddrinfo for mysqldb failed: No address associated with hostname...`
+
+It indicates that MySQL connection variables aren't properly configured. Verify that the `AZURE_MYSQL_` app settings are properly configured in [Use Azure connection strings in application code](#use-azure-connection-strings-in-application-code).
+
+#### I get a blank page in the browser.
+
+It indicates that App Service can't find the PHP start files in */public*. Follow the steps in [Configure Laravel settings in web app](#configure-laravel-settings-in-web-app).
+
+#### I get a debug page in the browser saying `Unsupported cipher or incorrect key length.`
+
+It indicates that the `APP_KEY` setting is set to an invalid key. When you run `azd up`, make sure you set `appKey` to the output of `php artisan key:generate --show`.
+
+#### I get a debug page in the browser saying `Uncaught Error: Class "Illuminate\..." not found.`
+
+This error and similar errors indicate that you didn't run `composer install` before `azd up`, or that the packages in the */vendor* directory are stale. Run `composer install` and `azd deploy` again.
+
+#### I get a debug page in the browser saying `php_network_getaddresses: getaddrinfo for redishost failed: Name or service not known.`
+
+It indicates that Redis connection variables aren't properly configured. Verify that the `AZURE_REDIS_` app settings are properly configured in [Use Azure connection strings in application code](#use-azure-connection-strings-in-application-code).
+
+#### I get a debug page in the browser saying `SQLSTATE[42S02]: Base table or view not found: 1146 Table 'XXXX-XXXXXXXXX-mysql-database.tasks' doesn't exist`
+
+It means you haven't run database migrations, or database migrations weren't successful. Follow the steps at [Generate database schema](#generate-database-schema).
+
+## Frequently asked questions
+
+::: zone pivot="azure-portal"
+
+- [How much does this setup cost?](#how-much-does-this-setup-cost)
+- [How do I connect to the MySQL database that's secured behind the virtual network with other tools?](#how-do-i-connect-to-the-mysql-database-thats-secured-behind-the-virtual-network-with-other-tools)
+- [How do I change the APP_KEY app setting to a Key Vault reference?](#how-do-i-change-the-app_key-app-setting-to-a-key-vault-reference)
+- [How does local app development work with GitHub Actions?](#how-does-local-app-development-work-with-github-actions)
+- [Why is the GitHub Actions deployment so slow?](#why-is-the-github-actions-deployment-so-slow)
+- [I don't have permissions to create a user-assigned identity](#i-dont-have-permissions-to-create-a-user-assigned-identity)
+- [What can I do with GitHub Copilot in my codespace?](#what-can-i-do-with-github-copilot-in-my-codespace)
+
+::: zone-end
+
+::: zone pivot="azure-developer-cli"
+
+- [How much does this setup cost?](#how-much-does-this-setup-cost)
+- [How do I connect to the MySQL database that's secured behind the virtual network with other tools?](#how-do-i-connect-to-the-mysql-database-thats-secured-behind-the-virtual-network-with-other-tools)
+- [How does local app development work with GitHub Actions?](#how-does-local-app-development-work-with-github-actions)
+- [Why is the GitHub Actions deployment so slow?](#why-is-the-github-actions-deployment-so-slow)
+- [I don't have permissions to create a user-assigned identity](#i-dont-have-permissions-to-create-a-user-assigned-identity)
+- [What can I do with GitHub Copilot in my codespace?](#what-can-i-do-with-github-copilot-in-my-codespace)
+
+::: zone-end
+
+#### How much does this setup cost?
+
+Pricing for the created resources is as follows:
+
+- The App Service plan is created in **Basic** tier and can be scaled up or down. See [App Service pricing](https://azure.microsoft.com/pricing/details/app-service/linux/).
+- The MySQL flexible server is created in **B1ms** tier and can be scaled up or down. With an Azure free account, **B1ms** tier is free for 12 months, up to the monthly limits. See [Azure Database for MySQL pricing](https://azure.microsoft.com/pricing/details/mysql/flexible-server/).
+- The Azure Cache for Redis is created in **Basic** tier with the minimum cache size. There's a small cost associated with this tier. You can scale it up to higher performance tiers for higher availability, clustering, and other features. See [Azure Cache for Redis pricing](https://azure.microsoft.com/pricing/details/cache/).
+- The virtual network doesn't incur a charge unless you configure extra functionality, such as peering. See [Azure Virtual Network pricing](https://azure.microsoft.com/pricing/details/virtual-network/).
+- The private DNS zone incurs a small charge. See [Azure DNS pricing](https://azure.microsoft.com/pricing/details/dns/). 
+
+#### How do I connect to the MySQL database that's secured behind the virtual network with other tools?
+
+- For basic access from a command-line tool, you can run `mysql` from the app's SSH terminal.
+- To connect from a desktop tool like MySQL Workbench, your computer must be within the virtual network. For example, it could be an Azure virtual machine that's connected to one of the subnets, or a computer in an on-premises network that has a [site-to-site VPN](../vpn-gateway/vpn-gateway-about-vpngateways.md) connection with the Azure virtual network.
+- You can also [integrate Azure Cloud Shell](../cloud-shell/private-vnet.md) with the virtual network.
+
+::: zone pivot="azure-portal"
+
+#### How do I change the APP_KEY app setting to a Key Vault reference?
+
+From the Azure portal steps in [Configure Laravel variables](#configure-laravel-variables), you can change `APP_KEY` to a Key Vault reference by running the following Azure CLI commands in the GitHub codespace:
+
+```azurecli-interactive
+# Change the following variables to match your environment
+SUBSCRIPTION_ID=<subscription-id>
+RESOURCE_GROUP=<resource-group-name>
+KEY_VAULT_NAME=<key-vault-name>
+APP_SERVICE_NAME=<app-name>
+SECRET_NAME=laravelAppKey
+
+# Set the subscription ID
+az account set --subscription $SUBSCRIPTION_ID
+
+# Assign 'Key Vault Secrets Officer' role to your user at the scope of the key vault
+az role assignment create \
+  --assignee $(az ad signed-in-user show --query id -o tsv) \
+  --role $(az role definition list --name "Key Vault Secrets Officer" --query "[].id" -o tsv) \
+  --scope $(az keyvault show --name $KEY_VAULT_NAME --resource-group $RESOURCE_GROUP --query id --output tsv)
+
+# Add the secret to the key vault
+az keyvault secret set \
+  --vault-name $KEY_VAULT_NAME \
+  --name $SECRET_NAME \
+  --value $(php artisan key:generate --show)
+
+# Add Key Vault reference to the App Service configuration
+az webapp config appsettings set \
+  --resource-group $RESOURCE_GROUP \
+  --name $APP_SERVICE_NAME \
+  --settings "APP_KEY=@Microsoft.KeyVault(SecretUri=https://$KEY_VAULT_NAME.vault.azure.net/secrets/$SECRET_NAME)"
+```
+
+You can also do the same thing in the Azure portal. For more information, see:
+
+1. [Key Vault scope role assignment](/azure/key-vault/general/rbac-guide?tabs=azure-portal)
+1. [Add a secret to Key Vault](/azure/key-vault/secrets/quick-create-portal)
+1. [Retrieve a secret from Key Vault](/azure/key-vault/secrets/quick-create-portal)
+1. [Configure app settings](configure-common.md?tabs=portal#configure-app-settings)
+
+::: zone-end
+
+#### How does local app development work with GitHub Actions?
+
+Take the autogenerated workflow file from App Service as an example. Each `git push` kicks off a new build and deployment run. From a local clone of the GitHub repository, you make the desired updates push it to GitHub. For example:
+
+```terminal
+git add .
+git commit -m "<some-message>"
+git push origin main
+```
+
+#### Why is the GitHub Actions deployment so slow?
+
+The autogenerated workflow file from App Service defines build-then-deploy, two-job run. Because each job runs in its own clean environment, the workflow file ensures that the `deploy` job has access to the files from the `build` job:
+
+- At the end of the `build` job, [upload files as artifacts](https://docs.github.com/actions/using-workflows/storing-workflow-data-as-artifacts).
+- At the beginning of the `deploy` job, download the artifacts.
+
+Most of the time taken by the two-job process is spent uploading and download artifacts. If you want, you can simplify the workflow file by combining the two jobs into one, which eliminates the need for the upload and download steps.
+
+#### I don't have permissions to create a user-assigned identity
+
+See [Set up GitHub Actions deployment from the Deployment Center](deploy-github-actions.md#set-up-github-actions-deployment-from-the-deployment-center).
+
+#### What can I do with GitHub Copilot in my codespace?
+
+You might notice that the GitHub Copilot chat view was already there for you when you created the codespace. For your convenience, we include the GitHub Copilot chat extension in the container definition (see *.devcontainer/devcontainer.json*). However, you need a [GitHub Copilot account](https://docs.github.com/copilot/using-github-copilot/using-github-copilot-code-suggestions-in-your-editor) (30-day free trial available). 
+
+A few tips for you when you talk to GitHub Copilot:
+
+- In a single chat session, the questions and answers build on each other and you can adjust your questions to fine-tune the answer you get.
+- By default, GitHub Copilot doesn't have access to any file in your repository. To ask questions about a file, open the file in the editor first.
+- To let GitHub Copilot have access to all of the files in the repository when preparing its answers, begin your question with `@workspace`. For more information, see [Use the @workspace agent](https://github.blog/2024-03-25-how-to-use-github-copilot-in-your-ide-tips-tricks-and-best-practices/#10-use-the-workspace-agent).
+- In the chat session, GitHub Copilot can suggest changes and, with `@workspace`, even where to make the changes, but it's not allowed to make the changes for you. It's up to you to add the suggested changes and test it.
 
 <a name="next"></a>
 
-## Next steps
+## Related content
 
-In this tutorial, you learned how to:
-
-> [!div class="checklist"]
-> * Create a MySQL database in Azure
-> * Connect a PHP app to MySQL
-> * Deploy the app to Azure
-> * Update the data model and redeploy the app
-> * Stream diagnostic logs from Azure
-> * Manage the app in the Azure portal
-
-Advance to the next tutorial to learn how to map a custom DNS name to the app.
+Advance to the next tutorial to learn how to secure your app with a custom domain and certificate.
 
 > [!div class="nextstepaction"]
-> [Tutorial: Map custom DNS name to your app](app-service-web-tutorial-custom-domain.md)
+> [Secure with custom domain and certificate](tutorial-secure-domain-certificate.md)
 
-Or, check out other resources:
+Or review this resource:
 
-> [!div class="nextstepaction"]
-> [Configure PHP app](configure-language-php.md)
+- [Configure PHP app](configure-language-php.md)

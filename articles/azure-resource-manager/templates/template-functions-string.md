@@ -1,12 +1,14 @@
 ---
 title: Template functions - string
-description: Describes the functions to use in an Azure Resource Manager template to work with strings.
-ms.topic: conceptual
-ms.date: 04/08/2020
+description: Describes the functions to use in an Azure Resource Manager template (ARM template) to work with strings.
+ms.topic: reference
+ms.custom: devx-track-arm-template
+ms.date: 08/01/2025
 ---
+
 # String functions for ARM templates
 
-Resource Manager provides the following functions for working with strings in your Azure Resource Manager (ARM) templates:
+Resource Manager provides the following functions for working with strings in your Azure Resource Manager template (ARM template):
 
 * [base64](#base64)
 * [base64ToJson](#base64tojson)
@@ -21,6 +23,8 @@ Resource Manager provides the following functions for working with strings in yo
 * [format](#format)
 * [guid](#guid)
 * [indexOf](#indexof)
+* [join](#join)
+* [json](#json)
 * [last](#last)
 * [lastIndexOf](#lastindexof)
 * [length](#length)
@@ -41,11 +45,16 @@ Resource Manager provides the following functions for working with strings in yo
 * [uriComponent](#uricomponent)
 * [uriComponentToString](#uricomponenttostring)
 
+> [!TIP]
+> [Bicep](../bicep/overview.md) is recommended since it offers the same capabilities as ARM templates, and the syntax is easier to use. To learn more, see [string](../bicep/bicep-functions-string.md) functions.
+
 ## base64
 
 `base64(inputString)`
 
 Returns the base64 representation of the input string.
+
+In Bicep, use the [`base64`](../bicep/bicep-functions-string.md#base64) function.
 
 ### Parameters
 
@@ -59,46 +68,31 @@ A string containing the base64 representation.
 
 ### Examples
 
-The following [example template](https://github.com/Azure/azure-docs-json-samples/blob/master/azure-resource-manager/functions/base64.json) shows how to use the base64 function.
+The following example shows how to use the `base64` function:
 
 ```json
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "stringData": {
-            "type": "string",
-            "defaultValue": "one, two, three"
-        },
-        "jsonFormattedData": {
-            "type": "string",
-            "defaultValue": "{'one': 'a', 'two': 'b'}"
-        }
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "storageResourceGroup": {
+      "type": "string"
     },
-    "variables": {
-        "base64String": "[base64(parameters('stringData'))]",
-        "base64Object": "[base64(parameters('jsonFormattedData'))]"
-    },
-    "resources": [
-    ],
-    "outputs": {
-        "base64Output": {
-            "type": "string",
-            "value": "[variables('base64String')]"
-        },
-        "toStringOutput": {
-            "type": "string",
-            "value": "[base64ToString(variables('base64String'))]"
-        },
-        "toJsonOutput": {
-            "type": "object",
-            "value": "[base64ToJson(variables('base64Object'))]"
-        }
+    "storageAccountName": {
+      "type": "string"
     }
+  },
+  "resources": [],
+  "outputs": {
+    "ExistingStorage": {
+      "type": "object",
+      "value": "[reference(resourceId(parameters('storageResourceGroup'), 'Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2021-04-01')]"
+    }
+  }
 }
 ```
 
-The output from the preceding example with the default values is:
+The output of default values from the preceding example is:
 
 | Name | Type | Value |
 | ---- | ---- | ----- |
@@ -108,9 +102,11 @@ The output from the preceding example with the default values is:
 
 ## base64ToJson
 
-`base64tojson`
+`base64ToJson(base64Value)`
 
 Converts a base64 representation to a JSON object.
+
+In Bicep, use the [`base64ToJson`](../bicep/bicep-functions-string.md#base64tojson) function.
 
 ### Parameters
 
@@ -124,46 +120,31 @@ A JSON object.
 
 ### Examples
 
-The following [example template](https://github.com/Azure/azure-docs-json-samples/blob/master/azure-resource-manager/functions/base64.json) uses the base64ToJson function to convert a base64 value:
+The following example uses the `base64ToJson` function to convert a base64 value:
 
 ```json
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "stringData": {
-            "type": "string",
-            "defaultValue": "one, two, three"
-        },
-        "jsonFormattedData": {
-            "type": "string",
-            "defaultValue": "{'one': 'a', 'two': 'b'}"
-        }
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "storageResourceGroup": {
+      "type": "string"
     },
-    "variables": {
-        "base64String": "[base64(parameters('stringData'))]",
-        "base64Object": "[base64(parameters('jsonFormattedData'))]"
-    },
-    "resources": [
-    ],
-    "outputs": {
-        "base64Output": {
-            "type": "string",
-            "value": "[variables('base64String')]"
-        },
-        "toStringOutput": {
-            "type": "string",
-            "value": "[base64ToString(variables('base64String'))]"
-        },
-        "toJsonOutput": {
-            "type": "object",
-            "value": "[base64ToJson(variables('base64Object'))]"
-        }
+    "storageAccountName": {
+      "type": "string"
     }
+  },
+  "resources": [],
+  "outputs": {
+    "ExistingStorage": {
+      "type": "object",
+      "value": "[reference(resourceId(parameters('storageResourceGroup'), 'Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2021-04-01')]"
+    }
+  }
 }
 ```
 
-The output from the preceding example with the default values is:
+The output of default values from the preceding example is:
 
 | Name | Type | Value |
 | ---- | ---- | ----- |
@@ -177,6 +158,8 @@ The output from the preceding example with the default values is:
 
 Converts a base64 representation to a string.
 
+In Bicep, use the [`base64ToString`](../bicep/bicep-functions-string.md#base64tostring) function.
+
 ### Parameters
 
 | Parameter | Required | Type | Description |
@@ -189,46 +172,31 @@ A string of the converted base64 value.
 
 ### Examples
 
-The following [example template](https://github.com/Azure/azure-docs-json-samples/blob/master/azure-resource-manager/functions/base64.json) uses the base64ToString function to convert a base64 value:
+The following example uses the `base64ToString` function to convert a base64 value:
 
 ```json
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "stringData": {
-            "type": "string",
-            "defaultValue": "one, two, three"
-        },
-        "jsonFormattedData": {
-            "type": "string",
-            "defaultValue": "{'one': 'a', 'two': 'b'}"
-        }
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "storageResourceGroup": {
+      "type": "string"
     },
-    "variables": {
-        "base64String": "[base64(parameters('stringData'))]",
-        "base64Object": "[base64(parameters('jsonFormattedData'))]"
-    },
-    "resources": [
-    ],
-    "outputs": {
-        "base64Output": {
-            "type": "string",
-            "value": "[variables('base64String')]"
-        },
-        "toStringOutput": {
-            "type": "string",
-            "value": "[base64ToString(variables('base64String'))]"
-        },
-        "toJsonOutput": {
-            "type": "object",
-            "value": "[base64ToJson(variables('base64Object'))]"
-        }
+    "storageAccountName": {
+      "type": "string"
     }
+  },
+  "resources": [],
+  "outputs": {
+    "ExistingStorage": {
+      "type": "object",
+      "value": "[reference(resourceId(parameters('storageResourceGroup'), 'Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2021-04-01')]"
+    }
+  }
 }
 ```
 
-The output from the preceding example with the default values is:
+The output of default values from the preceding example is:
 
 | Name | Type | Value |
 | ---- | ---- | ----- |
@@ -238,18 +206,20 @@ The output from the preceding example with the default values is:
 
 ## concat
 
-`concat (arg1, arg2, arg3, ...)`
+`concat(arg1, arg2, arg3, ...)`
 
 Combines multiple string values and returns the concatenated string, or combines multiple arrays and returns the concatenated array.
+
+In Bicep, use [string interpolation](../bicep/data-types.md#strings) instead of the [`concat()`](../bicep/bicep-functions-string.md#concat) function to improve readability. However, in some cases such as string replacement in [multi-line strings](../bicep/data-types.md#multi-line-strings), you may need to fall back on using the [`concat()`](../bicep/bicep-functions-string.md#concat) function or the [`replace()`](../bicep/bicep-functions-string.md#replace) function.
 
 ### Parameters
 
 | Parameter | Required | Type | Description |
 |:--- |:--- |:--- |:--- |
 | arg1 |Yes |string or array |The first string or array for concatenation. |
-| additional arguments |No |string or array |Additional strings or arrays in sequential order for concatenation. |
+| more arguments |No |string or array |More strings or arrays in sequential order for concatenation. |
 
-This function can take any number of arguments, and can accept either strings or arrays for the parameters. However, you can't provide both arrays and strings for parameters. Strings are only concatenated with other strings.
+This function can take any number of arguments and can accept strings or arrays for the parameters. However, you can't provide both arrays and strings for parameters. Strings are only concatenated with other strings.
 
 ### Return value
 
@@ -257,70 +227,70 @@ A string or array of concatenated values.
 
 ### Examples
 
-The following [example template](https://github.com/Azure/azure-docs-json-samples/blob/master/azure-resource-manager/functions/concat-string.json) shows how to combine two string values and return a concatenated string.
+The following example shows how to combine two string values and return a concatenated string:
 
 ```json
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "prefix": {
-            "type": "string",
-            "defaultValue": "prefix"
-        }
-    },
-    "resources": [],
-    "outputs": {
-        "concatOutput": {
-            "value": "[concat(parameters('prefix'), '-', uniqueString(resourceGroup().id))]",
-            "type" : "string"
-        }
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "prefix": {
+      "type": "string",
+      "defaultValue": "prefix"
     }
+  },
+  "resources": [],
+  "outputs": {
+    "concatOutput": {
+      "type": "string",
+      "value": "[concat(parameters('prefix'), '-', uniqueString(resourceGroup().id))]"
+    }
+  }
 }
 ```
 
-The output from the preceding example with the default values is:
+The output of default values from the preceding example is:
 
 | Name | Type | Value |
 | ---- | ---- | ----- |
 | concatOutput | String | prefix-5yj4yjf5mbg72 |
 
-The following [example template](https://github.com/Azure/azure-docs-json-samples/blob/master/azure-resource-manager/functions/concat-array.json) shows how to combine two arrays.
+The following example shows how to combine two arrays:
 
 ```json
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "firstArray": {
-            "type": "array",
-            "defaultValue": [
-                "1-1",
-                "1-2",
-                "1-3"
-            ]
-        },
-        "secondArray": {
-            "type": "array",
-            "defaultValue": [
-                "2-1",
-                "2-2",
-                "2-3"
-            ]
-        }
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "firstArray": {
+      "type": "array",
+      "defaultValue": [
+        "1-1",
+        "1-2",
+        "1-3"
+      ]
     },
-    "resources": [
-    ],
-    "outputs": {
-        "return": {
-            "type": "array",
-            "value": "[concat(parameters('firstArray'), parameters('secondArray'))]"
-        }
+    "secondArray": {
+      "type": "array",
+      "defaultValue": [
+        "2-1",
+        "2-2",
+        "2-3"
+      ]
     }
+  },
+  "resources": [
+  ],
+  "outputs": {
+    "return": {
+      "type": "array",
+      "value": "[concat(parameters('firstArray'), parameters('secondArray'))]"
+    }
+  }
 }
 ```
 
-The output from the preceding example with the default values is:
+The output of default values from the preceding example is:
 
 | Name | Type | Value |
 | ---- | ---- | ----- |
@@ -328,9 +298,11 @@ The output from the preceding example with the default values is:
 
 ## contains
 
-`contains (container, itemToFind)`
+`contains(container, itemToFind)`
 
-Checks whether an array contains a value, an object contains a key, or a string contains a substring. The string comparison is case-sensitive. However, when testing if an object contains a key, the comparison is case-insensitive.
+Checks if an array contains a value, an object contains a key, or a string contains a substring. The string comparison is case-sensitive. However, when testing if an object contains a key, the comparison is case-insensitive.
+
+In Bicep, use the [`contains`](../bicep/bicep-functions-string.md#contains) function.
 
 ### Parameters
 
@@ -341,62 +313,66 @@ Checks whether an array contains a value, an object contains a key, or a string 
 
 ### Return value
 
-**True** if the item is found; otherwise, **False**.
+`True` if the item is found; otherwise, `False`.
 
 ### Examples
 
-The following [example template](https://github.com/Azure/azure-docs-json-samples/blob/master/azure-resource-manager/functions/contains.json) shows how to use contains with different types:
+The following example shows how to use `contains` with different types:
 
 ```json
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "stringToTest": {
-            "type": "string",
-            "defaultValue": "OneTwoThree"
-        },
-        "objectToTest": {
-            "type": "object",
-            "defaultValue": {"one": "a", "two": "b", "three": "c"}
-        },
-        "arrayToTest": {
-            "type": "array",
-            "defaultValue": ["one", "two", "three"]
-        }
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "stringToTest": {
+      "type": "string",
+      "defaultValue": "OneTwoThree"
     },
-    "resources": [
-    ],
-    "outputs": {
-        "stringTrue": {
-            "type": "bool",
-            "value": "[contains(parameters('stringToTest'), 'e')]"
-        },
-        "stringFalse": {
-            "type": "bool",
-            "value": "[contains(parameters('stringToTest'), 'z')]"
-        },
-        "objectTrue": {
-            "type": "bool",
-            "value": "[contains(parameters('objectToTest'), 'one')]"
-        },
-        "objectFalse": {
-            "type": "bool",
-            "value": "[contains(parameters('objectToTest'), 'a')]"
-        },
-        "arrayTrue": {
-            "type": "bool",
-            "value": "[contains(parameters('arrayToTest'), 'three')]"
-        },
-        "arrayFalse": {
-            "type": "bool",
-            "value": "[contains(parameters('arrayToTest'), 'four')]"
-        }
+    "objectToTest": {
+      "type": "object",
+      "defaultValue": {
+        "one": "a",
+        "two": "b",
+        "three": "c"
+      }
+    },
+    "arrayToTest": {
+      "type": "array",
+      "defaultValue": [ "one", "two", "three" ]
     }
+  },
+  "resources": [
+  ],
+  "outputs": {
+    "stringTrue": {
+      "type": "bool",
+      "value": "[contains(parameters('stringToTest'), 'e')]"
+    },
+    "stringFalse": {
+      "type": "bool",
+      "value": "[contains(parameters('stringToTest'), 'z')]"
+    },
+    "objectTrue": {
+      "type": "bool",
+      "value": "[contains(parameters('objectToTest'), 'one')]"
+    },
+    "objectFalse": {
+      "type": "bool",
+      "value": "[contains(parameters('objectToTest'), 'a')]"
+    },
+    "arrayTrue": {
+      "type": "bool",
+      "value": "[contains(parameters('arrayToTest'), 'three')]"
+    },
+    "arrayFalse": {
+      "type": "bool",
+      "value": "[contains(parameters('arrayToTest'), 'four')]"
+    }
+  }
 }
 ```
 
-The output from the preceding example with the default values is:
+The output of default values from the preceding example is:
 
 | Name | Type | Value |
 | ---- | ---- | ----- |
@@ -413,6 +389,8 @@ The output from the preceding example with the default values is:
 
 Converts a value to a data URI.
 
+In Bicep, use the [`dataUri`](../bicep/bicep-functions-string.md#datauri) function.
+
 ### Parameters
 
 | Parameter | Required | Type | Description |
@@ -425,37 +403,37 @@ A string formatted as a data URI.
 
 ### Examples
 
-The following [example template](https://github.com/Azure/azure-docs-json-samples/blob/master/azure-resource-manager/functions/datauri.json) converts a value to a data URI, and converts a data URI to a string:
+The following example converts a value to a data URI and a data URI to a string:
 
 ```json
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "stringToTest": {
-            "type": "string",
-            "defaultValue": "Hello"
-        },
-        "dataFormattedString": {
-            "type": "string",
-            "defaultValue": "data:;base64,SGVsbG8sIFdvcmxkIQ=="
-        }
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "stringToTest": {
+      "type": "string",
+      "defaultValue": "Hello"
     },
-    "resources": [],
-    "outputs": {
-        "dataUriOutput": {
-            "value": "[dataUri(parameters('stringToTest'))]",
-            "type" : "string"
-        },
-        "toStringOutput": {
-            "type": "string",
-            "value": "[dataUriToString(parameters('dataFormattedString'))]"
-        }
+    "dataFormattedString": {
+      "type": "string",
+      "defaultValue": "data:;base64,SGVsbG8sIFdvcmxkIQ=="
     }
+  },
+  "resources": [],
+  "outputs": {
+    "dataUriOutput": {
+      "value": "[dataUri(parameters('stringToTest'))]",
+      "type": "string"
+    },
+    "toStringOutput": {
+      "type": "string",
+      "value": "[dataUriToString(parameters('dataFormattedString'))]"
+    }
+  }
 }
 ```
 
-The output from the preceding example with the default values is:
+The output of default values from the preceding example is:
 
 | Name | Type | Value |
 | ---- | ---- | ----- |
@@ -467,6 +445,8 @@ The output from the preceding example with the default values is:
 `dataUriToString(dataUriToConvert)`
 
 Converts a data URI formatted value to a string.
+
+In Bicep, use the [`dataUriToString`](../bicep/bicep-functions-string.md#datauritostring) function.
 
 ### Parameters
 
@@ -480,37 +460,37 @@ A string containing the converted value.
 
 ### Examples
 
-The following [example template](https://github.com/Azure/azure-docs-json-samples/blob/master/azure-resource-manager/functions/datauri.json) converts a value to a data URI, and converts a data URI to a string:
+The following example template converts a value to a data URI and a data URI to a string:
 
 ```json
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "stringToTest": {
-            "type": "string",
-            "defaultValue": "Hello"
-        },
-        "dataFormattedString": {
-            "type": "string",
-            "defaultValue": "data:;base64,SGVsbG8sIFdvcmxkIQ=="
-        }
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "stringToTest": {
+      "type": "string",
+      "defaultValue": "Hello"
     },
-    "resources": [],
-    "outputs": {
-        "dataUriOutput": {
-            "value": "[dataUri(parameters('stringToTest'))]",
-            "type" : "string"
-        },
-        "toStringOutput": {
-            "type": "string",
-            "value": "[dataUriToString(parameters('dataFormattedString'))]"
-        }
+    "dataFormattedString": {
+      "type": "string",
+      "defaultValue": "data:;base64,SGVsbG8sIFdvcmxkIQ=="
     }
+  },
+  "resources": [],
+  "outputs": {
+    "dataUriOutput": {
+      "value": "[dataUri(parameters('stringToTest'))]",
+      "type": "string"
+    },
+    "toStringOutput": {
+      "type": "string",
+      "value": "[dataUriToString(parameters('dataFormattedString'))]"
+    }
+  }
 }
 ```
 
-The output from the preceding example with the default values is:
+The output of default values from the preceding example is:
 
 | Name | Type | Value |
 | ---- | ---- | ----- |
@@ -523,6 +503,8 @@ The output from the preceding example with the default values is:
 
 Determines if an array, object, or string is empty.
 
+In Bicep, use the [`empty`](../bicep/bicep-functions-string.md#empty) function.
+
 ### Parameters
 
 | Parameter | Required | Type | Description |
@@ -531,50 +513,50 @@ Determines if an array, object, or string is empty.
 
 ### Return value
 
-Returns **True** if the value is empty; otherwise, **False**.
+Returns `True` if the value is empty; otherwise, `False`.
 
 ### Examples
 
-The following [example template](https://github.com/Azure/azure-docs-json-samples/blob/master/azure-resource-manager/functions/empty.json) checks whether an array, object, and string are empty.
+The following example checks if an array, object, and string are empty:
 
 ```json
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "testArray": {
-            "type": "array",
-            "defaultValue": []
-        },
-        "testObject": {
-            "type": "object",
-            "defaultValue": {}
-        },
-        "testString": {
-            "type": "string",
-            "defaultValue": ""
-        }
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "testArray": {
+      "type": "array",
+      "defaultValue": []
     },
-    "resources": [
-    ],
-    "outputs": {
-        "arrayEmpty": {
-            "type": "bool",
-            "value": "[empty(parameters('testArray'))]"
-        },
-        "objectEmpty": {
-            "type": "bool",
-            "value": "[empty(parameters('testObject'))]"
-        },
-        "stringEmpty": {
-            "type": "bool",
-            "value": "[empty(parameters('testString'))]"
-        }
+    "testObject": {
+      "type": "object",
+      "defaultValue": {}
+    },
+    "testString": {
+      "type": "string",
+      "defaultValue": ""
     }
+  },
+  "resources": [
+  ],
+  "outputs": {
+    "arrayEmpty": {
+      "type": "bool",
+      "value": "[empty(parameters('testArray'))]"
+    },
+    "objectEmpty": {
+      "type": "bool",
+      "value": "[empty(parameters('testObject'))]"
+    },
+    "stringEmpty": {
+      "type": "bool",
+      "value": "[empty(parameters('testString'))]"
+    }
+  }
 }
 ```
 
-The output from the preceding example with the default values is:
+The output of default values from the preceding example is:
 
 | Name | Type | Value |
 | ---- | ---- | ----- |
@@ -586,7 +568,9 @@ The output from the preceding example with the default values is:
 
 `endsWith(stringToSearch, stringToFind)`
 
-Determines whether a string ends with a value. The comparison is case-insensitive.
+Determines if a string ends with a value. The comparison is case-insensitive.
+
+In Bicep, use the [`endsWith`](../bicep/bicep-functions-string.md#endswith) function.
 
 ### Parameters
 
@@ -597,47 +581,47 @@ Determines whether a string ends with a value. The comparison is case-insensitiv
 
 ### Return value
 
-**True** if the last character or characters of the string match the value; otherwise, **False**.
+`True` if the last character or characters of the string match the value; otherwise, `False`.
 
 ### Examples
 
-The following [example template](https://github.com/Azure/azure-docs-json-samples/blob/master/azure-resource-manager/functions/startsendswith.json) shows how to use the startsWith and endsWith functions:
+The following example shows how to use the `startsWith` and `endsWith` functions:
 
 ```json
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "resources": [],
-    "outputs": {
-        "startsTrue": {
-            "value": "[startsWith('abcdef', 'ab')]",
-            "type" : "bool"
-        },
-        "startsCapTrue": {
-            "value": "[startsWith('abcdef', 'A')]",
-            "type" : "bool"
-        },
-        "startsFalse": {
-            "value": "[startsWith('abcdef', 'e')]",
-            "type" : "bool"
-        },
-        "endsTrue": {
-            "value": "[endsWith('abcdef', 'ef')]",
-            "type" : "bool"
-        },
-        "endsCapTrue": {
-            "value": "[endsWith('abcdef', 'F')]",
-            "type" : "bool"
-        },
-        "endsFalse": {
-            "value": "[endsWith('abcdef', 'e')]",
-            "type" : "bool"
-        }
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [],
+  "outputs": {
+    "startsTrue": {
+      "type": "bool",
+      "value": "[startsWith('abcdef', 'ab')]"
+    },
+    "startsCapTrue": {
+      "type": "bool",
+      "value": "[startsWith('abcdef', 'A')]"
+    },
+    "startsFalse": {
+      "type": "bool",
+      "value": "[startsWith('abcdef', 'e')]"
+    },
+    "endsTrue": {
+      "type": "bool",
+      "value": "[endsWith('abcdef', 'ef')]"
+    },
+    "endsCapTrue": {
+      "type": "bool",
+      "value": "[endsWith('abcdef', 'F')]"
+    },
+    "endsFalse": {
+      "type": "bool",
+      "value": "[endsWith('abcdef', 'e')]"
     }
+  }
 }
 ```
 
-The output from the preceding example with the default values is:
+The output of default values from the preceding example is:
 
 | Name | Type | Value |
 | ---- | ---- | ----- |
@@ -652,7 +636,9 @@ The output from the preceding example with the default values is:
 
 `first(arg1)`
 
-Returns the first character of the string, or first element of the array.
+Returns the first character of the string, or first element of the array. If an empty string is given, the function results in an empty string. In the case of an empty array, the function returns `null`.
+
+In Bicep, use the [`first`](../bicep/bicep-functions-string.md#first) function.
 
 ### Parameters
 
@@ -662,38 +648,38 @@ Returns the first character of the string, or first element of the array.
 
 ### Return value
 
-A string of the first character, or the type (string, int, array, or object) of the first element in an array.
+A string of the first character or the type (string, int, array, or object) of the first element in an array.
 
 ### Examples
 
-The following [example template](https://github.com/Azure/azure-docs-json-samples/blob/master/azure-resource-manager/functions/first.json) shows how to use the first function with an array and string.
+The following example shows how to use the `first` function with an array and a string:
 
 ```json
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "arrayToTest": {
-            "type": "array",
-            "defaultValue": ["one", "two", "three"]
-        }
-    },
-    "resources": [
-    ],
-    "outputs": {
-        "arrayOutput": {
-            "type": "string",
-            "value": "[first(parameters('arrayToTest'))]"
-        },
-        "stringOutput": {
-            "type": "string",
-            "value": "[first('One Two Three')]"
-        }
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "arrayToTest": {
+      "type": "array",
+      "defaultValue": [ "one", "two", "three" ]
     }
+  },
+  "resources": [
+  ],
+  "outputs": {
+    "arrayOutput": {
+      "type": "string",
+      "value": "[first(parameters('arrayToTest'))]"
+    },
+    "stringOutput": {
+      "type": "string",
+      "value": "[first('One Two Three')]"
+    }
+  }
 }
 ```
 
-The output from the preceding example with the default values is:
+The output of default values from the preceding example is:
 
 | Name | Type | Value |
 | ---- | ---- | ----- |
@@ -706,13 +692,15 @@ The output from the preceding example with the default values is:
 
 Creates a formatted string from input values.
 
+In Bicep, use the [`format`](../bicep/bicep-functions-string.md#format) function.
+
 ### Parameters
 
 | Parameter | Required | Type | Description |
 |:--- |:--- |:--- |:--- |
 | formatString | Yes | string | The composite format string. |
 | arg1 | Yes | string, integer, or boolean | The value to include in the formatted string. |
-| additional arguments | No | string, integer, or boolean | Additional values to include in the formatted string. |
+| more arguments | No | string, integer, or boolean | More values to include in the formatted string. |
 
 ### Remarks
 
@@ -720,38 +708,38 @@ Use this function to format a string in your template. It uses the same formatti
 
 ### Examples
 
-The following example template shows how to use the format function.
+The following example shows how to use the `format` function:
 
 ```json
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "greeting": {
-            "type": "string",
-            "defaultValue": "Hello"
-        },
-        "name": {
-            "type": "string",
-            "defaultValue": "User"
-        },
-        "numberToFormat": {
-            "type": "int",
-            "defaultValue": 8175133
-        }
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "greeting": {
+      "type": "string",
+      "defaultValue": "Hello"
     },
-    "resources": [
-    ],
-    "outputs": {
-        "formatTest": {
-            "type": "string",
-            "value": "[format('{0}, {1}. Formatted number: {2:N0}', parameters('greeting'), parameters('name'), parameters('numberToFormat'))]"
-        }
+    "name": {
+      "type": "string",
+      "defaultValue": "User"
+    },
+    "numberToFormat": {
+      "type": "int",
+      "defaultValue": 8175133
     }
+  },
+  "resources": [
+  ],
+  "outputs": {
+    "formatTest": {
+      "type": "string",
+      "value": "[format('{0}, {1}. Formatted number: {2:N0}', parameters('greeting'), parameters('name'), parameters('numberToFormat'))]"
+    }
+  }
 }
 ```
 
-The output from the preceding example with the default values is:
+The output of default values from the preceding example is:
 
 | Name | Type | Value |
 | ---- | ---- | ----- |
@@ -763,20 +751,22 @@ The output from the preceding example with the default values is:
 
 Creates a value in the format of a globally unique identifier based on the values provided as parameters.
 
+In Bicep, use the [`guid`](../bicep/bicep-functions-string.md#guid) function.
+
 ### Parameters
 
 | Parameter | Required | Type | Description |
 |:--- |:--- |:--- |:--- |
 | baseString |Yes |string |The value used in the hash function to create the GUID. |
-| additional parameters as needed |No |string |You can add as many strings as needed to create the value that specifies the level of uniqueness. |
+| more parameters as needed |No |string |You can add as many strings as needed to create the value that specifies the level of uniqueness. |
 
 ### Remarks
 
-This function is helpful when you need to create a value in the format of a globally unique identifier. You provide parameter values that limit the scope of uniqueness for the result. You can specify whether the name is unique down to subscription, resource group, or deployment.
+This function is helpful when you need to create a value in the format of a globally unique identifier. You provide parameter values that limit the scope of uniqueness for the result. You can specify if the name is unique down to subscription, resource group, or deployment.
 
-The returned value isn't a random string, but rather the result of a hash function on the parameters. The returned value is 36 characters long. It isn't globally unique. To create a new GUID that isn't based on that hash value of the parameters, use the [newGuid](#newguid) function.
+The returned value isn't a random string, but rather the result of a hash function on the parameters. The returned value is 36 characters long. It isn't globally unique. To create a new GUID that'sn't based on that hash value of the parameters, use the [`newGuid`](#newguid) function.
 
-The following examples show how to use guid to create a unique value for commonly used levels.
+The following examples show how to use `guid` to create a unique value for commonly used levels:
 
 Unique scoped to subscription
 
@@ -796,35 +786,37 @@ Unique scoped to deployment for a resource group
 "[guid(resourceGroup().id, deployment().name)]"
 ```
 
+The `guid` function implements the algorithm from [RFC 4122 §4.3](https://www.ietf.org/rfc/rfc4122.txt). The original source can be found in [GuidUtility](https://github.com/LogosBible/Logos.Utility/blob/e7fc45123da090b8cf34da194a1161ed6a34d20d/src/Logos.Utility/GuidUtility.cs) with some modifications. In the `guid()` function implementation, the `namespaceId` is set to `11fb06fb-712d-4ddd-98c7-e71bbd588830`, and the `version` is set to `5`. The value is generated by converting each parameter of the `guid()` function to a string and concatenating them with `-` as delimiters.
+
 ### Return value
 
 A string containing 36 characters in the format of a globally unique identifier.
 
 ### Examples
 
-The following [example template](https://github.com/Azure/azure-docs-json-samples/blob/master/azure-resource-manager/functions/guid.json) returns results from guid:
+The following example returns results from `guid`:
 
 ```json
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {},
-    "variables": {},
-    "resources": [],
-    "outputs": {
-        "guidPerSubscription": {
-            "value": "[guid(subscription().subscriptionId)]",
-            "type": "string"
-        },
-        "guidPerResourceGroup": {
-            "value": "[guid(resourceGroup().id)]",
-            "type": "string"
-        },
-        "guidPerDeployment": {
-            "value": "[guid(resourceGroup().id, deployment().name)]",
-            "type": "string"
-        }
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {},
+  "variables": {},
+  "resources": [],
+  "outputs": {
+    "guidPerSubscription": {
+      "type": "string",
+      "value": "[guid(subscription().subscriptionId)]"
+    },
+    "guidPerResourceGroup": {
+      "type": "string",
+      "value": "[guid(resourceGroup().id)]"
+    },
+    "guidPerDeployment": {
+      "type": "string",
+      "value": "[guid(resourceGroup().id, deployment().name)]"
     }
+  }
 }
 ```
 
@@ -833,6 +825,8 @@ The following [example template](https://github.com/Azure/azure-docs-json-sample
 `indexOf(stringToSearch, stringToFind)`
 
 Returns the first position of a value within a string. The comparison is case-insensitive.
+
+In Bicep, use the [`indexOf`](../bicep/bicep-functions-string.md#indexof) function.
 
 ### Parameters
 
@@ -847,39 +841,39 @@ An integer that represents the position of the item to find. The value is zero-b
 
 ### Examples
 
-The following [example template](https://github.com/Azure/azure-docs-json-samples/blob/master/azure-resource-manager/functions/indexof.json) shows how to use the indexOf and lastIndexOf functions:
+The following example shows how to use the `indexOf` and `lastIndexOf` functions:
 
 ```json
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "resources": [],
-    "outputs": {
-        "firstT": {
-            "value": "[indexOf('test', 't')]",
-            "type" : "int"
-        },
-        "lastT": {
-            "value": "[lastIndexOf('test', 't')]",
-            "type" : "int"
-        },
-        "firstString": {
-            "value": "[indexOf('abcdef', 'CD')]",
-            "type" : "int"
-        },
-        "lastString": {
-            "value": "[lastIndexOf('abcdef', 'AB')]",
-            "type" : "int"
-        },
-        "notFound": {
-            "value": "[indexOf('abcdef', 'z')]",
-            "type" : "int"
-        }
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [],
+  "outputs": {
+    "firstT": {
+      "type": "int",
+      "value": "[indexOf('test', 't')]"
+    },
+    "lastT": {
+      "type": "int",
+      "value": "[lastIndexOf('test', 't')]"
+    },
+    "firstString": {
+      "type": "int",
+      "value": "[indexOf('abcdef', 'CD')]"
+    },
+    "lastString": {
+      "type": "int",
+      "value": "[lastIndexOf('abcdef', 'AB')]"
+    },
+    "notFound": {
+      "type": "int",
+      "value": "[indexOf('abcdef', 'z')]"
     }
+  }
 }
 ```
 
-The output from the preceding example with the default values is:
+The output of default values from the preceding example is:
 
 | Name | Type | Value |
 | ---- | ---- | ----- |
@@ -889,11 +883,78 @@ The output from the preceding example with the default values is:
 | lastString | Int | 0 |
 | notFound | Int | -1 |
 
+## join
+
+`join(inputArray, delimiter)`
+
+Joins a string array into a single string, separated using a delimiter.
+
+In Bicep, use the [`join`](../bicep/bicep-functions-string.md#join) function.
+
+### Parameters
+
+| Parameter | Required | Type | Description |
+|:--- |:--- |:--- |:--- |
+| inputArray |Yes |array of string |An array of string to join. |
+| delimiter |Yes  |The delimiter to use for splitting the string. |
+
+### Return value
+
+A string.
+
+### Examples
+
+The following example joins the input string array into strings that are delimited by different delimiters:
+
+```json
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "variables": {
+    "arrayString": [
+      "one",
+      "two",
+      "three"
+    ]
+  },
+  "resources": [],
+  "outputs": {
+    "firstOutput": {
+      "type": "string",
+      "value": "[join(variables('arrayString'), ',')]"
+    },
+    "secondOutput": {
+      "type": "string",
+      "value": "[join(variables('arrayString'), ';')]"
+    }
+  }
+}
+```
+
+The output from the preceding example is:
+
+| Name | Type | Value |
+| ---- | ---- | ----- |
+| firstOutput | String | "one,two,three" |
+| secondOutput | String | "one;two;three" |
+
+<a id="json"></a>
+
+## json
+
+`json(arg1)`
+
+Converts a valid JSON string into a JSON data type. For more information, see [`json`](template-functions-object.md#json) function.
+
+In Bicep, use the [`json`](../bicep/bicep-functions-string.md#json) function.
+
 ## last
 
-`last (arg1)`
+`last(arg1)`
 
 Returns last character of the string, or the last element of the array.
+
+In Bicep, use the [`last`](../bicep/bicep-functions-string.md#last) function.
 
 ### Parameters
 
@@ -907,34 +968,34 @@ A string of the last character, or the type (string, int, array, or object) of t
 
 ### Examples
 
-The following [example template](https://github.com/Azure/azure-docs-json-samples/blob/master/azure-resource-manager/functions/last.json) shows how to use the last function with an array and string.
+The following example shows how to use the `last` function with an array and a string:
 
 ```json
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "arrayToTest": {
-            "type": "array",
-            "defaultValue": ["one", "two", "three"]
-        }
-    },
-    "resources": [
-    ],
-    "outputs": {
-        "arrayOutput": {
-            "type": "string",
-            "value": "[last(parameters('arrayToTest'))]"
-        },
-        "stringOutput": {
-            "type": "string",
-            "value": "[last('One Two Three')]"
-        }
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "arrayToTest": {
+      "type": "array",
+      "defaultValue": [ "one", "two", "three" ]
     }
+  },
+  "resources": [
+  ],
+  "outputs": {
+    "arrayOutput": {
+      "type": "string",
+      "value": "[last(parameters('arrayToTest'))]"
+    },
+    "stringOutput": {
+      "type": "string",
+      "value": "[last('One Two Three')]"
+    }
+  }
 }
 ```
 
-The output from the preceding example with the default values is:
+The output of default values from the preceding example is:
 
 | Name | Type | Value |
 | ---- | ---- | ----- |
@@ -946,6 +1007,8 @@ The output from the preceding example with the default values is:
 `lastIndexOf(stringToSearch, stringToFind)`
 
 Returns the last position of a value within a string. The comparison is case-insensitive.
+
+In Bicep, use the [`lastIndexOf`](../bicep/bicep-functions-string.md#lastindexof) function.
 
 ### Parameters
 
@@ -960,39 +1023,39 @@ An integer that represents the last position of the item to find. The value is z
 
 ### Examples
 
-The following [example template](https://github.com/Azure/azure-docs-json-samples/blob/master/azure-resource-manager/functions/indexof.json) shows how to use the indexOf and lastIndexOf functions:
+The following example shows how to use the `indexOf` and `lastIndexOf` functions:
 
 ```json
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "resources": [],
-    "outputs": {
-        "firstT": {
-            "value": "[indexOf('test', 't')]",
-            "type" : "int"
-        },
-        "lastT": {
-            "value": "[lastIndexOf('test', 't')]",
-            "type" : "int"
-        },
-        "firstString": {
-            "value": "[indexOf('abcdef', 'CD')]",
-            "type" : "int"
-        },
-        "lastString": {
-            "value": "[lastIndexOf('abcdef', 'AB')]",
-            "type" : "int"
-        },
-        "notFound": {
-            "value": "[indexOf('abcdef', 'z')]",
-            "type" : "int"
-        }
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [],
+  "outputs": {
+    "firstT": {
+      "type": "int",
+      "value": "[indexOf('test', 't')]"
+    },
+    "lastT": {
+      "type": "int",
+      "value": "[lastIndexOf('test', 't')]"
+    },
+    "firstString": {
+      "type": "int",
+      "value": "[indexOf('abcdef', 'CD')]"
+    },
+    "lastString": {
+      "type": "int",
+      "value": "[lastIndexOf('abcdef', 'AB')]"
+    },
+    "notFound": {
+      "type": "int",
+      "value": "[indexOf('abcdef', 'z')]"
     }
+  }
 }
 ```
 
-The output from the preceding example with the default values is:
+The output of default values from the preceding example is:
 
 | Name | Type | Value |
 | ---- | ---- | ----- |
@@ -1008,6 +1071,8 @@ The output from the preceding example with the default values is:
 
 Returns the number of characters in a string, elements in an array, or root-level properties in an object.
 
+In Bicep, use the [`length`](../bicep/bicep-functions-string.md#length) function.
+
 ### Parameters
 
 | Parameter | Required | Type | Description |
@@ -1020,57 +1085,57 @@ An int.
 
 ### Examples
 
-The following [example template](https://github.com/Azure/azure-docs-json-samples/blob/master/azure-resource-manager/functions/length.json) shows how to use length with an array and string:
+The following example shows how to use the `length` function with an array and a string:
 
 ```json
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "arrayToTest": {
-            "type": "array",
-            "defaultValue": [
-                "one",
-                "two",
-                "three"
-            ]
-        },
-        "stringToTest": {
-            "type": "string",
-            "defaultValue": "One Two Three"
-        },
-        "objectToTest": {
-            "type": "object",
-            "defaultValue": {
-                "propA": "one",
-                "propB": "two",
-                "propC": "three",
-                "propD": {
-                    "propD-1": "sub",
-                    "propD-2": "sub"
-                }
-            }
-        }
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "arrayToTest": {
+      "type": "array",
+      "defaultValue": [
+        "one",
+        "two",
+        "three"
+      ]
     },
-    "resources": [],
-    "outputs": {
-        "arrayLength": {
-            "type": "int",
-            "value": "[length(parameters('arrayToTest'))]"
-        },
-        "stringLength": {
-            "type": "int",
-            "value": "[length(parameters('stringToTest'))]"
-        },
-        "objectLength": {
-            "type": "int",
-            "value": "[length(parameters('objectToTest'))]"
+    "stringToTest": {
+      "type": "string",
+      "defaultValue": "One Two Three"
+    },
+    "objectToTest": {
+      "type": "object",
+      "defaultValue": {
+        "propA": "one",
+        "propB": "two",
+        "propC": "three",
+        "propD": {
+          "propD-1": "sub",
+          "propD-2": "sub"
         }
+      }
     }
+  },
+  "resources": [],
+  "outputs": {
+    "arrayLength": {
+      "type": "int",
+      "value": "[length(parameters('arrayToTest'))]"
+    },
+    "stringLength": {
+      "type": "int",
+      "value": "[length(parameters('stringToTest'))]"
+    },
+    "objectLength": {
+      "type": "int",
+      "value": "[length(parameters('objectToTest'))]"
+    }
+  }
 }
 ```
 
-The output from the preceding example with the default values is:
+The output of default values from the preceding example is:
 
 | Name | Type | Value |
 | ---- | ---- | ----- |
@@ -1084,19 +1149,21 @@ The output from the preceding example with the default values is:
 
 Returns a value in the format of a globally unique identifier. **This function can only be used in the default value for a parameter.**
 
+In Bicep, use the [`newGuid`](../bicep/bicep-functions-string.md#newguid) function.
+
 ### Remarks
 
 You can only use this function within an expression for the default value of a parameter. Using this function anywhere else in a template returns an error. The function isn't allowed in other parts of the template because it returns a different value each time it's called. Deploying the same template with the same parameters wouldn't reliably produce the same results.
 
-The newGuid function differs from the [guid](#guid) function because it doesn't take any parameters. When you call guid with the same parameter, it returns the same identifier each time. Use guid when you need to reliably generate the same GUID for a specific environment. Use newGuid when you need a different identifier each time, such as deploying resources to a test environment.
+The newGuid function differs from the [`guid`](#guid) function because it doesn't take any parameters. When you call guid with the same parameter, it returns the same identifier each time. Use guid when you need to reliably generate the same GUID for a specific environment. Use newGuid when you need a different identifier each time, such as deploying resources to a test environment.
 
 The newGuid function uses the [Guid structure](/dotnet/api/system.guid) in the .NET Framework to generate the globally unique identifier.
 
-If you use the [option to redeploy an earlier successful deployment](rollback-on-error.md), and the earlier deployment includes a parameter that uses newGuid, the parameter isn't reevaluated. Instead, the parameter value from the earlier deployment is automatically reused in the rollback deployment.
+If you use the [option to redeploy an earlier successful deployment](rollback-on-error.md) where the earlier deployment includes a parameter that uses `newGuid`, the parameter isn't evaluated again. Instead, the rollback deployment automatically reuses the parameter value from the earlier deployment.
 
-In a test environment, you may need to repeatedly deploy resources that only live for a short time. Rather than constructing unique names, you can use newGuid with [uniqueString](#uniquestring) to create unique names.
+In a test environment, you may need to repeatedly deploy resources that only live for a short time. Rather than constructing unique names, you can use newGuid with [`uniqueString`](#uniquestring) to create unique names.
 
-Be careful redeploying a template that relies on the newGuid function for a default value. When you redeploy and don't provide a value for the parameter, the function is reevaluated. If you want to update an existing resource rather than create a new one, pass in the parameter value from the earlier deployment.
+Be careful redeploying a template that relies on the `newGuid` function for a default value. When you redeploy and don't provide a value for the parameter, the function is reevaluated. If you want to update an existing resource rather than create a new one, pass in the parameter value from the earlier deployment.
 
 ### Return value
 
@@ -1104,26 +1171,26 @@ A string containing 36 characters in the format of a globally unique identifier.
 
 ### Examples
 
-The following example template shows a parameter with a new identifier.
+The following example shows a parameter with a new identifier:
 
 ```json
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "guidValue": {
-            "type": "string",
-            "defaultValue": "[newGuid()]"
-        }
-    },
-    "resources": [
-    ],
-    "outputs": {
-        "guidOutput": {
-            "type": "string",
-            "value": "[parameters('guidValue')]"
-        }
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "guidValue": {
+      "type": "string",
+      "defaultValue": "[newGuid()]"
     }
+  },
+  "resources": [
+  ],
+  "outputs": {
+    "guidOutput": {
+      "type": "string",
+      "value": "[parameters('guidValue')]"
+    }
+  }
 }
 ```
 
@@ -1133,40 +1200,40 @@ The output from the preceding example varies for each deployment but will be sim
 | ---- | ---- | ----- |
 | guidOutput | string | b76a51fc-bd72-4a77-b9a2-3c29e7d2e551 |
 
-The following example uses the newGuid function to create a unique name for a storage account. This template might work for test environment where the storage account exists for a short time and isn't redeployed.
+The following example uses the `newGuid` function to create a unique name for a storage account. This template might work for test environment where the storage account exists for a short time and isn't deployed again:
 
 ```json
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "guidValue": {
-            "type": "string",
-            "defaultValue": "[newGuid()]"
-        }
-    },
-    "variables": {
-        "storageName": "[concat('storage', uniqueString(parameters('guidValue')))]"
-    },
-    "resources": [
-        {
-            "type": "Microsoft.Storage/storageAccounts",
-            "name": "[variables('storageName')]",
-            "location": "West US",
-            "apiVersion": "2018-07-01",
-            "sku":{
-                "name": "Standard_LRS"
-            },
-            "kind": "StorageV2",
-            "properties": {}
-        }
-    ],
-    "outputs": {
-        "nameOutput": {
-            "type": "string",
-            "value": "[variables('storageName')]"
-        }
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "guidValue": {
+      "type": "string",
+      "defaultValue": "[newGuid()]"
     }
+  },
+  "variables": {
+    "storageName": "[concat('storage', uniqueString(parameters('guidValue')))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2025-06-01",
+      "name": "[variables('storageName')]",
+      "location": "West US",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "kind": "StorageV2",
+      "properties": {}
+    }
+  ],
+  "outputs": {
+    "nameOutput": {
+      "type": "string",
+      "value": "[variables('storageName')]"
+    }
+  }
 }
 ```
 
@@ -1176,12 +1243,13 @@ The output from the preceding example varies for each deployment but will be sim
 | ---- | ---- | ----- |
 | nameOutput | string | storagenziwvyru7uxie |
 
-
 ## padLeft
 
 `padLeft(valueToPad, totalLength, paddingCharacter)`
 
 Returns a right-aligned string by adding characters to the left until reaching the total specified length.
+
+In Bicep, use the [`padLeft`](../bicep/bicep-functions-string.md#padleft) function.
 
 ### Parameters
 
@@ -1199,29 +1267,29 @@ A string with at least the number of specified characters.
 
 ### Examples
 
-The following [example template](https://github.com/Azure/azure-docs-json-samples/blob/master/azure-resource-manager/functions/padleft.json) shows how to pad the user-provided parameter value by adding the zero character until it reaches the total number of characters.
+The following example shows how to add the **zero** character until it reaches the total number of characters to pad the user-provided parameter value:
 
 ```json
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "testString": {
-            "type": "string",
-            "defaultValue": "123"
-        }
-    },
-    "resources": [],
-    "outputs": {
-        "stringOutput": {
-            "type": "string",
-            "value": "[padLeft(parameters('testString'),10,'0')]"
-        }
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "testString": {
+      "type": "string",
+      "defaultValue": "123"
     }
+  },
+  "resources": [],
+  "outputs": {
+    "stringOutput": {
+      "type": "string",
+      "value": "[padLeft(parameters('testString'),10,'0')]"
+    }
+  }
 }
 ```
 
-The output from the preceding example with the default values is:
+The output of default values from the preceding example is:
 
 | Name | Type | Value |
 | ---- | ---- | ----- |
@@ -1232,6 +1300,8 @@ The output from the preceding example with the default values is:
 `replace(originalString, oldString, newString)`
 
 Returns a new string with all instances of one string replaced by another string.
+
+In Bicep, use the [`replace`](../bicep/bicep-functions-string.md#replace) function.
 
 ### Parameters
 
@@ -1247,33 +1317,33 @@ A string with the replaced characters.
 
 ### Examples
 
-The following [example template](https://github.com/Azure/azure-docs-json-samples/blob/master/azure-resource-manager/functions/replace.json) shows how to remove all dashes from the user-provided string, and how to replace part of the string with another string.
+The following example shows how to remove all dashes from a user-provided string and how to replace part of the string with another one:
 
 ```json
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "testString": {
-            "type": "string",
-            "defaultValue": "123-123-1234"
-        }
-    },
-    "resources": [],
-    "outputs": {
-        "firstOutput": {
-            "type": "string",
-            "value": "[replace(parameters('testString'),'-', '')]"
-        },
-        "secondOutput": {
-            "type": "string",
-            "value": "[replace(parameters('testString'),'1234', 'xxxx')]"
-        }
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "testString": {
+      "type": "string",
+      "defaultValue": "123-123-1234"
     }
+  },
+  "resources": [],
+  "outputs": {
+    "firstOutput": {
+      "type": "string",
+      "value": "[replace(parameters('testString'),'-', '')]"
+    },
+    "secondOutput": {
+      "type": "string",
+      "value": "[replace(parameters('testString'),'1234', 'xxxx')]"
+    }
+  }
 }
 ```
 
-The output from the preceding example with the default values is:
+The output of default values from the preceding example is:
 
 | Name | Type | Value |
 | ---- | ---- | ----- |
@@ -1285,6 +1355,8 @@ The output from the preceding example with the default values is:
 `skip(originalValue, numberToSkip)`
 
 Returns a string with all the characters after the specified number of characters, or an array with all the elements after the specified number of elements.
+
+In Bicep, use the [`skip`](../bicep/bicep-functions-string.md#skip) function.
 
 ### Parameters
 
@@ -1299,49 +1371,49 @@ An array or string.
 
 ### Examples
 
-The following [example template](https://github.com/Azure/azure-docs-json-samples/blob/master/azure-resource-manager/functions/skip.json) skips the specified number of elements in the array, and the specified number of characters in a string.
+The following example skips the specified number of elements in the array and the specified number of characters in a string:
 
 ```json
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "testArray": {
-            "type": "array",
-            "defaultValue": [
-                "one",
-                "two",
-                "three"
-            ]
-        },
-        "elementsToSkip": {
-            "type": "int",
-            "defaultValue": 2
-        },
-        "testString": {
-            "type": "string",
-            "defaultValue": "one two three"
-        },
-        "charactersToSkip": {
-            "type": "int",
-            "defaultValue": 4
-        }
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "testArray": {
+      "type": "array",
+      "defaultValue": [
+        "one",
+        "two",
+        "three"
+      ]
     },
-    "resources": [],
-    "outputs": {
-        "arrayOutput": {
-            "type": "array",
-            "value": "[skip(parameters('testArray'),parameters('elementsToSkip'))]"
-        },
-        "stringOutput": {
-            "type": "string",
-            "value": "[skip(parameters('testString'),parameters('charactersToSkip'))]"
-        }
+    "elementsToSkip": {
+      "type": "int",
+      "defaultValue": 2
+    },
+    "testString": {
+      "type": "string",
+      "defaultValue": "one two three"
+    },
+    "charactersToSkip": {
+      "type": "int",
+      "defaultValue": 4
     }
+  },
+  "resources": [],
+  "outputs": {
+    "arrayOutput": {
+      "type": "array",
+      "value": "[skip(parameters('testArray'),parameters('elementsToSkip'))]"
+    },
+    "stringOutput": {
+      "type": "string",
+      "value": "[skip(parameters('testString'),parameters('charactersToSkip'))]"
+    }
+  }
 }
 ```
 
-The output from the preceding example with the default values is:
+The output of default values from the preceding example is:
 
 | Name | Type | Value |
 | ---- | ---- | ----- |
@@ -1353,6 +1425,8 @@ The output from the preceding example with the default values is:
 `split(inputString, delimiter)`
 
 Returns an array of strings that contains the substrings of the input string that are delimited by the specified delimiters.
+
+In Bicep, use the [`split`](../bicep/bicep-functions-string.md#split) function.
 
 ### Parameters
 
@@ -1367,40 +1441,40 @@ An array of strings.
 
 ### Examples
 
-The following [example template](https://github.com/Azure/azure-docs-json-samples/blob/master/azure-resource-manager/functions/split.json) splits the input string with a comma, and with either a comma or a semi-colon.
+The following example splits the input string with a comma and the following string with a comma or a semicolon:
 
 ```json
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "firstString": {
-            "type": "string",
-            "defaultValue": "one,two,three"
-        },
-        "secondString": {
-            "type": "string",
-            "defaultValue": "one;two,three"
-        }
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "firstString": {
+      "type": "string",
+      "defaultValue": "one,two,three"
     },
-    "variables": {
-        "delimiters": [ ",", ";" ]
-    },
-    "resources": [],
-    "outputs": {
-        "firstOutput": {
-            "type": "array",
-            "value": "[split(parameters('firstString'),',')]"
-        },
-        "secondOutput": {
-            "type": "array",
-            "value": "[split(parameters('secondString'),variables('delimiters'))]"
-        }
+    "secondString": {
+      "type": "string",
+      "defaultValue": "one;two,three"
     }
+  },
+  "variables": {
+    "delimiters": [ ",", ";" ]
+  },
+  "resources": [],
+  "outputs": {
+    "firstOutput": {
+      "type": "array",
+      "value": "[split(parameters('firstString'),',')]"
+    },
+    "secondOutput": {
+      "type": "array",
+      "value": "[split(parameters('secondString'),variables('delimiters'))]"
+    }
+  }
 }
 ```
 
-The output from the preceding example with the default values is:
+The output of default values from the preceding example is:
 
 | Name | Type | Value |
 | ---- | ---- | ----- |
@@ -1411,7 +1485,9 @@ The output from the preceding example with the default values is:
 
 `startsWith(stringToSearch, stringToFind)`
 
-Determines whether a string starts with a value. The comparison is case-insensitive.
+Determines if a string starts with a value. The comparison is case-insensitive.
+
+In Bicep, use the [`startsWith`](../bicep/bicep-functions-string.md#startswith) function.
 
 ### Parameters
 
@@ -1422,47 +1498,47 @@ Determines whether a string starts with a value. The comparison is case-insensit
 
 ### Return value
 
-**True** if the first character or characters of the string match the value; otherwise, **False**.
+`True` if the first character or characters of the string match the value; otherwise, `False`.
 
 ### Examples
 
-The following [example template](https://github.com/Azure/azure-docs-json-samples/blob/master/azure-resource-manager/functions/startsendswith.json) shows how to use the startsWith and endsWith functions:
+The following example shows how to use the `startsWith` and `endsWith` functions:
 
 ```json
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "resources": [],
-    "outputs": {
-        "startsTrue": {
-            "value": "[startsWith('abcdef', 'ab')]",
-            "type" : "bool"
-        },
-        "startsCapTrue": {
-            "value": "[startsWith('abcdef', 'A')]",
-            "type" : "bool"
-        },
-        "startsFalse": {
-            "value": "[startsWith('abcdef', 'e')]",
-            "type" : "bool"
-        },
-        "endsTrue": {
-            "value": "[endsWith('abcdef', 'ef')]",
-            "type" : "bool"
-        },
-        "endsCapTrue": {
-            "value": "[endsWith('abcdef', 'F')]",
-            "type" : "bool"
-        },
-        "endsFalse": {
-            "value": "[endsWith('abcdef', 'e')]",
-            "type" : "bool"
-        }
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [],
+  "outputs": {
+    "startsTrue": {
+      "type": "bool",
+      "value": "[startsWith('abcdef', 'ab')]"
+    },
+    "startsCapTrue": {
+      "type": "bool",
+      "value": "[startsWith('abcdef', 'A')]"
+    },
+    "startsFalse": {
+      "type": "bool",
+      "value": "[startsWith('abcdef', 'e')]"
+    },
+    "endsTrue": {
+      "type": "bool",
+      "value": "[endsWith('abcdef', 'ef')]"
+    },
+    "endsCapTrue": {
+      "type": "bool",
+      "value": "[endsWith('abcdef', 'F')]"
+    },
+    "endsFalse": {
+      "type": "bool",
+      "value": "[endsWith('abcdef', 'e')]"
     }
+  }
 }
 ```
 
-The output from the preceding example with the default values is:
+The output of default values from the preceding example is:
 
 | Name | Type | Value |
 | ---- | ---- | ----- |
@@ -1479,6 +1555,8 @@ The output from the preceding example with the default values is:
 
 Converts the specified value to a string.
 
+In Bicep, use the [`string`](../bicep/bicep-functions-string.md#string) function.
+
 ### Parameters
 
 | Parameter | Required | Type | Description |
@@ -1491,52 +1569,52 @@ A string of the converted value.
 
 ### Examples
 
-The following [example template](https://github.com/Azure/azure-docs-json-samples/blob/master/azure-resource-manager/functions/string.json) shows how to convert different types of values to strings:
+The following example shows how to convert different types of values to strings:
 
 ```json
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "testObject": {
-            "type": "object",
-            "defaultValue": {
-                "valueA": 10,
-                "valueB": "Example Text"
-            }
-        },
-        "testArray": {
-            "type": "array",
-            "defaultValue": [
-                "a",
-                "b",
-                "c"
-            ]
-        },
-        "testInt": {
-            "type": "int",
-            "defaultValue": 5
-        }
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "testObject": {
+      "type": "object",
+      "defaultValue": {
+        "valueA": 10,
+        "valueB": "Example Text"
+      }
     },
-    "resources": [],
-    "outputs": {
-        "objectOutput": {
-            "type": "string",
-            "value": "[string(parameters('testObject'))]"
-        },
-        "arrayOutput": {
-            "type": "string",
-            "value": "[string(parameters('testArray'))]"
-        },
-        "intOutput": {
-            "type": "string",
-            "value": "[string(parameters('testInt'))]"
-        }
+    "testArray": {
+      "type": "array",
+      "defaultValue": [
+        "a",
+        "b",
+        "c"
+      ]
+    },
+    "testInt": {
+      "type": "int",
+      "defaultValue": 5
     }
+  },
+  "resources": [],
+  "outputs": {
+    "objectOutput": {
+      "type": "string",
+      "value": "[string(parameters('testObject'))]"
+    },
+    "arrayOutput": {
+      "type": "string",
+      "value": "[string(parameters('testArray'))]"
+    },
+    "intOutput": {
+      "type": "string",
+      "value": "[string(parameters('testInt'))]"
+    }
+  }
 }
 ```
 
-The output from the preceding example with the default values is:
+The output of default values from the preceding example is:
 
 | Name | Type | Value |
 | ---- | ---- | ----- |
@@ -1550,13 +1628,15 @@ The output from the preceding example with the default values is:
 
 Returns a substring that starts at the specified character position and contains the specified number of characters.
 
+In Bicep, use the [`substring`](../bicep/bicep-functions-string.md#substring) function.
+
 ### Parameters
 
 | Parameter | Required | Type | Description |
 |:--- |:--- |:--- |:--- |
 | stringToParse |Yes |string |The original string from which the substring is extracted. |
 | startIndex |No |int |The zero-based starting character position for the substring. |
-| length |No |int |The number of characters for the substring. Must refer to a location within the string. Must be zero or greater. |
+| length |No |int |The number of characters for the substring. Must refer to a location within the string. Must be zero or greater. If omitted, the remainder of the string from the start position will be returned.|
 
 ### Return value
 
@@ -1564,42 +1644,44 @@ The substring. Or, an empty string if the length is zero.
 
 ### Remarks
 
-The function fails when the substring extends beyond the end of the string, or when length is less than zero. The following example fails with the error "The index and length parameters must refer to a location within the string. The index parameter: '0', the length parameter: '11', the length of the string parameter: '10'.".
+The function fails when the substring extends beyond the end of the string, or when length is less than zero. The following example fails with the error, "The index and length parameters must refer to a location within the string. The index parameter: '0', the length parameter: '11', the length of the string parameter: '10'."
 
 ```json
 "parameters": {
-    "inputString": { "type": "string", "value": "1234567890" }
-},
-"variables": {
-    "prefix": "[substring(parameters('inputString'), 0, 11)]"
+  "inputString": {
+    "type": "string",
+    "value": "1234567890"
+  }
+}, "variables": {
+  "prefix": "[substring(parameters('inputString'), 0, 11)]"
 }
 ```
 
 ### Examples
 
-The following [example template](https://github.com/Azure/azure-docs-json-samples/blob/master/azure-resource-manager/functions/substring.json) extracts a substring from a parameter.
+The following example extracts a substring from a parameter:
 
 ```json
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "testString": {
-            "type": "string",
-            "defaultValue": "one two three"
-        }
-    },
-    "resources": [],
-    "outputs": {
-        "substringOutput": {
-            "value": "[substring(parameters('testString'), 4, 3)]",
-            "type": "string"
-        }
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "testString": {
+      "type": "string",
+      "defaultValue": "one two three"
     }
+  },
+  "resources": [],
+  "outputs": {
+    "substringOutput": {
+      "type": "string",
+      "value": "[substring(parameters('testString'), 4, 3)]"
+    }
+  }
 }
 ```
 
-The output from the preceding example with the default values is:
+The output of default values from the preceding example is:
 
 | Name | Type | Value |
 | ---- | ---- | ----- |
@@ -1609,7 +1691,9 @@ The output from the preceding example with the default values is:
 
 `take(originalValue, numberToTake)`
 
-Returns a string with the specified number of characters from the start of the string, or an array with the specified number of elements from the start of the array.
+Returns an array or string. An array has the specified number of elements from the start of the array. A string has the specified number of characters from the start of the string.
+
+In Bicep, use the [`take`](../bicep/bicep-functions-string.md#take) function.
 
 ### Parameters
 
@@ -1624,49 +1708,49 @@ An array or string.
 
 ### Examples
 
-The following [example template](https://github.com/Azure/azure-docs-json-samples/blob/master/azure-resource-manager/functions/take.json) takes the specified number of elements from the array, and characters from a string.
+The following example takes the specified number of elements from the array and characters from a string:
 
 ```json
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "testArray": {
-            "type": "array",
-            "defaultValue": [
-                "one",
-                "two",
-                "three"
-            ]
-        },
-        "elementsToTake": {
-            "type": "int",
-            "defaultValue": 2
-        },
-        "testString": {
-            "type": "string",
-            "defaultValue": "one two three"
-        },
-        "charactersToTake": {
-            "type": "int",
-            "defaultValue": 2
-        }
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "testArray": {
+      "type": "array",
+      "defaultValue": [
+        "one",
+        "two",
+        "three"
+      ]
     },
-    "resources": [],
-    "outputs": {
-        "arrayOutput": {
-            "type": "array",
-            "value": "[take(parameters('testArray'),parameters('elementsToTake'))]"
-        },
-        "stringOutput": {
-            "type": "string",
-            "value": "[take(parameters('testString'),parameters('charactersToTake'))]"
-        }
+    "elementsToTake": {
+      "type": "int",
+      "defaultValue": 2
+    },
+    "testString": {
+      "type": "string",
+      "defaultValue": "one two three"
+    },
+    "charactersToTake": {
+      "type": "int",
+      "defaultValue": 2
     }
+  },
+  "resources": [],
+  "outputs": {
+    "arrayOutput": {
+      "type": "array",
+      "value": "[take(parameters('testArray'),parameters('elementsToTake'))]"
+    },
+    "stringOutput": {
+      "type": "string",
+      "value": "[take(parameters('testString'),parameters('charactersToTake'))]"
+    }
+  }
 }
 ```
 
-The output from the preceding example with the default values is:
+The output of default values from the preceding example is:
 
 | Name | Type | Value |
 | ---- | ---- | ----- |
@@ -1678,6 +1762,8 @@ The output from the preceding example with the default values is:
 `toLower(stringToChange)`
 
 Converts the specified string to lower case.
+
+In Bicep, use the [`toLower`](../bicep/bicep-functions-string.md#tolower) function.
 
 ### Parameters
 
@@ -1691,33 +1777,33 @@ The string converted to lower case.
 
 ### Examples
 
-The following [example template](https://github.com/Azure/azure-docs-json-samples/blob/master/azure-resource-manager/functions/tolower.json) converts a parameter value to lower case and to upper case.
+The following example converts a parameter value to lowercase and uppercase:
 
 ```json
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "testString": {
-            "type": "string",
-            "defaultValue": "One Two Three"
-        }
-    },
-    "resources": [],
-    "outputs": {
-        "toLowerOutput": {
-            "value": "[toLower(parameters('testString'))]",
-            "type": "string"
-        },
-        "toUpperOutput": {
-            "type": "string",
-            "value": "[toUpper(parameters('testString'))]"
-        }
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "testString": {
+      "type": "string",
+      "defaultValue": "One Two Three"
     }
+  },
+  "resources": [],
+  "outputs": {
+    "toLowerOutput": {
+      "type": "string",
+      "value": "[toLower(parameters('testString'))]"
+    },
+    "toUpperOutput": {
+      "type": "string",
+      "value": "[toUpper(parameters('testString'))]"
+    }
+  }
 }
 ```
 
-The output from the preceding example with the default values is:
+The output of default values from the preceding example is:
 
 | Name | Type | Value |
 | ---- | ---- | ----- |
@@ -1729,6 +1815,8 @@ The output from the preceding example with the default values is:
 `toUpper(stringToChange)`
 
 Converts the specified string to upper case.
+
+In Bicep, use the [`toUpper`](../bicep/bicep-functions-string.md#toupper) function.
 
 ### Parameters
 
@@ -1742,33 +1830,33 @@ The string converted to upper case.
 
 ### Examples
 
-The following [example template](https://github.com/Azure/azure-docs-json-samples/blob/master/azure-resource-manager/functions/tolower.json) converts a parameter value to lower case and to upper case.
+The following example converts a parameter value to lowercase and uppercase:
 
 ```json
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "testString": {
-            "type": "string",
-            "defaultValue": "One Two Three"
-        }
-    },
-    "resources": [],
-    "outputs": {
-        "toLowerOutput": {
-            "value": "[toLower(parameters('testString'))]",
-            "type": "string"
-        },
-        "toUpperOutput": {
-            "type": "string",
-            "value": "[toUpper(parameters('testString'))]"
-        }
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "testString": {
+      "type": "string",
+      "defaultValue": "One Two Three"
     }
+  },
+  "resources": [],
+  "outputs": {
+    "toLowerOutput": {
+      "type": "string",
+      "value": "[toLower(parameters('testString'))]"
+    },
+    "toUpperOutput": {
+      "type": "string",
+      "value": "[toUpper(parameters('testString'))]"
+    }
+  }
 }
 ```
 
-The output from the preceding example with the default values is:
+The output of default values from the preceding example is:
 
 | Name | Type | Value |
 | ---- | ---- | ----- |
@@ -1777,9 +1865,11 @@ The output from the preceding example with the default values is:
 
 ## trim
 
-`trim (stringToTrim)`
+`trim(stringToTrim)`
 
 Removes all leading and trailing white-space characters from the specified string.
+
+In Bicep, use the [`trim`](../bicep/bicep-functions-string.md#trim) function.
 
 ### Parameters
 
@@ -1793,29 +1883,29 @@ The string without leading and trailing white-space characters.
 
 ### Examples
 
-The following [example template](https://github.com/Azure/azure-docs-json-samples/blob/master/azure-resource-manager/functions/trim.json) trims the white-space characters from the parameter.
+The following example trims white-space characters from the parameter:
 
 ```json
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "testString": {
-            "type": "string",
-            "defaultValue": "    one two three   "
-        }
-    },
-    "resources": [],
-    "outputs": {
-        "return": {
-            "type": "string",
-            "value": "[trim(parameters('testString'))]"
-        }
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "testString": {
+      "type": "string",
+      "defaultValue": "    one two three   "
     }
+  },
+  "resources": [],
+  "outputs": {
+    "return": {
+      "type": "string",
+      "value": "[trim(parameters('testString'))]"
+    }
+  }
 }
 ```
 
-The output from the preceding example with the default values is:
+The output of default values from the preceding example is:
 
 | Name | Type | Value |
 | ---- | ---- | ----- |
@@ -1823,26 +1913,28 @@ The output from the preceding example with the default values is:
 
 ## uniqueString
 
-`uniqueString (baseString, ...)`
+`uniqueString(baseString, ...)`
 
 Creates a deterministic hash string based on the values provided as parameters.
+
+In Bicep, use the [`uniqueString`](../bicep/bicep-functions-string.md#uniquestring) function.
 
 ### Parameters
 
 | Parameter | Required | Type | Description |
 |:--- |:--- |:--- |:--- |
 | baseString |Yes |string |The value used in the hash function to create a unique string. |
-| additional parameters as needed |No |string |You can add as many strings as needed to create the value that specifies the level of uniqueness. |
+| more parameters as needed |No |string |You can add as many strings as needed to create the value that specifies the level of uniqueness. |
 
 ### Remarks
 
-This function is helpful when you need to create a unique name for a resource. You provide parameter values that limit the scope of uniqueness for the result. You can specify whether the name is unique down to subscription, resource group, or deployment.
+This function is helpful when you need to create a unique name for a resource. You provide parameter values that limit the scope of uniqueness for the result. You can specify if the name is unique down to subscription, resource group, or deployment.
 
-The returned value isn't a random string, but rather the result of a hash function. The returned value is 13 characters long. It isn't globally unique. You may want to combine the value with a prefix from your naming convention to create a name that is meaningful. The following example shows the format of the returned value. The actual value varies by the provided parameters.
+The returned value isn't a random string but rather the result of a hash function. The returned value is 13 characters long. It isn't globally unique. You might want to combine the value with a prefix from your naming convention to create a name that's meaningful. The following example shows the format of the returned value. The actual value varies by the provided parameters.
 
 `tcvhiyu5h2o5o`
 
-The following examples show how to use uniqueString to create a unique value for commonly used levels.
+The following examples show how to use `uniqueString` to create a unique value for commonly used levels:
 
 Unique scoped to subscription
 
@@ -1862,16 +1954,16 @@ Unique scoped to deployment for a resource group
 "[uniqueString(resourceGroup().id, deployment().name)]"
 ```
 
-The following example shows how to create a unique name for a storage account based on your resource group. Inside the resource group, the name isn't unique if constructed the same way.
+The following example shows how to create a unique name for a storage account based on your resource group. Inside the resource group, the name isn't unique if it's constructed the same way:
 
 ```json
 "resources": [{
-    "name": "[concat('storage', uniqueString(resourceGroup().id))]",
-    "type": "Microsoft.Storage/storageAccounts",
-    ...
+  "name": "[concat('storage', uniqueString(resourceGroup().id))]",
+  "type": "Microsoft.Storage/storageAccounts",
+  ...
 ```
 
-If you need to create a new unique name each time you deploy a template, and don't intend to update the resource, you can use the [utcNow](template-functions-date.md#utcnow) function with uniqueString. You could use this approach in a test environment. For an example, see [utcNow](template-functions-date.md#utcnow).
+If you need to create a new unique name each time you deploy a template, and don't intend to update the resource, you can use the [`utcNow`](template-functions-date.md#utcnow) function with `uniqueString`. You could use this approach in a test environment. For an example, see [`utcNow`](template-functions-date.md#utcnow).
 
 ### Return value
 
@@ -1879,62 +1971,65 @@ A string containing 13 characters.
 
 ### Examples
 
-The following [example template](https://github.com/Azure/azure-docs-json-samples/blob/master/azure-resource-manager/functions/uniquestring.json) returns results from uniquestring:
+The following example returns results from `uniquestring`:
 
 ```json
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "resources": [],
-    "outputs": {
-        "uniqueRG": {
-            "value": "[uniqueString(resourceGroup().id)]",
-            "type" : "string"
-        },
-        "uniqueDeploy": {
-            "value": "[uniqueString(resourceGroup().id, deployment().name)]",
-            "type" : "string"
-        }
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [],
+  "outputs": {
+    "uniqueRG": {
+      "type": "string",
+      "value": "[uniqueString(resourceGroup().id)]"
+    },
+    "uniqueDeploy": {
+      "type": "string",
+      "value": "[uniqueString(resourceGroup().id, deployment().name)]"
     }
+  }
 }
 ```
 
 ## uri
 
-`uri (baseUri, relativeUri)`
+`uri(baseUri, relativeUri)`
 
 Creates an absolute URI by combining the baseUri and the relativeUri string.
+
+In Bicep, use the [`uri`](../bicep/bicep-functions-string.md#uri) function.
 
 ### Parameters
 
 | Parameter | Required | Type | Description |
 |:--- |:--- |:--- |:--- |
-| baseUri |Yes |string |The base uri string. Take care to observe the behavior regarding the handling of the trailing slash ('/'), as described following this table.  |
+| baseUri |Yes |string |The base uri string. Take care to observe the behavior about the handling of the trailing slash (`/`), as described following this table.  |
 | relativeUri |Yes |string |The relative uri string to add to the base uri string. |
 
-* If **baseUri** ends in a trailing slash, the result is simply
-  **baseUri** followed by **relativeUri**.
+* If `baseUri` ends with a trailing slash, the result is simply `baseUri` followed by `relativeUri`. If `relativeUri` also begins with a leading slash, the trailing slash and the leading slash will be combined into one.
 
-* If **baseUri** does not end in a trailing slash one of two things
+* If `baseUri` doesn't end in a trailing slash one of two things
   happens.
 
-   * If **baseUri** has no slashes at all (aside from the "//" near
-     the front) the result is simply **baseUri** followed by **relativeUri**.
+   * If `baseUri` has no slashes at all (aside from the `//` near
+     the front) the result is `baseUri` followed by `relativeUri`.
 
-   * If **baseUri** has some slashes, but doesn't end with a slash,
-     everything from the last slash onward is removed from **baseUri**
-     and the result is **baseUri** followed by **relativeUri**.
+   * If `baseUri` has some slashes, but doesn't end with a slash,
+     everything from the last slash onward is removed from `baseUri`
+     and the result is `baseUri` followed by `relativeUri`.
 
 Here are some examples:
 
 ```
 uri('http://contoso.org/firstpath', 'myscript.sh') -> http://contoso.org/myscript.sh
 uri('http://contoso.org/firstpath/', 'myscript.sh') -> http://contoso.org/firstpath/myscript.sh
+uri('http://contoso.org/firstpath/', '/myscript.sh') -> http://contoso.org/firstpath/myscript.sh
 uri('http://contoso.org/firstpath/azuredeploy.json', 'myscript.sh') -> http://contoso.org/firstpath/myscript.sh
 uri('http://contoso.org/firstpath/azuredeploy.json/', 'myscript.sh') -> http://contoso.org/firstpath/azuredeploy.json/myscript.sh
 ```
-For complete details, the **baseUri** and **relativeUri** parameters are
-resolved as specified in
+
+For complete details, the `baseUri` and `relativeUri` parameters are
+resolved, as specified in
 [RFC 3986, section 5](https://tools.ietf.org/html/rfc3986#section-5).
 
 ### Return value
@@ -1943,42 +2038,42 @@ A string representing the absolute URI for the base and relative values.
 
 ### Examples
 
-The following example shows how to construct a link to a nested template based on the value of the parent template.
+The following example shows how to construct a link to a nested template based on the value of the parent template:
 
 ```json
 "templateLink": "[uri(deployment().properties.templateLink.uri, 'nested/azuredeploy.json')]"
 ```
 
-The following [example template](https://github.com/Azure/azure-docs-json-samples/blob/master/azure-resource-manager/functions/uri.json) shows how to use uri, uriComponent, and uriComponentToString:
+The following example template shows how to use `uri`, `uriComponent`, and `uriComponentToString`:
 
 ```json
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "variables": {
-        "uriFormat": "[uri('http://contoso.com/resources/', 'nested/azuredeploy.json')]",
-        "uriEncoded": "[uriComponent(variables('uriFormat'))]"
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "variables": {
+    "uriFormat": "[uri('http://contoso.com/resources/', 'nested/azuredeploy.json')]",
+    "uriEncoded": "[uriComponent(variables('uriFormat'))]"
+  },
+  "resources": [
+  ],
+  "outputs": {
+    "uriOutput": {
+      "type": "string",
+      "value": "[variables('uriFormat')]"
     },
-    "resources": [
-    ],
-    "outputs": {
-        "uriOutput": {
-            "type": "string",
-            "value": "[variables('uriFormat')]"
-        },
-        "componentOutput": {
-            "type": "string",
-            "value": "[variables('uriEncoded')]"
-        },
-        "toStringOutput": {
-            "type": "string",
-            "value": "[uriComponentToString(variables('uriEncoded'))]"
-        }
+    "componentOutput": {
+      "type": "string",
+      "value": "[variables('uriEncoded')]"
+    },
+    "toStringOutput": {
+      "type": "string",
+      "value": "[uriComponentToString(variables('uriEncoded'))]"
     }
+  }
 }
 ```
 
-The output from the preceding example with the default values is:
+The output of default values from the preceding example is:
 
 | Name | Type | Value |
 | ---- | ---- | ----- |
@@ -1992,6 +2087,8 @@ The output from the preceding example with the default values is:
 
 Encodes a URI.
 
+In Bicep, use the [`uriComponent`](../bicep/bicep-functions-string.md#uricomponent) function.
+
 ### Parameters
 
 | Parameter | Required | Type | Description |
@@ -2004,36 +2101,36 @@ A string of the URI encoded value.
 
 ### Examples
 
-The following [example template](https://github.com/Azure/azure-docs-json-samples/blob/master/azure-resource-manager/functions/uri.json) shows how to use uri, uriComponent, and uriComponentToString:
+The following example template shows how to use `uri`, `uriComponent`, and `uriComponentToString`:
 
 ```json
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "variables": {
-        "uriFormat": "[uri('http://contoso.com/resources/', 'nested/azuredeploy.json')]",
-        "uriEncoded": "[uriComponent(variables('uriFormat'))]"
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "variables": {
+    "uriFormat": "[uri('http://contoso.com/resources/', 'nested/azuredeploy.json')]",
+    "uriEncoded": "[uriComponent(variables('uriFormat'))]"
+  },
+  "resources": [
+  ],
+  "outputs": {
+    "uriOutput": {
+      "type": "string",
+      "value": "[variables('uriFormat')]"
     },
-    "resources": [
-    ],
-    "outputs": {
-        "uriOutput": {
-            "type": "string",
-            "value": "[variables('uriFormat')]"
-        },
-        "componentOutput": {
-            "type": "string",
-            "value": "[variables('uriEncoded')]"
-        },
-        "toStringOutput": {
-            "type": "string",
-            "value": "[uriComponentToString(variables('uriEncoded'))]"
-        }
+    "componentOutput": {
+      "type": "string",
+      "value": "[variables('uriEncoded')]"
+    },
+    "toStringOutput": {
+      "type": "string",
+      "value": "[uriComponentToString(variables('uriEncoded'))]"
     }
+  }
 }
 ```
 
-The output from the preceding example with the default values is:
+The output of default values from the preceding example is:
 
 | Name | Type | Value |
 | ---- | ---- | ----- |
@@ -2047,6 +2144,8 @@ The output from the preceding example with the default values is:
 
 Returns a string of a URI encoded value.
 
+In Bicep, use the [`uriComponentToString`](../bicep/bicep-functions-string.md#uricomponenttostring) function.
+
 ### Parameters
 
 | Parameter | Required | Type | Description |
@@ -2059,36 +2158,36 @@ A decoded string of URI encoded value.
 
 ### Examples
 
-The following [example template](https://github.com/Azure/azure-docs-json-samples/blob/master/azure-resource-manager/functions/uri.json) shows how to use uri, uriComponent, and uriComponentToString:
+The following example shows how to use `uri`, `uriComponent`, and `uriComponentToString`:
 
 ```json
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "variables": {
-        "uriFormat": "[uri('http://contoso.com/resources/', 'nested/azuredeploy.json')]",
-        "uriEncoded": "[uriComponent(variables('uriFormat'))]"
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "variables": {
+    "uriFormat": "[uri('http://contoso.com/resources/', 'nested/azuredeploy.json')]",
+    "uriEncoded": "[uriComponent(variables('uriFormat'))]"
+  },
+  "resources": [
+  ],
+  "outputs": {
+    "uriOutput": {
+      "type": "string",
+      "value": "[variables('uriFormat')]"
     },
-    "resources": [
-    ],
-    "outputs": {
-        "uriOutput": {
-            "type": "string",
-            "value": "[variables('uriFormat')]"
-        },
-        "componentOutput": {
-            "type": "string",
-            "value": "[variables('uriEncoded')]"
-        },
-        "toStringOutput": {
-            "type": "string",
-            "value": "[uriComponentToString(variables('uriEncoded'))]"
-        }
+    "componentOutput": {
+      "type": "string",
+      "value": "[variables('uriEncoded')]"
+    },
+    "toStringOutput": {
+      "type": "string",
+      "value": "[uriComponentToString(variables('uriEncoded'))]"
     }
+  }
 }
 ```
 
-The output from the preceding example with the default values is:
+The output of default values from the preceding example is:
 
 | Name | Type | Value |
 | ---- | ---- | ----- |
@@ -2097,8 +2196,8 @@ The output from the preceding example with the default values is:
 | toStringOutput | String | `http://contoso.com/resources/nested/azuredeploy.json` |
 
 ## Next steps
-* For a description of the sections in an Azure Resource Manager template, see [Authoring Azure Resource Manager templates](template-syntax.md).
-* To merge multiple templates, see [Using linked templates with Azure Resource Manager](linked-templates.md).
-* To iterate a specified number of times when creating a type of resource, see [Create multiple instances of resources in Azure Resource Manager](copy-resources.md).
-* To see how to deploy the template you've created, see [Deploy an application with Azure Resource Manager template](deploy-powershell.md).
 
+* For a description of the sections in an ARM template, see [Understand the structure and syntax of ARM templates](./syntax.md).
+* To merge multiple templates, see [Using linked and nested templates when deploying Azure resources](linked-templates.md).
+* To iterate a specified number of times when creating a type of resource, see [Resource iteration in ARM templates](copy-resources.md).
+* To see how to deploy the template you've created, see [Deploy resources with ARM templates and Azure PowerShell](deploy-powershell.md).

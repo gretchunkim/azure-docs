@@ -3,13 +3,15 @@ title: "Tutorial: Copy from VHDs to managed disks"
 titleSuffix: Azure Data Box
 description: Learn how to copy data from VHDs from on-premises VM workloads to your Azure Data Box
 services: databox
-author: alkohli
-ms.service: databox
-ms.subservice: pod
+author: stevenmatthew
+ms.service: azure-databox
 ms.topic: tutorial
-ms.date: 09/03/2019
-ms.author: alkohli
+ms.date: 10/20/2019
+ms.author: shaas
+zone_pivot_groups: data-box-sku
+ms.custom: sfi-image-nochange
 #Customer intent: As an IT admin, I need to be able to copy data to Data Box to upload on-premises VM data from my server onto Azure.
+# Customer intent: As an IT admin, I want to copy VHDs from on-premises VMs to Azure Data Box, so that I can migrate the data to managed disks in Azure efficiently.
 ---
 # Tutorial: Use Data Box to import data as managed disks in Azure
 
@@ -24,18 +26,39 @@ In this tutorial, you learn how to:
 > * Copy data to Data Box
 
 ## Prerequisites
-
+:::zone pivot="dbx"
 Before you begin, make sure that:
 
 1. You've completed the [Tutorial: Set up Azure Data Box](data-box-deploy-set-up.md).
 2. You've received your Data Box and the order status in the portal is **Delivered**.
-3. You're connected to a high-speed network. We strongly recommend that you have at least one 10-GbE connection. If a 10-GbE connection isn't available, use a 1-GbE data link but the copy speeds are affected.
+3. You have a host computer that has the data that you want to copy over to Data Box. Your host computer must:
+   * Run a [Supported operating system](data-box-system-requirements.md).
+   * Be connected to a high-speed network. We strongly recommend that you have at least one 10-GbE connection. If a 10-GbE connection isn't available, use a 1-GbE data link but the copy speeds are impacted.
 4. You've reviewed the:
 
     - Supported [managed disk sizes in Azure object size limits](data-box-limits.md#azure-object-size-limits).
-    - [Introduction to Azure managed disks](/azure/virtual-machines/windows/managed-disks-overview). 
+    - [Introduction to Azure managed disks](/azure/virtual-machines/managed-disks-overview). 
 
 5. You've maintained a copy of the source data until you've confirmed that the Data Box transferred your data into Azure Storage.
+
+:::zone-end
+
+:::zone pivot="dbx-ng"
+Before you begin, make sure that:
+
+1. You've completed the [Tutorial: Set up Azure Data Box](data-box-deploy-set-up.md).
+2. You've received your Data Box and the order status in the portal is **Delivered**.
+3. You have a host computer that has the data that you want to copy over to Data Box. Your host computer must:
+   * Run a [Supported operating system](data-box-system-requirements.md).
+   * Be connected to a high-speed network. We strongly recommend that you have at least one 100-GbE connection. If a 100-GbE connection isn't available, use a 10-GbE or 1-GbE data link but the copy speeds are impacted.
+4. You've reviewed the:
+
+    - Supported [managed disk sizes in Azure object size limits](data-box-limits.md#azure-object-size-limits).
+    - [Introduction to Azure managed disks](/azure/virtual-machines/managed-disks-overview). 
+
+5. You've maintained a copy of the source data until you've confirmed that the Data Box transferred your data into Azure Storage.
+
+:::zone-end
 
 ## Connect to Data Box
 
@@ -71,11 +94,11 @@ If using a Windows Server host computer, follow these steps to connect to the Da
     > [!NOTE]
     > The credentials for all the shares for managed disks are identical.
 
-    ![Get share credentials 1](media/data-box-deploy-copy-data-from-vhds/get-share-credentials1.png)
+    ![Connect and copy, Get share credentials](media/data-box-deploy-copy-data-from-vhds/get-share-credentials1.png)
 
-2. From the Access share and copy data dialog box, copy the **Username** and the **Password** for the share. Click **OK**.
+2. From the **Access share and copy data** dialog box, copy the **Username** and the **Password** for the share. Click **OK**.
     
-    ![Get share credentials 1](media/data-box-deploy-copy-data-from-vhds/get-share-credentials2.png)
+    ![Connect and copy, Copy share credentials](media/data-box-deploy-copy-data-from-vhds/get-share-credentials2.png)
 
 3. To access the shares associated with your resource (*mydbmdrg1* in the following example) from your host computer, open a command window. At the command prompt, type:
 
@@ -95,26 +118,26 @@ If using a Windows Server host computer, follow these steps to connect to the Da
     C: \>
     ```
 
-4. Press  Windows + R. In the **Run** window, specify the `\\<device IP address>\<ShareName>`. Click **OK** to open File Explorer.
+5. Press  Windows + R. In the **Run** window, specify the `\\<device IP address>\<ShareName>`. Click **OK** to open File Explorer.
     
-    ![Connect to share via File Explorer 2](media/data-box-deploy-copy-data-from-vhds/connect-shares-file-explorer1.png)
+    ![Connect to share via File Explorer](media/data-box-deploy-copy-data-from-vhds/connect-shares-file-explorer1.png)
 
     You should now see the following precreated folders within each share.
     
-    ![Connect to share via File Explorer 2](media/data-box-deploy-copy-data-from-vhds/connect-shares-file-explorer2.png)
+    ![Connect to share via File Explorer, folders for a share](media/data-box-deploy-copy-data-from-vhds/connect-shares-file-explorer2.png)
 
 
 ### Connect to Data Box via NFS
 
 If you are using a Linux host computer, perform the following steps to configure Data Box to allow access to NFS clients.
 
-1. Supply the IP addresses of the allowed clients that can access the share. In the local web UI, go to **Connect and copy** page. Under **NFS settings**, click **NFS client access**.
+1. Supply the IP addresses of the allowed clients that can access the share. In the local web UI, go to the **Connect and copy** page. Under **NFS settings**, click **NFS client access**.
 
-    ![Configure NFS client access 1](media/data-box-deploy-copy-data-from-vhds/nfs-client-access1.png)
+    ![Configure NFS client access](media/data-box-deploy-copy-data-from-vhds/nfs-client-access1.png)
 
 2. Supply the IP address of the NFS client and click **Add**. You can configure access for multiple NFS clients by repeating this step. Click **OK**.
 
-    ![Configure NFS client access 2](media/data-box-deploy-copy-data-from-vhds/nfs-client-access2.png)
+    ![Configure NFS client IP address](media/data-box-deploy-copy-data-from-vhds/nfs-client-access2.png)
 
 2. Ensure that the Linux host computer has a [supported version](data-box-system-requirements.md) of NFS client installed. Use the specific version for your Linux distribution.
 
@@ -178,4 +201,3 @@ Advance to the next tutorial to learn how to ship your Data Box back to Microsof
 
 > [!div class="nextstepaction"]
 > [Ship your Azure Data Box to Microsoft](./data-box-deploy-picked-up.md)
-

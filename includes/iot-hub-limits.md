@@ -1,9 +1,9 @@
 ---
-author: robinsh
-ms.author: robinsh
-ms.service: iot-hub
+author: SoniaLopezBravo
+ms.author: sonialopez
+ms.service: azure-iot-hub
 ms.topic: include
-ms.date: 10/26/2018
+ms.date: 11/05/2025
 ---
 The following table lists the limits associated with the different service tiers S1, S2, S3, and F1. For information about the cost of each *unit* in each tier, see [Azure IoT Hub pricing](https://azure.microsoft.com/pricing/details/iot-hub/).
 
@@ -11,11 +11,6 @@ The following table lists the limits associated with the different service tiers
 | --- | --- | --- | --- | --- |
 | Messages/day |400,000 |6,000,000 |300,000,000 |8,000 |
 | Maximum units |200 |200 |10 |1 |
-
-> [!NOTE]
-> If you anticipate using more than 200 units with an S1 or S2 tier hub or 10 units with an S3 tier hub, contact Microsoft Support.
-> 
-> 
 
 The following table lists the limits that apply to IoT Hub resources.
 
@@ -42,16 +37,13 @@ The following table lists the limits that apply to IoT Hub resources.
 | Maximum size of direct method payload | 128 KB |
 | Job history maximum retention | 30 days |
 | Maximum concurrent jobs | 10 (for S3), 5 for (S2), 1 (for S1) |
-| Maximum additional endpoints | 10 (for S1, S2, and S3) |
+| Maximum additional endpoints (beyond [built-in endpoints](../articles/iot-hub/iot-hub-devguide-endpoints.md)) | 10 (for S1, S2, and S3) |
 | Maximum message routing rules | 100 (for S1, S2, and S3) |
 | Maximum number of concurrently connected device streams | 50 (for S1, S2, S3, and F1 only) |
 | Maximum device stream data transfer | 300 MB per day (for S1, S2, S3, and F1 only) |
 
 > [!NOTE]
-> If you need more than 50 paid IoT hubs in an Azure subscription, contact Microsoft Support.
-
-> [!NOTE]
-> Currently, the total number of devices plus modules that can be registered to a single IoT hub is capped at 1,000,000. If you want to increase this limit, contact [Microsoft Support](https://azure.microsoft.com/support/options/).
+> The total number of devices plus modules that can be registered to a single IoT hub is capped at 1,000,000.
 
 IoT Hub throttles requests when the following quotas are exceeded.
 
@@ -62,10 +54,39 @@ IoT Hub throttles requests when the following quotas are exceeded.
 | Device-to-cloud sends |6,000/sec/unit (for S3), 120/sec/unit (for S2), 12/sec/unit (for S1). <br/>Minimum of 100/sec. |
 | Cloud-to-device sends | 83.33/sec/unit (5,000/min/unit) (for S3), 1.67/sec/unit (100/min/unit) (for S1 and S2). |
 | Cloud-to-device receives |833.33/sec/unit (50,000/min/unit) (for S3), 16.67/sec/unit (1,000/min/unit) (for S1 and S2). |
-| File upload operations |83.33 file upload initiations/sec/unit (5,000/min/unit) (for S3), 1.67 file upload initiations/sec/unit (100/min/unit) (for S1 and S2). <br/> 10,000 SAS URIs can be out for an Azure Storage account at one time.<br/> 10 SAS URIs/device can be out at one time. |
+| File upload operations |83.33 file upload initiations/sec/unit (5,000/min/unit) (for S3), 1.67 file upload initiations/sec/unit (100/min/unit) (for S1 and S2). <br/> 10 concurrent file uploads per device. |
 | Direct methods | 24 MB/sec/unit (for S3), 480 KB/sec/unit (for S2), 160 KB/sec/unit (for S1).<br/> Based on 8-KB throttling meter size. |
 | Device twin reads | 500/sec/unit (for S3), Maximum of 100/sec or 10/sec/unit (for S2), 100/sec (for S1) |
 | Device twin updates | 250/sec/unit (for S3), Maximum of 50/sec or 5/sec/unit (for S2), 50/sec (for S1) |
 | Jobs operations <br/> (create, update, list, and delete) | 83.33/sec/unit (5,000/min/unit) (for S3), 1.67/sec/unit (100/min/unit) (for S2), 1.67/sec/unit (100/min/unit) (for S1). |
 | Jobs per-device operation throughput | 50/sec/unit (for S3), maximum of 10/sec or 1/sec/unit (for S2), 10/sec (for S1). |
 | Device stream initiation rate | 5 new streams/sec (for S1, S2, S3, and F1 only). |
+
+### IoT Hub with ADR integration and Microsoft-backed X.509 certificate management (preview) limits
+
+The following table lists the limits that apply to IoT Hub (preview) instances.
+
+|Feature|Limit|
+|----------------------------------|-------------------------------|
+|Number of devices per IoT Hub (preview) instance	| 10,000|
+|Number of IoT Hub (preview) instances per ADR namespace | 3|
+|Protocols supported for certificate provisioning|HTTP, MQTT, and MQTT-Web-Sockets protocols. |
+
+All other throttles, limits to IoT Hub preview resources are equivalent to a S1 standard IoT Hub
+
+The following table lists the limits that apply to [ADR integration](../articles/iot-hub/iot-hub-device-registry-overview.md) and [certificate management](../articles/iot-hub/iot-hub-certificate-management-overview.md) preview features.
+
+| Feature	| Limit|
+|----------------------------------|-------------------------------|
+|Number of ADR namespaces per Azure subscription	| 100|
+|Number of device create per minute	| 500 devices per minute per subscription|
+|Number of devices to be disabled per minute	| 500|
+|Number of devices to be enabled per minute	| 500|
+|Number of certificates issued by PKI (by a device DPS instance) during provisioning|500 per minute|
+|Number of certificate renewals|500 per minute|
+|Number of credential resources per tenant|2|
+|Number of credential resources per ADR namespace|1|
+|Number of policies per credential resource|1|
+
+For more information, you can view the [full list of ADR limits](#azure-device-registry-limits).
+

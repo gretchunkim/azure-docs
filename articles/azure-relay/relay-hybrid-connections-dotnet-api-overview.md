@@ -2,13 +2,16 @@
 title: Overview of Azure Relay .NET Standard APIs | Microsoft Docs
 description: This article summarizes some of the key an overview of Azure Relay Hybrid Connections .NET Standard API.
 ms.topic: article
-ms.custom: devx-track-csharp
-ms.date: 06/23/2020
+ms.custom: devx-track-csharp, devx-track-dotnet
+ms.date: 12/10/2024
 ---
 
 # Azure Relay Hybrid Connections .NET Standard API overview
 
 This article summarizes some of the key Azure Relay Hybrid Connections .NET Standard [client APIs](/dotnet/api/microsoft.azure.relay).
+
+> [!NOTE]
+> The sample code in this article uses a connection string to authenticate to an Azure Relay namespace. We recommend that you use Microsoft Entra ID authentication in production environments, rather than using connection strings or shared access signatures, which can be more easily compromised. For detailed information and sample code for using the Microsoft Entra ID authentication, see [Authenticate and authorize an application with Microsoft Entra ID to access Azure Relay entities](authenticate-application.md) and [Authenticate a managed identity with Microsoft Entra ID to access Azure Relay resources](authenticate-managed-identity.md).  
   
 ## Relay Connection String Builder class
 
@@ -48,7 +51,7 @@ catch (ArgumentException ae)
 
 ## Hybrid connection stream
 
-The [HybridConnectionStream][HCStream] class is the primary object used to send and receive data from an Azure Relay endpoint, whether you are working with a [HybridConnectionClient][HCClient], or a [HybridConnectionListener][HCListener].
+The [HybridConnectionStream][HCStream] class is the primary object used to send and receive data from an Azure Relay endpoint, whether you're working with a [HybridConnectionClient][HCClient], or a [HybridConnectionListener][HCListener].
 
 ### Getting a Hybrid connection stream
 
@@ -78,14 +81,14 @@ var hybridConnectionStream = await client.CreateConnectionAsync();
 
 ### Receiving data
 
-The [HybridConnectionStream][HCStream] class enables two-way communication. In most cases, you continuously receive from the stream. If you are reading text from the stream, you might also want to use a [StreamReader](/dotnet/api/system.io.streamreader?view=netcore-3.1) object, which enables easier parsing of the data. For example, you can read data as text, rather than as `byte[]`.
+The [HybridConnectionStream][HCStream] class enables two-way communication. In most cases, you continuously receive from the stream. If you're reading text from the stream, you might also want to use a [StreamReader](/dotnet/api/system.io.streamreader) object, which enables easier parsing of the data. For example, you can read data as text, rather than as `byte[]`.
 
 The following code reads individual lines of text from the stream until a cancellation is requested:
 
 ```csharp
 // Create a CancellationToken, so that we can cancel the while loop
 var cancellationToken = new CancellationToken();
-// Create a StreamReader from the 'hybridConnectionStream`
+// Create a StreamReader from the hybridConnectionStream
 var streamReader = new StreamReader(hybridConnectionStream);
 
 while (!cancellationToken.IsCancellationRequested)
@@ -105,14 +108,14 @@ while (!cancellationToken.IsCancellationRequested)
 
 ### Sending data
 
-Once you have a connection established, you can send a message to the Relay endpoint. Because the connection object inherits [Stream](/dotnet/api/system.io.stream?view=netcore-3.1), send your data as a `byte[]`. The following example shows how to do this:
+Once you have a connection established, you can send a message to the Relay endpoint. Because the connection object inherits [Stream](/dotnet/api/system.io.stream), send your data as a `byte[]`. The following example shows how to do it:
 
 ```csharp
 var data = Encoding.UTF8.GetBytes("hello");
 await clientConnection.WriteAsync(data, 0, data.Length);
 ```
 
-However, if you want to send text directly, without needing to encode the string each time, you can wrap the `hybridConnectionStream` object with a [StreamWriter](/dotnet/api/system.io.streamwriter?view=netcore-3.1) object.
+However, if you want to send text directly, without needing to encode the string each time, you can wrap the `hybridConnectionStream` object with a [StreamWriter](/dotnet/api/system.io.streamwriter) object.
 
 ```csharp
 // The StreamWriter object only needs to be created once

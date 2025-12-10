@@ -1,88 +1,115 @@
 ---
-title: Azure Front Door | Microsoft Docs
-description: This article provides an overview of Azure Front Door. Find out if it is the right choice for load-balancing user traffic for your application.
-services: frontdoor
-documentationcenter: ''
-author: duongau
-editor: ''
-ms.service: frontdoor
-ms.devlang: na
+title: Azure Front Door
+description: This article provides an overview of Azure Front Door.
+author: halkazwini
+ms.author: halkazwini
+ms.service: azure-frontdoor
 ms.topic: overview
-ms.tgt_pltfrm: na
-ms.workload: infrastructure-services
-ms.date: 09/02/2020
-ms.author: duau
-# customer intent: As an IT admin, I want to learn about Front Door and what I can use it for. 
+ms.date: 11/12/2024
+ms.custom: portfolio-consolidation-2025
+#customer intent: As an IT admin, I want to learn about Front Door and what I can use it for.
 ---
 
 # What is Azure Front Door?
-Azure Front Door enables you to define, manage, and monitor the global routing for your web traffic by optimizing for best performance and quick global failover for high availability. With Front Door, you can transform your global (multi-region) consumer and enterprise applications into robust, high-performance personalized modern applications, APIs, and content that reaches a global audience with Azure.
 
-Front Door works at Layer 7 or HTTP/HTTPS layer and uses anycast protocol with split TCP and Microsoft's global network for improving global connectivity. So, per your routing method selection in the configuration, you can ensure that Front Door is routing your client requests to the fastest and most available application backend. An application backend is any Internet-facing service hosted inside or outside of Azure. Front Door provides a range of [traffic-routing methods](front-door-routing-methods.md) and [backend health monitoring options](front-door-health-probes.md) to suit different application needs and automatic failover models. Similar to [Traffic Manager](../traffic-manager/traffic-manager-overview.md), Front Door is resilient to failures, including the failure of an entire Azure region.
+Whether you are delivering content and files or developing global applications and APIs, Azure Front Door enhances your user experience by providing higher availability, reduced latency, increased scalability, and improved security, no matter where your users are located. 
+
+Azure Front Door is Microsoft's advanced cloud Content Delivery Network (CDN) designed to provide fast, reliable, and secure access to your applications' static and dynamic web content globally. By using Microsoft's extensive global edge network, Azure Front Door ensures efficient content delivery through numerous [global and local points of presence (PoPs)](edge-locations-by-region.md) strategically positioned close to both enterprise and consumer end users.
+
+:::image type="content" source="./media/overview/front-door-overview.png" alt-text="Diagram of Azure Front Door routing user traffic to endpoints." lightbox="./media/overview/front-door-overview-expanded.png":::
+
+[!INCLUDE [ddos-waf-recommendation](../../includes/ddos-waf-recommendation.md)]
 
 >[!NOTE]
-> Azure provides a suite of fully managed load-balancing solutions for your scenarios. If you are looking for a DNS based global routing and do **not** have requirements for Transport Layer Security (TLS) protocol termination ("SSL offload") or per-HTTP/HTTPS request, application-layer processing, review [Traffic Manager](../traffic-manager/traffic-manager-overview.md). If you are looking for load balancing between your servers in a region, for application layer, review [Application Gateway](../application-gateway/application-gateway-introduction.md) and for network layer load balancing, review [Load Balancer](../load-balancer/load-balancer-overview.md). Your end-to-end scenarios might benefit from combining these solutions as needed.
->
-> For an Azure load-balancing options comparison, see [Overview of load-balancing options in Azure](https://docs.microsoft.com/azure/architecture/guide/technology-choices/load-balancing-overview).
+> Azure Front Door is one of the services in the Load Balancing and Content Delivery service category in Azure. Other services in this category include [Azure Load Balancer](../load-balancer/load-balancer-overview.md) and [Azure Application Gateway](../application-gateway/overview.md). Each service has its own unique features and use cases. For more information on this service category, see [Load Balancing and Content Delivery](../networking/load-balancer-content-delivery/load-balancing-content-delivery-overview.md).
 
-The following features are included with Front Door:
+## Why use Azure Front Door?
 
-## Accelerate application performance
-Using split TCP-based anycast protocol, Front Door ensures that your end users promptly connect to the nearest Front Door POP (Point of Presence). Using Microsoft's global network for connecting to your application backends from Front Door POPs, ensure higher availability and reliability while maintaining performance. This connectivity to your backend is also based on least network latency. Learn more about Front Door routing techniques like [Split TCP](front-door-routing-architecture.md#splittcp) and [Anycast protocol](front-door-routing-architecture.md#anycast).
+> [!VIDEO https://www.youtube.com/embed/-4FQYxV9mAE]
 
-## Increase application availability with smart health probes
+Azure Front Door enables internet-facing application to:
 
-Front Door delivers high availability for your critical applications using its smart health probes, monitoring your backends for both latency and availability and providing quick automatic failover when a backend goes down. So, you can run planned maintenance operations on your applications without downtime. Front Door directs traffic to alternative backends while the maintenance is in progress.
+* **Build and operate modern internet-first architectures** that have dynamic, high-quality digital experiences with highly automated, secure, and reliable platforms.
 
-## URL-based routing
-URL Path Based Routing allows you to route traffic to backend pools based on URL paths of the request. One of the scenarios is to route requests for different content types to different backend pools.
+* **Accelerate and deliver your applications and content globally** at scale to your users wherever they are, creating opportunities for you to compete, and quickly adapt to new demand and markets.
 
-For example, requests for `http://www.contoso.com/users/*` are routed to UserProfilePool, and `http://www.contoso.com/products/*` are routed to ProductInventoryPool.  Front Door allows even more complex route matching scenarios using best match algorithm and so if none of the path patterns match then your default routing rule for `http://www.contoso.com/*` is selected and the traffic is directed to default catch-all routing rule. Learn more at [Route Matching](front-door-route-matching.md).
+* **Intelligently secure your digital estate** against known and new threats with intelligent security that embrace a **_Zero Trust_** framework.
 
-## Multiple-site hosting
-Multiple-site hosting enables you to configure more than one web site on the same Front Door configuration. This feature allows you to configure a more efficient topology for your deployments by adding different web sites to a single Front Door configuration. Based on your application's architecture, you can configure Azure Front Door to either direct each web site to its own backend pool or have various web sites directed to the same backend pool. For example, Front Door can serve traffic for `images.contoso.com` and `videos.contoso.com` from two backend pools called ImagePool and VideoPool. Alternatively you can configure both the front-end hosts to direct traffic to a single backend pool called MediaPool.
+## Key Benefits
 
-Similarly, you can have two different domains `www.contoso.com` and `www.fabrikam.com` configured on the same Front Door.
+### Global delivery scale using Microsoft’s network
 
-## Session affinity
-The cookie-based session affinity feature is useful when you want to keep a user session on the same application backend. By using Front Door managed cookies, subsequent traffic from a user session gets directed to the same application backend for processing. This feature is important in cases where session state is saved locally on the backend for a user session.
+Scale out and improve performance of your applications and content using Microsoft’s global Cloud CDN and WAN.
 
-## TLS termination
-Front Door supports TLS termination at the edge that is, individual users can set up a TLS connection with Front Door environments instead of establishing it over long haul connections with the application backend. Additionally, Front Door supports both HTTP as well as HTTPS connectivity between Front Door environments and your backends. So, you can also set up end-to-end TLS encryption. For example, if Front Door for your application workload receives over 5000 requests in a minute, due to warm connection reuse, for active services, it will only establish say about 500 connections with your application backend, thereby reducing significant load from your backends.
+* Uses over [118 edge locations](edge-locations-by-region.md) across 100 metro cities connected to Azure using a private enterprise-grade WAN and improve latency for applications by up to three times.
 
-## Custom domains and certificate management
-When you use Front Door to deliver content, a custom domain is necessary if you would like your own domain name to be visible in your Front Door URL. Having a visible domain name can be convenient for your customers and useful for branding purposes.
-Front Door also supports HTTPS for custom domain names. Use this feature by either choosing Front Door managed certificates for your traffic or uploading your own custom TLS/SSL certificate.
+* Accelerate application performance by using Front Door’s [anycast](front-door-traffic-acceleration.md#select-the-front-door-edge-location-for-the-request-anycast) network and [split TCP](front-door-traffic-acceleration.md#connect-to-the-front-door-edge-location-split-tcp) connections.
 
-## Application layer security
-Azure Front Door allows you to author custom Web Application Firewall (WAF) rules for access control to protect your HTTP/HTTPS workload from exploitation based on client IP addresses, country code, and http parameters. Additionally, Front Door also enables you to create rate limiting rules to battle malicious bot traffic. For more information about Web Application Firewall, see [What is Azure Web Application Firewall?](../web-application-firewall/overview.md)
+* Terminate SSL offload at the edge and use integrated [certificate management](standard-premium/how-to-configure-https-custom-domain.md).
 
-Front Door platform itself is protected by [Azure DDoS Protection](../virtual-network/ddos-protection-overview.md) Basic. For further protection, Azure DDoS Protection Standard may be enabled at your VNETs and safeguard resources from network layer (TCP/UDP) attacks via auto tuning and mitigation. Front Door is a layer 7 reverse proxy, it only allows web traffic to pass through to backends and block other types of traffic by default.
+* Natively support end-to-end IPv6 connectivity and the HTTP/2 protocol.
 
-## URL redirection
-With the strong industry push on supporting only secure communication, web applications are expected to automatically redirect any HTTP traffic to HTTPS. This ensures that all communication between the users and the application occurs over an encrypted path. 
+### Deliver modern apps and architectures
 
-Traditionally, application owners have dealt with this requirement by creating a dedicated service, whose sole purpose was to redirect requests it receives on HTTP to HTTPS. Azure Front Door supports the ability to redirect traffic from HTTP to HTTPS. This simplifies application configuration, optimizes the resource usage, and supports new redirection scenarios, including global and path-based redirection. URL redirection from Azure Front Door is not limited to HTTP to HTTPS redirection alone, but also to redirect to a different hostname, redirecting to a different path, or even redirecting to a new query string in the URL.
+Modernize your internet first applications on Azure with Cloud Native experiences
 
-For more information, see [redirecting traffic](front-door-url-redirect.md) with Azure Front Door.
+* Integrate with DevOps friendly command line tools across SDKs of different languages, Bicep, ARM templates, CLI, and PowerShell.
 
-## URL rewrite
-Front Door supports [URL rewrite](front-door-url-rewrite.md) by allowing you to configure an optional Custom Forwarding Path to use when constructing the request to forward to the backend. Front Door further allows you to configure Host header to be sent when forwarding the request to your backend.
+* Define your own [custom domain](standard-premium/how-to-add-custom-domain.md) with flexible domain validation.
 
-## Protocol support - IPv6 and HTTP/2 traffic
-Azure Front Door natively supports end-to-end IPv6 connectivity and also HTTP/2 protocol. 
+* Load balance and route traffic across [origins](origin.md) and use intelligent [health probe](health-probes.md) monitoring across apps or content hosted in Azure or anywhere.
 
-The HTTP/2 protocol enables full-duplex communication between application backends and a client over a long-running TCP connection. HTTP/2 allows for a more interactive communication between the backend and the client, which can be bidirectional without the need for polling as required in HTTP-based implementations. HTTP/2 protocol has low overhead, unlike HTTP, and can reuse the same TCP connection for multiple request or responses resulting in a more efficient utilization of resources. Learn more about [HTTP/2 support in Azure Front Door](front-door-http2.md).
+* Integrate with other Azure services such as DNS, Web Apps, Storage, and many more for domain and origin management.
+
+* Move your routing business logic to the edge with [enhanced rules engine](front-door-rules-engine.md) capabilities including regular expressions and server variables.
+
+* Analyze [built-in reports](standard-premium/how-to-reports.md) with an all-in-one dashboard for both Front Door and security patterns.
+
+* [Monitor your Front Door traffic in real time](standard-premium/how-to-monitor-metrics.md), and configure alerts that integrate with Azure Monitor.
+
+* [Log each Front Door request](standard-premium/how-to-logs.md) and failed health probes.
+
+### Simple and cost-effective
+
+* Unified static and dynamic delivery offered in a single tier to accelerate and scale your application through caching, SSL offload, and layer 3-4 DDoS protection.
+
+* Free, [autorotation managed SSL certificates](end-to-end-tls.md) that save time and quickly secure apps and content.
+
+* Low entry fee and a simplified cost model that reduces billing complexity by having fewer meters needed to plan for.
+
+* Azure to Front Door integrated egress pricing that removes the separate egress charge from Azure regions to Azure Front Door. For more information, see [Azure Front Door pricing](https://azure.microsoft.com/pricing/details/frontdoor/).
+
+### Intelligent secure internet perimeter
+
+* Secure applications with built-in layer 3-4 DDoS protection, seamlessly attached [Web Application Firewall (WAF)](../web-application-firewall/afds/afds-overview.md), and [Azure DNS to protect your domains](how-to-configure-endpoints.md).
+
+* Protect your applications against layer 7 DDoS attacks using WAF. For more information, see [Application DDoS protection](../web-application-firewall/shared/application-ddos-protection.md).
+
+* Protect your applications from malicious actors with Bot manager rules based on Microsoft’s own Threat Intelligence.
+
+* Privately connect to your backend behind Azure Front Door with [Private Link](private-link.md) and embrace a zero-trust access model.
+
+* Provide a centralized security experience for your application via Azure Policy and Azure Advisor that ensures consistent security features across apps.
+
+
+## How to choose between Azure Front Door tiers?
+
+For a comparison of supported features in Azure Front Door, see [Tier comparison](standard-premium/tier-comparison.md).
+
+## Where is the service available?
+
+Azure Front Door Standard, Premium, and Classic tiers are available in Microsoft Azure (Commercial) and Microsoft Azure Government (US).
 
 ## Pricing
 
-For pricing information, see [Front Door Pricing](https://azure.microsoft.com/pricing/details/frontdoor/).
+For pricing information, see [Front Door Pricing](https://azure.microsoft.com/pricing/details/frontdoor/). For information about service-level agreements, See [SLA for Azure Front Door](https://azure.microsoft.com/support/legal/sla/frontdoor/v1_0/).
 
 ## What's new?
 
-Subscribe to the RSS feed and view the latest Azure Front Door feature updates on the [Azure Updates](https://azure.microsoft.com/updates/?category=networking&query=Azure%20Front%20Door) page.
+Subscribe to the RSS feed and view the latest Azure Front Door feature updates on the [Azure Updates](https://azure.microsoft.com/updates?filters=%5B%22Azure+Front+Door%22%5D) page.
 
 ## Next steps
 
-- Learn how to [create a Front Door](quickstart-create-front-door.md).
-- Learn [how Front Door works](front-door-routing-architecture.md).
+* Learn about [Azure Front Door routing architecture](front-door-routing-architecture.md)
+* Learn how to [create an Azure Front Door profile](create-front-door-portal.md).
+* [Learn module: Introduction to Azure Front Door](/training/modules/intro-to-azure-front-door/).

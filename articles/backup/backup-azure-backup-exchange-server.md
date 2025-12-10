@@ -1,13 +1,18 @@
 ---
 title: Back up an Exchange server via System Center DPM
 description: Learn how to back up an Exchange server to Azure Backup using System Center 2012 R2 DPM
-ms.reviewer: kasinh
-ms.topic: conceptual
-ms.date: 01/31/2019
+ms.topic: how-to
+ms.date: 07/15/2025
+author: AbhishekMallick-MS
+ms.author: v-mallicka
+# Customer intent: "As an IT administrator, I want to configure backup for an Exchange server to Azure Backup using DPM, so that I can ensure data protection and recovery for my organization's email infrastructure."
 ---
+
 # Back up an Exchange server to Azure Backup with System Center 2012 R2 DPM
 
 This article describes how to configure a System Center 2012 R2 Data Protection Manager (DPM) server to back up a Microsoft Exchange server to Azure Backup.  
+
+[!INCLUDE [The functionality of Azure Backup trim process.](../../includes/backup-trim-process-notification.md)]
 
 ## Updates
 
@@ -32,8 +37,8 @@ Before you continue, make sure that all the [prerequisites](backup-azure-dpm-int
 
 To install the DPM protection agent on the Exchange server, follow these steps:
 
-1. Make sure that the firewalls are correctly configured. See [Configure firewall exceptions for the agent](/system-center/dpm/configure-firewall-settings-for-dpm?view=sc-dpm-2019).
-2. Install the agent on the Exchange server by selecting **Management > Agents > Install** in DPM Administrator Console. See [Install the DPM protection agent](/system-center/dpm/deploy-dpm-protection-agent?view=sc-dpm-2019) for detailed steps.
+1. Make sure that the firewalls are correctly configured. See [Configure firewall exceptions for the agent](/system-center/dpm/configure-firewall-settings-for-dpm).
+2. Install the agent on the Exchange server by selecting **Management > Agents > Install** in DPM Administrator Console. See [Install the DPM protection agent](/system-center/dpm/deploy-dpm-protection-agent) for detailed steps.
 
 ## Create a protection group for the Exchange server
 
@@ -116,4 +121,8 @@ For online recovery points, there are five recovery types:
 
 ## Next steps
 
-* [Azure Backup FAQ](backup-azure-backup-faq.md)
+* [Azure Backup FAQ](backup-azure-backup-faq.yml)
+
+## Related content
+
+[Manage backup to Azure for DPM servers via PowerShell](backup-dpm-automation.md).

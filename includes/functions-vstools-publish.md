@@ -1,51 +1,47 @@
 ---
-title: include file
-description: include file
-services: functions
 author: ggailey777
 ms.service: azure-functions
 ms.topic: include
-ms.date: 03/06/2020
+ms.date: 09/10/2025
 ms.author: glenga
-ms.custom: include file
+ms.custom:
+  - devdivchpfy22
+  - sfi-image-nochange
 ---
 
-1. In **Solution Explorer**, right-click the project and select **Publish**.
+1. In **Solution Explorer**, right-click the project and then select **Publish**.
 
-1. In **Pick a publish target**, use the publish options specified in the following table: 
+1. On the **Publish** page, make the following selections:
+   - On **Target**, select **Azure**, and then select **Next**.
+   - On **Specific target**, select **Azure Function App**, and then select **Next**.  
+   - On **Functions instance**, select **Create new**.
 
-    | Option      | Description                                |
-    | ------------ |  -------------------------------------------------- |
-    | **Azure Functions Consumption Plan** | Create a function app in an Azure cloud environment that runs in a [Consumption plan](../articles/azure-functions/functions-scale.md#consumption-plan). When you use a Consumption plan, you pay only for executions of your functions app. Other hosting plans incur higher costs. If you run in a plan other than a Consumption plan, you must manage the [scaling of your function app](../articles/azure-functions/functions-scale.md).| 
-    | **Create New** | A new function app, with related resources, is created in Azure. <br/>If you choose **Select Existing**, all files in the existing function app in Azure are overwritten by files from the local project. Use this option only when you republish updates to an existing function app. |
-    | **Run from package file** | Your function app is deployed using [Zip Deploy](../articles/azure-functions/functions-deployment-technologies.md#zip-deploy) with [Run-From-Package](../articles/azure-functions/run-functions-from-deployment-package.md) mode enabled. This deployment, which results in better performance, is the recommended way of running your functions. <br/>If you don't use this option, make sure to stop your function app project from running locally before you publish to Azure. |
+   :::image type="content" source="media/functions-vstools-publish/visual-studio-tools-functions-instance.png" alt-text="Screenshot of the Publish page. In the Functions instance section, a resource group is visible, and Create new is highlighted.":::
 
-    :::image type="content" source="media/functions-vstools-publish/functions-visual-studio-publish-profile.png" alt-text="Create a publish profile":::
+1. Create a new instance by using the values specified in the following table:
 
+   | Setting      | Value  | Description                                |
+   | ------------ |  ------- | -------------------------------------------------- |
+   | **Name** | A globally unique name | The name must uniquely identify your new function app. Accept the suggested name or enter a new name. The following characters are valid: `a-z`, `0-9`, and `-`. |
+   | **Subscription name** | The name of your subscription | The function app is created in an Azure subscription. Accept the default subscription or select a different one from the list. |
+   | **[Resource group](../articles/azure-resource-manager/management/overview.md)** | The name of your resource group |  The function app is created in a resource group. Select **New** to create a new resource group. You can also select an existing resource group from the list. |
+   | **[Plan Type](../articles/azure-functions/functions-scale.md)** | **Flex Consumption** | When you publish your project to a function app that runs in a [Flex Consumption plan](../articles/azure-functions/flex-consumption-plan.md), you might pay only for executions of your functions app. Other hosting plans can incur higher costs.<blockquote>**IMPORTANT:**<br/>When creating a Flex Consumption plan, you must first select **App service plan** and then reselect **Flex Consumption** to clear an issue with the dialog.</blockquote> |
+   | **Operating system** | **Linux** | The Flex Consumption plan currently requires Linux. |
+   | **Location** | The location of the app service | Select a location in an [Azure region supported by the Flex Consumption plan](../articles/azure-functions/flex-consumption-how-to.md#view-currently-supported-regions). When an unsupported region is selected, the **Create** button is grayed-out. |
+   | **Instance memory size** | **2048** | The [memory size of the virtual machine instances](../articles/azure-functions/flex-consumption-plan.md#instance-sizes) in which the app runs is unique to the Flex Consumption plan. |  
+   | **[Azure Storage](../articles/azure-functions/storage-considerations.md)** | A general-purpose storage account | The Functions runtime requires a Storage account. Select **New** to configure a general-purpose storage account. You can also use an existing account that meets the [storage account requirements](../articles/azure-functions/storage-considerations.md#storage-account-requirements).  |
+   | **[Application Insights](../articles/azure-functions/functions-monitoring.md)** | An Application Insights instance | You should turn on Application Insights integration for your function app. Select **New** to create a new instance, either in a new or in an existing Log Analytics workspace. You can also use an existing instance.  |
 
-1. Select **Create Profile**. If you haven't already signed-in to your Azure account from Visual Studio, select **Sign-in**. You can also create a free Azure account.
+   :::image type="content" source="./media/functions-vstools-publish/functions-vs-function-app.png" alt-text="Screenshot of the Function App Create new dialog. Fields for the name, subscription, resource group, plan, and other settings are filled in.":::
 
-1. In **App Service: Create new**, use the values specified in the following table:
+1. Select **Create** to create a function app and its related resources in Azure. The status of resource creation is shown in the lower-left corner of the window.
 
-    | Setting      | Value  | Description                                |
-    | ------------ |  ------- | -------------------------------------------------- |
-    | **Name** | Globally unique name | Name that uniquely identifies your new function app. Accept this name or enter a new name. Valid characters are: `a-z`, `0-9`, and `-`. |
-    | **Subscription** | Your subscription | The Azure subscription to use. Accept this subscription or select a new one from the drop-down list. |
-    | **[Resource group](../articles/azure-resource-manager/management/overview.md)** | Name of your resource group |  The resource group in which to create your function app. Select an existing resource group from the drop-down list or choose **New** to create a new resource group.|
-    | **[Hosting Plan](../articles/azure-functions/functions-scale.md)** | Name of your hosting plan | Select **New** to configure a serverless plan. Make sure to choose the **Consumption** under **Size**. When you publish your project to a function app that runs in a [Consumption plan](../articles/azure-functions/functions-scale.md#consumption-plan), you pay only for executions of your functions app. Other hosting plans incur higher costs. If you run in a plan other than **Consumption**, you must manage the [scaling of your function app](../articles/azure-functions/functions-scale.md).  |
-    | **Location** | Location of the app service | Choose a **Location** in a [region](https://azure.microsoft.com/regions/) near you or other services your functions access. |
-    | **[Azure Storage](../articles/storage/common/storage-account-create.md)** | General-purpose storage account | An Azure Storage account is required by the Functions runtime. Select **New** to configure a general-purpose storage account. You can also choose an existing account that meets the [storage account requirements](../articles/azure-functions/functions-scale.md#storage-account-requirements).  |
+1. Select **Finish**. The **Publish profile creation progress** window appears. When the profile is created, select **Close**.
 
-    ![Create App Service dialog](./media/functions-vstools-publish/functions-visual-studio-publish.png)
+1. On the publish profile page, select **Publish** to deploy the package that contains your project files to your new function app in Azure.
 
-1. Select **Create** to create a function app and its related resources in Azure with these settings and deploy your function project code. 
+   When deployment is complete, the root URL of the function app in Azure is shown on the publish profile page.
 
-1. Select **Publish** and wait for the deployment to complete. 
+1. On the publish profile page, go to the **Hosting** section. Select the ellipsis (**...**), and then select **Open in Azure portal**. The new function app Azure resource opens in the Azure portal.
 
-    After the deployment completes the root URL of the function app in Azure is shown in the **Publish** tab. 
-    
-1.  In the Publish tab, choose **Manage in Cloud Explorer**. This opens the new function app Azure resource in Cloud Explorer. 
-    
-    :::image type="content" source="media/functions-vstools-publish/functions-visual-studio-publish-complete.png" alt-text="Publish success message":::
-    
-    Cloud Explorer lets you use Visual Studio to view the contents of the site, start and stop the function app, and browse directly to function app resources on Azure and in the Azure portal. 
+    :::image type="content" source="media/functions-vstools-publish/visual-studio-tools-functions-publish-complete.png" alt-text="Screenshot of the publish profile page. In the Hosting section, the ellipsis shortcut menu is open, and Open in Azure portal is highlighted." lightbox="media/functions-vstools-publish/visual-studio-tools-functions-publish-complete.png":::

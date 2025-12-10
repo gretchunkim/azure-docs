@@ -1,9 +1,10 @@
 ---
 title: "Quickstart: Create a management group with REST API"
 description: In this quickstart, you use REST API to create a management group to organize your resources into a resource hierarchy.
-ms.date: 08/31/2020
+ms.date: 07/19/2024
 ms.topic: quickstart
 ---
+
 # Quickstart: Create a management group with REST API
 
 Management groups are containers that help you manage access, policy, and compliance across multiple
@@ -19,38 +20,34 @@ directory. You receive a notification when the process is complete. For more inf
 
 ## Prerequisites
 
-- If you don't have an Azure subscription, create a [free](https://azure.microsoft.com/free/)
+- If you don't have an Azure subscription, create a [free](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn)
   account before you begin.
 
 - If you haven't already, install [ARMClient](https://github.com/projectkudu/ARMClient). It's a tool
-  that sends HTTP requests to Azure Resource Manager-based REST APIs. Alternatively, you can use the
-  "Try It" feature in REST documentation or tooling like PowerShell's
-  [Invoke-RestMethod](/powershell/module/microsoft.powershell.utility/invoke-restmethod) or
-  [Postman](https://www.postman.com).
+  that sends HTTP requests to Azure Resource Manager-based REST APIs.
 
-- Any Azure AD user in the tenant can create a management group without the management group write
+- Any Microsoft Entra ID user in the tenant can create a management group without the management group write
   permission assigned to that user if
-  [hierarchy protection](./how-to/protect-resource-hierarchy.md#setting---require-authorization)
+  [hierarchy protection](./how-to/protect-resource-hierarchy.md#setting-require-authorization)
   isn't enabled. This new management group becomes a child of the Root Management Group or the
-  [default management group](./how-to/protect-resource-hierarchy.md#setting---default-management-group)
-  and the creator is given an "Owner" role assignment. Management group service allows this ability
-  so that role assignments aren't needed at the root level. No users have access to the Root
-  Management Group when it's created. To avoid the hurdle of finding the Azure AD Global Admins to
-  start using management groups, we allow the creation of the initial management groups at the root
-  level.
+  [default management group](./how-to/protect-resource-hierarchy.md#setting-define-the-default-management-group)
+  and the creator is given an Owner role assignment. Management group service allows this ability
+  so that role assignments aren't needed at the root level. When the Root
+    Management Group is created, users don't have access to it. To start using management groups, the service allows the creation of the initial management groups at the root level. For more information, see [Root management group for each directory](./overview.md#root-management-group-for-each-directory).
 
-[!INCLUDE [cloud-shell-try-it.md](../../../includes/cloud-shell-try-it.md)]
+[!INCLUDE [cloud-shell-try-it.md](~/reusable-content/ce-skilling/azure/includes/cloud-shell-try-it.md)]
 
 ### Create in REST API
 
 For REST API, use the
-[Management Groups - Create or Update](/rest/api/resources/managementgroups/createorupdate) endpoint
-to create a new management group. In this example, the management group **groupId** is _Contoso_.
+[Management Groups - Create or Update](/rest/api/managementgroups/managementgroups/createorupdate)
+endpoint to create a new management group. In this example, the management group **groupId** is
+_Contoso_.
 
 - REST API URI
 
   ```http
-  PUT https://management.azure.com/providers/Microsoft.Management/managementGroups/Contoso?api-version=2020-02-01
+  PUT https://management.azure.com/providers/Microsoft.Management/managementGroups/Contoso?api-version=2020-05-01
   ```
 
 - No Request Body
@@ -66,7 +63,7 @@ endpoint and request body:
 - REST API URI
 
   ```http
-  PUT https://management.azure.com/providers/Microsoft.Management/managementGroups/Contoso?api-version=2020-02-01
+  PUT https://management.azure.com/providers/Microsoft.Management/managementGroups/Contoso?api-version=2020-05-01
   ```
 
 - Request Body
@@ -85,7 +82,7 @@ specify a different management group as the parent, use the **properties.parent.
 - REST API URI
 
   ```http
-  PUT https://management.azure.com/providers/Microsoft.Management/managementGroups/Contoso?api-version=2020-02-01
+  PUT https://management.azure.com/providers/Microsoft.Management/managementGroups/Contoso?api-version=2020-05-01
   ```
 
 - Request Body
@@ -104,12 +101,12 @@ specify a different management group as the parent, use the **properties.parent.
 ## Clean up resources
 
 To remove the management group created above, use the
-[Management Groups - Delete](/rest/api/resources/managementgroups/delete) endpoint:
+[Management Groups - Delete](/rest/api/managementgroups/managementgroups/delete) endpoint:
 
 - REST API URI
 
   ```http
-  DELETE https://management.azure.com/providers/Microsoft.Management/managementGroups/Contoso?api-version=2020-02-01
+  DELETE https://management.azure.com/providers/Microsoft.Management/managementGroups/Contoso?api-version=2020-05-01
   ```
 
 - No Request Body

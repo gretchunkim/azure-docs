@@ -1,22 +1,42 @@
 ---
-title: Until activity in Azure Data Factory 
-description: The Until activity executes a set of activities in a loop until the condition associated with the activity evaluates to true or it times out. 
-services: data-factory
-documentationcenter: ''
-author: djpmsft
-ms.author: daperlov
-manager: jroth
-ms.reviewer: maghan
-ms.service: data-factory
-ms.workload: data-services
+title: Until activity
+titleSuffix: Azure Data Factory & Azure Synapse
+description: The Until activity in Azure Data Factory and Synapse Analytics pipelines executes a set of activities in a loop until the condition associated with the activity evaluates to true or it times out. 
+author: kromerm
+ms.author: makromer
+ms.reviewer: whhender
+ms.subservice: orchestration
 ms.topic: conceptual
-ms.date: 01/10/2018
+ms.date: 03/20/2025
+ms.custom:
+  - devx-track-azurepowershell
+  - synapse
+  - sfi-ropc-nochange
 ---
 
-# Until activity in Azure Data Factory
+# Until activity in Azure Data Factory and Synapse Analytics
 [!INCLUDE[appliesto-adf-asa-md](includes/appliesto-adf-asa-md.md)]
 
-The Until activity provides the same functionality that a do-until looping structure provides in programming languages. It executes a set of activities in a loop until the condition associated with the activity evaluates to true. You can specify a timeout value for the until activity in Data Factory. 
+The Until activity provides the same functionality that a do-until looping structure provides in programming languages. It executes a set of activities in a loop until the condition associated with the activity evaluates to true. If an inner activity fails, the Until activity doesn't stop. You can specify a timeout value for the until activity. 
+
+## Create an Until activity with UI
+
+To use an Until activity in a pipeline, complete the following steps:
+
+1. Search for _Until_ in the pipeline Activities pane, and drag a Until activity to the pipeline canvas. 
+1. Select the Until activity on the canvas if it isn't already selected, and its  **Settings** tab, to edit its details.
+
+   :::image type="content" source="media/control-flow-until-activity/until-activity.png" alt-text="Shows the Settings tab of the Until activity in the pipeline canvas.":::
+
+1. Enter an expression that will be evaluated after all child activities defined in the Until activity is executed. If the expression evaluates to false, the Until activity executes all its child activities again. When it evaluates to true, the Until activity completes. The expression can be a literal string expression, or any combination of dynamic [expressions, functions](control-flow-expression-language-functions.md), [system variables](control-flow-system-variables.md), or [outputs from other activities](how-to-expression-language-functions.md#examples-of-using-parameters-in-expressions). The example below checks the value of a previously defined pipeline array variable called TestVariable to see if it evaluates to ['done'].
+
+   :::image type="content" source="media/control-flow-until-activity/dynamic-content-to-check-variable-value.png" alt-text="Shows the &nbsp;Add dynamic content&nbsp; pane with an expression to check a variable for a defined value.":::
+
+2. Define activities that the Until activity executes by selecting the Edit Activities button on the Until activity directly, or by selecting the Activities tab to select it there. A new activities editor pane is displayed where you can add any activities for the Until activity to execute. In this example, a Set Variable activity sets the value of the referenced variable to 'done'. So the Until activity's expression will be true the first time it's executed, and then the Until activity will stop. 
+You can use similar variables to check any conditions. The Until activity executes its child activities each time the expression is evaluated, until the conditions are met. If you iterate over multiple activities, there's potential delay in exiting the loop because of aggregation and cleanup work performed by the pipeline. 
+
+
+   :::image type="content" source="media/control-flow-until-activity/child-activities-editor.png" alt-text="Shows the activities editor for an Until activity with a Set Variable activity defined.":::
 
 ## Syntax
 
@@ -28,7 +48,7 @@ The Until activity provides the same functionality that a do-until looping struc
             "value":  "<expression that evaluates to true or false>", 
             "type": "Expression"
         },
-        "timeout": "<time out for the loop. for example: 00:01:00 (1 minute)>",
+        "timeout": "<time out for the loop. for example: 00:10:00 (10 minute)>",
         "activities": [
             {
                 "<Activity 1 definition>"
@@ -52,17 +72,17 @@ Property | Description | Allowed values | Required
 -------- | ----------- | -------------- | --------
 name | Name of the `Until` activity. | String | Yes
 type | Must be set to **Until**. | String | Yes
-expression | Expression that must evaluate to true or false | Expression.  | Yes
-timeout | The do-until loop times out after the specified time here. | String. `d.hh:mm:ss` (or) `hh:mm:ss`. The default value is 7 days. Maximum value is: 90 days. | No
+expression | Expression that must evaluate to true or false | Expression. | Yes
+timeout | The do-until loop times out after the specified time here. | String. `d.hh:mm:ss` (or) `hh:mm:ss`. The default value is seven days. Maximum value is: 90 days. | No
 Activities | Set of activities that are executed until expression evaluates to `true`. | Array of activities. |  Yes
 
 ## Example 1
 
 > [!NOTE]
-> This section provides JSON definitions and sample PowerShell commands to run the pipeline. For a walkthrough with step-by-step instructions to create a Data Factory pipeline by using Azure PowerShell and JSON definitions, see [tutorial: create a data factory by using Azure PowerShell](quickstart-create-data-factory-powershell.md).
+> This section provides JSON definitions and sample PowerShell commands to run the pipeline. For a walkthrough with step-by-step instructions to create a pipeline by using Azure PowerShell and JSON definitions, see [tutorial: create a data factory by using Azure PowerShell](quickstart-create-data-factory-powershell.md).
 
 ### Pipeline with Until activity
-In this example, the pipeline has two activities: **Until** and **Wait**. The Wait activity waits for the specified period of time before running the Web activity in the loop. To learn about expressions and functions in Data Factory, see [Expression language and functions](control-flow-expression-language-functions.md). 
+In this example, the pipeline has two activities: **Until** and **Wait**. The Wait activity waits for the specified period of time before running the Web activity in the loop. To learn about expressions and functions, see [Expression language and functions](control-flow-expression-language-functions.md). 
 
 ```json
 {
@@ -76,7 +96,7 @@ In this example, the pipeline has two activities: **Until** and **Wait**. The Wa
                         "value": "@equals('Failed', coalesce(body('MyUnauthenticatedActivity')?.status, actions('MyUnauthenticatedActivity')?.status, 'null'))",
                         "type": "Expression"
                     },
-                    "timeout": "00:00:01",
+                    "timeout": "00:10:00",
                     "activities": [
                         {
                             "name": "MyUnauthenticatedActivity",
@@ -113,7 +133,7 @@ In this example, the pipeline has two activities: **Until** and **Wait**. The Wa
 ```
 
 ## Example 2 
-The pipeline in this sample copies data from an input folder to an output folder in a loop. The loop terminates when the value for the repeat parameter is set to false or it times out after one minute.   
+The pipeline in this sample copies data from an input folder to an output folder in a loop. The loop terminates when the value for the repeat parameter is set to false or it times out after one minute.  
 
 ### Pipeline with Until activity (Adfv2QuickStartPipeline.json)
 
@@ -129,7 +149,7 @@ The pipeline in this sample copies data from an input folder to an output folder
                         "value":  "@equals('false', pipeline().parameters.repeat)", 
                         "type": "Expression"
                     },
-                    "timeout": "00:01:00",
+                    "timeout": "00:10:00",
                     "activities": [
                         {
                             "name": "CopyFromBlobToBlob",
@@ -241,9 +261,9 @@ The pipeline sets the **folderPath** to the value of either **outputPath1** or *
 
 ### PowerShell commands
 
-[!INCLUDE [updated-for-az](../../includes/updated-for-az.md)]
+[!INCLUDE [updated-for-az](~/reusable-content/ce-skilling/azure/includes/updated-for-az.md)]
 
-These commands assume that you have saved the JSON files into the folder: C:\ADF. 
+These commands assume that you saved the JSON files into the folder: C:\ADF. 
 
 ```powershell
 Connect-AzAccount
@@ -282,8 +302,8 @@ while ($True) {
 }
 ```
 
-## Next steps
-See other control flow activities supported by Data Factory: 
+## Related content
+See other supported control flow activities: 
 
 - [If Condition Activity](control-flow-if-condition-activity.md)
 - [Execute Pipeline Activity](control-flow-execute-pipeline-activity.md)

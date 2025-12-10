@@ -1,503 +1,648 @@
 ---
-title: Develop for Azure Files with .NET | Microsoft Docs
-description: Learn how to develop .NET applications and services that use Azure Files to store file data.
-author: roygara
-ms.service: storage
-ms.devlang: dotnet
-ms.topic: how-to
-ms.date: 10/7/2019
-ms.author: rogarana
-ms.subservice: files
-ms.custom: devx-track-csharp
+title: Develop for Azure Files with .NET
+titleSuffix: Azure Storage
+description: Learn how to develop .NET applications and services that use Azure Files to store data.
+author: khdownie
+ms.service: azure-file-storage
+ms.topic: concept-article
+ms.date: 04/08/2025
+ms.author: kendownie
+ms.devlang: csharp
+ms.custom: devx-track-csharp, devx-track-dotnet
+# Customer intent: "As a .NET developer, I want to learn how to integrate Azure Files into my applications, so that I can efficiently store and manage data in the cloud using various programming approaches and APIs."
 ---
 
 # Develop for Azure Files with .NET
 
 [!INCLUDE [storage-selector-file-include](../../../includes/storage-selector-file-include.md)]
 
-This tutorial demonstrates the basics of using .NET to develop applications that use [Azure Files](storage-files-introduction.md) to store file data. This tutorial creates a simple console application to do basic actions with .NET and Azure Files:
+Learn how to develop .NET applications that use Azure Files to store data. Azure Files is a managed file share service in the cloud. It provides fully managed file shares that are accessible via the industry standard Server Message Block (SMB) and Network File System (NFS) protocols. Azure Files also provides a REST API for programmatic access to file shares.
 
-* Get the contents of a file.
-* Set the maximum size or *quota* for the file share.
-* Create a shared access signature (SAS key) for a file that uses a stored access policy defined on the share.
-* Copy a file to another file in the same storage account.
-* Copy a file to a blob in the same storage account.
-* Use Azure Storage Metrics for troubleshooting.
+In this article, you learn about the different approaches to developing with Azure Files in .NET, and how to choose the approach that best fits the needs of your app. You also learn how to create a basic console app that interacts with Azure Files resources.
 
-To learn more about Azure Files, see [What is Azure Files?](storage-files-introduction.md)
+## Applies to
+| Management model | Billing model | Media tier | Redundancy | SMB | NFS |
+|-|-|-|-|:-:|:-:|
+| Microsoft.Storage | Provisioned v2 | HDD (standard) | Local (LRS) | ![Yes](../media/icons/yes-icon.png) | ![No](../media/icons/no-icon.png) |
+| Microsoft.Storage | Provisioned v2 | HDD (standard) | Zone (ZRS) | ![Yes](../media/icons/yes-icon.png) | ![No](../media/icons/no-icon.png) |
+| Microsoft.Storage | Provisioned v2 | HDD (standard) | Geo (GRS) | ![Yes](../media/icons/yes-icon.png) | ![No](../media/icons/no-icon.png) |
+| Microsoft.Storage | Provisioned v2 | HDD (standard) | GeoZone (GZRS) | ![Yes](../media/icons/yes-icon.png) | ![No](../media/icons/no-icon.png) |
+| Microsoft.Storage | Provisioned v1 | SSD (premium) | Local (LRS) | ![Yes](../media/icons/yes-icon.png) | ![No](../media/icons/no-icon.png) |
+| Microsoft.Storage | Provisioned v1 | SSD (premium) | Zone (ZRS) | ![Yes](../media/icons/yes-icon.png) | ![No](../media/icons/no-icon.png) |
+| Microsoft.Storage | Pay-as-you-go | HDD (standard) | Local (LRS) | ![Yes](../media/icons/yes-icon.png) | ![No](../media/icons/no-icon.png) |
+| Microsoft.Storage | Pay-as-you-go | HDD (standard) | Zone (ZRS) | ![Yes](../media/icons/yes-icon.png) | ![No](../media/icons/no-icon.png) |
+| Microsoft.Storage | Pay-as-you-go | HDD (standard) | Geo (GRS) | ![Yes](../media/icons/yes-icon.png) | ![No](../media/icons/no-icon.png) |
+| Microsoft.Storage | Pay-as-you-go | HDD (standard) | GeoZone (GZRS) | ![Yes](../media/icons/yes-icon.png) | ![No](../media/icons/no-icon.png) |
 
-[!INCLUDE [storage-check-out-samples-dotnet](../../../includes/storage-check-out-samples-dotnet.md)]
+## About .NET app development with Azure Files
 
-## Understanding the .NET APIs
+Azure Files offers several ways for .NET developers to access data and manage resources in Azure Files. The following table lists the approaches, summarizes how they work, and provides guidance on when to use each approach:
 
-Azure Files provides two broad approaches to client applications: Server Message Block (SMB) and REST. Within .NET, the `System.IO` and `WindowsAzure.Storage` APIs abstract these approaches.
+| Approach | How it works | When to use |
+| --- | --- | --- |
+| Standard file I/O libraries | Uses OS-level API calls through Azure file shares mounted using SMB or NFS. When you mount a file share using SMB/NFS, you can use file I/O libraries for a programming language or framework, such as `System.IO` for .NET. | You have line-of-business apps with existing code that uses standard file I/O, and you don't want to rewrite code for the app to work with an Azure file share. |
+| FileREST API | Directly calls HTTPS endpoints to interact with data stored in Azure Files. Provides programmatic control over file share resources. The Azure SDK provides the File Shares client library (`Azure.Storage.Files.Shares`) that builds on the FileREST API, allowing you interact with FileREST API operations through familiar .NET programming language paradigms. | You're building value-added cloud services and apps for customers and you want to use advanced features not available through `System.IO`. |
+| Storage resource provider REST API | Uses Azure Resource Manager (ARM) to manage storage accounts and file shares. Calls REST API endpoints for various resource management operations. | Your app or service needs to perform resource management tasks, such as creating, deleting, or updating storage accounts or file shares. |
 
-API | When to use | Notes
-----|-------------|------
-[System.IO](https://docs.microsoft.com/dotnet/api/system.io) | Your application: <ul><li>Needs to read/write files by using SMB</li><li>Is running on a device that has access over port 445 to your Azure Files account</li><li>Doesn't need to manage any of the administrative settings of the file share</li></ul> | File I/O implemented with Azure Files over SMB is generally the same as I/O with any network file share or local storage device. For an introduction to a number of features in .NET, including file I/O, see the [Console Application](https://docs.microsoft.com/dotnet/csharp/tutorials/console-teleprompter) tutorial.
-[Microsoft.Azure.Storage.File](/dotnet/api/overview/azure/storage?view=azure-dotnet#version-11x) | Your application: <ul><li>Can't access Azure Files by using SMB on port 445 because of firewall or ISP constraints</li><li>Requires administrative functionality, such as the ability to set a file share's quota or create a shared access signature</li></ul> | This article demonstrates the use of `Microsoft.Azure.Storage.File` for file I/O using REST instead of SMB and management of the file share.
+For general information about these approaches, see [Overview of application development with Azure Files](storage-files-developer-overview.md).
 
-## Create the console application and obtain the assembly
+This article focuses on working with Azure Files resources using the following approaches:
 
-In Visual Studio, create a new Windows console application. The following steps show you how to create a console application in Visual Studio 2019. The steps are similar in other versions of Visual Studio.
+- [Work with Azure Files using System.IO](#work-with-azure-files-using-systemio): Mount a file share using SMB or NFS and use the `System.IO` namespace to work with files and directories in the share.
+- [Work with Azure Files using the File Shares client library for .NET](#work-with-azure-files-data-using-the-file-shares-client-library-for-net): Use the Azure Storage File Shares client library for .NET to work with files and directories in a file share. This client library builds on the FileREST API.
+- [Manage Azure Files resources using the Azure Storage management libraries](#manage-azure-files-resources-using-the-azure-storage-management-libraries): Use the Azure Storage management libraries to manage file shares and other resources in your storage account. The management libraries build on the Azure Storage resource provider REST API.
 
-1. Start Visual Studio and select **Create a new project**.
-1. In **Create a new project**, choose **Console App (.NET Framework)** for C#, and then select **Next**.
-1. In **Configure your new project**, enter a name for the app, and select **Create**.
+## Prerequisites
 
-You can add all the code examples in this tutorial to the `Main()` method of your console application's `Program.cs` file.
+- Azure subscription - [create one for free](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn)
+- Azure storage account - [create a storage account](../common/storage-account-create.md)
+- Latest [.NET SDK](https://dotnet.microsoft.com/download/dotnet) for your operating system (get the SDK and not the runtime)
 
-You can use the Azure Storage client library in any type of .NET application. These types include an Azure cloud service or web app, and desktop and mobile applications. In this guide, we use a console application for simplicity.
+## Set up your environment
 
-## Use NuGet to install the required packages
+This section walks you through steps to prepare a .NET console app to work with Azure Files.
 
-Refer to these packages in your project to complete this tutorial:
+### Create the project
 
-* [Microsoft Azure Storage common library for .NET](https://www.nuget.org/packages/Microsoft.Azure.Storage.Common/)
-  
-  This package provides programmatic access to common resources in your storage account.
-* [Microsoft Azure Storage Blob library for .NET](https://www.nuget.org/packages/Microsoft.Azure.Storage.Blob/)
+If you don't already have a .NET app, create one using Visual Studio or the .NET CLI. In this article, we create a console app for simplicity.
 
-  This package provides programmatic access to blob resources in your storage account.
-* [Microsoft Azure Storage File library for .NET](https://www.nuget.org/packages/Microsoft.Azure.Storage.File/)
+### [Visual Studio 2022](#tab/visual-studio)
 
-  This package provides programmatic access to file resources in your storage account.
-* [Microsoft Azure Configuration Manager library for .NET](https://www.nuget.org/packages/Microsoft.Azure.ConfigurationManager/)
+1. Start Visual Studio and select **Create a new project**. Or if you're in Visual Studio, navigate to **File** > **New** > **Project**.
+1. In the dialog window, choose **Console App** for C# and  select **Next**.
+1. Enter a name for the project, leave the defaults, and select **Next**.
+1. For **Framework**, select the latest installed version of .NET. Leave the other defaults, and select **Create**.
 
-  This package provides a class for parsing a connection string in a configuration file, wherever your application runs.
+### [.NET CLI](#tab/dotnet-cli)
 
-You can use NuGet to obtain both packages. Follow these steps:
+1. In a console window (such as cmd, PowerShell, or Bash), use the `dotnet new` command to create a new console app. This command creates a simple "Hello World" C# project with a single source file: *Program.cs*.
+
+   ```dotnetcli
+   dotnet new console -n FilesConsoleApp
+   ```
+
+1. Switch to the newly created *FilesConsoleApp* directory.
+
+   ```console
+   cd FilesConsoleApp
+   ```
+
+1. Open the project in a code editor:
+    * To open in Visual Studio, locate and double-click the `FilesConsoleApp.csproj` file.
+    * To open in Visual Studio Code, run the following command:
+
+    ```bash
+    code .
+    ```
+
+---
+
+### Install the package
+
+If you plan to interact with Azure Files using the `System.IO` namespace, you don't need to install any additional packages. The `System.IO` namespace is included with the .NET SDK. If you plan to use the File Shares client library for .NET or the Azure Storage management library for .NET, install the package using NuGet.
+
+### [Visual Studio 2022](#tab/visual-studio)
 
 1. In **Solution Explorer**, right-click your project and choose **Manage NuGet Packages**.
-1. In **NuGet Package Manager**, select **Browse**. Then search for and choose **Microsoft.Azure.Storage.Blob**, and then select **Install**.
+1. In **NuGet Package Manager**, select **Browse**. Then search for and choose the appropriate package and select **Install**. For the File Shares client library, choose **Azure.Storage.Files.Shares**. For the Azure Storage management library, choose **Azure.ResourceManager.Storage**. For the Azure Identity library, which is needed for passwordless connections, choose **Azure.Identity**.
 
    This step installs the package and its dependencies.
-1. Search for and install these packages:
 
-   * **Microsoft.Azure.Storage.Common**
-   * **Microsoft.Azure.Storage.File**
-   * **Microsoft.Azure.ConfigurationManager**
+### [.NET CLI](#tab/dotnet-cli)
 
-## Save your storage account credentials to the App.config file
+In a console window, run the following command to install the `Azure.Storage.Files.Shares` or the `Azure.ResourceManager.Storage` package. You can also install the `Azure.Identity` package to use the `DefaultAzureCredential` class for authentication.
 
-Next, save your credentials in your project's `App.config` file. In **Solution Explorer**, double-click `App.config` and edit the file so that it is similar to the following example. Replace `myaccount` with your storage account name and `mykey` with your storage account key.
+   ```dotnetcli
+   dotnet add package Azure.Storage.Files.Shares
+   dotnet add package Azure.ResourceManager.Storage
+   dotnet add package Azure.Identity
+   ```
 
-```xml
-<?xml version="1.0" encoding="utf-8" ?>
-<configuration>
-    <startup>
-        <supportedRuntime version="v4.0" sku=".NETFramework,Version=v4.5" />
-    </startup>
-    <appSettings>
-        <add key="StorageConnectionString" value="DefaultEndpointsProtocol=https;AccountName=myaccount;AccountKey=StorageAccountKeyEndingIn==" />
-    </appSettings>
-</configuration>
-```
+---
 
-> [!NOTE]
-> The latest versions of the Azure Storage Emulator and the Azurite open-source emulator do not support Azure Files. Your connection string must target an Azure Storage Account in the cloud to work with Azure Files.
+### Add using directives
 
-## Add using directives
-
-In **Solution Explorer**, open the `Program.cs` file, and add the following using directives to the top of the file.
+If you plan to use the `System.IO` namespace, add the following using directive to the top of your *Program.cs* file:
 
 ```csharp
-using Microsoft.Azure; // Namespace for Azure Configuration Manager
-using Microsoft.Azure.Storage; // Namespace for Storage Client Library
-using Microsoft.Azure.Storage.Blob; // Namespace for Azure Blobs
-using Microsoft.Azure.Storage.File; // Namespace for Azure Files
+using System.IO;
 ```
 
-[!INCLUDE [storage-cloud-configuration-manager-include](../../../includes/storage-cloud-configuration-manager-include.md)]
-
-## Access the file share programmatically
-
-Next, add the following content to the `Main()` method, after the code shown above, to retrieve the connection string. This code gets a reference to the file we created earlier and outputs its contents.
+If you plan to use the File Shares client library for .NET, add the following using directive to the top of your *Program.cs* file:
 
 ```csharp
-// Create a CloudFileClient object for credentialed access to Azure Files.
-CloudFileClient fileClient = storageAccount.CreateCloudFileClient();
+using Azure.Storage.Files.Shares;
+```
 
-// Get a reference to the file share we created previously.
-CloudFileShare share = fileClient.GetShareReference("logs");
+If you plan to use the Azure Storage management library for .NET, add the following using directive to the top of your *Program.cs* file:
 
-// Ensure that the share exists.
-if (share.Exists())
+```csharp
+using Azure.ResourceManager;
+```
+
+To use the Azure Identity library for passwordless connections to Azure services, add the following using directive to the top of your *Program.cs* file:
+
+```csharp
+using Azure.Identity;
+```
+
+## Work with Azure Files using System.IO
+
+Standard file I/O libraries are the most common way to access and work with Azure Files resources. When you mount a file share using SMB or NFS, your operating system redirects API requests for the local file system. This approach allows you to use standard file I/O libraries, such as `System.IO`, to interact with files and directories in the share.
+
+Consider using `System.IO` when your app requires:
+
+- **App compatibility:** Ideal for line-of-business apps with existing code that already uses `System.IO`. You don't need to rewrite code for the app to work with an Azure file share.
+- **Ease of use:** `System.IO` is well known by developers and easy to use. A key value proposition of Azure Files is that it exposes native file system APIs through SMB and NFS.
+
+In this section, you learn how to use `System.IO` to work with Azure Files resources.
+
+For more information and examples, see the following resources:
+
+- [File and Stream I/O overview](/dotnet/standard/io/)
+- [Common I/O tasks](/dotnet/standard/io/common-i-o-tasks)
+
+### Mount a file share
+
+To use `System.IO`, you must first mount a file share. See the following resources for guidance on how to mount a file share using SMB or NFS:
+
+- [Mount an SMB file share on Windows](storage-how-to-use-files-windows.md)
+- [Mount an SMB file share on Linux](storage-how-to-use-files-linux.md)
+- [Mount an NFS file share on Linux](storage-files-how-to-mount-nfs-shares.md)
+
+In this article, we use the following path to refer to a mounted SMB file share on Windows:
+
+```csharp
+string fileSharePath = @"Z:\file-share";
+```
+
+### Example: Connect to a file share and enumerate directories using System.IO
+
+The following code example shows how to connect to a file share and list the directories in the share:
+
+```csharp
+using System.IO;
+
+string fileSharePath = @"Z:\file-share";
+
+EnumerateDirectories(@"Z:\file-share");
+
+static void EnumerateDirectories(string path)
 {
-    // Get a reference to the root directory for the share.
-    CloudFileDirectory rootDir = share.GetRootDirectoryReference();
-
-    // Get a reference to the directory we created previously.
-    CloudFileDirectory sampleDir = rootDir.GetDirectoryReference("CustomLogs");
-
-    // Ensure that the directory exists.
-    if (sampleDir.Exists())
+    try
     {
-        // Get a reference to the file we created previously.
-        CloudFile file = sampleDir.GetFileReference("Log1.txt");
+        List<string> dirs = new List<string>(Directory.EnumerateDirectories(path));
 
-        // Ensure that the file exists.
-        if (file.Exists())
+        foreach (var dir in dirs)
         {
-            // Write the contents of the file to the console window.
-            Console.WriteLine(file.DownloadTextAsync().Result);
+            Console.WriteLine($"{dir.Substring(dir.LastIndexOf(Path.DirectorySeparatorChar) + 1)}");
+        }
+        Console.WriteLine($"{dirs.Count} directories found.");
+    }
+    catch (UnauthorizedAccessException ex)
+    {
+        Console.WriteLine(ex.Message);
+    }
+    catch (PathTooLongException ex)
+    {
+        Console.WriteLine(ex.Message);
+    }
+}
+```
+
+### Example: Write to a file in a file share using System.IO
+
+The following code example shows how to write and append text with the `File` class:
+
+```csharp
+using System.IO;
+
+string fileSharePath = @"Z:\file-share";
+
+WriteToFile(fileSharePath, "test.txt");
+
+static void WriteToFile(string fileSharePath, string fileName)
+{
+    string textToWrite = "First line" + Environment.NewLine;
+    string filePath = Path.Combine(fileSharePath, fileName);
+    
+    File.WriteAllText(filePath, textToWrite);
+
+    string[] textToAppend = { "Second line", "Third line" };
+    File.AppendAllLines(filePath, textToAppend);
+}
+```
+
+### Example: Lock a file in a file share using System.IO
+
+SMB clients that mount file shares can use file system locking mechanisms to manage access to shared files.
+
+The following code example shows how to lock a file in a file share with share mode set to `None`. This share mode declines sharing of the current file until the file is closed.
+
+```csharp
+using System.IO;
+
+string fileSharePath = @"Z:\file-share";
+
+LockFile(Path.Combine(fileSharePath, "test.txt"));
+
+static void LockFile(string filePath)
+{
+    try
+    {
+        using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
+        {
+            Console.WriteLine("File locked.");
+
+            // Do something with file, press Enter to close the stream and release the lock
+            Console.ReadLine();
+
+            fs.Close();
+            Console.WriteLine("File closed.");
+        }
+    }
+    catch (IOException ex)
+    {
+        Console.WriteLine(ex.Message);
+    }
+}
+```
+
+When using both SMB and the FileREST API, keep in mind that the FileREST API uses [leases](#example-lease-a-file-using-the-file-shares-client-library) to manage file locks, while SMB uses file system locks managed by the operating system. To learn more about managing file locking interactions between SMB and the FileREST API, see [Manage file locks](/rest/api/storageservices/managing-file-locks).
+
+### Example: Enumerate file ACLs using System.IO
+
+The following code example shows how to enumerate access control lists (ACLs) for a file:
+
+```csharp
+using System.IO;
+using System.Security.AccessControl;
+
+string fileSharePath = @"Z:\file-share";
+string fileName = "test.txt";
+string filePath = Path.Combine(fileSharePath, fileName);
+
+EnumerateFileACLs(filePath);
+
+static void EnumerateFileACLs(string filePath)
+{
+    FileInfo fileInfo = new FileInfo(filePath);
+
+    // For directories, use DirectorySecurity instead of FileSecurity
+    FileSecurity fSecurity = FileSystemAclExtensions.GetAccessControl(fileInfo);
+
+    // List all access rules for the file
+    foreach (FileSystemAccessRule rule in fSecurity.GetAccessRules(true, true, typeof(System.Security.Principal.NTAccount)))
+    {
+        Console.WriteLine($"Identity: {rule.IdentityReference.Value}");
+        Console.WriteLine($"Access Control Type: {rule.AccessControlType}");
+        Console.WriteLine($"File System Rights: {rule.FileSystemRights}");
+        Console.WriteLine();
+    }
+
+}
+```
+
+## Work with Azure Files data using the File Shares client library for .NET
+
+The FileREST API provides programmatic access to Azure Files. It allows you to call HTTPS endpoints to perform operations on file shares, directories, and files. The FileREST API is designed for high scalability and advanced features that might not be available through native protocols. The Azure SDK provides client libraries, such as the File Shares client library for .NET, that build on the FileREST API.
+
+Consider using the FileREST API and the File Share client library if your application requires:
+
+- **Advanced features:** Access operations and features that aren't available through native protocols.
+- **Custom cloud integrations:** Build custom value-added services, such as backup, antivirus, or data management, that interact directly with Azure Files.
+- **Performance optimization:** Benefit from performance advantages in high-scale scenarios using data plane operations.
+
+The FileREST API models Azure Files as a hierarchy of resources, and is recommended for operations that are performed at the *directory* or *file* level. You should prefer the [Storage resource provider REST API](#manage-azure-files-resources-using-the-azure-storage-management-libraries) for operations that are performed at the *file service* or *file share* level.
+
+In this section, you learn how to use the File Shares client library to work with Azure Files resources.
+
+For more information and examples, see the following resources:
+
+- [Azure Storage File Shares client library for .NET](/dotnet/api/overview/azure/storage.files.shares-readme)
+- [Azure Storage File Shares client library for .NET samples](https://github.com/Azure/azure-sdk-for-net/tree/main/sdk/storage/Azure.Storage.Files.Shares/samples)
+
+### Authorize access and create a client
+
+To connect an app to Azure Files, create a `ShareClient` object. This object is your starting point for working with Azure Files resources. The following code examples show how to create a `ShareClient` object using different authorization mechanisms.
+
+## [Microsoft Entra ID (recommended)](#tab/entra-id)
+
+To authorize with Microsoft Entra ID, you need to use a security principal. The type of security principal you need depends on where your app runs. Use this table as a guide.
+
+| Where the app runs | Security principal | Guidance |
+| --- | --- | --- |
+| Local machine (developing and testing) | Service principal | To learn how to register the app, set up a Microsoft Entra group, assign roles, and configure environment variables, see [Authorize access using developer service principals](/dotnet/azure/sdk/authentication-local-development-service-principal) | 
+| Local machine (developing and testing) | User identity | To learn how to set up a Microsoft Entra group, assign roles, and sign in to Azure, see [Authorize access using developer credentials](/dotnet/azure/sdk/authentication-local-development-dev-accounts) |
+| Hosted in Azure | Managed identity | To learn how to enable managed identity and assign roles, see [Authorize access from Azure-hosted apps using a managed identity](/dotnet/azure/sdk/authentication-azure-hosted-apps) |
+| Hosted outside of Azure (for example, on-premises apps) | Service principal | To learn how to register the app, assign roles, and configure environment variables, see [Authorize access from on-premises apps using an application service principal](/dotnet/azure/sdk/authentication-on-premises-apps) |
+
+To work with the code examples in this article, assign the Azure RBAC built-in role **Storage File Data Privileged Contributor** to the security principal. This role provides full read, write, modify ACLs, and delete access on all the data in the shares for all the configured storage accounts regardless of the file/directory level NTFS permissions that are set. For more information, see [Access Azure file shares using Microsoft Entra ID with Azure Files OAuth over REST](authorize-oauth-rest.md).
+
+#### Authorize access using DefaultAzureCredential
+
+An easy and secure way to authorize access and connect to Azure Files is to obtain an OAuth token by creating a [DefaultAzureCredential](/dotnet/api/azure.identity.defaultazurecredential) instance. You can then use that credential to create a `ShareClient` object.
+
+The following example creates a `ShareClient` object authorized using `DefaultAzureCredential`, then creates a `ShareDirectoryClient` object to work with a directory in the share:
+
+```csharp
+using Azure.Identity;
+using Azure.Storage.Files.Shares;
+using Azure.Storage.Files.Shares.Models;
+
+// ...
+
+string accountName = "<account-name>";
+string shareName = "<share-name>";
+
+ShareClientOptions options = new()
+{
+    AllowSourceTrailingDot = true,
+    AllowTrailingDot = true,
+    ShareTokenIntent = ShareTokenIntent.Backup,
+};
+ShareClient shareClient = new(
+   new Uri($"https://{accountName}.file.core.windows.net/{shareName}"),
+   new DefaultAzureCredential(),
+   options);
+
+ShareDirectoryClient directoryClient = shareClient.GetDirectoryClient("sample-directory");
+```
+
+If you know exactly which credential type you use to authenticate users, you can obtain an OAuth token by using other classes in the [Azure Identity client library for .NET](/dotnet/api/overview/azure/identity-readme). These classes derive from the [TokenCredential](/dotnet/api/azure.core.tokencredential) class.
+
+## [Account key](#tab/account-key)
+
+Create a [StorageSharedKeyCredential](/dotnet/api/azure.storage.storagesharedkeycredential) by using the storage account name and account key. Then use that object to initialize a `ShareClient`.
+
+```csharp
+string accountName = "<account-name>";
+string accountKey = "<account-key>";
+string shareName = "<share-name>";
+
+StorageSharedKeyCredential sharedKeyCredential = 
+    new StorageSharedKeyCredential(accountName, accountKey);
+
+ShareClient shareClient = new ShareClient(
+    new Uri($"https://{accountName}.file.core.windows.net/{shareName}"),
+    sharedKeyCredential);
+```
+
+You can also create a `ShareClient` by using a connection string. 
+
+```csharp
+string connectionString = "<connection-string>";
+string shareName = "<share-name>";
+
+ShareClient shareClient = new ShareClient(connectionString, shareName);
+```
+
+For information about how to obtain account keys and best practice guidelines for properly managing and safeguarding your keys, see [Manage storage account access keys](../common/storage-account-keys-manage.md).
+
+> [!IMPORTANT]
+> The account access key should be used with caution. If your account access key is lost or accidentally placed in an insecure location, your service can become vulnerable. Anyone who has the access key is able to authorize requests against the storage account, and effectively has access to all the data. `DefaultAzureCredential` provides enhanced security features and benefits and is the recommended approach for managing authorization to Azure services.
+
+---
+
+To learn more about each of these authorization mechanisms, see [Choose how to authorize access to file data](authorize-data-operations-portal.md).
+
+### Example: Copy files using the File Shares client library
+
+You can copy files within a file share or between file shares by using the following method:
+
+- [StartCopyAsync](/dotnet/api/azure.storage.files.shares.sharefileclient.startcopyasync)
+
+You can copy a file to a destination blob by using the following method from a `BlobClient` object:
+
+- [StartCopyFromUriAsync](/dotnet/api/azure.storage.blobs.specialized.blobbaseclient.startcopyfromuriasync)
+
+The following code example shows how to copy a file to a file in another file share:
+
+```csharp
+using Azure.Core;
+using Azure.Identity;
+using Azure.Storage.Files.Shares;
+using Azure.Storage.Files.Shares.Models;
+
+string accountName = "<account-name>";
+string srcShareName = "src-file-share";
+string destShareName = "dest-file-share";
+string srcFilePath = "src/path/to/file";
+string destFilePath = "dest/path/to/file";
+
+TokenCredential tokenCredential = new DefaultAzureCredential();
+
+ShareClientOptions options = new()
+{
+    ShareTokenIntent = ShareTokenIntent.Backup,
+};
+
+ShareFileClient srcShareFileClient = new(
+    new Uri($"https://{accountName}.file.core.windows.net/{srcShareName}/{srcFilePath}"),
+    tokenCredential,
+    options);
+
+ShareFileClient destShareFileClient = new(
+    new Uri($"https://{accountName}.file.core.windows.net/{destShareName}/{destFilePath}"),
+    tokenCredential,
+    options);
+
+// Copy the file from the source share to the destination share
+
+await destShareFileClient.StartCopyAsync(srcShareFileClient.Uri);
+```
+
+### Example: Lease a file using the File Shares client library
+
+A lease creates a lock on a file that's managed by Azure via a lease ID. The lease provides a mechanism to coordinate access to files across multiple clients in a distributed system. A lease on a file provides exclusive write and delete access. To learn more about lease states and actions, see [Lease File](/rest/api/storageservices/lease-file#remarks).
+
+The following code example shows how to create a lease client, acquire an infinite duration lease on a file, and release the lease:
+
+```csharp
+using Azure.Core;
+using Azure.Identity;
+using Azure.Storage.Files.Shares;
+using Azure.Storage.Files.Shares.Models;
+using Azure.Storage.Files.Shares.Specialized;
+
+string accountName = "<account-name>";
+string shareName = "sample-file-share";
+string filePath = "path/to/file";
+
+TokenCredential tokenCredential = new DefaultAzureCredential();
+
+ShareClientOptions options = new()
+{
+    ShareTokenIntent = ShareTokenIntent.Backup,
+};
+
+ShareFileClient fileClient = new(
+    new Uri($"https://{accountName}.file.core.windows.net/{shareName}/{filePath}"),
+    tokenCredential,
+    options);
+
+ShareLeaseClient leaseClient = fileClient.GetShareLeaseClient();
+
+// Acquire a lease on the source file
+await leaseClient.AcquireAsync(duration: ShareLeaseClient.InfiniteLeaseDuration);
+
+// Do something with the file
+
+// Release the lease
+await leaseClient.ReleaseAsync();
+```
+
+When using both SMB and the FileREST API, keep in mind that the FileREST API uses [leases](#example-lease-a-file-using-the-file-shares-client-library) to manage file locks, while SMB uses file system locks managed by the operating system. To learn more about managing file locking interactions between SMB and the FileREST API, see [Manage file locks](/rest/api/storageservices/managing-file-locks).
+
+### Example: Create and list share snapshots using the File Shares client library
+
+Share snapshots are read-only copies of a file share at a point in time. You can create a snapshot of a file share, and then use the snapshot to access the data in the share at the time the snapshot was created. You can also list all snapshots in a file share, and delete share snapshots.
+
+The following code example shows how to create a share snapshot, list the snapshots in a file share, and traverse the directory tree in a share snapshot:
+
+```csharp
+using Azure.Storage.Files.Shares;
+using Azure.Storage.Files.Shares.Models;
+
+string connectionString = "<connection-string>";
+
+ShareServiceClient shareServiceClient = new ShareServiceClient(connectionString);
+ShareClient shareClient = shareServiceClient.GetShareClient("sample-file-share");
+
+// Create a snapshot
+
+ShareSnapshotInfo snapshotInfo = await shareClient.CreateSnapshotAsync();
+Console.WriteLine($"Snapshot created: {snapshotInfo.Snapshot}");
+
+// List snapshots in a share
+
+await foreach (ShareItem shareItem in shareServiceClient.GetSharesAsync(ShareTraits.All, ShareStates.Snapshots))
+{
+    if (shareItem.Snapshot != null)
+    {
+        Console.WriteLine($"Share: {shareItem.Name} (Snapshot: {shareItem.Snapshot})");
+    }
+}
+
+// List directories and files in a share snapshot
+
+string snapshotTimestamp = snapshotInfo.Snapshot.ToString();
+ShareClient shareSnapshot = shareClient.WithSnapshot(snapshotTimestamp);
+ShareDirectoryClient rootDir = shareSnapshot.GetRootDirectoryClient();
+
+await ListDirectoryTreeAsync(rootDir);
+
+static async Task ListDirectoryTreeAsync(ShareDirectoryClient directory)
+{
+    await foreach (ShareFileItem fileItem in directory.GetFilesAndDirectoriesAsync())
+    {
+        if (fileItem.IsDirectory)
+        {
+            Console.WriteLine($"Directory: {fileItem.Name}");
+            await ListDirectoryTreeAsync(directory.GetSubdirectoryClient(fileItem.Name));
+        }
+        else
+        {
+            Console.WriteLine($"File: {fileItem.Name}");
         }
     }
 }
 ```
 
-Run the console application to see the output.
-
-## Set the maximum size for a file share
-
-Beginning with version 5.x of the Azure Storage Client Library, you can set the quota (maximum size) for a file share. You can also check to see how much data is currently stored on the share.
-
-Setting the quota for a share limits the total size of the files stored on the share. If the total size of files on the share exceeds the quota set on the share, clients can't increase the size of existing files. Clients can't create new files, unless those files are empty.
-
-The example below shows how to check the current usage for a share and how to set the quota for the share.
-
-```csharp
-// Parse the connection string for the storage account.
-CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
-    Microsoft.Azure.CloudConfigurationManager.GetSetting("StorageConnectionString"));
-
-// Create a CloudFileClient object for credentialed access to Azure Files.
-CloudFileClient fileClient = storageAccount.CreateCloudFileClient();
-
-// Get a reference to the file share we created previously.
-CloudFileShare share = fileClient.GetShareReference("logs");
-
-// Ensure that the share exists.
-if (share.Exists())
-{
-    // Check current usage stats for the share.
-    // Note that the ShareStats object is part of the protocol layer for the File service.
-    Microsoft.Azure.Storage.File.Protocol.ShareStats stats = share.GetStats();
-    Console.WriteLine("Current share usage: {0} GB", stats.Usage.ToString());
-
-    // Specify the maximum size of the share, in GB.
-    // This line sets the quota to be 10 GB greater than the current usage of the share.
-    share.Properties.Quota = 10 + stats.Usage;
-    share.SetProperties();
-
-    // Now check the quota for the share. Call FetchAttributes() to populate the share's properties.
-    share.FetchAttributes();
-    Console.WriteLine("Current share quota: {0} GB", share.Properties.Quota);
-}
-```
-
-### Generate a shared access signature for a file or file share
-
-Beginning with version 5.x of the Azure Storage Client Library, you can generate a shared access signature (SAS) for a file share or for an individual file. You can also create a stored access policy on a file share to manage shared access signatures. We recommend creating a stored access policy because it lets you revoke the SAS if it becomes compromised.
-
-The following example creates a stored access policy on a share. The example uses that policy to provide the constraints for a SAS on a file in the share.
-
-```csharp
-// Parse the connection string for the storage account.
-CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
-    Microsoft.Azure.CloudConfigurationManager.GetSetting("StorageConnectionString"));
-
-// Create a CloudFileClient object for credentialed access to Azure Files.
-CloudFileClient fileClient = storageAccount.CreateCloudFileClient();
-
-// Get a reference to the file share we created previously.
-CloudFileShare share = fileClient.GetShareReference("logs");
-
-// Ensure that the share exists.
-if (share.Exists())
-{
-    string policyName = "sampleSharePolicy" + DateTime.UtcNow.Ticks;
-
-    // Create a new stored access policy and define its constraints.
-    SharedAccessFilePolicy sharedPolicy = new SharedAccessFilePolicy()
-        {
-            SharedAccessExpiryTime = DateTime.UtcNow.AddHours(24),
-            Permissions = SharedAccessFilePermissions.Read | SharedAccessFilePermissions.Write
-        };
-
-    // Get existing permissions for the share.
-    FileSharePermissions permissions = share.GetPermissions();
-
-    // Add the stored access policy to the share's policies. Note that each policy must have a unique name.
-    permissions.SharedAccessPolicies.Add(policyName, sharedPolicy);
-    share.SetPermissions(permissions);
-
-    // Generate a SAS for a file in the share and associate this access policy with it.
-    CloudFileDirectory rootDir = share.GetRootDirectoryReference();
-    CloudFileDirectory sampleDir = rootDir.GetDirectoryReference("CustomLogs");
-    CloudFile file = sampleDir.GetFileReference("Log1.txt");
-    string sasToken = file.GetSharedAccessSignature(null, policyName);
-    Uri fileSasUri = new Uri(file.StorageUri.PrimaryUri.ToString() + sasToken);
-
-    // Create a new CloudFile object from the SAS, and write some text to the file.
-    CloudFile fileSas = new CloudFile(fileSasUri);
-    fileSas.UploadText("This write operation is authorized via SAS.");
-    Console.WriteLine(fileSas.DownloadText());
-}
-```
-
-For more information about creating and using shared access signatures, see [How a shared access signature works](../common/storage-sas-overview.md?toc=%2fazure%2fstorage%2ffiles%2ftoc.json#how-a-shared-access-signature-works).
-
-## Copy files
-
-Beginning with version 5.x of the Azure Storage Client Library, you can copy a file to another file, a file to a blob, or a blob to a file. In the next sections, we demonstrate how to do these copy operations programmatically.
-
-You can also use AzCopy to copy one file to another or to copy a blob to a file or the other way around. See [Get started with AzCopy](../common/storage-use-azcopy.md?toc=%2fazure%2fstorage%2ffiles%2ftoc.json).
-
-> [!NOTE]
-> If you are copying a blob to a file, or a file to a blob, you must use a shared access signature (SAS) to authorize access to the source object, even if you are copying within the same storage account.
+>[!NOTE]
+> OAuth tokens, such as those obtained when using `DefaultAzureCredential`, aren't allowed for data plane operations at the file share level. To work with share snapshots, the client object must be authorized using the account key. The `ShareClient` object created in this code example uses a connection string, which includes the account key.
 >
+> Storing account keys or connection strings presents a security risk. You should only use them when Microsoft Entra authentication isn't available. To learn more about securely storing account keys in Azure Key Vault, see [About Azure Key Vault managed storage account keys](/azure/key-vault/secrets/about-managed-storage-account-keys).
 
-### Copy a file to another file
+## Manage Azure Files resources using the Azure Storage management libraries
 
-The following example copies a file to another file in the same share. Because this copy operation copies between files in the same storage account, you can use Shared Key authentication to do the copy.
+The Azure Storage management libraries are built on the Azure Storage resource provider REST API. The Azure Storage resource provider is a service based on [Azure Resource Manager](/azure/azure-resource-manager/management/overview), and supports both declarative (templates) and imperative (direct API call) methods. The Azure Storage resource provider REST API provides programmatic access to Azure Storage resources, including file shares. The Azure SDK provides management libraries that build on the Azure Storage resource provider REST API.
+
+The management libraries are recommended for operations that are performed at the *file service* or *file share* level. In this section, you learn how to use the Azure Storage management libraries to manage Azure Files resources.
+
+### Example: Create a file share using the Azure Storage management library
+
+The following code example shows how to create a top-level `ArmClient` object, register the Storage resource provider with a subscription, and create a file share using the Azure Storage management library:
 
 ```csharp
-// Parse the connection string for the storage account.
-CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
-    Microsoft.Azure.CloudConfigurationManager.GetSetting("StorageConnectionString"));
+using Azure;
+using Azure.Core;
+using Azure.Identity;
+using Azure.ResourceManager;
+using Azure.ResourceManager.Resources;
+using Azure.ResourceManager.Storage;
 
-// Create a CloudFileClient object for credentialed access to Azure Files.
-CloudFileClient fileClient = storageAccount.CreateCloudFileClient();
+ArmClient armClient = new ArmClient(new DefaultAzureCredential());
 
-// Get a reference to the file share we created previously.
-CloudFileShare share = fileClient.GetShareReference("logs");
+// Create a resource identifier, then get the subscription resource
+ResourceIdentifier resourceIdentifier = new($"/subscriptions/<subscription-id>");
+SubscriptionResource subscription = armClient.GetSubscriptionResource(resourceIdentifier);
 
-// Ensure that the share exists.
-if (share.Exists())
-{
-    // Get a reference to the root directory for the share.
-    CloudFileDirectory rootDir = share.GetRootDirectoryReference();
+ResourceProviderResource resourceProvider =
+    await subscription.GetResourceProviderAsync("Microsoft.Storage");
 
-    // Get a reference to the directory we created previously.
-    CloudFileDirectory sampleDir = rootDir.GetDirectoryReference("CustomLogs");
+// Check the registration state of the resource provider and register, if needed
+if (resourceProvider.Data.RegistrationState == "NotRegistered")
+    resourceProvider.Register();
 
-    // Ensure that the directory exists.
-    if (sampleDir.Exists())
+// Get a resource group
+ResourceGroupResource resourceGroup = await subscription.GetResourceGroupAsync("<resource-group-name>");
+
+// Get a collection of storage account resources
+StorageAccountCollection accountCollection = resourceGroup.GetStorageAccounts();
+
+// Get a specific storage account resource
+StorageAccountResource storageAccount = await accountCollection.GetAsync("<storage-account-name>");
+
+// Get a file service resource for the storage account
+FileServiceResource fileService = storageAccount.GetFileService();
+
+// Create a new file share (or update if it already exists)
+ArmOperation <FileShareResource> fileShareOperation = await fileService
+    .GetFileShares()
+    .CreateOrUpdateAsync(WaitUntil.Completed, "sample-file-share", new FileShareData()
     {
-        // Get a reference to the file we created previously.
-        CloudFile sourceFile = sampleDir.GetFileReference("Log1.txt");
+        ShareQuota = 1024,
+        // Add file share properties here
+    });
 
-        // Ensure that the source file exists.
-        if (sourceFile.Exists())
-        {
-            // Get a reference to the destination file.
-            CloudFile destFile = sampleDir.GetFileReference("Log1Copy.txt");
+// Get the file share resource
+FileShareResource fileShare = fileShareOperation.Value;
+```
 
-            // Start the copy operation.
-            destFile.StartCopy(sourceFile);
+You can configure the file share properties using the [FileShareData](/dotnet/api/azure.resourcemanager.storage.filesharedata) class. The previous example shows how to set the `ShareQuota` property.
 
-            // Write the contents of the destination file to the console window.
-            Console.WriteLine(destFile.DownloadText());
-        }
+>[!NOTE]
+> To perform the register operation, you need permissions for the following Azure RBAC action: Microsoft.Storage/register/action. This permission is included in the Contributor and Owner built-in roles.
+
+### Example: List file shares and snapshots using the Azure Storage management library
+
+The following code example shows how to list file shares and snapshots in a storage account:
+
+```csharp
+// Iterate over a collection of file shares and list them along with any snapshots
+string expand = "snapshots";
+await foreach (FileShareResource shareResource in fileService.GetFileShares().GetAllAsync(expand: expand))
+{
+    // Call operations on the file share resource
+
+    // For this demo, print out the resource name and snapshot information
+    FileShareData resourceData = shareResource.Data;
+    Console.WriteLine($"Resource name: {resourceData.Name}");
+    if (resourceData.SnapshotOn.HasValue)
+    {
+        Console.WriteLine($"Snapshot: {resourceData.SnapshotOn}");
     }
 }
 ```
 
-### Copy a file to a blob
+## Related content
 
-The following example creates a file and copies it to a blob within the same storage account. The example creates a SAS for the source file, which the service uses to authorize access to the source file during the copy operation.
+For more information about developing with Azure Files, see the following resources:
 
-```csharp
-// Parse the connection string for the storage account.
-CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
-    Microsoft.Azure.CloudConfigurationManager.GetSetting("StorageConnectionString"));
+- [Overview of application development with Azure Files](storage-files-developer-overview.md)
+- [Naming and referencing shares, directories, files, and metadata](/rest/api/storageservices/naming-and-referencing-shares--directories--files--and-metadata)
+- [Manage file locks](/rest/api/storageservices/managing-file-locks)
+- [Operations on directories](/rest/api/storageservices/operations-on-directories)
+- [Operations on files](/rest/api/storageservices/operations-on-files)
 
-// Create a CloudFileClient object for credentialed access to Azure Files.
-CloudFileClient fileClient = storageAccount.CreateCloudFileClient();
-
-// Create a new file share, if it does not already exist.
-CloudFileShare share = fileClient.GetShareReference("sample-share");
-share.CreateIfNotExists();
-
-// Create a new file in the root directory.
-CloudFile sourceFile = share.GetRootDirectoryReference().GetFileReference("sample-file.txt");
-sourceFile.UploadText("A sample file in the root directory.");
-
-// Get a reference to the blob to which the file will be copied.
-CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
-CloudBlobContainer container = blobClient.GetContainerReference("sample-container");
-container.CreateIfNotExists();
-CloudBlockBlob destBlob = container.GetBlockBlobReference("sample-blob.txt");
-
-// Create a SAS for the file that's valid for 24 hours.
-// Note that when you are copying a file to a blob, or a blob to a file, you must use a SAS
-// to authorize access to the source object, even if you are copying within the same
-// storage account.
-string fileSas = sourceFile.GetSharedAccessSignature(new SharedAccessFilePolicy()
-{
-    // Only read permissions are required for the source file.
-    Permissions = SharedAccessFilePermissions.Read,
-    SharedAccessExpiryTime = DateTime.UtcNow.AddHours(24)
-});
-
-// Construct the URI to the source file, including the SAS token.
-Uri fileSasUri = new Uri(sourceFile.StorageUri.PrimaryUri.ToString() + fileSas);
-
-// Copy the file to the blob.
-destBlob.StartCopy(fileSasUri);
-
-// Write the contents of the file to the console window.
-Console.WriteLine("Source file contents: {0}", sourceFile.DownloadText());
-Console.WriteLine("Destination blob contents: {0}", destBlob.DownloadText());
-```
-
-You can copy a blob to a file in the same way. If the source object is a blob, then create a SAS to authorize access to that blob during the copy operation.
-
-## Share snapshots
-
-Beginning with version 8.5 of the Azure Storage Client Library, you can create a share snapshot. You can also list or browse share snapshots and delete share snapshots. Share snapshots are read-only so no write operations are allowed on share snapshots.
-
-### Create share snapshots
-
-The following example creates a file share snapshot.
-
-```csharp
-storageAccount = CloudStorageAccount.Parse(ConnectionString); 
-fClient = storageAccount.CreateCloudFileClient(); 
-string baseShareName = "myazurefileshare"; 
-CloudFileShare myShare = fClient.GetShareReference(baseShareName); 
-var snapshotShare = myShare.Snapshot();
-
-```
-
-### List share snapshots
-
-The following example lists the share snapshots on a share.
-
-```csharp
-var shares = fClient.ListShares(baseShareName, ShareListingDetails.All);
-```
-
-### Browse files and directories within share snapshots
-
-The following example browses files and directory within share snapshots.
-
-```csharp
-CloudFileShare mySnapshot = fClient.GetShareReference(baseShareName, snapshotTime); 
-var rootDirectory = mySnapshot.GetRootDirectoryReference(); 
-var items = rootDirectory.ListFilesAndDirectories();
-```
-
-### List shares and share snapshots and restore file shares or files from share snapshots
-
-Taking a snapshot of a file share enables you to recover individual files or the entire the file share in the future.
-
-You can restore a file from a file share snapshot by querying the share snapshots of a file share. You can then retrieve a file that belongs to a particular share snapshot. Use that version to either directly read and compare or to restore.
-
-```csharp
-CloudFileShare liveShare = fClient.GetShareReference(baseShareName);
-var rootDirOfliveShare = liveShare.GetRootDirectoryReference();
-var dirInliveShare = rootDirOfliveShare.GetDirectoryReference(dirName);
-var fileInliveShare = dirInliveShare.GetFileReference(fileName);
-
-CloudFileShare snapshot = fClient.GetShareReference(baseShareName, snapshotTime);
-var rootDirOfSnapshot = snapshot.GetRootDirectoryReference();
-var dirInSnapshot = rootDirOfSnapshot.GetDirectoryReference(dirName);
-var fileInSnapshot = dir1InSnapshot.GetFileReference(fileName);
-
-string sasContainerToken = string.Empty;
-SharedAccessFilePolicy sasConstraints = new SharedAccessFilePolicy();
-sasConstraints.SharedAccessExpiryTime = DateTime.UtcNow.AddHours(24);
-sasConstraints.Permissions = SharedAccessFilePermissions.Read;
-
-//Generate the shared access signature on the container, setting the constraints directly on the signature.
-sasContainerToken = fileInSnapshot.GetSharedAccessSignature(sasConstraints);
-
-string sourceUri = (fileInSnapshot.Uri.ToString() + sasContainerToken + "&" + fileInSnapshot.SnapshotTime.ToString()); ;
-fileInliveShare.StartCopyAsync(new Uri(sourceUri));
-```
-
-### Delete share snapshots
-
-The following example deletes a file share snapshot.
-
-```csharp
-CloudFileShare mySnapshot = fClient.GetShareReference(baseShareName, snapshotTime); mySnapshot.Delete(null, null, null);
-```
-
-## Troubleshoot Azure Files by using metrics<a name="troubleshooting-azure-files-using-metrics"></a>
-
-Azure Storage Analytics now supports metrics for Azure Files. With metrics data, you can trace requests and diagnose issues.
-
-You can enable metrics for Azure Files from the [Azure portal](https://portal.azure.com). You can also enable metrics programmatically by calling the Set File Service Properties operation with the REST API or one of its analogs in the Storage Client Library.
-
-The following code example shows how to use the Storage Client Library for .NET to enable metrics for Azure Files.
-
-First, add the following `using` directives to your `Program.cs` file, along with the ones you added above:
-
-```csharp
-using Microsoft.Azure.Storage.File.Protocol;
-using Microsoft.Azure.Storage.Shared.Protocol;
-```
-
-Although Azure Blobs, Azure Tables, and Azure Queues use the shared `ServiceProperties` type in the `Microsoft.Azure.Storage.Shared.Protocol` namespace, Azure Files uses its own type, the `FileServiceProperties` type in the `Microsoft.Azure.Storage.File.Protocol` namespace. You must reference both namespaces from your code, however, for the following code to compile.
-
-```csharp
-// Parse your storage connection string from your application's configuration file.
-CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
-        Microsoft.Azure.CloudConfigurationManager.GetSetting("StorageConnectionString"));
-// Create the File service client.
-CloudFileClient fileClient = storageAccount.CreateCloudFileClient();
-
-// Set metrics properties for File service.
-// Note that the File service currently uses its own service properties type,
-// available in the Microsoft.Azure.Storage.File.Protocol namespace.
-fileClient.SetServiceProperties(new FileServiceProperties()
-{
-    // Set hour metrics
-    HourMetrics = new MetricsProperties()
-    {
-        MetricsLevel = MetricsLevel.ServiceAndApi,
-        RetentionDays = 14,
-        Version = "1.0"
-    },
-    // Set minute metrics
-    MinuteMetrics = new MetricsProperties()
-    {
-        MetricsLevel = MetricsLevel.ServiceAndApi,
-        RetentionDays = 7,
-        Version = "1.0"
-    }
-});
-
-// Read the metrics properties we just set.
-FileServiceProperties serviceProperties = fileClient.GetServiceProperties();
-Console.WriteLine("Hour metrics:");
-Console.WriteLine(serviceProperties.HourMetrics.MetricsLevel);
-Console.WriteLine(serviceProperties.HourMetrics.RetentionDays);
-Console.WriteLine(serviceProperties.HourMetrics.Version);
-Console.WriteLine();
-Console.WriteLine("Minute metrics:");
-Console.WriteLine(serviceProperties.MinuteMetrics.MetricsLevel);
-Console.WriteLine(serviceProperties.MinuteMetrics.RetentionDays);
-Console.WriteLine(serviceProperties.MinuteMetrics.Version);
-```
-
-If you encounter any problems, you can refer to [Troubleshoot Azure Files problems in Windows](storage-troubleshoot-windows-file-connection-problems.md).
-
-## Next steps
-
-For more information about Azure Files, see the following resources:
-
-### Conceptual articles and videos
-
-* [Azure Files: a frictionless cloud SMB file system for Windows and Linux](https://azure.microsoft.com/documentation/videos/azurecon-2015-azure-files-storage-a-frictionless-cloud-smb-file-system-for-windows-and-linux/)
-* [Use Azure Files with Linux](storage-how-to-use-files-linux.md)
-
-### Tooling support for File storage
-
-* [Get started with AzCopy](../common/storage-use-azcopy.md?toc=%2fazure%2fstorage%2ffiles%2ftoc.json)
-* [Troubleshoot Azure Files problems in Windows](https://docs.microsoft.com/azure/storage/storage-troubleshoot-file-connection-problems)
-
-### Reference
-
-* [Azure Storage APIs for .NET](/dotnet/api/overview/azure/storage)
-* [File Service REST API](/rest/api/storageservices/File-Service-REST-API)
-
-### Blog posts
-
-* [Azure File Storage, now generally available](https://azure.microsoft.com/blog/azure-file-storage-now-generally-available/)
-* [Inside Azure File Storage](https://azure.microsoft.com/blog/inside-azure-file-storage/)
-* [Introducing Microsoft Azure Files Service](https://docs.microsoft.com/archive/blogs/windowsazurestorage/introducing-microsoft-azure-file-service)
-* [Persisting connections to Microsoft Azure Files](https://docs.microsoft.com/archive/blogs/windowsazurestorage/persisting-connections-to-microsoft-azure-files)

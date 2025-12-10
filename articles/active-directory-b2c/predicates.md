@@ -2,19 +2,25 @@
 title: Predicates and PredicateValidations
 titleSuffix: Azure AD B2C
 description: Prevent malformed data from being added to your Azure AD B2C tenant by using custom policies in Azure Active Directory B2C.
-services: active-directory-b2c
-author: msmimart
-manager: celestedg
 
-ms.service: active-directory
-ms.workload: identity
+author: kengaderdus
+manager: CelesteDG
+
+ms.service: azure-active-directory
+
 ms.topic: reference
-ms.date: 03/30/2020
-ms.author: mimart
-ms.subservice: B2C
+ms.date: 01/11/2024
+ms.author: kengaderdus
+ms.subservice: b2c
+ms.custom: sfi-image-nochange
+
+
+#Customer intent: As a developer using Azure Active Directory B2C, I want to perform validation on user input data, so that I can ensure that only properly formed data is entered into the system.
+
 ---
 
 # Predicates and PredicateValidations
+[!INCLUDE [active-directory-b2c-end-of-sale-notice-b](../../includes/active-directory-b2c-end-of-sale-notice-b.md)]
 
 [!INCLUDE [active-directory-b2c-advanced-audience-warning](../../includes/active-directory-b2c-advanced-audience-warning.md)]
 
@@ -67,15 +73,14 @@ The **Parameter** element contains the following attributes:
 
 #### IsLengthRange
 
-The IsLengthRange method checks whether the length of a string claim value is within the range of minimum and maximum parameters specified. The predicate element supports the following parameters:
+The IsLengthRange method checks whether the length of a string claim value is within the range of minimum and maximum parameters specified. Check out the [Live demo](https://github.com/azure-ad-b2c/unit-tests/tree/main/predicates#islengthrange-method) of this predicate method. The predicate element supports the following parameters:
 
 | Parameter | Required | Description |
 | ------- | ----------- | ----------- |
 | Maximum | Yes | The maximum number of characters that can be entered. |
 | Minimum | Yes | The minimum number of characters that must be entered. |
 
-
-The following example shows a IsLengthRange method with the parameters `Minimum` and `Maximum` that specify the length range of the string:
+The following example shows an IsLengthRange method with the parameters `Minimum` and `Maximum` that specify the length range of the string:
 
 ```xml
 <Predicate Id="IsLengthBetween8And64" Method="IsLengthRange" HelpText="The password must be between 8 and 64 characters.">
@@ -88,7 +93,7 @@ The following example shows a IsLengthRange method with the parameters `Minimum`
 
 #### MatchesRegex
 
-The MatchesRegex method checks whether a string claim value matches a regular expression. The predicate element supports the following parameters:
+The MatchesRegex method checks whether a string claim value matches a regular expression. Check out the [Live demo](https://github.com/azure-ad-b2c/unit-tests/tree/main/predicates#matchesregex-method) of this predicate method. The predicate element supports the following parameters:
 
 | Parameter | Required | Description |
 | ------- | ----------- | ----------- |
@@ -106,7 +111,7 @@ The following example shows a `MatchesRegex` method with the parameter `RegularE
 
 #### IncludesCharacters
 
-The IncludesCharacters method checks whether a string claim value contains a character set. The predicate element supports the following parameters:
+The IncludesCharacters method checks whether a string claim value contains a character set. Check out the [Live demo](https://github.com/azure-ad-b2c/unit-tests/tree/main/predicates#includescharacters-method) of this predicate method. The predicate element supports the following parameters:
 
 | Parameter | Required | Description |
 | ------- | ----------- | ----------- |
@@ -124,7 +129,7 @@ The following example shows a `IncludesCharacters` method with the parameter `Ch
 
 #### IsDateRange
 
-The IsDateRange method checks whether a date claim value is between a range of minimum and maximum parameters specified. The predicate element supports the following parameters:
+The IsDateRange method checks whether a date claim value is between a range of minimum and maximum parameters specified. Check out the [Live demo](https://github.com/azure-ad-b2c/unit-tests/tree/main/predicates#isdaterange-method) of this predicate method. The predicate element supports the following parameters:
 
 | Parameter | Required | Description |
 | ------- | ----------- | ----------- |
@@ -220,7 +225,6 @@ The **PredicateReference** element contains the following attributes:
 | Attribute | Required | Description |
 | --------- | -------- | ----------- |
 | Id | Yes | An identifier that's used for the predicate validation.  |
-
 
 ## Configure password complexity
 
@@ -420,8 +424,8 @@ In your claim type, add **PredicateValidationReference** element and specify the
   <UserInputType>DateTimeDropdown</UserInputType>
   <PredicateValidationReference Id="CustomDateRange" />
 </ClaimType>
- ```
+```
 
 ## Next steps
 
-- Learn how to [Configure password complexity using custom policies in Azure Active Directory B2C](custom-policy-password-complexity.md) using predicate validations.
+- Learn how to [Configure password complexity using custom policies in Azure Active Directory B2C](password-complexity.md) using predicate validations.

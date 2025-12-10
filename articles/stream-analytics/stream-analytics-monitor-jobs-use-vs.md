@@ -3,11 +3,11 @@ title: Monitor and manage Azure Stream Analytics with Visual Studio
 description: This article describes how to use Visual Studio to monitor and manage Azure Stream Analytics jobs.
 author: su-jie
 ms.author: sujie
-ms.reviewer: mamccrea
-ms.service: stream-analytics
+
+ms.service: azure-stream-analytics
 ms.topic: how-to
 ms.date: 12/07/2018
-ms.custom: seodec18
+ms.custom: sfi-image-nochange
 ---
 
 # Monitor and manage Stream Analytics jobs with Visual Studio
@@ -36,11 +36,9 @@ You can also monitor errors by clicking on the **Errors** tab.
 
 
 ## Get support
-For further assistance, try our [Microsoft Q&A question page for Azure Stream Analytics](https://docs.microsoft.com/answers/topics/azure-stream-analytics.html). 
+For further assistance, try our [Microsoft Q&A question page for Azure Stream Analytics](/answers/tags/179/azure-stream-analytics). 
 
 ## Next steps
 * [Introduction to Azure Stream Analytics](stream-analytics-introduction.md)
 * [Create an Azure Stream Analytics job with Visual Studio](stream-analytics-quick-create-vs.md)
-* [Install Azure Stream Analytics tools for Visual Studio](stream-analytics-tools-for-visual-studio-install.md) 
-
-
+* [Install Azure Stream Analytics tools for Visual Studio](stream-analytics-tools-for-visual-studio-install.md)

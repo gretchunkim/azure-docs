@@ -3,8 +3,12 @@ title: Manage certificates in Azure Automation
 description: This article tells how to work with certificates for access by runbooks and DSC configurations.
 services: automation
 ms.subservice: shared-capabilities
-ms.date: 09/10/2020
-ms.topic: conceptual
+ms.date: 11/17/2025
+ms.topic: how-to 
+ms.custom: devx-track-azurepowershell, devx-track-python
+ms.service: azure-automation
+ms.author: v-jasmineme
+author: jasminemehndir
 ---
 
 # Manage certificates in Azure Automation
@@ -12,11 +16,11 @@ ms.topic: conceptual
 Azure Automation stores certificates securely for access by runbooks and DSC configurations, by using the [Get-AzAutomationCertificate](/powershell/module/Az.Automation/Get-AzAutomationCertificate) cmdlet for Azure Resource Manager resources. Secure certificate storage allows you to create runbooks and DSC configurations that use certificates for authentication, or add them to Azure or third-party resources.
 
 >[!NOTE]
->Secure assets in Azure Automation include credentials, certificates, connections, and encrypted variables. These assets are encrypted and stored in Automation by using a unique key that is generated for each Automation account. Automation stores the key in the system-managed Key Vault service. Before storing a secure asset, Automation loads the key from Key Vault, and then uses it to encrypt the asset. 
+>Secure assets in Azure Automation include credentials, certificates, connections, and encrypted variables. These assets are encrypted and stored in Automation by using a unique key that is generated for each Automation account. Automation stores the key in the system-managed Key Vault service. Before storing a secure asset, Automation loads the key from Key Vault, and then uses it to encrypt the asset.
 
 ## PowerShell cmdlets to access certificates
 
-The cmdlets in the following table create and manage Automation certificates with PowerShell. They ship as part of the [Az modules](modules.md#az-modules).
+The cmdlets in the following table create and manage Automation certificates with PowerShell. They ship as part of the Az modules.
 
 |Cmdlet |Description|
 | --- | ---|
@@ -25,7 +29,8 @@ The cmdlets in the following table create and manage Automation certificates wit
 |[Remove-AzAutomationCertificate](/powershell/module/Az.Automation/Remove-AzAutomationCertificate)|Removes a certificate from Automation.|
 |[Set-AzAutomationCertificate](/powershell/module/Az.Automation/Set-AzAutomationCertificate)|Sets the properties for an existing certificate, including uploading the certificate file and setting the password for a **.pfx** file.|
 
-The [Add-AzureCertificate](/powershell/module/servicemanagement/azure.service/add-azurecertificate) cmdlet can also be used to upload a service certificate for the specified cloud service.
+The [Add-AzureCertificate](/powershell/module/servicemanagement/azure/add-azureaccount) cmdlet can also be used to upload a service certificate for the specified cloud service.
+
 
 ## Internal cmdlets to access certificates
 
@@ -35,12 +40,12 @@ The internal cmdlet in the following table is used to access certificates in you
 |:---|:---|
 |`Get-AutomationCertificate`|Gets a certificate to use in a runbook or DSC configuration. Returns a [System.Security.Cryptography.X509Certificates.X509Certificate2](/dotnet/api/system.security.cryptography.x509certificates.x509certificate2) object.|
 
-> [!NOTE] 
+> [!NOTE]
 > You should avoid using variables in the `Name` parameter of `Get-AutomationCertificate` in a runbook or DSC configuration. Such variables can complicate discovery of dependencies between runbooks or DSC configurations and Automation variables at design time.
 
-## Python 2 functions to access certificates
+## Python functions to access certificates
 
-Use the function in the following table to access certificates in a Python 2 runbook.
+Use the function in the following table to access certificates in a Python 2 and 3 runbook. Python 3 runbooks are currently in preview.
 
 | Function | Description |
 |:---|:---|
@@ -51,14 +56,16 @@ Use the function in the following table to access certificates in a Python 2 run
 
 ## Create a new certificate
 
-When you create a new certificate, you upload a .cer or .pfx file to Automation. If you mark the certificate as exportable, then you can transfer it out of the Automation certificate store. If it isn't exportable, then it can only be used for signing within the runbook or DSC configuration. Automation requires the certificate to have the provider **Microsoft Enhanced RSA and AES Cryptographic Provider**.
+When you create a new certificate, you upload a .cer or .pfx file to Automation. If you mark the certificate as exportable, then you can transfer it out of the Automation certificate store. If it isn't exportable, then it can only be used for signing within the runbook or DSC configuration. 
+> [!NOTE]
+> Azure Automation requires the certificate to have the provider **Microsoft Enhanced RSA and AES Cryptographic Provider**.
 
 ### Create a new certificate with the Azure portal
 
 1. From your Automation account, on the left-hand pane select **Certificates** under **Shared Resource**.
 1. On the **Certificates** page, select **Add a certificate**.
 1. In the **Name** field, type a name for the certificate.
-1. To browse for a **.cer** or **.pfx** file, under **Upload a certificate file**, choose **Select a file**. If you select a **.pfx** file, specify a password and indicate if it can be exported.
+1. To browse for a **.cer** or **.pfx** file, under **Upload a certificate file**, choose **Select a file**. If you select a **.pfx** file, specify a password and indicate if it can be exported. If you are using Azure Automation portal to upload certificates, it might fail for partner (CSP) accounts. We recommend that you use [PowerShell cmdlets](#powershell-cmdlets-to-access-certificates) as a workaround to overcome this issue.
 1. Select **Create** to save the new certificate asset.
 
 ### Create a new certificate with PowerShell
@@ -71,7 +78,7 @@ $PfxCertPath = '.\MyCert.pfx'
 $CertificatePassword = ConvertTo-SecureString -String 'P@$$w0rd' -AsPlainText -Force
 $ResourceGroup = "ResourceGroup01"
 
-New-AzAutomationCertificate -AutomationAccountName "MyAutomationAccount" -Name $certificateName -Path $PfxCertPath –Password $CertificatePassword -Exportable -ResourceGroupName $ResourceGroup
+New-AzAutomationCertificate -AutomationAccountName "MyAutomationAccount" -Name $certificateName -Path $PfxCertPath -Password $CertificatePassword -Exportable -ResourceGroupName $ResourceGroup
 ```
 
 ### Create a new certificate with a Resource Manager template
@@ -80,10 +87,10 @@ The following example demonstrates how to deploy a certificate to your Automatio
 
 ```powershell-interactive
 $AutomationAccountName = "<automation account name>"
-$PfxCertPath = '<PFX cert path'
+$PfxCertPath = '<PFX cert path and filename>'
 $CertificatePassword = '<password>'
-$certificateName = '<certificate name>'
-$AutomationAccountName = '<automation account name>'
+$certificateName = '<certificate name>' #A name of your choosing
+$ResourceGroupName = '<resource group name>' #The one that holds your automation account
 $flags = [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::Exportable `
     -bor [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::PersistKeySet `
     -bor [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::MachineKeySet
@@ -114,14 +121,16 @@ $json = @"
 "@
 
 $json | out-file .\template.json
-New-AzResourceGroupDeployment -Name NewCert -ResourceGroupName TestAzureAuto -TemplateFile .\template.json
+New-AzResourceGroupDeployment -Name NewCert -ResourceGroupName $ResourceGroupName -TemplateFile .\template.json
 ```
 
 ## Get a certificate
 
 To retrieve a certificate, use the internal `Get-AutomationCertificate` cmdlet. You can't use the [Get-AzAutomationCertificate](/powershell/module/Az.Automation/Get-AzAutomationCertificate) cmdlet, because it returns information about the certificate asset, but not the certificate itself.
 
-### Textual runbook example
+### Textual runbook examples
+
+# [PowerShell](#tab/azure-powershell)
 
 The following example shows how to add a certificate to a cloud service in a runbook. In this sample, the password is retrieved from an encrypted automation variable.
 
@@ -129,9 +138,35 @@ The following example shows how to add a certificate to a cloud service in a run
 $serviceName = 'MyCloudService'
 $cert = Get-AutomationCertificate -Name 'MyCertificate'
 $certPwd = Get-AzAutomationVariable -ResourceGroupName "ResourceGroup01" `
-–AutomationAccountName "MyAutomationAccount" –Name 'MyCertPassword'
+-AutomationAccountName "MyAutomationAccount" -Name 'MyCertPassword'
 Add-AzureCertificate -ServiceName $serviceName -CertToDeploy $cert
 ```
+
+# [Python 2](#tab/python2)
+
+The following example shows how to access certificates in Python 2 runbooks.
+
+```python
+# get a reference to the Azure Automation certificate
+cert = automationassets.get_automation_certificate("MyCertificate")
+
+# returns the binary cert content  
+print cert
+```
+
+# [Python 3](#tab/python3)
+
+The following example shows how to access certificates in Python 3 runbooks (preview).
+
+```python
+# get a reference to the Azure Automation certificate
+cert = automationassets.get_automation_certificate("MyCertificate")
+
+# returns the binary cert content  
+print (cert)
+```
+
+---
 
 ### Graphical runbook example
 
@@ -142,18 +177,6 @@ Add an activity for the internal `Get-AutomationCertificate` cmdlet to a graphic
 The following image shows an example of using a certificate in a graphical runbook.
 
 ![Screenshot of an example of graphical authoring](../media/certificates/graphical-runbook-add-certificate.png)
-
-### Python 2 example
-
-The following example shows how to access certificates in Python 2 runbooks.
-
-```python
-# get a reference to the Azure Automation certificate
-cert = automationassets.get_automation_certificate("AzureRunAsCertificate")
-
-# returns the binary cert content  
-print cert
-```
 
 ## Next steps
 

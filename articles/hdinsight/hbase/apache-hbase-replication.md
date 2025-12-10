@@ -1,20 +1,22 @@
 ---
 title: HBase cluster replication in virtual networks - Azure HDInsight
 description: Learn how to set up HBase replication from one HDInsight version to another for load balancing, high availability, zero-downtime migration and updates, and disaster recovery.
-author: hrasheed-msft
-ms.author: hrasheed
-ms.reviewer: jasonh
-ms.service: hdinsight
-ms.custom: hdinsightactive
+ms.service: azure-hdinsight
 ms.topic: how-to
-ms.date: 12/06/2019
+author: apurbasroy
+ms.author: apsinhar
+ms.reviewer: nijelsf
+ms.date:  04/29/2024
+ms.custom:
+  - hdinsightactive
+  - sfi-ropc-nochange
 ---
 
 # Set up Apache HBase cluster replication in Azure virtual networks
 
 Learn how to set up [Apache HBase](https://hbase.apache.org/) replication within a virtual network, or between two virtual networks in Azure.
 
-Cluster replication uses a source-push methodology. An HBase cluster can be a source or a destination, or it can fulfill both roles at once. Replication is asynchronous. The goal of replication is eventual consistency. When the source receives an edit to a column family when replication is enabled, the edit is propagated to all destination clusters. When data is replicated from one cluster to another, the source cluster and all clusters that have already consumed the data are tracked, to prevent replication loops.
+Cluster replication uses a source-push methodology. An HBase cluster can be a source or a destination, or it can fulfill both roles at once. Replication is asynchronous. The goal of replication is eventual consistency. When the source receives an edit to a column family when replication is enabled, the edit is propagated to all destination clusters. When data replicated from one cluster to another, the source cluster and all clusters that have already consumed the data tracked, to prevent replication loops.
 
 In this article, you set up a source-destination replication. For other cluster topologies, see the [Apache HBase reference guide](https://hbase.apache.org/book.html#_cluster_replication).
 
@@ -34,7 +36,7 @@ The following are HBase replication usage cases for two virtual networks:
 You can replicate clusters by using [script action](../hdinsight-hadoop-customize-cluster-linux.md) scripts from [GitHub](https://github.com/Azure/hbase-utils/tree/master/replication).
 
 ## Prerequisites
-Before you begin this article, you must have an Azure subscription. See [Get an Azure free trial](https://azure.microsoft.com/documentation/videos/get-azure-free-trial-for-testing-hadoop-in-hdinsight/).
+Before you begin this article, you must have an Azure subscription.
 
 ## Set up the environments
 
@@ -53,7 +55,7 @@ To help you set up the environments, we have created some [Azure Resource Manage
 
 ### Set up two virtual networks in two different regions
 
-To use a template that creates two virtual networks in two different regions and the VPN connection between the VNets, select the following **Deploy to Azure** button. The template definition is stored in a [public blob storage](https://hditutorialdata.blob.core.windows.net/hbaseha/azuredeploy.json).
+To use a template that creates two virtual networks in two different regions and the VPN connection between the VNets, select the following **Deploy to Azure** button.
 
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fhditutorialdata.blob.core.windows.net%2Fhbaseha%2Fazuredeploy.json" target="_blank"><img src="./media/apache-hbase-replication/hdi-deploy-to-azure1.png" alt="Deploy to Azure button for new cluster"></a>
 
@@ -93,6 +95,11 @@ Some of the hard-coded values in the template:
 | Gateway SKU | Basic |
 | Gateway IP | vnet1gwip |
 
+Alternatively, follow below steps to setup two different vnets and VMs manually
+1. [Create Two VNET (Virtual Network)](../../virtual-network/quick-create-portal.md) in different Region
+2. Enable [Peering in both the VNET](../../virtual-network/virtual-network-peering-overview.md). Go to **Virtual network** created in above steps then click on **peering** and add peering link of another region. Do it for both the virtual network. 
+3. [Create the latest version of the UBUNTU](/azure/virtual-machines/linux/quick-create-portal#create-virtual-machine) in each VNET. 
+
 ## Setup DNS
 
 In the last section, the template creates an Ubuntu virtual machine in each of the two virtual networks.  In this section, you install Bind on the two DNS virtual machines, and then configure the DNS forwarding on the two virtual machines.
@@ -116,10 +123,10 @@ To install Bind, use the following procedure:
     Replace `sshuser` with the SSH user account you specified when creating the DNS virtual machine.
 
     > [!NOTE]  
-	> There are a variety of ways to obtain the `ssh` utility. On Linux, Unix, and macOS, it is provided as part of the operating system. If you are using Windows, consider one of the following options:
+	> There are a variety of ways to obtain the `ssh` utility. On Linux, Unix, and macOS, it's provided as part of the operating system. If you are using Windows, consider one of the following options:
     >
     > * [Azure Cloud Shell](../../cloud-shell/quickstart.md)
-    > * [Bash on Ubuntu on Windows 10](https://msdn.microsoft.com/commandline/wsl/about)
+    > * [Bash on Ubuntu on Windows 10](/windows/wsl/about)
     > * [Git (https://git-scm.com/)](https://git-scm.com/)
     > * [OpenSSH (https://github.com/PowerShell/Win32-OpenSSH/wiki/Install-Win32-OpenSSH)](https://github.com/PowerShell/Win32-OpenSSH/wiki/Install-Win32-OpenSSH)
 
@@ -179,7 +186,7 @@ To install Bind, use the following procedure:
     vnet1DNS.icb0d0thtw0ebifqt0g1jycdxd.ex.internal.cloudapp.net
     ```
 
-    The `icb0d0thtw0ebifqt0g1jycdxd.ex.internal.cloudapp.net` text is the __DNS suffix__ for this virtual network. Save this value, as it is used later.
+    The `icb0d0thtw0ebifqt0g1jycdxd.ex.internal.cloudapp.net` text is the __DNS suffix__ for this virtual network. Save this value, as it's used later.
 
     You must also find out the DNS suffix from the other DNS server. You need it in the next step.
 
@@ -233,7 +240,7 @@ To install Bind, use the following procedure:
     Address: 10.2.0.4
     ```
 
-    Until now, you cannot look up the IP address from the other network without specified DNS server IP address.
+    Until now, you can't look up the IP address from the other network without specified DNS server IP address.
 
 ### Configure the virtual network to use the custom DNS server
 
@@ -268,7 +275,7 @@ To ensure the environment is configured correctly, you must be able to ping the 
 
 ## Load test data
 
-When you replicate a cluster, you must specify the tables that you want to replicate. In this section, you load some data into the source cluster. In the next section, you will enable replication between the two clusters.
+When you replicate a cluster, you must specify the tables that you want to replicate. In this section, you load some data into the source cluster. In the next section, you'll enable replication between the two clusters.
 
 To create a **Contacts** table and insert some data in the table, follow the instructions at [Apache HBase tutorial: Get started using Apache HBase in HDInsight](apache-hbase-tutorial-get-started-linux.md).
 
@@ -290,7 +297,7 @@ The following steps describe how to call the script action script from the Azure
 
    1. **Name**: Enter **Enable replication**.
    2. **Bash Script URL**: Enter **https://raw.githubusercontent.com/Azure/hbase-utils/master/replication/hdi_enable_replication.sh**.
-   3. **Head**: Ensure this is selected. Clear the other node types.
+   3. **Head**: Ensure this parameter is selected. Clear the other node types.
    4. **Parameters**: The following sample parameters enable replication for all existing tables, and then copy all data from the source cluster to the destination cluster:
 
     `-m hn1 -s <source hbase cluster name> -d <destination hbase cluster name> -sp <source cluster Ambari password> -dp <destination cluster Ambari password> -copydata`
@@ -298,7 +305,7 @@ The following steps describe how to call the script action script from the Azure
       > [!NOTE]
       > Use hostname instead of FQDN for both the source and destination cluster DNS name.
       >
-      > This walkthrough assumes hn1 as active headnode. Please check your cluster to identify the active head node.
+      > This walkthrough assumes hn1 as active headnode. Check your cluster to identify the active head node.
 
 6. Select **Create**. The script can take a while to run, especially when you use the **-copydata** argument.
 
@@ -331,7 +338,7 @@ After the script action is successfully deployed, you can use SSH to connect to 
 
 The following list shows you some general usage cases and their parameter settings:
 
-- **Enable replication on all tables between the two clusters**. This scenario does not require copying or migrating existing data in the tables, and it does not use Phoenix tables. Use the following parameters:
+- **Enable replication on all tables between the two clusters**. This scenario doesn't require copying or migrating existing data in the tables, and it doesn't use Phoenix tables. Use the following parameters:
 
   `-m hn1 -s <source hbase cluster name> -d <destination hbase cluster name> -sp <source cluster Ambari password> -dp <destination cluster Ambari password>`
 
@@ -343,9 +350,44 @@ The following list shows you some general usage cases and their parameter settin
 
   `-m hn1 -s <source hbase cluster name> -d <destination hbase cluster name> -sp <source cluster Ambari password> -dp <destination cluster Ambari password> -t "table1;table2;table3" -copydata`
 
-- **Enable replication on all tables, and replicate Phoenix metadata from source to destination**. Phoenix metadata replication is not perfect. Use it with caution. Use the following parameters:
+- **Enable replication on all tables, and replicate Phoenix metadata from source to destination**. Phoenix metadata replication isn't perfect. Use it with caution. Use the following parameters:
 
   `-m hn1 -s <source hbase cluster name> -d <destination hbase cluster name> -sp <source cluster Ambari password> -dp <destination cluster Ambari password> -t "table1;table2;table3" -replicate-phoenix-meta`
+
+### Set up replication between ESP clusters
+
+**Prerequisites**
+1. Both ESP clusters should be there in the same realm (domain). Check `/etc/krb5.conf` file default realm property to confirm. 
+1. Common user should be there who has read and write access to both the clusters
+   1. For example, if both clusters have same cluster admin user (For example, `admin@abc.example.com`), that user can be used to run the replication script.
+   1. If both the clusters using same user group, you can add a new user or use existing user from the group.
+   1. If both the clusters using different user group, you can add a new user to both use existing user from the groups.
+ 
+**Steps to Execute Replication script**
+
+> [!NOTE]
+> Perform the following steps only if DNS is unable to resolve hostname correctly of destination cluster. 
+> 1. Copy sink cluster hosts IP & hostname mapping in source cluster nodes /etc/hosts file. 
+> 1. Copy head node, worker node and ZooKeeper nodes host and IP mapping from /etc/hosts file of destination(sink) cluster.
+> 1. Add copied entries source cluster /etc/hosts file. These entries should be added to head nodes, worker nodes and ZooKeeper nodes.
+
+**Step 1:**
+Create keytab file for the user using `ktutil`.
+`$ ktutil`
+1. `addent -password -p admin@ABC.EXAMPLE.COM -k 1 -e RC4-HMAC`
+1. Ask for password to authenticate, provide user password 
+1. `wkt /etc/security/keytabs/admin.keytab`
+
+> [!NOTE] 
+> Make sure the keytab file is stored in `/etc/security/keytabs/` folder in the `<username>.keytab` format.
+
+**Step 2:** 
+Run script action with `-ku` option 
+1. Provide `-ku <username>` on ESP clusters.
+	
+|Name|Description|
+|----|-----------|
+|`-ku, --krb-user`  | For ESP clusters, Common Kerberos user, who can authenticate both source and destination clusters|
 
 ## Copy and migrate data
 
@@ -365,15 +407,15 @@ The `print_usage()` section of the [script](https://github.com/Azure/hbase-utils
 
 - **Copy specific tables (test1, test2, and test3) for all rows edited until now (current time stamp)**:
 
-  `-m hn1 -t "test1::;test2::;test3::" -p "zk5-hbrpl2;zk1-hbrpl2;zk5-hbrpl2:2181:/hbase-unsecure" -everythingTillNow`
+  `-m hn1 -t "test1::;test2::;test3::" -p "<zookeepername1>;<zookeepername2>;<zookeepername3>:2181:/hbase-unsecure" -everythingTillNow`
 
   Or:
 
-  `-m hn1 -t "test1::;test2::;test3::" --replication-peer="zk5-hbrpl2;zk1-hbrpl2;zk5-hbrpl2:2181:/hbase-unsecure" -everythingTillNow`
+  `-m hn1 -t "test1::;test2::;test3::" --replication-peer="<zookeepername1>;<zookeepername2>;<zookeepername3>:2181:/hbase-unsecure" -everythingTillNow`
 
 - **Copy specific tables with a specified time range**:
 
-  `-m hn1 -t "table1:0:452256397;table2:14141444:452256397" -p "zk5-hbrpl2;zk1-hbrpl2;zk5-hbrpl2:2181:/hbase-unsecure"`
+  `-m hn1 -t "table1:0:452256397;table2:14141444:452256397" -p "<zookeepername1>;<zookeepername2>;<zookeepername3>:2181:/hbase-unsecure"`
 
 ## Disable replication
 
@@ -408,4 +450,3 @@ In this article, you learned how to set up Apache HBase replication within a vir
 * [Get started with Apache HBase in HDInsight](./apache-hbase-tutorial-get-started-linux.md)
 * [HDInsight Apache HBase overview](./apache-hbase-overview.md)
 * [Create Apache HBase clusters in Azure Virtual Network](./apache-hbase-provision-vnet.md)
-

@@ -3,13 +3,15 @@ title: Eternal orchestrations in Durable Functions - Azure
 description: Learn how to implement eternal orchestrations by using the Durable Functions extension for Azure Functions.
 author: cgillum
 ms.topic: conceptual
-ms.date: 07/14/2020
+ms.date: 11/05/2025
 ms.author: azfuncdf
+ms.devlang: csharp
+# ms.devlang: csharp, javascript, python, java
 ---
 
 # Eternal orchestrations in Durable Functions (Azure Functions)
 
-*Eternal orchestrations* are orchestrator functions that never end. They are useful when you want to use [Durable Functions](durable-functions-overview.md) for aggregators and any scenario that requires an infinite loop.
+*Eternal orchestrations* are orchestrator functions that never end. They're useful when you want to use [Durable Functions](durable-functions-overview.md) for aggregators and any scenario that requires an infinite loop.
 
 ## Orchestration history
 
@@ -17,12 +19,20 @@ As explained in the [orchestration history](durable-functions-orchestrations.md#
 
 ## Resetting and restarting
 
-Instead of using infinite loops, orchestrator functions reset their state by calling the `ContinueAsNew` (.NET), `continueAsNew` (JavaScript), or `continue_as_new` (Python) method of the [orchestration trigger binding](durable-functions-bindings.md#orchestration-trigger). This method takes a single JSON-serializable parameter, which becomes the new input for the next orchestrator function generation.
+Instead of using infinite loops, orchestrator functions reset their state by calling the `continue-as-new` method of the [orchestration trigger binding](durable-functions-bindings.md#orchestration-trigger). This method takes a JSON-serializable parameter, which becomes the new input for the next orchestrator function generation.
 
-When `ContinueAsNew` is called, the instance enqueues a message to itself before it exits. The message restarts the instance with the new input value. The same instance ID is kept, but the orchestrator function's history is effectively truncated.
+When you call `continue-as-new`, the orchestration instance restarts itself with the new input value. The same instance ID is kept, but the orchestrator function's history is reset.
 
-> [!NOTE]
-> The Durable Task Framework maintains the same instance ID but internally creates a new *execution ID* for the orchestrator function that gets reset by `ContinueAsNew`. This execution ID is generally not exposed externally, but it may be useful to know about when debugging orchestration execution.
+## Eternal orchestration considerations
+
+Keep these considerations in mind when using the `continue-as-new` method in an orchestration:
+
++ When an orchestrator function gets reset by using the `continue-as-new` method, the Durable Task Framework maintains the same instance ID but internally it creates and uses a new *execution ID* going forward. This execution ID isn't exposed externally, but it can be useful when debugging orchestration execution. 
+
++ When an unhandled exception occurs during execution, the orchestration enters a _failed_ state and execution terminates. In this state, a call to `continue-as-new` made from the `finally` block of a try-catch statement can't restart the orchestration. 
+
+> [!IMPORTANT]
+> If during execution the orchestration encounters an uncaught exception, then the orchestration enters a "failed" state and execution will complete. In particular, this means that a call to *continue-as-new*, even in a `finally` block, will *not* restart the orchestration in the case of an uncaught exception.
 
 ## Periodic work example
 
@@ -61,7 +71,7 @@ module.exports = df.orchestrator(function*(context) {
     const nextCleanup = moment.utc(context.df.currentUtcDateTime).add(1, "h");
     yield context.df.createTimer(nextCleanup.toDate());
 
-    context.df.continueAsNew(undefined);
+    yield context.df.continueAsNew(undefined);
 });
 ```
 
@@ -84,13 +94,31 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
 main = df.Orchestrator.create(orchestrator_function)
 ```
 
+# [PowerShell](#tab/powershell)
+
+PowerShell doesn't support *continue-as-new*.
+
+# [Java](#tab/java)
+
+```java
+@FunctionName("Periodic_Cleanup_Loop")
+public void periodicCleanupLoop(
+        @DurableOrchestrationTrigger(name = "ctx") TaskOrchestrationContext ctx) {
+    ctx.callActivity("DoCleanup").await();
+
+    ctx.createTimer(Duration.ofHours(1)).await();
+
+    ctx.continueAsNew(null);
+}
+```
+
 ---
 
-The difference between this example and a timer-triggered function is that cleanup trigger times here are not based on a schedule. For example, a CRON schedule that executes a function every hour will execute it at 1:00, 2:00, 3:00 etc. and could potentially run into overlap issues. In this example, however, if the cleanup takes 30 minutes, then it will be scheduled at 1:00, 2:30, 4:00, etc. and there is no chance of overlap.
+The difference between this example and a timer-triggered function is that cleanup trigger times aren't based on a schedule. For example, a CRON schedule that executes a function every hour runs at 1:00, 2:00, 3:00, and so on, and could potentially run into overlap issues. In this example, however, if the cleanup takes 30 minutes, then it schedules at 1:00, 2:30, 4:00, and so on, and there's no chance of overlap.
 
 ## Starting an eternal orchestration
 
-Use the `StartNewAsync` (.NET), the `startNew` (JavaScript), `start_new` (Python) method to start an eternal orchestration, just like you would any other orchestration function.  
+Use the *start-new* or *schedule-new* durable client method to start an eternal orchestration, just like you would any other orchestration function.  
 
 > [!NOTE]
 > If you need to ensure a singleton eternal orchestration is running, it's important to maintain the same instance `id` when starting the orchestration. For more information, see [Instance Management](durable-functions-instance-management.md).
@@ -111,7 +139,7 @@ public static async Task<HttpResponseMessage> OrchestrationTrigger(
 ```
 
 > [!NOTE]
-> The previous code is for Durable Functions 2.x. For Durable Functions 1.x, you must use `OrchestrationClient` attribute instead of the `DurableClient` attribute, and you must use the `DurableOrchestrationClient` parameter type instead of `IDurableOrchestrationClient`. For more information about the differences between versions, see the [Durable Functions versions](durable-functions-versions.md) article.
+> The previous code is for Durable Functions 2.x. For Durable Functions 1.x, use the `OrchestrationClient` attribute instead of the `DurableClient` attribute, and use the `DurableOrchestrationClient` parameter type instead of `IDurableOrchestrationClient`. For more information about the differences between versions, see the [Durable Functions versions](durable-functions-versions.md) article.
 
 # [JavaScript](#tab/javascript)
 
@@ -129,6 +157,7 @@ module.exports = async function (context, req) {
     return client.createCheckStatusResponse(context.bindingData.req, instanceId);
 };
 ```
+
 # [Python](#tab/python)
 
 ```python
@@ -143,13 +172,32 @@ async def main(req: func.HttpRequest, starter: str) -> func.HttpResponse:
 
 ```
 
+# [PowerShell](#tab/powershell)
+
+PowerShell doesn't support *continue-as-new*.
+
+# [Java](#tab/java)
+
+```java
+@FunctionName("Trigger_Eternal_Orchestration")
+public HttpResponseMessage triggerEternalOrchestration(
+        @HttpTrigger(name = "req") HttpRequestMessage<?> req,
+        @DurableClientInput(name = "durableContext") DurableClientContext durableContext) {
+
+    String instanceID = "StaticID";
+    DurableTaskClient client = durableContext.getClient();
+    client.scheduleNewOrchestrationInstance("Periodic_Cleanup_Loop", null, instanceID);
+    return durableContext.createCheckStatusResponse(req, instanceID);
+}
+```
+
 ---
 
 ## Exit from an eternal orchestration
 
 If an orchestrator function needs to eventually complete, then all you need to do is *not* call `ContinueAsNew` and let the function exit.
 
-If an orchestrator function is in an infinite loop and needs to be stopped, use the `TerminateAsync` (.NET), `terminate` (JavaScript), or `terminate` (Python) method of the [orchestration client binding](durable-functions-bindings.md#orchestration-client) to stop it. For more information, see [Instance Management](durable-functions-instance-management.md).
+If an orchestrator function is in an infinite loop and needs to be stopped, use the *terminate* API of the [orchestration client binding](durable-functions-bindings.md#orchestration-client) to stop it. For more information, see [Instance Management](durable-functions-instance-management.md).
 
 ## Next steps
 

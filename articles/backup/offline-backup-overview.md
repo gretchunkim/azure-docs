@@ -1,9 +1,12 @@
 ---
 title: Overview of offline backup 
 description: Learn about the components of offline backup. They include offline backup based on Azure Data Box and offline backup based on the Azure Import/Export service.
-ms.topic: conceptual
-ms.date: 1/28/2020
+ms.topic: overview
+ms.date: 07/02/2025
 ms.custom: references_regions 
+author: AbhishekMallick-MS
+ms.author: v-mallicka
+# Customer intent: As a backup administrator, I want to understand the options for offline backup solutions, so that I can choose the best method for transferring large amounts of data without consuming network bandwidth.
 ---
 
 # Overview of offline backup
@@ -18,12 +21,12 @@ Azure Backup supports offline backup, which transfers initial backup data offlin
 
 Offline backup is offered in two modes based on the ownership of the storage devices:
 
-- Offline backup based on Azure Data Box (preview)
+- Offline backup based on Azure Data Box
 - Offline backup based on the Azure Import/Export service
 
-## Offline backup based on Azure Data Box (preview)
+## Offline backup based on Azure Data Box
 
-This mode is currently supported with the Microsoft Azure Recovery Services (MARS) Agent, in preview. This option takes advantage of [Azure Data Box](https://azure.microsoft.com/services/databox/) to ship Microsoft-proprietary, secure, and tamper-resistant transfer appliances with USB connectors to your datacenter or remote office. Backup data is directly written onto these devices. This option saves the effort required to procure your own Azure-compatible disks and connectors or to provision temporary storage as a staging location. Microsoft also handles the end-to-end transfer logistics, which you can track through the Azure portal.
+This option is supported by Microsoft Azure Backup Server (MABS), System Center Data Protection Manager (DPM) DPM-A, and the MARS Agent. This option takes advantage of [Azure Data Box](https://azure.microsoft.com/services/databox/) to ship Microsoft-proprietary, secure, and tamper-resistant transfer appliances with USB connectors to your datacenter or remote office. Backup data is directly written onto these devices. This option saves the effort required to procure your own Azure-compatible disks and connectors or to provision temporary storage as a staging location. Microsoft also handles the end-to-end transfer logistics, which you can track through the Azure portal.
 
 An architecture that describes the movement of backup data with this option is shown here.
 
@@ -40,7 +43,7 @@ To use offline backup based on Azure Data Box, see [Offline backup using Azure D
 
 ## Offline backup based on the Azure Import/Export service
 
-This option is supported by Microsoft Azure Backup Server (MABS), System Center Data Protection Manager (DPM) DPM-A, and the MARS Agent. It uses the [Azure Import/Export service](../storage/common/storage-import-export-service.md). You can transfer initial backup data to Azure by using your own Azure-compatible disks and connectors. This approach requires that you provision temporary storage known as the staging location and use prebuilt utilities to format and copy the backup data onto customer-owned disks.
+This option is supported by Microsoft Azure Backup Server (MABS), System Center Data Protection Manager (DPM) DPM-A, and the MARS Agent. It uses the [Azure Import/Export service](../import-export/storage-import-export-service.md). You can transfer initial backup data to Azure by using your own Azure-compatible disks and connectors. This approach requires that you provision temporary storage known as the staging location and use prebuilt utilities to format and copy the backup data onto customer-owned disks.
 
 An architecture that describes the movement of backup data with this option is shown here.
 
@@ -64,11 +67,11 @@ The following table compares the two available options so that you can make the 
 
 | **Consideration**                                            | **Offline backup based on Azure Data Box**                     | **Offline backup based on the Azure Import/Export service**                |
 | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| Azure Backup deployment models                              | MARS Agent (preview)                                              | MARS Agent, MABS, DPM-A                                           |
+| Azure Backup deployment models                              | MARS Agent, MABS, DPM-A                                              | MARS Agent, MABS, DPM-A                                           |
 | Maximum backup data per server (MARS) or per protection group (MABS, DPM-A) | [Azure Data Box disk](../databox/data-box-disk-overview.md) - 7.2 TB <br> [Azure Data Box](../databox/data-box-overview.md) - 80 TB       | 80 TB (up to 10 disks of 8 TB each)                          |
 | Security (data, device, and service)                           | [Data](../databox/data-box-security.md#data-box-data-protection) - AES 256-bit encrypted <br> [Device](../databox/data-box-security.md#data-box-device-protection) - Rugged case, proprietary, credential-based interface to copy data <br> [Service](../databox/data-box-security.md#data-box-service-protection) - Protected by Azure security features | Data - BitLocker encrypted                                 |
 | Temporary staging location provisioning                     | Not required                                                | More than or equal to the estimated backup data size        |
-| Supported regions                                           | [Azure Data Box disk regions](../databox/data-box-disk-overview.md#region-availability) <br> [Azure Data Box regions](../databox/data-box-disk-overview.md#region-availability) | [Azure Import/Export service regions](../storage/common/storage-import-export-service.md#region-availability) |
+| Supported regions                                           | [Azure Data Box disk regions](../databox/data-box-disk-overview.md#region-availability) <br> [Azure Data Box regions](../databox/data-box-disk-overview.md#region-availability) | [Azure Import/Export service regions](../import-export/storage-import-export-service.md#region-availability) |
 | Cross-country shipping                                     | Not supported  <br>    Source address and destination Azure datacenter must be in the same country/region* | Supported                                                    |
 | Transfer logistics (delivery, transport, pickup)           | Fully Microsoft managed                                     | Customer managed                                            |
 | Pricing                                                      | [Azure Data Box pricing](https://azure.microsoft.com/pricing/details/databox/) <br> [Azure Data Box disk pricing](https://azure.microsoft.com/pricing/details/databox/disk/) | [Azure Import/Export service pricing](https://azure.microsoft.com/pricing/details/storage-import-export/) |
@@ -77,6 +80,8 @@ The following table compares the two available options so that you can make the 
 
 ## Next steps
 
-- [Azure Backup offline backup by using Azure Data Box](offline-backup-azure-data-box.md#backup-data-size-and-supported-data-box-skus)
-- [Offline backup workflow in Azure Backup](backup-azure-backup-import-export.md)
-- [Offline backup workflow for DPM and Azure Backup Server](backup-azure-backup-server-import-export.md)
+- [Azure Backup offline backup by using Azure Data Box](offline-backup-azure-data-box.md#backup-data-size-and-supported-data-box-skus).
+- [Offline backup workflow in Azure Backup](backup-azure-backup-import-export.md).
+- [Offline backup workflow for DPM and Azure Backup Server](backup-azure-backup-server-import-export.md).
+- [Offline backup workflow for DPM and Azure Backup Server](offline-backup-azure-data-box-dpm-mabs.md).
+- [Offline backup workflow for DPM and Azure Backup Server for previous versions](offline-backup-server-previous-versions.md).

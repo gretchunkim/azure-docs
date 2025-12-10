@@ -3,11 +3,13 @@
  description: include file
  services: notification-hubs
  author: spelluru
- ms.service: notification-hubs
+ ms.service: azure-notification-hubs
  ms.topic: include
  ms.date: 04/06/2018
  ms.author: spelluru
- ms.custom: include file
+ ms.custom:
+   - include file
+   - sfi-image-nochange
 ---
 
 1. Navigate to the [Google Cloud Console](https://console.developers.google.com/cloud-resource-manager), sign in with your Google account credentials. 
@@ -38,7 +40,7 @@
     ![Create credentials button](./media/mobile-services-enable-google-cloud-messaging/create-credentials-button.png)
 11. On the **Add credentials to your project** page, select **API key** link. 
 
-    ![Create credentials button](./media/mobile-services-enable-google-cloud-messaging/api-key-button.png)    
+    ![Add credentials](./media/mobile-services-enable-google-cloud-messaging/api-key-button.png)    
 12. On **API key** page, select **Create/Save**. In the following example, the **IP addresses** option is selected, and **0.0.0.0/0** is entered for allowed IP addresses. You should restrict your API key appropriately. 
 
     ![API Key - Create button](./media/mobile-services-enable-google-cloud-messaging/api-key-create-button.png)

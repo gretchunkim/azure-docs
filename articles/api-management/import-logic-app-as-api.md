@@ -1,84 +1,94 @@
 ---
-title: Import a Logic App as an API with the Azure portal  | Microsoft Docs
-description: This tutorial shows you how to use API Management (APIM) to import Logic App as an API.
+title: Import a logic app as an API by using the Azure portal  | Microsoft Docs
+description: Learn how to use Azure API Management to import a logic app (Consumption) resource as an API.
 services: api-management
-documentationcenter: ''
-author: vladvino
-manager: cfowler
-editor: ''
+author: dlepow
+ms.service: azure-api-management
+ms.topic: how-to
+ms.date: 03/27/2025
+ms.author: danlep
+ms.custom: sfi-image-nochange
 
-ms.service: api-management
-ms.workload: mobile
-ms.tgt_pltfrm: na
-ms.topic: tutorial
-ms.date: 04/22/2020
-ms.author: apimpm
+#customer intent: As a developer, I want to import a logic app as an API.
 ---
 
-# Import a Logic App as an API
+# Import a logic app as an API
 
-This article shows how to import a Logic App as an API and test the imported API.
+[!INCLUDE [api-management-availability-all-tiers](../../includes/api-management-availability-all-tiers.md)]
+
+This article shows how to import a logic app as an API and test the imported API.
+
+[!INCLUDE [api-management-workspace-availability](../../includes/api-management-workspace-availability.md)]
 
 In this article, you learn how to:
 
 > [!div class="checklist"]
 >
-> -   Import a Logic App as an API
+> -   Import a logic app as an API
 > -   Test the API in the Azure portal
-> -   Test the API in the Developer portal
+
+> [!NOTE]
+> Azure API Management supports automated import of a Logic App (Consumption) resource, which runs in the multitenant Logic Apps environment. For more information, see [Differences between Standard single-tenant logic apps and Consumption multitenant logic apps](../logic-apps/single-tenant-overview-compare.md).
 
 ## Prerequisites
 
--   Complete the following quickstart: [Create an Azure API Management instance](get-started-create-service-instance.md)
--   Make sure there is a Logic App in your subscription that exposes an HTTP endpoint. For more information, [Trigger workflows with HTTP endpoints](../logic-apps/logic-apps-http-endpoint.md)
+-   Complete the quickstart [Create an Azure API Management instance](get-started-create-service-instance.md).
+-   Make sure there's a Consumption plan-based Logic App resource in your subscription that exposes an HTTP endpoint. For more information, see [Trigger workflows with HTTP endpoints](../logic-apps/logic-apps-http-endpoint.md).
 
-[!INCLUDE [api-management-navigate-to-instance.md](../../includes/api-management-navigate-to-instance.md)]
+## Import and publish a backend API
 
-## <a name="create-api"> </a>Import and publish a back-end API
+1. Navigate to your API Management service in the [Azure portal](https://portal.azure.com).
+1. In the left menu, in the **APIs** section, select **APIs**, and then select **+ Add API**.
 
-1. Navigate to your API Management service in the Azure portal and select **APIs** from the menu.
-2. Select **Logic App** from the **Add a new API** list.
+1. Select **Logic App** in the **Create from Azure resource** list:
 
-    ![Logic app](./media/import-logic-app-as-api/logic-app-api.png)
+    :::image type="content" source="./media/import-logic-app-as-api/logic-app-select.png" alt-text="Screenshot that shows the Logic App tile.":::
 
-3. Press **Browse** to see the list of Logic Apps with HTTP trigger in your subscription. (Note that Logic Apps without HTTP trigger will not appear in the list.)
-4. Select the app. API Management finds the swagger associated with the selected app, fetches it, and imports it.
-5. Add an API URL suffix. The suffix is a name that identifies this specific API in this API Management instance. It has to be unique in this API Management instance.
-6. Publish the API by associating the API with a product. In this case, the "_Unlimited_" product is used. If you want for the API to be published and be available to developers, add it to a product. You can do it during API creation or set it later.
+1. Select **Browse** to see the list of logic apps that have HTTP trigger in your subscription. (Logic apps that don't have an HTTP trigger won't appear in the list.)
 
-    Products are associations of one or more APIs. You can include a number of APIs and offer them to developers through the developer portal. Developers must first subscribe to a product to get access to the API. When they subscribe, they get a subscription key that is good for any API in that product. If you created the API Management instance, you are an administrator already, so you are subscribed to every product by default.
+    :::image type="content" source="./media/import-logic-app-as-api/browse-logic-apps.png" alt-text="Screenshot that shows the Browse button." lightbox="./media/import-logic-app-as-api/browse-logic-apps.png":::
 
-    By default, each API Management instance comes with two sample products:
+1. Select the logic app:
 
-    - **Starter**
-    - **Unlimited**
+    :::image type="content" source="./media/import-logic-app-as-api/select-logic-app-import-2.png" alt-text="Screenshot that shows the Select Logic App to import window." lightbox="./media/import-logic-app-as-api/select-logic-app-import-2.png":::
 
-7. Enter other API settings. You can set the values during creation or configure them later by going to the **Settings** tab. The settings are explained in the [Import and publish your first API](import-and-publish.md#-import-and-publish-a-backend-api) tutorial.
-8. Select **Create**.
+    API Management finds the Swagger document that's associated with the selected app, fetches it, and imports it.
+
+1. Add an API URL suffix. The suffix uniquely identifies the API in the API Management instance.
+
+    :::image type="content" source="./media/import-logic-app-as-api/create-from-logic-app.png" alt-text="Screenshot that shows values entered in the Create from Logic App window." lightbox="./media/import-logic-app-as-api/create-from-logic-app.png":::
+
+1. If you want the API to be published and available to developers, switch to the **Full** view and associate the API with a **Product**. This example uses the **Unlimited** product. (You can add your API to a product when you create it or later via the **Settings** tab.)
+
+    >[!NOTE]
+    > Products are associations of one or more APIs offered to developers via the developer portal. First, developers must subscribe to a product to get access to the API. After they subscribe, they get a subscription key for any API in the product. As creator of the API Management instance, you're an administrator and are subscribed to every product by default.
+    >
+    > In certain tiers, each API Management instance comes with two default sample products:
+    > - **Starter**
+    > - **Unlimited**
+
+1. Enter other API settings. You can set these values when you create the API or later by going to the **Settings** tab. The settings are explained in the [Import and publish your first API](import-and-publish.md#import-and-publish-a-backend-api) tutorial.
+
+1. Select **Create**.
 
 ## Test the API in the Azure portal
 
-Operations can be called directly from the Azure portal, which provides a convenient way to view and test the operations of an API.
+You can call operations directly from the Azure portal. This method provides a convenient way to view and test the operations of an API.
 
-1. Select the API you created in the previous step.
-2. Press the **Test** tab.
-3. Select some operation.
+:::image type="content" source="./media/import-logic-app-as-api/test-logic-app-api.png" alt-text="Screenshot that shows the steps for testing an API." lightbox="./media/import-logic-app-as-api/test-logic-app-api.png":::
 
-    The page displays fields for query parameters and fields for the headers. One of the headers is "Ocp-Apim-Subscription-Key", for the subscription key of the product that is associated with this API. If you created the API Management instance, you are an administrator already, so the key is filled in automatically.
+1. Select the API that you created in the previous step.
+1. On the **Test** tab, select the operation that you want to test.
 
-4. Press **Send**.
+    * The page displays fields for query parameters and headers. 
+    * One of the headers is `Ocp-Apim-Subscription-Key`. This header is for the product subscription key that's associated with the API. 
+    * As creator of the API Management instance, you're an administrator, so the key is filled in automatically.
 
-    Backend responds with **200 OK** and some data.
+1. Select **Send**. When the test succeeds, the backend responds with **200 OK** and data.
 
-[!INCLUDE [api-management-navigate-to-instance.md](../../includes/api-management-append-apis.md)]
+[!INCLUDE [api-management-append-apis.md](../../includes/api-management-append-apis.md)]
 
 >[!NOTE]
->Every Logic App has **manual-invoke** operation. If you want to comprise your API of multiple logic apps, in order not to have collision, you need to rename the function.
+>Every Logic App has a `manual-invoke` operation. If you want to combine multiple logic apps in an API, you need to rename the function. To rename the function/API, change the title value in the OpenAPI Specification editor.
 
 [!INCLUDE [api-management-define-api-topics.md](../../includes/api-management-define-api-topics.md)]
-
-## Next steps
-
-> [!div class="nextstepaction"]
->
-> [Transform and protect a published api](transform-api.md)

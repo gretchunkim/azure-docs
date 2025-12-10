@@ -1,34 +1,59 @@
 ---
-title: Azure CLI Script Example - Linux Pool in Batch
-description: This script demonstrates some of the commands available in the Azure CLI to create and manage a pool of Linux compute nodes in Azure Batch.
+title: Azure CLI Script Example - Linux Pool in Batch | Microsoft Docs
+description: Learn the commands available in the Azure CLI to create and manage a pool of Linux compute nodes in Azure Batch.
 ms.topic: sample
-ms.date: 01/29/2018 
-ms.custom: devx-track-azurecli
-
+ms.date: 04/02/2025
+ms.custom: devx-track-azurecli, seo-azure-cli, linux-related-content
+keywords: linux, azure cli samples, azure cli code samples, azure cli script samples
+# Customer intent: As a cloud administrator, I want to create and manage a pool of Linux compute nodes using CLI commands, so that I can efficiently run batch processing tasks in cloud environments.
 ---
 
 # CLI example: Create and manage a Linux pool in Azure Batch
 
 This script demonstrates some of the commands available in the Azure CLI to create and manage a pool of Linux compute nodes in Azure Batch.
 
-[!INCLUDE [cloud-shell-try-it.md](../../../includes/cloud-shell-try-it.md)]
+[!INCLUDE [quickstarts-free-trial-note](~/reusable-content/ce-skilling/azure/includes/quickstarts-free-trial-note.md)]
 
-If you choose to install and use the CLI locally, this quickstart requires that you are running the Azure CLI version 2.0.20 or later. Run `az --version` to find the version. If you need to install or upgrade, see [Install Azure CLI](/cli/azure/install-azure-cli). 
+[!INCLUDE [azure-cli-prepare-your-environment.md](~/reusable-content/azure-cli/azure-cli-prepare-your-environment.md)]
 
-## Example script
+## Sample script
 
-[!code-azurecli-interactive[main](../../../cli_scripts/batch/manage-pool/manage-pool-linux.sh "Manage Linux Virtual Machine Pool")]
+[!INCLUDE [cli-launch-cloud-shell-sign-in.md](~/reusable-content/ce-skilling/azure/includes/cli-launch-cloud-shell-sign-in.md)]
 
-## Clean up deployment
+### To create a Linux pool in Azure Batch
 
-Run the following command to remove the
-resource group and all resources associated with it.
+:::code language="azurecli" source="~/azure_cli_scripts/batch/manage-pool/manage-pool-linux.sh" id="FullScript":::
 
-```azurecli-interactive
-az group delete --name myResourceGroup
+### To reboot a batch node
+
+If a particular node in the pool is having issues, it can be rebooted or reimaged. The ID of the node can be retrieved with the list command above. A typical node ID is in the format `tvm-xxxxxxxxxx_1-<timestamp>`.
+
+```azurecli
+az batch node reboot \
+    --pool-id mypool-linux \
+    --node-id tvm-123_1-20170316t000000z
 ```
 
-## Script explanation
+### To delete a batch node
+
+One or more compute nodes can be deleted from the pool, and any work already assigned to it can be re-allocated to another node.
+
+```azurecli
+az batch node delete \
+    --pool-id mypool-linux \
+    --node-list tvm-123_1-20170316t000000z tvm-123_2-20170316t000000z \
+    --node-deallocation-option requeue
+```
+
+## Clean up resources
+
+[!INCLUDE [cli-clean-up-resources.md](~/reusable-content/ce-skilling/azure/includes/cli-clean-up-resources.md)]
+
+```azurecli
+az group delete --name $resourceGroup
+```
+
+## Sample reference
 
 This script uses the following commands. Each command in the table links to command-specific documentation.
 

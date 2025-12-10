@@ -1,13 +1,12 @@
 ---
 title: 'Benefits: Migrate on-premises Apache Hadoop to Azure HDInsight'
 description: Learn the motivation and benefits for migrating on-premises Hadoop clusters to Azure HDInsight.
-author: hrasheed-msft
-ms.author: hrasheed
-ms.reviewer: ashishth
-ms.service: hdinsight
-ms.custom: hdinsightactive
+ms.service: azure-hdinsight
 ms.topic: how-to
-ms.date: 11/15/2019
+author: hareshg
+ms.author: hgowrisankar
+ms.reviewer: nijelsf
+ms.date: 12/02/2024
 ---
 
 # Migrate on-premises Apache Hadoop clusters to Azure HDInsight - motivation and benefits
@@ -22,9 +21,7 @@ Azure HDInsight is a cloud distribution of Hadoop components. Azure HDInsight ma
 - Apache Spark
 - Apache Hive with LLAP
 - Apache Kafka
-- Apache Storm
 - Apache HBase
-- R
 
 ## Azure HDInsight advantages over on-premises Hadoop
 
@@ -38,7 +35,7 @@ Azure HDInsight is a cloud distribution of Hadoop components. Azure HDInsight ma
 
 - **Global availability** - HDInsight is available in more [regions](https://azure.microsoft.com/regions/services/) than any other big data analytics offering. Azure HDInsight is also available in Azure Government, China, and Germany, which allows you to meet your enterprise needs in key sovereign areas.
 
-- **Secure and compliant** - HDInsight enables you to protect your enterprise data assets with [Azure Virtual Network](../hdinsight-plan-virtual-network-deployment.md), [encryption](../hdinsight-hadoop-create-linux-clusters-with-secure-transfer-storage.md), and integration with [Azure Active Directory](../domain-joined/hdinsight-security-overview.md). HDInsight also meets the most popular industry and government [compliance standards](https://azure.microsoft.com/overview/trusted-cloud).
+- **Secure and compliant** - HDInsight enables you to protect your enterprise data assets with [Azure Virtual Network](../hdinsight-plan-virtual-network-deployment.md), [encryption](../hdinsight-hadoop-create-linux-clusters-with-secure-transfer-storage.md), and integration with [Microsoft Entra ID](../domain-joined/hdinsight-security-overview.md). HDInsight also meets the most popular industry and government [compliance standards](https://azure.microsoft.com/overview/trusted-cloud).
 
 - **Simplified version management** - Azure HDInsight manages the version of Hadoop eco-system components and keeps them up to date. Software updates are usually a complex process for on-premises deployments.
 
@@ -87,7 +84,7 @@ This section provides template questionnaires to help gather important informati
 |**Topic**: **Environment**|||
 |Cluster Distribution version|HDP 2.6.5, CDH 5.7|
 |Big Data eco-system components|HDFS, Yarn, Hive, LLAP, Impala, Kudu, HBase, Spark, MapReduce, Kafka, Zookeeper, Solr, Sqoop, Oozie, Ranger, Atlas, Falcon, Zeppelin, R|
-|Cluster types|Hadoop, Spark, Confluent Kafka, Storm, Solr|
+|Cluster types|Hadoop, Spark, Confluent Kafka, Solr|
 |Number of clusters|4|
 |Number of master nodes|2|
 |Number of worker nodes|100|
@@ -98,7 +95,7 @@ This section provides template questionnaires to help gather important informati
 |Edge Nodes configuration|m/y, cpu, disk, etc.|
 |HDFS Encryption?|Yes|
 |High Availability|HDFS HA, Metastore HA|
-|Disaster Recovery / Backup|Backup cluster?|  
+|Disaster Recovery / Back up|Backup cluster?|  
 |Systems that are dependent on Cluster|SQL Server, Teradata, Power BI, MongoDB|
 |Third-party integrations|Tableau, GridGain, Qubole, Informatica, Splunk|
 |**Topic**: **Security**|||
@@ -107,9 +104,9 @@ This section provides template questionnaires to help gather important informati
 |HDFS Access Control|  Manual, ssh users|
 |Hive authentication & authorization|Sentry, LDAP, AD with Kerberos, Ranger|
 |Auditing|Ambari, Cloudera Navigator, Ranger|
-|Monitoring|Graphite, collectd, statsd, Telegraf, InfluxDB|
-|Alerting|Kapacitor, Prometheus, Datadog|
-|Data Retention duration| 3 years, 5 years|
+|Monitoring|Graphite, collectd, `statsd`, Telegraf, InfluxDB|
+|Alerting|`Kapacitor`, Prometheus, Datadog|
+|Data Retention duration| Three years, five years|
 |Cluster Administrators|Single Administrator, Multiple Administrators|
 
 ### Project details questionnaire
@@ -117,16 +114,15 @@ This section provides template questionnaires to help gather important informati
 |**Question**|**Example**|**Answer**|
 |---|---|---|
 |**Topic**: **Workloads and Frequency**|||
-|MapReduce jobs|10 jobs -- twice daily||
-|Hive jobs|100 jobs -- every hour||
-|Spark batch jobs|50 jobs -- every 15 minutes||
-|Spark Streaming jobs|5 jobs -- every 3 minutes||
-|Structured Streaming jobs|5 jobs -- every minute||
-|ML Model training jobs|2 jobs -- once in a week||
+|MapReduce jobs|10 jobs--twice daily||
+|Hive jobs|100 jobs--every hour||
+|Spark batch jobs|50 jobs--every 15 minutes||
+|Spark Streaming jobs|5 jobs--every 3 minutes||
+|Structured Streaming jobs|5 jobs--every minute||
 |Programming Languages|Python, Scala, Java||
 |Scripting|Shell, Python||
 |**Topic**: **Data**|||
-|Data sources|Flat files, Json, Kafka, RDBMS||
+|Data sources|Flat files, JSON, Kafka, RDBMS||
 |Data orchestration|Oozie workflows, Airflow||
 |In memory lookups|Apache Ignite, Redis||
 |Data destinations|HDFS, RDBMS, Kafka, MPP ||
@@ -164,13 +160,13 @@ This section provides template questionnaires to help gather important informati
 | Preferred Region|US East||
 |VNet preferred?|Yes||
 |HA / DR Needed?|Yes||
-|Integration with other cloud services?|ADF, CosmosDB||
+|Integration with other cloud services?|ADF, Azure Cosmos DB||
 |**Topic**:   **Data Movement**  |||
 |Initial load preference|DistCp, Data box, ADF, WANDisco||
 |Data transfer delta|DistCp, AzCopy||
 |Ongoing incremental data transfer|DistCp, Sqoop||
 |**Topic**:   **Monitoring & Alerting** |||
-|Use Azure Monitoring & Alerting Vs Integrate third-party monitoring|Use Azure Monitoring & Alerting||
+|Use Azure Monitoring & Alerting vs Integrate third-party monitoring|Use Azure Monitoring & Alerting||
 |**Topic**:   **Security preferences** |||
 |Private and protected data pipeline?|Yes||
 |Domain Joined cluster (ESP)?|     Yes||
@@ -180,7 +176,7 @@ This section provides template questionnaires to help gather important informati
 |Cloud only Users?|                 Yes||
 |MFA needed?|                       No|| 
 |Data authorization requirements?|  Yes||
-|Role-Based Access Control?|        Yes||
+|Role-based access control?|        Yes||
 |Auditing needed?|                  Yes||
 |Data encryption at rest?|          Yes||
 |Data encryption in transit?|       Yes||

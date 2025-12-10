@@ -3,11 +3,11 @@ title: Debug user-defined functions in Azure Stream Analytics
 description: This article describes how to debug user-defined functions in Azure Stream Analytics.
 author: jenssuessmeyer
 ms.author: jenss
-ms.reviewer: mamccrea
-ms.service: stream-analytics
+
+ms.service: azure-stream-analytics
 ms.topic: conceptual
 ms.date: 06/24/2020
-ms.custom: devx-track-javascript
+ms.custom: devx-track-js
 ---
 
 # Debug user-defined functions in Azure Stream Analytics 
@@ -42,7 +42,7 @@ Compilation happens when the Stream Analytics project is compiled or executed. T
 
 Because there's no debugging support for JavaScript functions in Stream Analytics directly, you can debug by encapsulating the function in an HTML site and getting the output from there.
 
-The following example shows you how to debug JavaScript UDFs with some limitations in an integrated runtime environment in [Visual Studio Code](quick-create-vs-code.md).
+The following example shows you how to debug JavaScript UDFs with some limitations in an integrated runtime environment in [Visual Studio Code](quick-create-visual-studio-code.md).
 
 ### Prerequisites
 
@@ -81,9 +81,9 @@ exports.data = methods;
   
 ## Install debug support
 
-To debug, you must [download](https://nodejs.org/en/download/) and install **node.js**. Install the correct version according to the platform you're using. After you install the node.js runtime, restart Visual Studio Code to implement the changes. 
+To debug, you must [download](https://nodejs.org/en/download/package-manager/) and install **node.js**. Install the correct version according to the platform you're using. After you install the Node.js runtime, restart Visual Studio Code to implement the changes. 
 
-Select **Run and Debug** or press **CTRL + SHIFT + D** to start debugging. A combo box appears where you can select **node.js** as the runtime. If you only have node.js installed, it is used by default. You should be able to step through the code and into the satellite file if needed with F11. 
+Select **Run and Debug** or press **CTRL + SHIFT + D** to start debugging. A combo box appears where you can select **node.js** as the runtime. If you only have Node.js installed, it is used by default. You should be able to step through the code and into the satellite file if needed with F11. 
 
 > [!div class="mx-imgBorder"]
 > ![Stream Analytics run and debug udf](./media/debug-user-defined-functions/run-debug-udf.png)
@@ -116,7 +116,7 @@ exports.data = methods;
 > [!div class="mx-imgBorder"]
 > ![Code added to UDA](./media/debug-user-defined-functions/uda-expose-methods.png)
 
-Select **Run and Debug** or press **CTRL + SHIFT + D** to start debugging. A combo box appears where you can select **node.js** as the runtime. If you only have node.js installed, it is used by default. You should be able to step through the code and into the satellite file if needed with F11.
+Select **Run and Debug** or press **CTRL + SHIFT + D** to start debugging. A combo box appears where you can select **node.js** as the runtime. If you only have Node.js installed, it is used by default. You should be able to step through the code and into the satellite file if needed with F11.
 
 > [!div class="mx-imgBorder"]
 > ![Stream Analytics run and debug uda](./media/debug-user-defined-functions/run-debug-uda.png)

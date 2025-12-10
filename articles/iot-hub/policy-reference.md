@@ -1,23 +1,23 @@
 ---
 title: Built-in policy definitions for Azure IoT Hub
 description: Lists Azure Policy built-in policy definitions for Azure IoT Hub. These built-in policy definitions provide common approaches to managing your Azure resources.
-ms.date: 09/10/2020
+ms.date: 02/06/2024
 ms.topic: reference
-author: robinsh
-ms.author: robinsh
-ms.service: iot-hub
+author: SoniaLopezBravo
+ms.author: sonialopez
+ms.service: azure-iot-hub
 ms.custom: subject-policy-reference
 ---
 
 # Azure Policy built-in definitions for Azure IoT Hub
 
 For IoT Hub sample code that shows how to implement common IoT scenarios, see the
-[IoT Hub quickstarts](https://docs.microsoft.com/azure/iot-hub/quickstart-send-telemetry-cli). There
+[IoT Hub quickstarts](./quickstart-send-telemetry-cli.md). There
 are quickstarts for multiple programming languages including C, Node.js, and Python.
 
 This page is an index of [Azure Policy](../governance/policy/overview.md) built-in policy
 definitions for Azure IoT Hub. For additional Azure Policy built-ins for other services,
-see [Azure Policy built-in definitions](../governance/policy/samples/built-in-policies.md).
+see [Azure Policy built-in definitions](/azure/governance/policy/samples/built-in-policies).
 
 The name of each built-in policy definition links to the policy definition in the Azure portal. Use
 the link in the **Version** column to view the source on the
@@ -25,7 +25,7 @@ the link in the **Version** column to view the source on the
 
 ## Azure IoT Hub
 
-[!INCLUDE [azure-policy-reference-rp-iot](../../includes/policy/reference/byrp/microsoft.devices.md)]
+[!INCLUDE [azure-policy-reference-rp-iot](~/azure-policy-autogen-docs/includes/policy/reference/byrp/microsoft.devices.md)]
 
 ## Next steps
 

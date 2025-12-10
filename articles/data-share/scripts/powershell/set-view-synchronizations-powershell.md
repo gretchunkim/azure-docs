@@ -1,22 +1,19 @@
 ---
-title: "PowerShell script: Set and view Azure Data Share sychronization settings| Microsoft Docs"
+title: "PowerShell script: Set and view Azure Data Share synchronization settings"
 description: This PowerShell script sets and gets share synchronization settings.
-services: data-share
-author: joannapea
-ms.service: data-share
-ms.workload: data-services
-ms.tgt_pltfrm: na
+author: sidontha
+ms.service: azure-data-share
 ms.topic: article
-ms.date: 07/07/2019
-ms.author: joanpo
+ms.date: 02/12/2025
+ms.author: sidontha 
+ms.custom: devx-track-azurepowershell
 ---
 
-# Use PowerShell to set Azure Data Share sychronization settings
+# Use PowerShell to set Azure Data Share synchronization settings
 
 This PowerShell script sets and gets share synchronization settings.
 
 ## Sample script
-
 
 ```powershell
 # Set variables with your own values
@@ -39,16 +36,16 @@ Get-AzDataShareSynchronizationSetting -ResourceGroupName $resourceGroupName -Acc
 
 ## Script explanation
 
-This script uses the following commands: 
+This script uses the following commands: =
 
 | Command | Notes |
 |---|---|
-| [New-AzDataShareSynchronizationSetting](/powershell/module/az.datashare/new-azdatasharesynchronizationsetting?view=azps-2.6.0) | Create a share synchronization. |
-| [Get-AzDataShareSynchronizationSetting](/powershell/module/az.datashare/get-azdatasharesynchronizationsetting?view=azps-2.6.0) | Gets synchronization settings of a share synchronization. |
+| [New-AzDataShareSynchronizationSetting](/powershell/module/az.datashare/new-azdatasharesynchronizationsetting) | Create a share synchronization. |
+| [Get-AzDataShareSynchronizationSetting](/powershell/module/az.datashare/get-azdatasharesynchronizationsetting) | Gets synchronization settings of a share synchronization. |
 |||
 
-## Next steps
+## Related content
 
-For more information on the Azure PowerShell, see [Azure PowerShell documentation](https://docs.microsoft.com/powershell/).
+For more information on the Azure PowerShell, see [Azure PowerShell documentation](/powershell/).
 
-Additional Azure Data Share PowerShell script samples can be found in the [Azure Data Share PowerShell samples](../../samples-powershell.md).
+Other Azure Data Share PowerShell script samples can be found in the [Azure Data Share PowerShell samples](../../samples-powershell.md).

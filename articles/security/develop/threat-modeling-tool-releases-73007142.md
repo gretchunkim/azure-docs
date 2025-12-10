@@ -1,9 +1,9 @@
 ---
 title: Microsoft Threat Modeling Tool release 07/14/2020 - Azure
-description: Documenting the release notes for the threat modeling tool
+description: Documenting the release notes for the threat modeling tool release 7.3.00714.2.
 author: jegeib
 ms.author: jegeib
-ms.service: security
+ms.service: information-protection
 ms.topic: article
 ms.date: 07/14/2020
 ---
@@ -25,7 +25,7 @@ Version 7.3.00714.2 of the Microsoft Threat Modeling Tool (TMT) was released on 
 
 ## Documentation and feedback
 
-- Documentation for the Threat Modeling Tool is located on [docs.microsoft.com](https://docs.microsoft.com/azure/security/azure-security-threat-modeling-tool), and includes information [about using the tool](https://docs.microsoft.com/azure/security/azure-security-threat-modeling-tool-getting-started).
+- Documentation for the Threat Modeling Tool is [located](./threat-modeling-tool.md), and includes information [about using the tool](./threat-modeling-tool-getting-started.md).
 
 ## Next steps
 

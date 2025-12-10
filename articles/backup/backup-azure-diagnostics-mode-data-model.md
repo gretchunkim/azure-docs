@@ -1,27 +1,36 @@
 ---
-title: Azure Monitor logs data model 
+title: Data Model for Legacy diagnostic events
 description: In this article, learn about the Azure Monitor Log Analytics data model details for Azure Backup data.
-ms.topic: conceptual
-ms.date: 02/26/2019
+ms.topic: how-to
+ms.date: 11/27/2025
+ms.service: azure-backup
+ms.custom: engagement-fy24
+author: AbhishekMallick-MS
+ms.author: v-mallicka
+# Customer intent: As a data analyst, I want to utilize the Azure Monitor Log Analytics data model for Azure Backup, so that I can create custom queries and alerts based on diagnostic events to enhance data management and reporting capabilities.
 ---
-# Log Analytics data model for Azure Backup data
 
-Use the Log Analytics data model to create custom alerts from Log Analytics.
+# Data Model for Legacy diagnostic events
 
-[!INCLUDE [azure-monitor-log-analytics-rebrand](../../includes/azure-monitor-log-analytics-rebrand.md)]
+This article describes the Log Analytics data model for Azure Backup that's added to the Azure Diagnostics table (if your vaults are configured with diagnostics settings to send data to a Log Analytics workspace in Azure Diagnostics mode). You can use this data model to write queries on Log Analytics data to create custom alerts or reporting dashboards.
 
-> [!NOTE]
->
-> This data model is in reference to the Azure Diagnostics Mode of sending diagnostic
-> events to Log Analytics (LA). To learn the data model for the new Resource Specific Mode, you can refer to the following article: [Data Model for Azure Backup Diagnostic Events](./backup-azure-reports-data-model.md)
+>[!Note]
+>We recommend you to [use the new resource-specific mode](backup-azure-diagnostic-events.md#steps-to-move-to-new-diagnostics-settings-for-a-log-analytics-workspace) to query data in Log Analytics or [use system functions](backup-reports-system-functions.md).
 
-## Using Azure Backup data model
+In this article, you'll learn about:
+
+> [!div class="checklist"]
+> - Using the Azure Backup data model
+> - Sample Kusto queries
+> - V1 schema vs V2 schema
+
+## Use the Azure Backup data model
 
 You can use the following fields provided as part of the data model to create visuals, custom queries, and dashboard according to your requirements.
 
 ### Alert
 
-This table provides details about alert related fields.
+The following table provides details about alert related fields.
 
 | Field | Data Type | Description |
 | --- | --- | --- |
@@ -35,7 +44,7 @@ This table provides details about alert related fields.
 |CountOfAlertsConsolidated_s     |Number         |Number of alerts consolidated if it's a consolidated alert          |
 |AlertRaisedOn_s     |Text         |Type of entity the alert is raised on         |
 |AlertCode_s     |Text         |Code to uniquely identify an alert type         |
-|RecommendedAction_s   |Text         |Action recommended to resolve the alert         |
+|RecommendedAction_s   |Text         |Action recommended resolving the alert         |
 | EventName_s |Text |Name of the event. Always AzureBackupCentralReport |
 | BackupItemUniqueId_s |Text |Unique identifier of the backup item associated with the alert |
 | SchemaVersion_s |Text |Current version of the schema, for example **V2** |
@@ -55,7 +64,7 @@ This table provides details about alert related fields.
 
 ### BackupItem
 
-This table provides details about backup item-related fields.
+The following table provides details about the backup item-related fields.
 
 | Field | Data Type | Description |
 | --- | --- | --- |
@@ -85,7 +94,7 @@ This table provides details about backup item-related fields.
 
 ### BackupItemAssociation
 
-This table provides details about backup item associations with various entities.
+The following table provides details about backup item associations with various entities.
 
 | Field | Data Type | Description |
 | --- | --- | --- |
@@ -110,7 +119,7 @@ This table provides details about backup item associations with various entities
 
 ### BackupManagementServer
 
-This table provides details about backup item associations with various entities.
+The following table provides details about backup item associations with various entities.
 
 | Field | Data Type | Description |
 | --- | --- | --- |
@@ -129,7 +138,7 @@ This table provides details about backup item associations with various entities
 
 ### Job
 
-This table provides details about job-related fields.
+The following table provides details about job-related fields.
 
 | Field | Data Type | Description |
 | --- | --- | --- |
@@ -165,7 +174,7 @@ This table provides details about job-related fields.
 
 ### Policy
 
-This table provides details about policy-related fields.
+The following table provides details about policy-related fields.
 
 | Field | Data Type | Versions Applicable | Description |
 | --- | --- | --- | --- |
@@ -193,9 +202,9 @@ This table provides details about policy-related fields.
 | MonthlyRetentionDaysOfTheWeek_s |Text ||Days of the week selected for monthly retention |
 | MonthlyRetentionWeeksOfTheMonth_s |Text ||Weeks of the month when monthly retention is configured, for example, First, Last |
 | YearlyRetentionDuration_s |Decimal Number ||Total retention duration in years for configured backups |
-| YearlyRetentionTimes_s |Text ||Date and time when yearly retention is configured |
-| YearlyRetentionMonthsOfTheYear_s |Text ||Months of the year selected for yearly retention |
-| YearlyRetentionFormat_s |Text ||Type of configuration for yearly retention, for example, daily for day based, weekly for week based | |
+| YearlyRetentionTimes_s |Text | | Date and time when yearly retention is configured |
+| YearlyRetentionMonthsOfTheYear_s |Text | | Months of the year selected for yearly retention |
+| YearlyRetentionFormat_s |Text ||Type of configuration for yearly retention, for example, daily for day based, weekly for week based |
 | YearlyRetentionDaysOfTheMonth_s |Text ||Dates of the month selected for yearly retention |
 | SynchronisationFrequencyPerDay_s |Whole Number |v2|Number of times in a day a file backup is synchronized for SC DPM and MABS |
 | DiffBackupFormat_s |Text |v2|Format for Differential backups for SQL in Azure VM backup |
@@ -213,7 +222,7 @@ This table provides details about policy-related fields.
 
 ### PolicyAssociation
 
-This table provides details about policy associations with various entities.
+The following table provides details about policy associations with various entities.
 
 | Field | Data Type | Versions Applicable | Description |
 | --- | --- | --- | --- |
@@ -236,7 +245,7 @@ This table provides details about policy associations with various entities.
 
 ### Protected Container
 
-This table provides basic fields about Protected Containers. (Was ProtectedServer in v1)
+The following table provides basic fields about Protected Containers. (Was ProtectedServer in v1)
 
 | Field | Data Type | Description |
 | --- | --- | --- |
@@ -255,7 +264,7 @@ This table provides basic fields about Protected Containers. (Was ProtectedServe
 
 ### Storage
 
-This table provides details about storage-related fields.
+The following table provides details about storage-related fields.
 
 | Field | Data Type | Description |
 | --- | --- | --- |
@@ -283,7 +292,7 @@ This table provides details about storage-related fields.
 
 ### StorageAssociation
 
-This table provides basic storage-related fields connecting storage to other entities.
+The following table provides basic storage-related fields connecting storage to other entities.
 
 | Field | Data Type | Description |
 | --- | --- |  --- |
@@ -297,7 +306,7 @@ This table provides basic storage-related fields connecting storage to other ent
 
 ### Vault
 
-This table provides details about vault-related fields.
+The following table provides details about vault-related fields.
 
 | Field | Data Type | Description |
 | --- | --- | --- |
@@ -320,7 +329,7 @@ This table provides details about vault-related fields.
 
 ### Backup Management Server
 
-This table provides basic fields about Backup Management Servers.
+The following table provides basic fields about Backup Management Servers.
 
 |Field  |Data Type  | Description  |
 |---------|---------|----------|
@@ -333,7 +342,7 @@ This table provides basic fields about Backup Management Servers.
 
 ### PreferredWorkloadOnVolume
 
-This table specifies the workload(s) a Volume is associated with.
+The following table specifies the workload(s) a Volume is associated with.
 
 | Field | Data Type | Description |
 | --- | --- | --- |
@@ -342,7 +351,7 @@ This table specifies the workload(s) a Volume is associated with.
 
 ### ProtectedInstance
 
-This table provides basic protected instances-related fields.
+The following table provides basic protected instances-related fields.
 
 | Field | Data Type |Versions Applicable | Description |
 | --- | --- | --- | --- |
@@ -352,7 +361,7 @@ This table provides basic protected instances-related fields.
 
 ### RecoveryPoint
 
-This table provides basic recovery point related fields.
+The following table provides basic recovery point related fields.
 
 | Field | Data Type | Description |
 | --- | --- | --- |
@@ -362,7 +371,7 @@ This table provides basic recovery point related fields.
 | LatestRecoveryPointTime_s |Text |Date time of the latest recovery point for the backup item|
 | LatestRecoveryPointLocation_s |Text |Location of the latest recovery point for the backup item|
 
-## Sample Kusto Queries
+## Sample Kusto queries for Azure Backup data
 
 Below are a few samples to help you write queries on Azure Backup data that resides in the Azure Diagnostics table:
 
@@ -455,17 +464,19 @@ Below are a few samples to help you write queries on Azure Backup data that resi
     | project-away Resource
     ````
 
-## V1 schema vs V2 schema
+## V1 schema vs V2 schema for Azure Backup diagnostic data
 
 Earlier, diagnostics data for Azure Backup Agent and Azure VM backup was sent to Azure Diagnostics table in a schema referred to as ***V1 schema***. Subsequently, new columns were added to support other scenarios and workloads, and diagnostics data was pushed in a new schema referred to as ***V2 schema***.  
 
-For reasons of backward-compatibility, diagnostics data for Azure Backup Agent and Azure VM backup is currently sent to Azure Diagnostics table in both V1 and V2 schema (with V1 schema now on a deprecation path). You can identify which records in Log Analytics are of V1 schema by filtering records for SchemaVersion_s=="V1" in your log queries.
+For the backward-compatibility reasons, diagnostics data for Azure Backup agent and Azure VM backup is currently sent to Azure Diagnostics table in both V1 and V2 schema (with V1 schema now on a deprecation path). You can identify which records in Log Analytics are of V1 schema by filtering records for SchemaVersion_s=="V1" in your log queries.
 
-Refer to the third column 'Description' in the [data model](#using-azure-backup-data-model) described above to identify which columns belong to V1 schema only.
+See the third column 'Description' in the [data model](#use-the-azure-backup-data-model) described above to identify which columns belong to V1 schema only.
 
-### Modifying your queries to use the V2 schema
+### Modify the queries to use the V2 schema
 
-As the V1 schema is on a deprecation path, it's recommended to use only the V2 schema in all your custom queries on Azure Backup diagnostic data. Below is an example of how to update your queries to remove dependency on V1 schema:
+As the V1 schema is on a deprecation path, we recommend you to use only the V2 schema in all your custom queries on Azure Backup diagnostic data.
+
+To update your queries to remove dependency on V1 schema, follow these steps:
 
 1. Identify if your query is using any field that's only applicable to the V1 schema. Assume you have a query to list all the backup items and their associated protected servers as follows:
 
@@ -488,6 +499,6 @@ As the V1 schema is on a deprecation path, it's recommended to use only the V2 s
     | distinct BackupItemUniqueId_s, ProtectedContainerUniqueId_s
     ````
 
-## Next steps
+## Next step
 
-Once you review the data model, you can start [creating custom queries](../azure-monitor/learn/tutorial-logs-dashboards.md) in Azure Monitor logs to build your own dashboard.
+After the data model review is complete, start [creating custom queries](/azure/azure-monitor/visualize/tutorial-logs-dashboards) in Azure Monitor logs to build your own dashboard.

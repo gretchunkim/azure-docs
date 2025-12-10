@@ -1,44 +1,75 @@
 ---
-title: Copy data from HBase using Azure Data Factory 
-description: Learn how to copy data from HBase to supported sink data stores by using a copy activity in an Azure Data Factory pipeline.
-services: data-factory
-documentationcenter: ''
-author: linda33wj
-manager: shwang
-ms.reviewer: douglasl
-
-ms.service: data-factory
-ms.workload: data-services
-
-
+title: Copy data from HBase
+description: Learn how to copy data from HBase to supported sink data stores using a copy activity in an Azure Data Factory or Synapse Analytics pipeline.
+titleSuffix: Azure Data Factory & Azure Synapse
+author: jianleishen
+ms.subservice: data-movement
 ms.topic: conceptual
-ms.date: 08/12/2019
-ms.author: jingwang
-
+ms.date: 01/26/2025
+ms.author: jianleishen
+ms.custom:
+  - synapse
+  - sfi-image-nochange
 ---
-# Copy data from HBase using Azure Data Factory 
+# Copy data from HBase using Azure Data Factory or Synapse Analytics
 [!INCLUDE[appliesto-adf-asa-md](includes/appliesto-adf-asa-md.md)]
 
-This article outlines how to use the Copy Activity in Azure Data Factory to copy data from HBase. It builds on the [copy activity overview](copy-activity-overview.md) article that presents a general overview of copy activity.
+> [!IMPORTANT]
+> This connector is at [End of Support stage](connector-deprecation-plan.md). You are recommended to migrate to [ODBC connector](connector-odbc.md) by installing a driver.
+
+This article outlines how to use the Copy Activity in an Azure Data Factory or Synapse Analytics pipeline to copy data from HBase. It builds on the [copy activity overview](copy-activity-overview.md) article that presents a general overview of copy activity.
 
 ## Supported capabilities
 
-This HBase connector is supported for the following activities:
+This HBase connector is supported for the following capabilities:
 
-- [Copy activity](copy-activity-overview.md) with [supported source/sink matrix](copy-activity-overview.md)
-- [Lookup activity](control-flow-lookup-activity.md)
+| Supported capabilities|IR |
+|---------| --------|
+|[Copy activity](copy-activity-overview.md) (source/-)|&#9312;|
+|[Lookup activity](control-flow-lookup-activity.md)|&#9312;|
 
-You can copy data from HBase to any supported sink data store. For a list of data stores that are supported as sources/sinks by the copy activity, see the [Supported data stores](copy-activity-overview.md#supported-data-stores-and-formats) table.
+*&#9312; Azure integration runtime &#9313; Self-hosted integration runtime*
 
-Azure Data Factory provides a built-in driver to enable connectivity, therefore you don't need to manually install any driver using this connector.
+For a list of data stores that are supported as sources/sinks by the copy activity, see the [Supported data stores](copy-activity-overview.md#supported-data-stores-and-formats) table.
+
+The service provides a built-in driver to enable connectivity, therefore you don't need to manually install any driver using this connector.
 
 ## Prerequisites
 
-[!INCLUDE [data-factory-v2-integration-runtime-requirements](../../includes/data-factory-v2-integration-runtime-requirements.md)]
+If your data store is a managed cloud data service, you can use the Azure Integration Runtime. If the access is restricted to IPs that are approved in the firewall rules, you can add [Azure Integration Runtime IPs](azure-integration-runtime-ip-addresses.md) to the allowlist. 
+
+You can also use the [managed virtual network integration runtime](tutorial-managed-virtual-network-on-premise-sql-server.md) feature in Azure Data Factory to access the on-premises network without installing and configuring a self-hosted integration runtime.
+
+For more information about the network security mechanisms and options supported by Data Factory, see [Data access strategies](data-access-strategies.md).
 
 ## Getting started
 
-[!INCLUDE [data-factory-v2-connector-get-started](../../includes/data-factory-v2-connector-get-started.md)]
+[!INCLUDE [data-factory-v2-connector-get-started](includes/data-factory-v2-connector-get-started.md)]
+
+## Create a linked service to HBase using UI
+
+Use the following steps to create a linked service to HBase in the Azure portal UI.
+
+1. Browse to the Manage tab in your Azure Data Factory or Synapse workspace and select Linked Services, then click New:
+
+    # [Azure Data Factory](#tab/data-factory)
+
+    :::image type="content" source="media/doc-common-process/new-linked-service.png" alt-text="Screenshot of creating a new linked service with Azure Data Factory UI.":::
+
+    # [Azure Synapse](#tab/synapse-analytics)
+
+    :::image type="content" source="media/doc-common-process/new-linked-service-synapse.png" alt-text="Screenshot of creating a new linked service with Azure Synapse UI.":::
+
+2. Search for HBase and select the HBase connector.
+
+   :::image type="content" source="media/connector-hbase/hbase-connector.png" alt-text="Screenshot of the HBase connector.":::    
+
+
+1. Configure the service details, test the connection, and create the new linked service.
+
+   :::image type="content" source="media/connector-hbase/configure-hbase-linked-service.png" alt-text="Screenshot of linked service configuration for HBase.":::
+
+## Connector configuration details
 
 The following sections provide details about properties that are used to define Data Factory entities specific to HBase connector.
 
@@ -54,12 +85,12 @@ The following properties are supported for HBase linked service:
 | httpPath | The partial URL corresponding to the HBase server, e.g. `/hbaserest0` when using HDInsights cluster. | No |
 | authenticationType | The authentication mechanism to use to connect to the HBase server. <br/>Allowed values are: **Anonymous**, **Basic** | Yes |
 | username | The user name used to connect to the HBase instance.  | No |
-| password | The password corresponding to the user name. Mark this field as a SecureString to store it securely in Data Factory, or [reference a secret stored in Azure Key Vault](store-credentials-in-key-vault.md). | No |
+| password | The password corresponding to the user name. Mark this field as a SecureString to store it securely, or [reference a secret stored in Azure Key Vault](store-credentials-in-key-vault.md). | No |
 | enableSsl | Specifies whether the connections to the server are encrypted using TLS. The default value is false.  | No |
 | trustedCertPath | The full path of the .pem file containing trusted CA certificates for verifying the server when connecting over TLS. This property can only be set when using TLS on self-hosted IR. The default value is the cacerts.pem file installed with the IR.  | No |
 | allowHostNameCNMismatch | Specifies whether to require a CA-issued TLS/SSL certificate name to match the host name of the server when connecting over TLS. The default value is false.  | No |
 | allowSelfSignedServerCert | Specifies whether to allow self-signed certificates from the server. The default value is false.  | No |
-| connectVia | The [Integration Runtime](concepts-integration-runtime.md) to be used to connect to the data store. Learn more from [Prerequisites](#prerequisites) section. If not specified, it uses the default Azure Integration Runtime. |No |
+| connectVia | The [Integration Runtime](concepts-integration-runtime.md) to be used to connect to the data store. Learn more from [Prerequisites](#prerequisites) section. You can only use Azure Integration Runtime. |No |
 
 >[!NOTE]
 >If your cluster doesn't support sticky session e.g. HDInsight, explicitly add node index at the end of the http path setting, e.g. specify `/hbaserest0` instead of `/hbaserest`.
@@ -199,5 +230,5 @@ To copy data from HBase, set the source type in the copy activity to **HBaseSour
 
 To learn details about the properties, check [Lookup activity](control-flow-lookup-activity.md).
 
-## Next steps
-For a list of data stores supported as sources and sinks by the copy activity in Azure Data Factory, see [supported data stores](copy-activity-overview.md#supported-data-stores-and-formats).
+## Related content
+For a list of data stores supported as sources and sinks by the copy activity, see [supported data stores](copy-activity-overview.md#supported-data-stores-and-formats).

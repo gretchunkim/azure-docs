@@ -1,36 +1,35 @@
 ---
-title: What is autoregistration feature of Azure DNS private zones
-description: Overview of autoregistration feature of Azure DNS private zones
+title: What is autoregistration feature in Azure DNS private zones?
+description: Overview of autoregistration feature in Azure DNS private zones.
 services: dns
-author: rohinkoul
-ms.service: dns
-ms.topic: article
-ms.date: 9/24/2019
-ms.author: rohink
+author: asudbring
+ms.service: azure-dns
+ms.topic: concept-article
+ms.date: 02/10/2025
+ms.author: allensu
+ms.custom: sfi-image-nochange
+# Customer intent: As a network administrator, I want to enable the autoregistration feature for Azure DNS private zones, so that DNS records for virtual machines in my virtual network are automatically created and managed for improved efficiency and reduced manual overhead.
 ---
 
-# What is the autoregistration feature of Azure DNS private zones
+# What is the autoregistration feature in Azure DNS private zones?
 
-The Azure DNS private zones auto registration feature takes the pain out of DNS record management for virtual machines deployed in a virtual network. When you [link an virtual network](./private-dns-virtual-network-links.md) with a private DNS zone and enable auto registration for all the virtual machines, the DNS records for the virtual machines deployed in the virtual network are automatically created in the private DNS zone. In addition to forward look records (A records), reverse lookup records (PTR records) are also automatically created for the virtual machines.
-If you add more virtual machines to the virtual network, DNS records for these virtual machines are also automatically created in the linked private DNS zone.
+The Azure DNS private zones autoregistration feature manages DNS records for virtual machines deployed in a virtual network. When you [link a virtual network](./private-dns-virtual-network-links.md) with a private DNS zone with this setting enabled, a DNS record gets created for each virtual machine deployed in the virtual network. 
 
-When you delete a virtual machine, the DNS records for the virtual machine are automatically deleted from the private DNS zone.
+For each virtual machine, an address (A) record is created. DNS records for newly deployed virtual machines are also automatically created in the linked private DNS zone. When a virtual machine gets deleted or stopped, the autoregistered DNS records associated with this virtual machine are removed from the private DNS zone.
 
-You can enable autoregistration by selecting "Enable auto registration" option while creating a virtual network link.
+To enable autoregistration, select the checkbox for **Enable auto registration** when you create the virtual network link.
 
-![Enable Auto Registration](./media/privatedns-concepts/enable-autoregistration.png)
+:::image type="content" source="./media/privatedns-concepts/enable-autoregistration.png" alt-text="Screenshot of enable auto registration on add virtual network link page.":::
 
 ## Restrictions
 
-* Autoregistration works only for virtual machines. For all other resources like internal load balancers etc., you can create DNS records manually in the private DNS zone linked to the virtual network.
-* DNS records are created automatically only for the primary virtual machine NIC . If your virtual machines have more than one NIC, you can manually create the DNS records for other network interfaces.
-* DNS records are created automatically only if the primary virtual machine NIC is using DHCP. If static IP addresses are configured (for example, to use [multiple IP addresses in Azure](https://docs.microsoft.com/azure/virtual-network/virtual-network-multiple-ip-addresses-portal#os-config)), autoregistration doesn't create records for that virtual machine.
-* Autoregistration for IPv6 (AAAA records) is not supported.
+* Autoregistration works only for virtual machines. For all other resources like internal load balancers, you can create DNS records manually in the private DNS zone linked to the virtual network.
+* DNS records are created automatically only for the primary virtual machine NIC. If your virtual machines have more than one NIC, you can manually create the DNS records for other network interfaces.
+* A specific virtual network can be linked to only one private DNS zone when automatic registration is enabled. You can, however, link multiple virtual networks to a single DNS zone.
+* Autoregistration doesn't support reverse DNS pointer (PTR) records.
 
 ## Next steps
 
 * Learn how to create a private zone in Azure DNS using [Azure PowerShell](./private-dns-getstarted-powershell.md) or [Azure CLI](./private-dns-getstarted-cli.md).
-
 * Read about some common [private zone scenarios](./private-dns-scenarios.md) that can be realized with private zones in Azure DNS.
-
-* For common questions and answers about private zones in Azure DNS, including specific behavior you can expect for certain kinds of operations, see [Private DNS FAQ](./dns-faq-private.md).
+* For common questions and answers about private zones in Azure DNS, including specific behavior you can expect for certain kinds of operations, see [Private DNS FAQ](./dns-faq-private.yml).

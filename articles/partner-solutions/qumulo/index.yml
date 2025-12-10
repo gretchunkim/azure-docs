@@ -1,0 +1,61 @@
+### YamlMime:Landing
+
+title: Azure Native Qumulo Scalable File Service
+summary: Azure Native Qumulo Scalable File Service enables you to create and manage a Qumulo file system by using the Azure portal with a seamlessly integrated experience.
+
+metadata:
+  title: Azure Native Qumulo Scalable File Service documentation
+  description: Azure Native Qumulo Scalable File Service offers a scalable, performant, and simple-to-use cloud-native file system on Azure.
+  ms.topic: landing-page
+  ms.custom:
+    - ignite-2023
+  ms.date: 11/13/2003
+# linkListType: architecture | concept | deploy | download | get-started | how-to-guide | learn | overview | quickstart | reference | tutorial | video | whats-new
+
+landingContent:
+
+  - title: About Azure Native Qumulo
+    linkLists:
+      - linkListType: overview
+        links:
+          - text: What is Azure Native Qumulo Scalable File Service?
+            url: overview.md
+          - text: FAQ
+            url: faq.yml
+
+
+  # Card
+  - title: Get Started with Azure Native Qumulo
+    linkLists:
+      - linkListType: quickstart
+        links:
+          - text: Get started with Azure Native Qumulo
+            url: create.md
+
+  #Card
+  - title: Manage your Azure Native Qumulo resources
+    linkLists:
+    - linkListType: how-to-guide
+      links:
+        - text: Manage resources
+          url: manage.md
+        - text: Troubleshoot resources
+          url: troubleshoot.md 
+  
+  #Card
+  - title: Explore reference content
+    linkLists:
+      - linkListType: reference 
+        links:
+          - text: Python
+            url: /python/api/overview/azure/qumulo
+          - text: JavaScript
+            url: /javascript/api/overview/azure/qumulo
+          - text: .NET
+            url: /dotnet/api/overview/azure/qumulo
+          - text: Java
+            url: /java/api/overview/azure/qumulo
+          - text: CLI
+            url: /cli/azure/service-page/qumulo
+          - text: Azure PowerShell
+            url: /powershell/module/az.qumulo

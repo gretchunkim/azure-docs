@@ -1,30 +1,36 @@
 ---
 title: 'Quickstart: Create an Azure DNS zone and record - Azure PowerShell'
 titleSuffix: Azure DNS
-description: Learn how to create a DNS zone and record in Azure DNS. This is a step-by-step quickstart to create and manage your first DNS zone and record using Azure PowerShell.
+description: Learn how to create a DNS zone and record in Azure DNS. This article is a step-by-step quickstart to create and manage your first DNS zone and record using Azure PowerShell.
 services: dns
-author: rohinkoul
-ms.service: dns
+author: asudbring
+ms.author: allensu
+ms.date: 11/30/2023
 ms.topic: quickstart
-ms.date: 3/11/2019
-ms.author: rohink 
-ms.custom: devx-track-azurepowershell
+ms.service: azure-dns
+ms.custom: devx-track-azurepowershell, mode-api
 #Customer intent: As an administrator or developer, I want to learn how to configure Azure DNS using Azure PowerShell so I can use Azure DNS for my name resolution.
+# Customer intent: As a systems administrator or developer, I want to create and manage a DNS zone and records using PowerShell, so that I can effectively host and resolve domain names in Azure DNS.
 ---
 
 # Quickstart: Create an Azure DNS zone and record using Azure PowerShell
 
-[!INCLUDE [updated-for-az](../../includes/updated-for-az.md)]
+[!INCLUDE [updated-for-az](~/reusable-content/ce-skilling/azure/includes/updated-for-az.md)]
 
 In this quickstart, you create your first DNS zone and record using Azure PowerShell. You can also perform these steps using the [Azure portal](dns-getstarted-portal.md) or the [Azure CLI](dns-getstarted-cli.md). 
 
-A DNS zone is used to host the DNS records for a particular domain. To start hosting your domain in Azure DNS, you need to create a DNS zone for that domain name. Each DNS record for your domain is then created inside this DNS zone. Finally, to publish your DNS zone to the Internet, you need to configure the name servers for the domain. Each of these steps is described below.
+A DNS zone is used to host the DNS records for a particular domain. To start hosting your domain in Azure DNS, you need to create a DNS zone for that domain name. Each DNS record for your domain is then created inside this DNS zone. Finally, to publish your DNS zone to the Internet, you need to configure the name servers for the domain. Each of these steps is described in this article.
+
+:::image type="content" source="media/dns-getstarted-portal/environment-diagram.png" alt-text="Diagram of DNS deployment environment using the Azure portal." lightbox="media/dns-getstarted-portal/environment-diagram.png":::
 
 Azure DNS also supports creating private domains. For step-by-step instructions about how create your first private DNS zone and record, see [Get started with Azure DNS private zones using PowerShell](private-dns-getstarted-powershell.md).
 
-[!INCLUDE [cloud-shell-try-it.md](../../includes/cloud-shell-try-it.md)]
+## Prerequisites
 
-If you don't have an Azure subscription, create a [free account](https://azure.microsoft.com/free/?WT.mc_id=A261C142F) before you begin.
+- An Azure account with an active subscription. [Create an account for free](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn).
+- Azure PowerShell installed locally or Azure Cloud Shell
+
+[!INCLUDE [cloud-shell-try-it.md](~/reusable-content/ce-skilling/azure/includes/cloud-shell-try-it.md)]
 
 ## Create the resource group
 
@@ -44,7 +50,7 @@ New-AzDnsZone -Name contoso.xyz -ResourceGroupName MyResourceGroup
 
 ## Create a DNS record
 
-You create record sets by using the `New-AzDnsRecordSet` cmdlet. The following example creates a record with the relative name "www" in the DNS Zone "contoso.xyz", in resource group "MyResourceGroup". The fully qualified name of the record set is "www.contoso.xyz". The record type is "A", with IP address "10.10.10.10", and the TTL is 3600 seconds.
+Create record sets by using the `New-AzDnsRecordSet` cmdlet. The following example creates a record with the relative name `www` in the DNS Zone `contoso.xyz`, in resource group `MyResourceGroup`. The fully qualified name of the record set is `www.contoso.xyz`. The record type is `A`, with IP address `10.10.10.10`, and the TTL is 3600 seconds.
 
 ```powershell
 New-AzDnsRecordSet -Name www -RecordType A -ZoneName contoso.xyz -ResourceGroupName MyResourceGroup -Ttl 3600 -DnsRecords (New-AzDnsRecordConfig -IPv4Address "10.10.10.10")
@@ -86,11 +92,11 @@ Now that you have a test DNS zone with a test 'A' record, you can test the name 
 
    You should see something like the following screen:
 
-   ![nslookup](media/dns-getstarted-portal/nslookup.PNG)
+   ![Screenshot shows a command prompt window with an n s lookup command and values for Server, Address, Name, and Address.](media/dns-getstarted-portal/nslookup.PNG)
 
 The host name **www\.contoso.xyz** resolves to **10.10.10.10**, just as you configured it. This result verifies that name resolution is working correctly.
 
-## Delete all resources
+## Clean up resources
 
 When no longer needed, you can delete all resources created in this quickstart by deleting the resource group:
 
@@ -100,8 +106,7 @@ Remove-AzResourceGroup -Name MyResourceGroup
 
 ## Next steps
 
-Now that you've created your first DNS zone and record using Azure PowerShell, you can create records for a web app in a custom domain.
+Now that your first DNS zone and record is created using Azure PowerShell, you can create records for a web app in a custom domain.
 
 > [!div class="nextstepaction"]
 > [Create DNS records for a web app in a custom domain](./dns-web-sites-custom-domain.md)
-

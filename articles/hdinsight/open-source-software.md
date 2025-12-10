@@ -1,13 +1,12 @@
 ---
 title: Open-source software support in Azure HDInsight
 description: Microsoft Azure provides a general level of support for open-source technologies.
-author: hrasheed-msft
-ms.author: hrasheed
-ms.reviewer: jasonh
-ms.service: hdinsight
+ms.service: azure-hdinsight
 ms.topic: how-to
-ms.custom: seoapr2020
-ms.date: 04/21/2020
+ms.date: 02/03/2025
+author: apurbasroy
+ms.author: apsinhar
+ms.reviewer: hgowrisankar
 ---
 
 # Open-source software support in Azure HDInsight
@@ -24,7 +23,6 @@ These components are preinstalled on HDInsight clusters and provide core functio
 
 * [Apache Hadoop YARN](https://hadoop.apache.org/docs/current/hadoop-yarn/hadoop-yarn-site/YARN.html) Resource Manager.
 * The Hive query language [HiveQL](https://cwiki.apache.org/confluence/display/Hive/LanguageManual).
-* [Apache Mahout](https://mahout.apache.org/).
 
 A full list of cluster components is available in [What are the Apache Hadoop components and versions available with HDInsight?](hdinsight-component-versioning.md)
 
@@ -35,7 +33,7 @@ As a user of the cluster, you can install or use in your workload any component 
 > [!WARNING]  
 > Components provided with the HDInsight cluster are fully supported. Microsoft Support helps to isolate and resolve issues related to these components.
 >
-> Custom components receive commercially reasonable support to help you further troubleshoot the issue. Microsoft Support might be able to resolve the issue. Or they might ask you to engage available channels for the open-source technologies where deep expertise for that technology is found. Many community sites can be used. Examples are [Microsoft Q&A question page for HDInsight](https://docs.microsoft.com/answers/topics/azure-hdinsight.html) and [Stack Overflow](https://stackoverflow.com).
+> Custom components receive commercially reasonable support to help you further troubleshoot the issue. Microsoft Support might be able to resolve the issue. Or they might ask you to engage available channels for the open-source technologies where deep expertise for that technology is found. Many community sites can be used. Examples are [Microsoft Q&A question page for HDInsight](/answers/topics/azure-hdinsight.html) and [Stack Overflow](https://stackoverflow.com).
 >
 > Apache projects also have project sites on the [Apache website](https://apache.org). An example is [Hadoop](https://hadoop.apache.org/).
 

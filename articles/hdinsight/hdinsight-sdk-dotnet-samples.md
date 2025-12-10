@@ -1,12 +1,13 @@
 ---
 title: 'Azure HDInsight: .NET samples'
 description: Find C# .NET examples on GitHub for common tasks using the HDInsight SDK for .NET.
-author: hrasheed-msft
-ms.author: hrasheed
-ms.reviewer: jasonh
-ms.service: hdinsight
+ms.service: azure-hdinsight
+ms.custom: devx-track-dotnet
 ms.topic: sample
-ms.date: 12/06/2019
+author: apurbasroy
+ms.author: apsinhar
+ms.reviewer: hgowrisankar
+ms.date: 10/17/2024
 ---
 
 # Azure HDInsight: .NET samples
@@ -24,11 +25,11 @@ This article provides:
 
 You can [activate Visual Studio subscriber benefits](https://azure.microsoft.com/pricing/member-offers/msdn-benefits-details/?ref=microsoft.com&utm_source=microsoft.com&utm_medium=docs&utm_campaign=visualstudio): Your Visual Studio subscription gives you credits every month that you can use for paid Azure services.
 
-[!INCLUDE [quickstarts-free-trial-note](../../includes/quickstarts-free-trial-note.md)]
+[!INCLUDE [quickstarts-free-trial-note](~/reusable-content/ce-skilling/azure/includes/quickstarts-free-trial-note.md)]
 
 ## Prerequisite
 
-[Azure HDInsight SDK for .NET](https://docs.microsoft.com/dotnet/api/overview/azure/hdinsight#sdk-installation)
+[Azure HDInsight SDK for .NET](/dotnet/api/overview/azure/hdinsight#sdk-installation)
 
 ## Cluster management - creation
 
@@ -39,6 +40,6 @@ You can [activate Visual Studio subscriber benefits](https://azure.microsoft.com
 
 You can get these samples for .NET by cloning the [hdinsight-dotnet-sdk-samples](https://github.com/Azure-Samples/hdinsight-dotnet-sdk-samples) GitHub repository.
 
-[!INCLUDE [hdinsight-sdk-additional-functionality](../../includes/hdinsight-sdk-additional-functionality.md)]
+[!INCLUDE [hdinsight-sdk-additional-functionality](includes/hdinsight-sdk-additional-functionality.md)]
 
-Code snippets for this additional SDK functionality can be found in the [HDInsight SDK for .NET reference documentation](https://docs.microsoft.com/dotnet/api/overview/azure/hdinsight?view=azure-dotnet).
+Code snippets for this additional SDK functionality can be found in the [HDInsight SDK for .NET reference documentation](/dotnet/api/overview/azure/hdinsight).

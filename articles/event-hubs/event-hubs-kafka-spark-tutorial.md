@@ -2,11 +2,13 @@
 title: Connect with your Apache Spark app - Azure Event Hubs | Microsoft Docs
 description: This article provides information on how to use Apache Spark with Azure Event Hubs for Kafka.
 ms.topic: how-to
-ms.date: 06/23/2020
+ms.subservice: kafka
+ms.date: 03/06/2025
+ms.devlang: spark-scala
 ---
 
 # Connect your Apache Spark application with Azure Event Hubs
-This tutorial walks you through connecting your Spark application to Event Hubs for real-time streaming. This integration enables streaming without having to change your protocol clients or run your own Kafka or Zookeeper clusters. This tutorial, requires Apache Spark v2.4+ and Apache Kafka v2.0+.
+This tutorial walks you through connecting your Spark application to Event Hubs for real-time streaming. This integration enables streaming without having to change your protocol clients, or run your own Kafka or Zookeeper clusters. This tutorial requires Apache Spark v2.4+ and Apache Kafka v2.0+.
 
 > [!NOTE]
 > This sample is available on [GitHub](https://github.com/Azure/azure-event-hubs-for-kafka/tree/master/tutorials/spark/)
@@ -22,13 +24,13 @@ In this tutorial, you learn how to:
 ## Prerequisites
 
 Before you start this tutorial, make sure that you have:
--	Azure subscription. If you don't have one, [create a free account](https://azure.microsoft.com/free/).
+-	Azure subscription. If you don't have one, [create a free account](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn).
 -	[Apache Spark v2.4](https://spark.apache.org/downloads.html)
--	[Apache Kafka v2.0]( https://kafka.apache.org/20/documentation.html)
+-	[Apache Kafka v2.0](https://kafka.apache.org/20/documentation.html)
 -	[Git](https://www.git-scm.com/downloads)
 
 > [!NOTE]
-> The Spark-Kafka adapter was updated to support Kafka v2.0 as of Spark v2.4. In previous releases of Spark, the adapter supported Kafka v0.10 and later but relied specifically on Kafka v0.10 APIs. As Event Hubs for Kafka does not support Kafka v0.10, the Spark-Kafka adapters from versions of Spark prior to v2.4 are not supported by Event Hubs for Kafka Ecosystems.
+> The Spark-Kafka adapter was updated to support Kafka v2.0 as of Spark v2.4. In previous releases of Spark, the adapter supported Kafka v0.10 and later but relied specifically on Kafka v0.10 APIs. As Event Hubs for Kafka doesn't support Kafka v0.10, the Spark-Kafka adapters from versions of Spark prior to v2.4 aren't supported by Event Hubs for Kafka Ecosystems.
 
 
 ## Create an Event Hubs namespace
@@ -57,7 +59,7 @@ val df = spark.readStream
     .option("kafka.request.timeout.ms", "60000")
     .option("kafka.session.timeout.ms", "30000")
     .option("kafka.group.id", GROUP_ID)
-    .option("failOnDataLoss", "false")
+    .option("failOnDataLoss", "true")
     .load()
 
 //Use dataframe like normal (in this example, write to console)
@@ -67,8 +69,14 @@ val df_write = df.writeStream
     .start()
 ```
 
+If you receive an error similar to the following error, add `.option("spark.streaming.kafka.allowNonConsecutiveOffsets", "true")` to the `spark.readStream` call and try again. 
+
+```bash
+IllegalArgumentException: requirement failed: Got wrong record for <spark job name> even after seeking to offset 4216 got offset 4217 instead. If this is a compacted topic, consider enabling spark.streaming.kafka.allowNonConsecutiveOffsets 
+```
+
 ## Write to Event Hubs for Kafka
-You can also write to Event Hubs the same way you write to Kafka. Don't forget to update your configuration to change **BOOTSTRAP_SERVERS** and **EH_SASL** with information from your Event Hubs namespace.  For the full sample code, see sparkProducer.scala file on the GitHub. 
+You can also write to Event Hubs the same way you write to Kafka. Don't forget to update your configuration to change **BOOTSTRAP_SERVERS** and **EH_SASL** with information from your Event Hubs namespace. For the full sample code, see sparkProducer.scala file on the GitHub. 
 
 ```scala
 df = /**Dataframe**/
@@ -96,4 +104,3 @@ To learn more about Event Hubs and Event Hubs for Kafka, see the following artic
 - [Explore samples on our GitHub](https://github.com/Azure/azure-event-hubs-for-kafka)
 - [Connect Akka Streams to an event hub](event-hubs-kafka-akka-streams-tutorial.md)
 - [Apache Kafka developer guide for Azure Event Hubs](apache-kafka-developer-guide.md)
-

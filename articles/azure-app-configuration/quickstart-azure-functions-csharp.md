@@ -1,106 +1,196 @@
 ---
 title: Quickstart for Azure App Configuration with Azure Functions | Microsoft Docs
-description: In this quickstart, make an Azure Functions app with Azure App Configuration and C#. Create and connect to an App Configuration store. Test the function locally.
+description: "In this quickstart, make an Azure Functions app with Azure App Configuration and C#. Create and connect to an App Configuration store. Test the function locally."
 services: azure-app-configuration
-author: lisaguthrie
-
-
+author: zhenlan
 ms.service: azure-app-configuration
-ms.custom: devx-track-csharp
+ms.devlang: csharp
 ms.topic: quickstart
-ms.date: 1/9/2019
-ms.author: lcozzens
+ms.date: 11/21/2025
+ms.author: zhenlwa
+ms.custom: "devx-track-csharp, azure-functions"
+ms.tgt_pltfrm: Azure Functions
 
 #Customer intent: As an Azure Functions developer, I want to manage all my app settings in one place using Azure App Configuration.
 ---
 # Quickstart: Create an Azure Functions app with Azure App Configuration
 
-In this quickstart, you incorporate the Azure App Configuration service into an Azure Functions app to centralize storage and management of all your application settings separate from your code.
+This quickstart shows you how to centralize and manage your Azure Functions application settings outside of your code using Azure App Configuration. With the .NET configuration provider integration, you can add App Configuration as an extra configuration source with just a few simple code changes.
 
 ## Prerequisites
 
-- Azure subscription - [create one for free](https://azure.microsoft.com/free/)
-- [Visual Studio 2019](https://visualstudio.microsoft.com/vs) with the **Azure development** workload.
-- [Azure Functions tools](../azure-functions/functions-develop-vs.md#check-your-tools-version)
+- An Azure account with an active subscription. [Create one for free](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn).
+- An App Configuration store, as shown in the [tutorial for creating a store](./quickstart-azure-app-configuration-create.md#create-an-app-configuration-store).
+- [Visual Studio](https://visualstudio.microsoft.com/vs) with the **Azure development** workload.
+- [Azure Functions tools](../azure-functions/functions-develop-vs.md).
 
-## Create an App Configuration store
+## Add a key-value
 
-[!INCLUDE [azure-app-configuration-create](../../includes/azure-app-configuration-create.md)]
+Add the following key-value to the App Configuration store and leave **Label** and **Content Type** with their default values. For more information about how to add key-values to a store using the Azure portal or the CLI, go to [Create a key-value](./quickstart-azure-app-configuration-create.md#create-a-key-value).
 
-6. Select **Configuration Explorer** > **+ Create** > **Key-value** to add the following key-value pairs:
+| Key                        | Value                               |
+| -------------------------- | ----------------------------------- |
+| *TestApp:Settings:Message* | *Data from Azure App Configuration* |
 
-    | Key | Value |
-    |---|---|
-    | TestApp:Settings:Message | Data from Azure App Configuration |
+## Create a Function App
 
-    Leave **Label** and **Content Type** empty for now.
+Create an Azure Functions app using Visual Studio by selecting the **Azure Functions (C#)** template. This template guides you through configuring essential settings for your project. For detailed instructions, see [Develop Azure Functions using Visual Studio](../azure-functions/functions-develop-vs.md?pivots=isolated).
 
-7. Select **Apply**.
+Use the following table as a reference for key parameters when creating your Function App.
 
-## Create a Functions app
+| Setting              | Value                      |
+|----------------------|----------------------------|
+| Functions worker     | .NET 8.0 Isolated          |
+| Function             | HTTP trigger               |
+| Authorization level  | Anonymous                  |
 
-[!INCLUDE [Create a project using the Azure Functions template](../../includes/functions-vstools-create.md)]
+> [!NOTE]  
+> Azure App Configuration can be used with Azure Functions in either the [isolated worker model](../azure-functions/dotnet-isolated-process-guide.md) or the [in-process model](../azure-functions/functions-dotnet-class-library.md). This quickstart uses the isolated worker model as an example. You can find complete code examples for both models in the [Azure App Configuration GitHub repository](https://github.com/Azure/AppConfiguration/tree/main/examples/DotNetCore/AzureFunctions).
 
 ## Connect to an App Configuration store
+You can connect to your App Configuration store using Microsoft Entra ID (recommended), or a connection string.
 
-1. Right-click your project, and select **Manage NuGet Packages**. On the **Browse** tab, search for and add the `Microsoft.Extensions.Configuration.AzureAppConfiguration` NuGet package to your project. If you can't find it, select the **Include prerelease** check box.
+1. Right-click your project, and select **Manage NuGet Packages**. On the **Browse** tab, search for and add the latest stable version of following NuGet packages to your project.
 
-2. Open *Function1.cs*, and add the namespaces of the .NET Core configuration and the App Configuration configuration provider.
+    ### [Microsoft Entra ID (recommended)](#tab/entra-id)
+
+    - Microsoft.Azure.AppConfiguration.Functions.Worker
+    - Azure.Identity
+
+    ### [Connection string](#tab/connection-string)
+
+    - Microsoft.Azure.AppConfiguration.Functions.Worker
+
+    ---
+
+2. Open *Program.cs* and update the code as follows. You add Azure App Configuration as an additional configuration source by calling the `AddAzureAppConfiguration` method.
+
+    ### [Microsoft Entra ID (recommended)](#tab/entra-id)
+
+    You use the `DefaultAzureCredential` to authenticate to your App Configuration store. Follow the [instructions](./concept-enable-rbac.md#authentication-with-token-credentials) to assign your credential the **App Configuration Data Reader** role. Be sure to allow sufficient time for the permission to propagate before running your application.
+    
+    ```csharp
+    using Azure.Identity;
+    using Microsoft.Azure.Functions.Worker.Builder;
+    using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.Hosting;
+
+    var builder = FunctionsApplication.CreateBuilder(args);
+
+    // Connect to Azure App Configuration
+    builder.Configuration.AddAzureAppConfiguration(options =>
+    {
+        Uri endpoint = new(Environment.GetEnvironmentVariable("AZURE_APPCONFIG_ENDPOINT") ?? 
+            throw new InvalidOperationException("The environment variable 'AZURE_APPCONFIG_ENDPOINT' is not set or is empty."));
+        options.Connect(endpoint, new DefaultAzureCredential())
+               // Load all keys that start with `TestApp:` and have no label
+               .Select("TestApp:*");
+    });
+    ```
+
+    ### [Connection string](#tab/connection-string)
+
+    ```csharp
+    using Microsoft.Azure.Functions.Worker.Builder;
+    using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.Hosting;
+
+    var builder = FunctionsApplication.CreateBuilder(args);
+
+    // Connect to Azure App Configuration
+    builder.Configuration.AddAzureAppConfiguration(options =>
+    {
+        string connectionString = Environment.GetEnvironmentVariable("AZURE_APPCONFIG_CONNECTION_STRING") ?? 
+            throw new InvalidOperationException("The environment variable 'AZURE_APPCONFIG_CONNECTION_STRING' is not set or is empty.");
+        options.Connect(connectionString)
+               // Load all keys that start with `TestApp:` and have no label
+               .Select("TestApp:*");
+    });
+    ```
+
+    ---
+
+3. Open *Function1.cs*, and add the following namespace.
 
     ```csharp
     using Microsoft.Extensions.Configuration;
-    using Microsoft.Extensions.Configuration.AzureAppConfiguration;
     ```
 
-3. Add a `static` property named `Configuration` to create a singleton instance of `IConfiguration`. Then add a `static` constructor to connect to App Configuration by calling `AddAzureAppConfiguration()`. This will load configuration once at the application startup. The same configuration instance will be used for all Functions calls later.
+   Update the constructor to obtain an instance of `IConfiguration` through dependency injection.
 
     ```csharp
-    private static IConfiguration Configuration { set; get; }
+    private readonly IConfiguration _configuration;
+    private readonly ILogger<Function1> _logger;
 
-    static Function1()
+    public Function1(IConfiguration configuration, ILogger<Function1> logger)
     {
-        var builder = new ConfigurationBuilder();
-        builder.AddAzureAppConfiguration(Environment.GetEnvironmentVariable("ConnectionString"));
-        Configuration = builder.Build();
+        _configuration = configuration;
+        _logger = logger;
     }
     ```
 
 4. Update the `Run` method to read values from the configuration.
 
     ```csharp
-    public static async Task<IActionResult> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req, ILogger log)
+    [Function("Function1")]
+    public IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequest req)
     {
-        log.LogInformation("C# HTTP trigger function processed a request.");
+        _logger.LogInformation("C# HTTP trigger function processed a request.");
 
-        string keyName = "TestApp:Settings:Message";
-        string message = Configuration[keyName];
+        // Read configuration data
+        string key = "TestApp:Settings:Message";
+        string? message = _configuration[key];
 
-        return message != null
-            ? (ActionResult)new OkObjectResult(message)
-            : new BadRequestObjectResult($"Please create a key-value with the key '{keyName}' in App Configuration.");
+        return new OkObjectResult(message ?? $"Please create a key-value with the key '{key}' in Azure App Configuration.");
     }
     ```
 
 ## Test the function locally
 
-1. Set an environment variable named **ConnectionString**, and set it to the access key to your App Configuration store. If you use the Windows command prompt, run the following command and restart the command prompt to allow the change to take effect:
+1. Set the environment variable.
+
+    ### [Microsoft Entra ID (recommended)](#tab/entra-id)
+    Set the environment variable named **AZURE_APPCONFIG_ENDPOINT** to the endpoint of your App Configuration store found under the *Overview* of your store in the Azure portal.
+
+    If you use the Windows command prompt, run the following command and restart the command prompt to allow the change to take effect:
 
     ```cmd
-        setx ConnectionString "connection-string-of-your-app-configuration-store"
+    setx AZURE_APPCONFIG_ENDPOINT "<endpoint-of-your-app-configuration-store>"
     ```
 
-    If you use Windows PowerShell, run the following command:
+    If you use PowerShell, run the following command:
 
-    ```azurepowershell
-        $Env:ConnectionString = "connection-string-of-your-app-configuration-store"
+    ```powershell
+    $Env:AZURE_APPCONFIG_ENDPOINT = "<endpoint-of-your-app-configuration-store>"
     ```
 
     If you use macOS or Linux, run the following command:
 
     ```bash
-        export ConnectionString='connection-string-of-your-app-configuration-store'
+    export AZURE_APPCONFIG_ENDPOINT='<endpoint-of-your-app-configuration-store>'
     ```
+
+    ### [Connection string](#tab/connection-string)
+    Set the environment variable named **AZURE_APPCONFIG_CONNECTION_STRING** to the read-only connection string of your App Configuration store found under *Access settings* of your store in the Azure portal.
+
+    If you use the Windows command prompt, run the following command and restart the command prompt to allow the change to take effect:
+
+    ```cmd
+    setx AZURE_APPCONFIG_CONNECTION_STRING "<connection-string-of-your-app-configuration-store>"
+    ```
+
+   If you use PowerShell, run the following command:
+
+    ```powershell
+    $Env:AZURE_APPCONFIG_CONNECTION_STRING = "<connection-string-of-your-app-configuration-store>"
+    ```
+
+    If you use macOS or Linux, run the following command:
+
+    ```bash
+    export AZURE_APPCONFIG_CONNECTION_STRING='<connection-string-of-your-app-configuration-store>'
+    ```    
+    ---
 
 2. Press F5 to test your function. If prompted, accept the request from Visual Studio to download and install **Azure Functions Core (CLI)** tools. You might also need to enable a firewall exception so that the tools can handle HTTP requests.
 
@@ -112,13 +202,60 @@ In this quickstart, you incorporate the Azure App Configuration service into an 
 
     ![Quickstart Function launch local](./media/quickstarts/dotnet-core-function-launch-local.png)
 
+## Manage trigger parameters with App Configuration references
+
+Azure Functions triggers define how a function is invoked. Trigger attributes, such as queue names or database names, are loaded at host startup time and can't directly retrieve values from Azure App Configuration. To manage these parameters, you can use the App Configuration reference feature available for Azure Functions and App Service.
+
+The App Configuration reference feature allows you to reference key-values stored in Azure App Configuration directly from your application settings. Azure Functions resolves these references at startup, enabling you to manage trigger parameters centrally and securely.
+
+For example, consider a queue-triggered Function app. Instead of specifying the queue name directly in the trigger attribute, you can reference a key-value stored in Azure App Configuration.
+
+1. In your Azure App Configuration store, add a key-value for your queue name:
+
+   | Key                          | Value                                        |
+   |------------------------------|----------------------------------------------|
+   | *TestApp:Storage:QueueName*  | *\<The queue name in your storage account>*  |
+
+1. In your Function app, select **Settings** -> **Environment variables** -> **App settings** in the Azure portal, and create an application setting that references the App Configuration key:
+
+   | Name                 | Value                                      |
+   |----------------------|--------------------------------------------|
+   | *MyQueueName*        | `@Microsoft.AppConfiguration(Endpoint=<your-store-endpoint>; Key=TestApp:Storage:QueueName)` |
+
+   > [!TIP]
+   > If you have multiple key-values in Azure App Configuration, you can [export them in batch as App Configuration references](./howto-import-export-data.md?#export-data-to-azure-app-service) to Azure Functions using the Azure portal or CLI.
+
+1. Enable the managed identity for your Azure Functions app and assign it the **App Configuration Data Reader** role for your App Configuration store. For detailed instructions on setting up App Configuration references, see [Use App Configuration references in App Service and Azure Functions](../app-service/app-service-configuration-references.md).
+
+1. Update your queue-triggered function to use the application setting:
+
+   ```csharp
+   [Function("QueueTriggeredFunction")]
+   public void Run([QueueTrigger(queueName: "%MyQueueName%")] QueueMessage message)
+   {
+       _logger.LogInformation($"C# Queue trigger function processed: {message.MessageText}");
+   }
+   ```
+
+   At runtime, Azure Functions resolves the `%MyQueueName%` placeholder to the value stored in Azure App Configuration, allowing you to manage trigger parameters centrally without hardcoding them into your function code.
+
 ## Clean up resources
 
 [!INCLUDE [azure-app-configuration-cleanup](../../includes/azure-app-configuration-cleanup.md)]
 
 ## Next steps
 
-In this quickstart, you created a new App Configuration store and used it with an Azure Functions app via the [App Configuration provider](https://go.microsoft.com/fwlink/?linkid=2074664). To learn how to configure your Azure Functions app to dynamically refresh configuration settings, continue to the next tutorial.
+In this quickstart, you integrated Azure App Configuration with an Azure Functions app. To learn how to enable your Function app to dynamically refresh configuration settings, continue to the next tutorial.
 
 > [!div class="nextstepaction"]
-> [Enable dynamic configuration](./enable-dynamic-configuration-azure-functions-csharp.md)
+> [Enable dynamic configuration in Azure Functions](./enable-dynamic-configuration-azure-functions-csharp.md)
+
+To learn how to use feature flags from Azure App Configuration within your Azure Functions app, proceed to the following tutorial.
+
+> [!div class="nextstepaction"]
+> [Use feature flags in Azure Functions](./quickstart-feature-flag-azure-functions-csharp.md)
+
+To learn how to use an Azure managed identity to streamline the access to App Configuration, continue to the following tutorial.
+
+> [!div class="nextstepaction"]
+> [Access App Configuration using managed identity](./howto-integrate-azure-managed-service-identity.md)

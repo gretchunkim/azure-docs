@@ -2,21 +2,22 @@
 title: Token-based (HTTP/2) authentication for APNS in Azure Notification Hubs | Microsoft Docs
 description: Learn how to use the new token authentication for APNS.
 services: notification-hubs
-documentationcenter: .net
 author: sethmanheim
-manager: femila
+manager: lizross
 editor: jwargo
 
-ms.service: notification-hubs
-ms.workload: mobile
+ms.service: azure-notification-hubs
 ms.tgt_pltfrm: mobile-multiple
-ms.devlang: dotnet
+ms.devlang: csharp
 ms.topic: article
 ms.date: 11/14/2019
 ms.author: sethm
 ms.reviewer: jowargo
 ms.lastreviewed: 02/13/2019
-ms.custom: devx-track-csharp
+ms.custom:
+  - devx-track-csharp
+  - sfi-image-nochange
+  - sfi-ropc-nochange
 ---
 
 # Token-based (HTTP/2) authentication for APNS
@@ -56,9 +57,7 @@ The key identifier can be obtained from the **Keys** page under **Certificates, 
 
 ### Application identifier and application name
 
-The application name and identifier are also available in the **Certificates, Identifiers & Profiles** page in the developer account:
-
-![Certificates and IDs](./media/notification-hubs-push-notification-http2-token-authentification/app-name.png)
+The application name and identifier are also available in the **Certificates, Identifiers & Profiles** page in the developer account.
 
 ### Configure via the .NET SDK or the Azure portal
 
@@ -74,7 +73,7 @@ Token-based credentials are composed of the following fields:
 
 * **Key ID**: Identifier of the private key generated in the Apple Developer portal; for example, `2USFGKSKLT`.
 * **Team ID**: Also called the "Prefix" or "App Prefix." This is the identifier for the organization in the Apple Developer portal; for example, `S4V3D7CHJR`.
-* **Bundle ID**: Also called the "App ID." This is the bundle identifier for the application; for example, `com.example.myapp`. Note that you can use one key for many apps. This value maps to the `apns-topic` HTTP header when sending a notification, and is used to target the specific application. Note that you cannot set the value of `apns-topic` explicitly.
+* **Bundle ID**: Also called the "App ID". This is the bundle identifier for the application; for example, `com.example.myapp`. Note that you can only use one key for one app. This value maps to the `apns-topic` HTTP header when sending a notification, and is used to target the specific application. You cannot set the value of `apns-topic` explicitly.
 * **Token**: Also called the "Key" or "Private Key." This is obtained from the .p8 file generated on the Apple Developer portal. The key must have APNS enabled (which is selected on the Apple Developer portal when generating the key). The value must have the PEM header/footer stripped from it when you supply it to the NH Portal/API.
 * **Endpoint**: This is a toggle in the Notification Hubs portal blade, and a string field in the API. Valid values are `https://api.development.push.apple.com:443/3/device` or `https://api.sandbox.push.apple.com:443/3/device`. Notification Hubs uses this value for either the production or sandbox environment, for sending notifications. This must match the `aps-environment` entitlement in the app, otherwise the APNS device tokens generated don't match the environment, and the notifications fail to send.
 

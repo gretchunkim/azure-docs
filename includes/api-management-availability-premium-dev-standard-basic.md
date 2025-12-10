@@ -1,12 +1,9 @@
 ---
-author: mikebudzynski
-ms.service: api-management
+author: dlepow
+ms.service: azure-api-management
 ms.topic: include
-ms.date: 11/27/2018
-ms.author: apimpm
+ms.date: 03/06/2024
+ms.author: danlep
 ---
 
-## Availability
-
-> [!IMPORTANT]
-> This feature is available in the **Premium**, **Standard**, **Basic** and **Developer** tiers of API Management.
+**APPLIES TO: Developer | Basic | Standard | Premium**

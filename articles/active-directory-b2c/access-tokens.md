@@ -1,27 +1,31 @@
 ---
-title: Request an access token - Azure Active Directory B2C | Microsoft Docs
+title: Request an access token in Azure Active Directory B2C
 description: Learn how to request an access token from Azure Active Directory B2C.
-services: active-directory-b2c
-author: msmimart
-manager: celestedg
 
-ms.service: active-directory
-ms.workload: identity
-ms.topic: conceptual
-ms.date: 05/12/2020
-ms.custom: project-no-code
-ms.author: mimart
-ms.subservice: B2C
+author: kengaderdus
+manager: CelesteDG
+
+ms.service: azure-active-directory
+
+ms.topic: concept-article
+ms.date: 02/17/2025
+ms.author: kengaderdus
+ms.subservice: b2c
+
+
+#Customer intent: As a developer integrating Azure Active Directory B2C with a web application and web API, I want to understand how to request an access token, so that I can authenticate and authorize users to access my APIs securely.
 
 ---
 # Request an access token in Azure Active Directory B2C
 
-An *access token* contains claims that you can use in Azure Active Directory B2C (Azure AD B2C) to identify the granted permissions to your APIs. When calling a resource server, an access token must be present in the HTTP request. An access token is denoted as **access_token** in the responses from Azure AD B2C.
+[!INCLUDE [active-directory-b2c-end-of-sale-notice-b](../../includes/active-directory-b2c-end-of-sale-notice-b.md)]
+
+An *access token* contains claims that you can use in Azure Active Directory B2C (Azure AD B2C) to identify the granted permissions to your APIs. To call a resource server, the HTTP request must include an access token. An access token is denoted as **access_token** in the responses from Azure AD B2C.
 
 This article shows you how to request an access token for a web application and web API. For more information about tokens in Azure AD B2C, see the [overview of tokens in Azure Active Directory B2C](tokens-overview.md).
 
 > [!NOTE]
-> **Web API chains (On-Behalf-Of) is not supported by Azure AD B2C.** - Many architectures include a web API that needs to call another downstream web API, both secured by Azure AD B2C. This scenario is common in clients that have a web API back end, which in turn calls a another service. This chained web API scenario can be supported by using the OAuth 2.0 JWT Bearer Credential grant, otherwise known as the On-Behalf-Of flow. However, the On-Behalf-Of flow is not currently implemented in Azure AD B2C.
+> **Web API chains (On-Behalf-Of) is not supported by Azure AD B2C** - Many architectures include a web API that needs to call another downstream web API, both secured by Azure AD B2C. This scenario is common in clients that have a web API back end, which in turn calls another service. This chained web API scenario can be supported by using the OAuth 2.0 JWT Bearer Credential grant, otherwise known as the On-Behalf-Of flow. However, the On-Behalf-Of flow is not currently implemented in Azure AD B2C. Although On-Behalf-Of works for applications registered in Microsoft Entra ID, it does not work for applications registered in Azure AD B2C, regardless of the tenant (Microsoft Entra ID or Azure AD B2C) that is issuing the tokens.
 
 ## Prerequisites
 
@@ -46,32 +50,42 @@ The following example shows scopes encoded in a URL:
 scope=https%3A%2F%2Fcontoso.onmicrosoft.com%2Fapi%2Fread%20openid%20offline_access
 ```
 
-If you request more scopes than what is granted for your client application, the call succeeds if at least one permission is granted. The **scp** claim in the resulting access token is populated with only the permissions that were successfully granted. The OpenID Connect standard specifies several special scope values. The following scopes represent the permission to access the user's profile:
+If you request more scopes than what is granted for your client application, the call succeeds if at least one permission is granted. The **scp** claim in the resulting access token is populated with only the permissions that were successfully granted. 
+
+### OpenID Connect scopes
+
+The OpenID Connect standard specifies several special scope values. The following scopes represent the permission to access the user's profile:
 
 - **openid** - Requests an ID token.
 - **offline_access** - Requests a refresh token using [Auth Code flows](authorization-code-flow.md).
+- **00000000-0000-0000-0000-000000000000** - Using the client ID as the scope indicates that your app needs an access token that can be used against your own service or web API, represented by the same client ID.
 
 If the **response_type** parameter in an `/authorize` request includes `token`, the **scope** parameter must include at least one resource scope other than `openid` and `offline_access` that will be granted. Otherwise, the `/authorize` request fails.
 
 ## Request a token
 
-To request an access token, you need an authorization code. Below is an example of a request to the `/authorize` endpoint for an authorization code. Custom domains are not supported for use with access tokens. Use your tenant-name.onmicrosoft.com domain in the request URL.
-
-In the following example, you replace these values:
-
-- `<tenant-name>` - The name of your Azure AD B2C tenant.
-- `<policy-name>` - The name of your custom policy or user flow.
-- `<application-ID>` - The application identifier of the web application that you registered to support the user flow.
-- `<redirect-uri>` - The **Redirect URI** that you entered when you registered the client application.
-
+To request an access token, you need an authorization code. The following is an example of a request to the `/authorize` endpoint for an authorization code:
 ```http
-GET https://<tenant-name>.b2clogin.com/tfp/<tenant-name>.onmicrosoft.com/<policy-name>/oauth2/v2.0/authorize?
+GET https://<tenant-name>.b2clogin.com/<tenant-name>.onmicrosoft.com/<policy-name>/oauth2/v2.0/authorize?
 client_id=<application-ID>
 &nonce=anyRandomValue
 &redirect_uri=https://jwt.ms
-&scope=https://<tenant-name>.onmicrosoft.com/api/read
+&scope=<application-ID-URI>/<scope-name>
 &response_type=code
 ```
+
+Replace the values in the query string as follows:
+
+- `<tenant-name>` - The name of your [Azure AD B2C tenant](tenant-management-read-tenant-name.md#get-your-tenant-name). If you're using a custom domain, replace `tenant-name.b2clogin.com` with your domain, such as `contoso.com`. 
+- `<policy-name>` - The name of your custom policy or user flow.
+- `<application-ID>` - The application identifier of the web application that you registered to support the user flow.
+- `<application-ID-URI>` - The application identifier URI that you set under **Expose an API** blade of the client application.
+- `<scope-name>` - The name of the scope that you added under **Expose an API** blade of the client application.
+- `<redirect-uri>` - The **Redirect URI** that you entered when you registered the client application.
+
+To get a feel of how the request works, paste the request into your browser and run it. 
+
+This's the interactive part of the flow, where you take action. You're asked to complete the user flow's workflow. This might involve entering your username and password in a sign in form or any other number of steps. The steps you complete depend on how the user flow is defined.
 
 The response with the authorization code should be similar to this example:
 
@@ -79,22 +93,24 @@ The response with the authorization code should be similar to this example:
 https://jwt.ms/?code=eyJraWQiOiJjcGltY29yZV8wOTI1MjAxNSIsInZlciI6IjEuMC...
 ```
 
-After successfully receiving the authorization code, you can use it to request an access token:
+After successfully receiving the authorization code, you can use it to request an access token. The parameters are in the body of the HTTP POST request:
 
 ```http
-POST <tenant-name>.onmicrosoft.com/<policy-name>/oauth2/v2.0/token HTTP/1.1
+POST <tenant-name>.b2clogin.com/<tenant-name>.onmicrosoft.com/<policy-name>/oauth2/v2.0/token HTTP/1.1
 Host: <tenant-name>.b2clogin.com
 Content-Type: application/x-www-form-urlencoded
 
 grant_type=authorization_code
 &client_id=<application-ID>
-&scope=https://<tenant-name>.onmicrosoft.com/api/read
+&scope=<application-ID-URI>/<scope-name>
 &code=eyJraWQiOiJjcGltY29yZV8wOTI1MjAxNSIsInZlciI6IjEuMC...
 &redirect_uri=https://jwt.ms
 &client_secret=2hMG2-_:y12n10vwH...
 ```
 
-You should see something similar to the following response:
+If you want to test this POST HTTP request, you can use any HTTP client such as [Microsoft PowerShell](/powershell/scripting/overview).
+
+A successful token response looks like this:
 
 ```json
 {

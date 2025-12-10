@@ -2,20 +2,34 @@
 title: Tutorial to order Azure Data Box | Microsoft Docs
 description: In this tutorial, learn about Azure Data Box, a hybrid solution that allows you to import on-premises data into Azure, and how to order Azure Data Box.
 services: databox
-author: twooley
-
-ms.service: databox
-ms.subservice: pod
+author: stevenmatthew
+ms.service: azure-databox
 ms.topic: tutorial
-ms.date: 07/21/2020
-ms.author: twooley
+ms.date: 03/25/2024
+ms.author: shaas
+zone_pivot_groups: data-box-sku
+ms.custom:
+  - devx-track-azurepowershell
+  - devx-track-azurecli
+  - sfi-image-nochange
 #Customer intent: As an IT admin, I need to be able to order Data Box to upload on-premises data from my server onto Azure.
+# Customer intent: "As an IT admin, I want to order an Azure Data Box to transfer on-premises data to Azure, so that I can efficiently manage and migrate large volumes of data to the cloud."
 ---
 # Tutorial: Order Azure Data Box
 
-Azure Data Box is a hybrid solution that allows you to import your on-premises data into Azure in a quick, easy, and reliable way. You transfer your data to a Microsoft-supplied 80 TB (usable capacity) storage device and then ship the device back. This data is then uploaded to Azure.
+:::zone pivot="dbx"
+[!INCLUDE [data-box-retirement](includes/data-box-retirement.md)]
+:::zone-end
 
-This tutorial describes how you can order an Azure Data Box. In this tutorial, you learn about:
+:::zone pivot="dbx"
+Azure Data Box is a hybrid solution that allows you to import your on-premises data into Azure in a quick, easy, and reliable way. You transfer your data to a Microsoft-supplied storage device with 80 TB of usable capacity, and then ship the device back. This data is then uploaded to Azure.
+:::zone-end
+
+:::zone pivot="dbx-ng"
+Azure Data Box is a hybrid solution that allows you to import your on-premises data into Azure in a quick, easy, and reliable way. You transfer your data to a Microsoft-supplied storage device with 120 TB or 525 TB of usable capacity, and then ship the device back. This data is then uploaded to Azure.
+:::zone-end
+
+This tutorial describes how you can order an Azure Data Box. In this tutorial, you learn about:   
 
 > [!div class="checklist"]
 >
@@ -24,11 +38,14 @@ This tutorial describes how you can order an Azure Data Box. In this tutorial, y
 > * Track the order
 > * Cancel the order
 
+> [!NOTE]
+> To get answers to frequently asked questions about Data Box orders and shipments, see [Data Box FAQ](data-box-faq.yml).
+
 ## Prerequisites
 
-# [Portal](#tab/portal)
+Complete the following configuration prerequisites for the Data Box service and device before you deploy the device:
 
-Complete the following configuration prerequisites for Data Box service and device before you deploy the device:
+# [Portal](#tab/portal)
 
 [!INCLUDE [Prerequisites](../../includes/data-box-deploy-ordered-prerequisites.md)]
 
@@ -36,14 +53,14 @@ Complete the following configuration prerequisites for Data Box service and devi
 
 [!INCLUDE [Prerequisites](../../includes/data-box-deploy-ordered-prerequisites.md)]
 
-If you don't have an Azure subscription, [create a free account](https://azure.microsoft.com/free/) before you begin.
+If you don't have an Azure subscription, [create a free account](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn) before you begin.
 
 You can sign in to Azure and run Azure CLI commands in one of two ways:
 
 * You can install the CLI and run CLI commands locally.
 * You can run CLI commands from within the Azure portal, in Azure Cloud Shell.
 
-We use Azure CLI through Windows PowerShell for the tutorial, but you are free to choose either option.
+We use Azure CLI through Windows PowerShell for the tutorial, but you're free to choose either option.
 
 ### For Azure CLI
 
@@ -51,17 +68,17 @@ Before you begin, make sure that:
 
 #### Install the CLI locally
 
-* Install [Azure CLI](https://docs.microsoft.com/cli/azure/install-azure-cli) version 2.0.67 or later. Alternatively, you may [install using MSI](https://aka.ms/installazurecliwindows).
+* Install [Azure CLI](/cli/azure/install-azure-cli) version 2.0.67 or later. Or [install using MSI](https://aka.ms/installazurecliwindows) instead.
 
 **Sign in to Azure**
 
-Open up a Windows PowerShell command window and sign in to Azure with the [az login](/cli/azure/reference-index#az-login) command:
+Open up a Windows PowerShell command window and sign in to Azure with the [az sign in](/cli/azure/reference-index#az-login) command:
 
 ```azurecli
 PS C:\Windows> az login
 ```
 
-Here is the output from a successful sign-in:
+The output confirms a successful sign-in:
 
 ```output
 You have logged in. Now let us find all the subscriptions to which you have access.
@@ -85,7 +102,7 @@ You have logged in. Now let us find all the subscriptions to which you have acce
 
 **Install the Azure Data Box CLI extension**
 
-Before you can use the Azure Data Box CLI commands, you need to install the extension. Azure CLI extensions give you access to experimental and pre-release commands that have not yet shipped as part of the core CLI. For more information about extensions, see [Use extensions with Azure CLI](/cli/azure/azure-cli-extensions-overview).
+Before you can use the Azure Data Box CLI commands, you need to install the extension. Azure CLI extensions give you access to experimental and prerelease commands before shipping as part of the core CLI. For more information about extensions, see [Use extensions with Azure CLI](/cli/azure/azure-cli-extensions-overview).
 
 To install the extension for Azure Data Box, run the following command: `az extension add --name databox`:
 
@@ -94,7 +111,7 @@ To install the extension for Azure Data Box, run the following command: `az
     PS C:\Windows> az extension add --name databox
 ```
 
-If the extension is installed successfully, you'll see the following output:
+If the extension is installed successfully, the following output is displayed:
 
 ```output
     The installed extension 'databox' is experimental and not covered by customer support. Please use with discretion.
@@ -117,9 +134,9 @@ If the extension is installed successfully, you'll see the following output:
 
 #### Use Azure Cloud Shell
 
-You can use [Azure Cloud Shell](https://shell.azure.com/), an Azure hosted interactive shell environment, through your browser to run CLI commands. Azure Cloud Shell supports Bash or Windows PowerShell with Azure services. The Azure CLI is pre-installed and configured to use with your account. Select the Cloud Shell button on the menu in the upper-right section of the Azure portal:
+You can use [Azure Cloud Shell](https://shell.azure.com/), an Azure hosted interactive shell environment, through your browser to run CLI commands. Azure Cloud Shell supports Bash or Windows PowerShell with Azure services. The Azure CLI is preinstalled and configured to use with your account. Select the Cloud Shell button on the menu in the upper-right section of the Azure portal:
 
-![Cloud Shell](../storage/common/media/storage-quickstart-create-account/cloud-shell-menu.png)
+![Cloud Shell menu selection](../storage/common/media/storage-quickstart-create-account/cloud-shell-menu.png)
 
 The button launches an interactive shell that you can use to run the steps outlined in this how-to article.
 
@@ -134,15 +151,15 @@ Before you begin, make sure that you:
 * Install Windows PowerShell 6.2.4 or higher.
 * Install Azure PowerShell (AZ) module.
 * Install Azure Data Box (Az.DataBox) module.
-* Sign-in to Azure.
+* Sign in to Azure.
 
 #### Install Azure PowerShell and modules locally
 
 **Install or upgrade Windows PowerShell**
 
-You will need to have Windows PowerShell version 6.2.4 or higher installed. To find out what version of PowerShell you have installed, run: `$PSVersionTable`.
+You need to have Windows PowerShell version 6.2.4 or higher installed. To find out what version of PowerShell is installed, run: `$PSVersionTable`.
 
-You will see the following output:
+The following sample output confirms that version 6.2.3 is installed:
 
 ```azurepowershell
     PS C:\users\gusp> $PSVersionTable
@@ -160,13 +177,13 @@ You will see the following output:
     WSManStackVersion              3.0
 ```
 
-If your version is lower than 6.2.4, you need to upgrade your version of Windows PowerShell. To install the latest version of Windows PowerShell, see [Install Azure PowerShell](https://docs.microsoft.com/powershell/scripting/install/installing-powershell?view=powershell-7).
+If your version is lower than 6.2.4, you need to upgrade your version of Windows PowerShell. To install the latest version of Windows PowerShell, see [Install Azure PowerShell](/powershell/scripting/install/installing-powershell).
 
 **Install Azure PowerShell and Data Box modules**
 
-You will need to install the Azure PowerShell modules to use Azure PowerShell to order an Azure Data Box. To install the Azure PowerShell modules:
+You need to install the Azure PowerShell modules to use Azure PowerShell to order an Azure Data Box. To install the Azure PowerShell modules:
 
-1. Install the [Azure PowerShell Az module](https://docs.microsoft.com/powershell/azure/new-azureps-module-az).
+1. Install the [Az PowerShell module](/powershell/azure/new-azureps-module-az).
 2. Then install Az.DataBox using the command `Install-Module -Name Az.DataBox`.
 
 ```azurepowershell
@@ -180,13 +197,13 @@ Version              Name                                Repository           De
 
 #### Sign in to Azure
 
-Open up a Windows PowerShell command window and sign in to Azure with the [Connect-AzAccount](https://docs.microsoft.com/powershell/module/az.accounts/Connect-AzAccount) command:
+Open up a Windows PowerShell command window and sign in to Azure with the [Connect-AzAccount](/powershell/module/az.accounts/Connect-AzAccount) command:
 
 ```azurepowershell
 PS C:\Windows> Connect-AzAccount
 ```
 
-Here is the output from a successful sign-in:
+The following sample output confirms a successful sign-in:
 
 ```output
 WARNING: To sign in, use a web browser to open the page https://microsoft.com/devicelogin and enter the code FSBFZMBKC to authenticate.
@@ -198,119 +215,39 @@ gusp@contoso.com     MySubscription                            aaaaaaaa-aaaa-aaa
 PS C:\Windows\System32>
 ```
 
-For detailed information on how to sign in to Azure using Windows PowerShell, see [Sign in with Azure PowerShell](https://docs.microsoft.com/powershell/azure/authenticate-azureps).
+For detailed information on how to sign in to Azure using Windows PowerShell, see [Sign in with Azure PowerShell](/powershell/azure/authenticate-azureps).
 
 ---
 
 ## Order Data Box
 
+> [!NOTE]
+> Azure Data Box currently does not support Azure Files Provisioned v2 Storage Accounts. For on-premises to Azure migration scenarios, you can explore [Azure Storage Mover](/azure/storage-mover/service-overview).
+
+To order a device, perform the following steps:
+
 # [Portal](#tab/portal)
 
-Do the following steps in the Azure portal to order a device.
-
-1. Use your Microsoft Azure credentials to sign in at this URL: [https://portal.azure.com](https://portal.azure.com).
-2. Select **+ Create a resource** and search for *Azure Data Box*. Select **Azure Data Box**.
-
-   ![Select Azure Data Box](media/data-box-deploy-ordered/select-data-box-import-02.png)
-
-3. Select **Create**.
-
-   ![Select Azure Data Box](media/data-box-deploy-ordered/select-data-box-import-03.png)
-
-4. Check if Data Box service is available in your region. Enter or select the following information and select **Apply**.
-
-    |Setting  |Value  |
-    |---------|---------|
-    |Transfer type     | Select **Import to Azure**.        |
-    |Subscription     | Select an EA, CSP, or Azure sponsorship subscription for Data Box service. <br> The subscription is linked to your billing account.       |
-    |Resource Group | Select an existing resource group. A resource group is a logical container for the resources that can be managed or deployed together. |
-    |Source country/region    |    Select the country/region where your data currently resides.         |
-    |Destination Azure region     |     Select the Azure region where you want to transfer data. <br> For more information, go to [region availability](data-box-overview.md#region-availability).            |
-
-    [![Azure Data Box import order](media/data-box-deploy-ordered/select-data-box-import-04b.png)](media/data-box-deploy-ordered/select-data-box-import-04b.png#lightbox)
-
-5. Select **Data Box**. The maximum usable capacity for a single order is 80 TB. You can create multiple orders for larger data sizes.
-
-    ![Select Data Box option 1](media/data-box-deploy-ordered/select-data-box-import-05.png)
-
-6. In **Order**, go to the **Basics** tab. Enter or select the following information and select **Next: Data destination>**.
-
-    |Setting  |Value  |
-    |---------|---------|
-    |Subscription      | The subscription is automatically populated based on your earlier selection.|
-    |Resource group    | The resource group you selected previously. |
-    |Import order name | Provide a friendly name to track the order. <br> The name can have between 3 and 24 characters that can be letters, numbers, and hyphens. <br> The name must start and end with a letter or a number.    |
-
-    ![Select Data Box option 1](media/data-box-deploy-ordered/select-data-box-import-06.png)
-
-    By default, the device unlock password is encrypted using a Microsoft-managed key. After you complete the order you can add a customer managed key. A customer managed key allows you to use you own key from an Azure Key vault key to protect you device unlock password. For more information, see [Use customer-managed keys in Azure Key Vault for Azure Data Box](data-box-customer-managed-encryption-key-portal.md).
-
-7. In **Data destination** tab, select **Data destination**.
-
-    If using **storage account(s)** as the storage destination, you see the following screenshot:
-
-    ![Azure Data Box data destination](media/data-box-deploy-ordered/select-data-box-import-07.png)
-
-    Based on the specified Azure region, select one or more storage accounts from the filtered list of an existing storage account. Data Box can be linked with up to 10 storage accounts. You can also create a new **General-purpose v1**, **General-purpose v2**, or **Blob storage account**.
-
-    Storage accounts with virtual networks are supported. To allow Data Box service to work with secured storage accounts, enable the trusted services within the storage account network firewall settings. For more information, see how to [Add Azure Data Box as a trusted service](../storage/common/storage-network-security.md#exceptions).
-
-    If using Data Box to create **Managed disk(s)** from the on-premises virtual hard disks (VHDs), you will also need to provide the following information:
-
-    |Setting  |Value  |
-    |---------|---------|
-    |Resource groups     | Create new resource groups if you intend to create managed disks from on-premises VHDs. You can use an existing resource group only if the resource group was created previously when creating a Data Box order for managed disk by Data Box service. <br> Specify multiple resource groups separated by semi-colons. A maximum of 10 resource groups are supported.|
-
-    ![Data Box order for managed disk](media/data-box-deploy-ordered/select-data-box-import-07b.png)
-
-    The storage account specified for managed disks is used as a staging storage account. The Data Box service uploads the VHDs as page blobs to the staging storage account before converting it into managed disks and moving it to the resource groups. For more information, see [Verify data upload to Azure](data-box-deploy-picked-up.md#verify-data-upload-to-azure).
-
-    Select **Next: Contact details** to continue.
-
-8. In **Contact details**, select **+ Add Shipping Address**.
-
-    ![Data Box order for managed disk](media/data-box-deploy-ordered/select-data-box-import-08a.png)
-
-9. In the **Shipping address**, provide your first and last name, name and postal address of the company, and a valid phone number. Select **Validate address**. The service validates the shipping address for service availability. If the service is available for the specified shipping address, you receive a notification to that effect.
-
-   ![Data Box order for managed disk](media/data-box-deploy-ordered/select-data-box-import-10.png)
-
-   If you selected self-managed shipping, you will receive an email notification after the order is placed successfully. For more information about self-managed shipping, see [Use self-managed shipping](data-box-portal-customer-managed-shipping.md).
-
-10. Select **Add Shipping Address** once the shipping details have been validated successfully. You will return to the **Contact details** tab.
-
-11. After you return to **Contact details** add one or more email addresses. The service sends email notifications regarding any updates to the order status to the specified email addresses.
-
-    We recommend that you use a group email so that you continue to receive notifications if an admin in the group leaves.
-
-    ![Data Box order for managed disk](media/data-box-deploy-ordered/select-data-box-import-08c.png)
-
-12. Review the information in **Review + Order** related to the order, contact, notification, and privacy terms. Check the box corresponding to the agreement to privacy terms.
-
-13. Select **Order**. The order takes a few minutes to be created.
-
-    ![Data Box order for managed disk](media/data-box-deploy-ordered/select-data-box-import-11.png)
+[!INCLUDE [order-data-box-via-portal](../../includes/data-box-order-portal.md)]
 
 # [Azure CLI](#tab/azure-cli)
 
-Do the following steps using Azure CLI to order a device:
-
-1. Write down your settings for your Data Box order. These settings include your personal/business information, subscription name, device information, and shipping information. You will need to use these settings as parameters when running the CLI command to create the Data Box order. The following table shows the parameter settings used for `az databox job create`:
+1. Write down your settings for your Data Box order. These settings include your personal/business information, subscription name, device information, and shipping information. These settings are used as parameters when running the CLI command to create the Data Box order. The following table shows the parameter settings used for `az databox job create`:
 
    | Setting (parameter) | Description |  Sample value |
    |---|---|---|
    |resource-group| Use an existing or create a new one. A resource group is a logical container for the resources that can be managed or deployed together. | "myresourcegroup"|
-   |name| The name of the order you are creating. | "mydataboxorder"|
+   |name| The name of the order you're creating. | "mydataboxorder"|
    |contact-name| The name associated with the shipping address. | "Gus Poland"|
-   |phone| The phone number of the person or business that will receive the order.| "14255551234"
-   |location| The nearest Azure region to you that will be shipping your device.| "US West"|
-   |sku| The specific Data Box device you are ordering. Valid values are: "DataBox", "DataBoxDisk", and "DataBoxHeavy"| "DataBox" |
+   |phone| The phone number of the person or business receiving the order.| "14255551234" |
+   |location| The nearest Azure region used to ship the device.| "US West"|
+   |sku| The specific Data Box device you're ordering. Valid values are: "DataBox", "DataBoxDisk", and "DataBoxHeavy"| "DataBox" |
    |email-list| The email addresses associated with the order.| "gusp@contoso.com" |
-   |street-address1| The street address to where the order will be shipped. | "15700 NE 39th St" |
-   |street-address2| The secondary address information, such as apartment number or building number. | "Bld 123" |
-   |city| The city that the device will be shipped to. | "Redmond" |
-   |state-or-province| The state where the device will be shipped.| "WA" |
-   |country| The country that the device will be shipped. | "United States" |
+   |street-address1| The street address to which the order is shipped. | "15700 NE 39th St" |
+   |street-address2| The secondary address information, such as apartment number or building number. | "Building 123" |
+   |city| The city to which the device is shipped. | "Redmond" |
+   |state-or-province| The state to which the device is shipped.| "WA" |
+   |country| The country/region to which the device is shipped. | "United States" |
    |postal-code| The zip code or postal code associated with the shipping address.| "98052"|
    |company-name| The name of your company you work for.| "Contoso, LTD" |
    |storage account| The Azure Storage account from where you want to import data.| "mystorageaccount"|
@@ -318,16 +255,16 @@ Do the following steps using Azure CLI to order a device:
    |help| Display help information for this command. | --help -h |
    |only-show-errors| Only show errors, suppressing warnings. | --only-show-errors |
    |output -o| Sets the output format.  Allowed values: json, jsonc, none, table, tsv, yaml, yamlc. The default value is json. | --output "json" |
-   |query| The JMESPath query string. For more information, see [JMESPath](http://jmespath.org/). | --query <string>|
+   |query| The JMESPath query string. For more information, see [JMESPath](http://jmespath.org/). | --query &lt;string&gt;|
    |verbose| Include verbose logging. | --verbose |
 
-2. In your command-prompt of choice or terminal, use the [az data box job create](https://docs.microsoft.com/cli/azure/ext/databox/databox/job?view=azure-cli-latest#ext-databox-az-databox-job-create) to create your Azure Data Box order.
+2. In your command-prompt of choice or terminal, run [az data box job create](/cli/azure/databox/job#az-databox-job-create) to create your Azure Data Box order.
 
    ```azurecli
-   az databox job create --resource-group <resource-group> --name <order-name> --location <azure-location> --sku <databox-device-type> --contact-name <contact-name> --phone <phone-number> --email-list <email-list> --street-address1 <street-address-1> --street-address2 <street-address-2> --city "contact-city" --state-or-province <state-province> --country <country> --postal-code <postal-code> --company-name <company-name> --storage-account "storage-account"
+   az databox job create --resource-group <resource-group> --name <order-name> --location <azure-location> --sku <databox-device-type> --contact-name <contact-name> --phone <phone-number> --email-list <email-list> --street-address1 <street-address-1> --street-address2 <street-address-2> --city "contact-city" --state-or-province <state-province> --country <country/region> --postal-code <postal-code> --company-name <company-name> --storage-account "storage-account"
    ```
 
-   Here is an example of command usage:
+   The following sample command illustrates the command's usage:
 
    ```azurecli
    az databox job create --resource-group "myresourcegroup" \
@@ -347,7 +284,7 @@ Do the following steps using Azure CLI to order a device:
                          --storage-account mystorageaccount
    ```
 
-   Here is the output from running the command:
+   The following sample output confirms successful job creation:
 
    ```output
    Command group 'databox job' is experimental and not covered by customer support. Please use with discretion.
@@ -359,7 +296,7 @@ Do the following steps using Azure CLI to order a device:
    "deliveryType": "NonScheduled",
    "details": null,
    "error": null,
-   "id": "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/myresourcegroup/providers/Microsoft.DataBox/jobs/mydataboxtest3",
+   "id": "/subscriptions/[GUID]/resourceGroups/myresourcegroup/providers/Microsoft.DataBox/jobs/mydataboxtest3",
    "identity": {
      "type": "None"
    },
@@ -385,15 +322,15 @@ Do the following steps using Azure CLI to order a device:
 
    ```
 
-3. All Azure CLI commands will use json as the output format by default unless you change it. You can change the output format by using the global parameter `--output <output-format>`. Changing the format to "table" will improve output readability.
+3. Unless the default output is modified, all Azure CLI commands return a json response. You can change the output format by using the global parameter `--output <output-format>`. Changing the format to "table" improves output readability.
 
-   Here is the same command we just ran with a small tweak to change the formatting:
+   The following example contains the same command, but with the modified `--output` parameter value to alter the formatted response:
 
     ```azurecli
     az databox job create --resource-group "myresourcegroup" --name "mydataboxtest4" --location "westus" --sku "DataBox" --contact-name "Gus Poland" --phone "14255551234" --email-list "gusp@contoso.com" --street-address1 "15700 NE 39th St" --street-address2 "Bld 25" --city "Redmond" --state-or-province "WA" --country "US" --postal-code "98052" --company-name "Contoso" --storage-account mystorageaccount --output "table"
    ```
 
-   Here is the output from running the command:
+   The following sample response illustrates the modified output format:
 
    ```output
 
@@ -408,34 +345,34 @@ Do the following steps using Azure CLI to order a device:
 
 Do the following steps using Azure PowerShell to order a device:
 
-1. Before you create the import order, you need to get your storage account and save the storage account object in a variable.
+1. Before creating the import order, fetch your storage account and save the object in a variable.
 
    ```azurepowershell
     $storAcct = Get-AzStorageAccount -Name "mystorageaccount" -ResourceGroup "myresourcegroup"
    ```
 
-2. Write down your settings for your Data Box order. These settings include your personal/business information, subscription name, device information, and shipping information. You will need to use these settings as parameters when running the PowerShell command to create the Data Box order. The following table shows the parameter settings used for [New-AzDataBoxJob](https://docs.microsoft.com/powershell/module/az.databox/New-AzDataBoxJob).
+2. Write down your settings for your Data Box order. These settings include your personal/business information, subscription name, device information, and shipping information. These settings are used as parameters when running the PowerShell cmdlet to create the Data Box order. The following table shows the parameter settings used for [New-AzDataBoxJob](/powershell/module/az.databox/New-AzDataBoxJob).
 
     | Setting (parameter) | Description |  Sample value |
     |---|---|---|
     |ResourceGroupName [Required]| Use an existing resource group. A resource group is a logical container for the resources that can be managed or deployed together. | "myresourcegroup"|
-    |Name [Required]| The name of the order you are creating. | "mydataboxorder"|
+    |Name [Required]| The name of the order you're creating. | "mydataboxorder"|
     |ContactName [Required]| The name associated with the shipping address. | "Gus Poland"|
-    |PhoneNumber [Required]| The phone number of the person or business that will receive the order.| "14255551234"
-    |Location [Required]| The nearest Azure region to you that will be shipping your device.| "WestUS"|
-    |DataBoxType [Required]| The specific Data Box device you are ordering. Valid values are: "DataBox", "DataBoxDisk", and "DataBoxHeavy"| "DataBox" |
+    |PhoneNumber [Required]| The phone number of the person or business receiving the order.| "14255551234"
+    |Location [Required]| The nearest Azure region to you that ships your device.| "WestUS"|
+    |DataBoxType [Required]| The specific Data Box device you're ordering. Valid values are: "DataBox", "DataBoxDisk", and "DataBoxHeavy"| "DataBox" |
     |EmailId [Required]| The email addresses associated with the order.| "gusp@contoso.com" |
-    |StreetAddress1 [Required]| The street address to where the order will be shipped. | "15700 NE 39th St" |
-    |StreetAddress2| The secondary address information, such as apartment number or building number. | "Bld 123" |
+    |StreetAddress1 [Required]| The street address to where the order is shipped. | "15700 NE 39th St" |
+    |StreetAddress2| The secondary address information, such as apartment number or building number. | "Building 123" |
     |StreetAddress3| The tertiary address information. | |
-    |City [Required]| The city that the device will be shipped to. | "Redmond" |
-    |StateOrProvinceCode [Required]| The state where the device will be shipped.| "WA" |
-    |CountryCode [Required]| The country that the device will be shipped. | "United States" |
+    |City [Required]| The city to which the device is shipped. | "Redmond" |
+    |StateOrProvinceCode [Required]| The state to which the device is shipped.| "WA" |
+    |CountryCode [Required]| The country/region to which the device is shipped. | "United States" |
     |PostalCode [Required]| The zip code or postal code associated with the shipping address.| "98052"|
     |CompanyName| The name of your company you work for.| "Contoso, LTD" |
-    |StorageAccountResourceId [Required]| The Azure Storage account ID from where you want to import data.| <AzStorageAccount>.id |
+    |StorageAccountResourceId [Required]| The Azure Storage account ID from where you want to import data.| &lt;AzstorageAccount&gt;.id |
 
-3. In your command-prompt of choice or terminal, use the [New-AzDataBoxJob](https://docs.microsoft.com/powershell/module/az.databox/New-AzDataBoxJob) to create your Azure Data Box order.
+3. Use the [New-AzDataBoxJob](/powershell/module/az.databox/New-AzDataBoxJob) cmdlet to create your Azure Data Box order as shown in the following example.
 
    ```azurepowershell
     PS> $storAcct = Get-AzureStorageAccount -StorageAccountName "mystorageaccount"
@@ -454,7 +391,7 @@ Do the following steps using Azure PowerShell to order a device:
                          -Name "myDataBoxOrderPSTest"
    ```
 
-   Here is the output from running the command:
+   The following sample output confirms job creation:
 
    ```output
     jobResource.Name     jobResource.Sku.Name jobResource.Status jobResource.StartTime jobResource.Location ResourceGroup
@@ -468,28 +405,28 @@ Do the following steps using Azure PowerShell to order a device:
 
 # [Portal](#tab/portal)
 
-After you have placed the order, you can track the status of the order from Azure portal. Go to your Data Box order and then go to **Overview** to view the status. The portal shows the order in **Ordered** state.
+After you place the order, you can track the status of the order from Azure portal. Go to your Data Box order and then go to **Overview** to view the status. The portal shows the order in **Ordered** state.
 
-If the device is not available, you receive a notification. If the device is available, Microsoft identifies the device for shipment and prepares the shipment. During device preparation, following actions occur:
+If the device isn't available, you receive a notification. If the device is available, Microsoft identifies the device and prepares it for shipment. The following actions occur during device preparation:
 
 * SMB shares are created for each storage account associated with the device.
 * For each share, access credentials such as username and password are generated.
-* Device password that helps unlock the device is also generated.
-* The Data Box is locked to prevent unauthorized access to the device at any point.
+* The device password is generated. This password is used to unlock the device.
+* The device is locked to prevent unauthorized access at any point.
 
-When the device preparation is complete, the portal shows the order in **Processed** state.
+When the device preparation is complete, the portal shows the order in a **Processed** state.
 
-![Data Box order processed](media/data-box-overview/data-box-order-status-processed.png)
+:::image type="content" source="media/data-box-overview/data-box-order-status-processed.png" alt-text="Screenshot of a Data Box order that's been processed." lightbox="media/data-box-overview/data-box-order-status-processed-lrg.png":::
 
-Microsoft then prepares and dispatches your device via a regional carrier. You receive a tracking number once the device is shipped. The portal shows the order in **Dispatched** state.
+Microsoft then prepares and dispatches your device via a regional carrier. You receive a tracking number after the device is shipped. The portal shows the order in **Dispatched** state.
 
-![Data Box order dispatched](media/data-box-overview/data-box-order-status-dispatched.png)
+:::image type="content" source="media/data-box-overview/data-box-order-status-dispatched.png" alt-text="Screenshot of a Data Box order that's been dispatched." lightbox="media/data-box-overview/data-box-order-status-dispatched-lrg.png":::
 
 # [Azure CLI](#tab/azure-cli)
 
 ### Track a single order
 
-To get tracking information about a single, existing Azure Data Box order, run [az databox job show](https://docs.microsoft.com/cli/azure/ext/databox/databox/job?view=azure-cli-latest#ext-databox-az-databox-job-show). The command displays information about the order such as, but not limited to: name, resource group, tracking information, subscription ID, contact information, shipment type, and device sku.
+To get tracking information about a single, existing Azure Data Box order, run [`az databox job show`](/cli/azure/databox/job#az-databox-job-show). The command displays information about the order such as, but not limited to: name, resource group, tracking information, subscription ID, contact information, shipment type, and device sku.
 
    ```azurecli
    az databox job show --resource-group <resource-group> --name <order-name>
@@ -505,10 +442,10 @@ To get tracking information about a single, existing Azure Data Box order, run [
    |help| Display help information for this command. | --help -h |
    |only-show-errors| Only show errors, suppressing warnings. | --only-show-errors |
    |output -o| Sets the output format.  Allowed values: json, jsonc, none, table, tsv, yaml, yamlc. The default value is json. | --output "json" |
-   |query| The JMESPath query string. For more information, see [JMESPath](http://jmespath.org/). | --query <string>|
+   |query| The JMESPath query string. For more information, see [JMESPath](http://jmespath.org/). | --query &lt;string&gt;|
    |verbose| Include verbose logging. | --verbose |
 
-   Here is an example of the command with output format set to "table":
+   The following example contains the same command, but with the `output` parameter value set to "table":
 
    ```azurecli
     PS C:\WINDOWS\system32> az databox job show --resource-group "myresourcegroup" \
@@ -516,7 +453,7 @@ To get tracking information about a single, existing Azure Data Box order, run [
                                                 --output "table"
    ```
 
-   Here is the output from running the command:
+   The following sample response shows the modified output format:
 
    ```output
     Command group 'databox job' is experimental and not covered by customer support. Please use with discretion.
@@ -526,11 +463,11 @@ To get tracking information about a single, existing Azure Data Box order, run [
    ```
 
 > [!NOTE]
-> List order can be supported at subscription level and that makes resource group an optional parameter (rather than a required parameter).
+> List order can be supported at subscription level, making the `resource group` parameter optional rather than required.
 
 ### List all orders
 
-If you have ordered multiple devices, you can run [az databox job list](https://docs.microsoft.com/cli/azure/ext/databox/databox/job?view=azure-cli-latest#ext-databox-az-databox-job-list) to view all your Azure Data Box orders. The command lists all orders that belong to a specific resource group. Also displayed in the output: order name, shipping status, Azure region, delivery type, order status. Canceled orders are also included in the list.
+When ordering multiple devices, you can run [`az databox job list`](/cli/azure/databox/job#az-databox-job-list) to view all your Azure Data Box orders. The command lists all orders that belong to a specific resource group. Also displayed in the output: order name, shipping status, Azure region, delivery type, order status. Canceled orders are also included in the list.
 The command also displays time stamps of each order.
 
 ```azurecli
@@ -546,16 +483,16 @@ The following table shows the parameter information for `az databox job list`:
    |help| Display help information for this command. | --help -h |
    |only-show-errors| Only show errors, suppressing warnings. | --only-show-errors |
    |output -o| Sets the output format.  Allowed values: json, jsonc, none, table, tsv, yaml, yamlc. The default value is json. | --output "json" |
-   |query| The JMESPath query string. For more information, see [JMESPath](http://jmespath.org/). | --query <string>|
+   |query| The JMESPath query string. For more information, see [JMESPath](http://jmespath.org/). | --query &lt;string&gt;|
    |verbose| Include verbose logging. | --verbose |
 
-   Here is an example of the command with output format set to "table":
+   The following example shows the command with the output format specified as "table":
 
    ```azurecli
     PS C:\WINDOWS\system32> az databox job list --resource-group "GDPTest" --output "table"
    ```
 
-   Here is the output from running the command:
+   The following sample response displays the output with modified formatting:
 
    ```output
    Command group 'databox job' is experimental and not covered by customer support. Please use with discretion.
@@ -573,7 +510,7 @@ The following table shows the parameter information for `az databox job list`:
 
 ### Track a single order
 
-To get tracking information about a single, existing Azure Data Box order, run [Get-AzDataBoxJob](https://docs.microsoft.com/powershell/module/az.databox/Get-AzDataBoxJob). The command displays information about the order such as, but not limited to: name, resource group, tracking information, subscription ID, contact information, shipment type, and device sku.
+To get tracking information about a single, existing Azure Data Box order, run [Get-AzDataBoxJob](/powershell/module/az.databox/Get-AzDataBoxJob). The command displays information about the order such as, but not limited to: name, resource group, tracking information, subscription ID, contact information, shipment type, and device sku.
 
 > [!NOTE]
 > `Get-AzDataBoxJob` is used for displaying both single and multiple orders. The difference is that you specify the order name for single orders.
@@ -590,13 +527,13 @@ To get tracking information about a single, existing Azure Data Box order, run [
    |Name [Required]| The name of the order to get information for. | "mydataboxorder"|
    |ResourceId| The ID of the resource associated with the order. |  |
 
-   Here is an example of the command with output:
+   The following example can be used to retrieve details about a specific order:
 
    ```azurepowershell
-    PS C:\WINDOWS\system32> Get-AzDataBoxJob -ResourceGroupName "myResourceGroup" -Name "myDataBoxOrderPSTest"
+   Get-AzDataBoxJob -ResourceGroupName "myResourceGroup" -Name "myDataBoxOrderPSTest"
    ```
 
-   Here is the output from running the command:
+   The following example output indicates that the command was completed successfully:
 
    ```output
    jobResource.Name     jobResource.Sku.Name jobResource.Status jobResource.StartTime jobResource.Location ResourceGroup
@@ -606,20 +543,15 @@ To get tracking information about a single, existing Azure Data Box order, run [
 
 ### List all orders
 
-If you have ordered multiple devices, you can run [Get-AzDataBoxJob](https://docs.microsoft.com/powershell/module/az.databox/Get-AzDataBoxJob) to view all your Azure Data Box orders. The command lists all orders that belong to a specific resource group. Also displayed in the output: order name, shipping status, Azure region, delivery type, order status. Canceled orders are also included in the list.
-The command also displays time stamps of each order.
+To view all your Azure Data Box orders, run the [`Get-AzDataBoxJob`](/powershell/module/az.databox/Get-AzDataBoxJob) cmdlet. The cmdlet lists all orders that belong to a specific resource group. The resulting output also contains additional data such as order name, shipping status, Azure region, delivery type, order status, and the time stamp associated with each order. Canceled orders are also included in the list. 
+
+The following example can be used to retrieve details about all orders associated to a specific Azure resource group:
 
 ```azurepowershell
 Get-AzDataBoxJob -ResourceGroupName <String>
 ```
 
-Here is an example of the command:
-
-```azurepowershell
-PS C:\WINDOWS\system32> Get-AzDataBoxJob -ResourceGroupName "myResourceGroup"
-```
-
-Here is the output from running the command:
+The following example output indicates that the command was completed successfully:
 
 ```output
 jobResource.Name     jobResource.Sku.Name jobResource.Status jobResource.StartTime jobResource.Location ResourceGroup
@@ -637,60 +569,49 @@ PS C:\WINDOWS\system32>
 
 ## Cancel the order
 
-# [Portal](#tab/portal)
-
-To cancel this order, in the Azure portal, go to **Overview** and select **Cancel** from the command bar.
-
 After placing an order, you can cancel it at any point before the order status is marked processed.
 
-To delete a canceled order, go to **Overview** and select **Delete** from the command bar.
+# [Portal](#tab/portal)
+
+To cancel and delete an order using the Azure portal, select **Overview** from within the command bar. To cancel the order, select the **Cancel** option. To delete a canceled order, select the **Delete** option.
 
 # [Azure CLI](#tab/azure-cli)
 
 ### Cancel an order
 
-To cancel an Azure Data Box order, run [az databox job cancel](https://docs.microsoft.com/cli/azure/ext/databox/databox/job?view=azure-cli-latest#ext-databox-az-databox-job-cancel). You are required to specify your reason for canceling the order.
+Use the [`az databox job cancel`](/cli/azure/databox/job#az-databox-job-cancel) command to cancel a Data Box order. You're required to specify your reason for canceling the order.
 
-   ```azurecli
-   az databox job cancel --resource-group <resource-group> --name <order-name> --reason <cancel-description>
-   ```
-
-   The following table shows the parameter information for `az databox job cancel`:
+   The following table provides parameter information for the `az databox job cancel` command:
 
    | Parameter | Description |  Sample value |
    |---|---|---|
    |resource-group [Required]| The name of the resource group associated with the order to be deleted. A resource group is a logical container for the resources that can be managed or deployed together. | "myresourcegroup"|
    |name [Required]| The name of the order to be deleted. | "mydataboxorder"|
    |reason [Required]| The reason for canceling the order. | "I entered erroneous information and needed to cancel the order." |
-   |yes| Do not prompt for confirmation. | --yes (-y)| --yes -y |
+   |yes| Don't prompt for confirmation. | --yes (-y)| 
    |debug| Include debugging information to verbose logging | --debug |
    |help| Display help information for this command. | --help -h |
    |only-show-errors| Only show errors, suppressing warnings. | --only-show-errors |
    |output -o| Sets the output format.  Allowed values: json, jsonc, none, table, tsv, yaml, yamlc. The default value is json. | --output "json" |
-   |query| The JMESPath query string. For more information, see [JMESPath](http://jmespath.org/). | --query <string>|
+   |query| The JMESPath query string. For more information, see [JMESPath](http://jmespath.org/). | --query &lt;string&gt;|
    |verbose| Include verbose logging. | --verbose |
 
-   Here is an example of the command with output:
+   The following sample command can be used to cancel a specific Data Box order:
 
    ```azurecli
-   PS C:\Windows> az databox job cancel --resource-group "myresourcegroup" --name "mydataboxtest3" --reason "Our budget was slashed due to **redacted** and we can no longer afford this device."
+   az databox job cancel --resource-group "myresourcegroup" --name "mydataboxtest3" --reason "Our migration plan was modified and we are ordering a device using a different cost center."
    ```
 
-   Here is the output from running the command:
+   The following example output indicates that the command was completed successfully:
 
    ```output
    Command group 'databox job' is experimental and not covered by customer support. Please use with discretion.
    Are you sure you want to perform this operation? (y/n): y
-   PS C:\Windows>
    ```
 
 ### Delete an order
 
-If you have canceled an Azure Data Box order, you can run [az databox job delete](https://docs.microsoft.com/cli/azure/ext/databox/databox/job?view=azure-cli-latest#ext-databox-az-databox-job-delete) to delete the order.
-
-   ```azurecli
-   az databox job delete --name [-n] <order-name> --resource-group <resource-group> [--yes] [--verbose]
-   ```
+After you cancel an Azure Data Box order, use the [`az databox job delete`](/cli/azure/databox/job#az-databox-job-delete) command to delete the order.
 
    The following table shows the parameter information for `az databox job delete`:
 
@@ -699,37 +620,32 @@ If you have canceled an Azure Data Box order, you can run [az databox job delete
    |resource-group [Required]| The name of the resource group associated with the order to be deleted. A resource group is a logical container for the resources that can be managed or deployed together. | "myresourcegroup"|
    |name [Required]| The name of the order to be deleted. | "mydataboxorder"|
    |subscription| The name or ID (GUID) of your Azure subscription. | "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" |
-   |yes| Do not prompt for confirmation. | --yes (-y)| --yes -y |
+   |yes| Don't prompt for confirmation. | --yes (-y)|
    |debug| Include debugging information to verbose logging | --debug |
    |help| Display help information for this command. | --help -h |
    |only-show-errors| Only show errors, suppressing warnings. | --only-show-errors |
    |output -o| Sets the output format.  Allowed values: json, jsonc, none, table, tsv, yaml, yamlc. The default value is json. | --output "json" |
-   |query| The JMESPath query string. For more information, see [JMESPath](http://jmespath.org/). | --query <string>|
+   |query| The JMESPath query string. For more information, see [JMESPath](http://jmespath.org/). | --query &lt;string&gt;|
    |verbose| Include verbose logging. | --verbose |
 
-Here is an example of the command with output:
+The following example can be used to delete a specific Data Box order after being canceled:
 
    ```azurecli
-   PS C:\Windows> az databox job delete --resource-group "myresourcegroup" --name "mydataboxtest3" --yes --verbose
+   az databox job delete --resource-group "myresourcegroup" --name "mydataboxtest3" --yes --verbose
    ```
 
-   Here is the output from running the command:
+   The following example output indicates that the command was completed successfully:
 
    ```output
    Command group 'databox job' is experimental and not covered by customer support. Please use with discretion.
    command ran in 1.142 seconds.
-   PS C:\Windows>
    ```
 
 # [PowerShell](#tab/azure-ps)
 
 ### Cancel an order
 
-To cancel an Azure Data Box order, run [Stop-AzDataBoxJob](https://docs.microsoft.com/powershell/module/az.databox/stop-azdataboxjob). You are required to specify your reason for canceling the order.
-
-```azurepowershell
-Stop-AzDataBoxJob -ResourceGroup <String> -Name <String> -Reason <String>
-```
+You can cancel an Azure Data Box order using the [Stop-AzDataBoxJob](/powershell/module/az.databox/stop-azdataboxjob) cmdlet. You're required to specify your reason for canceling the order.
 
 The following table shows the parameter information for `Stop-AzDataBoxJob`:
 
@@ -740,32 +656,27 @@ The following table shows the parameter information for `Stop-AzDataBoxJob`:
 |Reason [Required]| The reason for canceling the order. | "I entered erroneous information and needed to cancel the order." |
 |Force | Forces the cmdlet to run without user confirmation. | -Force |
 
-Here is an example of the command with output:
+The following example can be used to delete a specific Data Box order after being canceled:
 
 ```azurepowershell
-PS C:\PowerShell\Modules> Stop-AzDataBoxJob -ResourceGroupName myResourceGroup \
-                                            -Name "myDataBoxOrderPSTest" \
-                                            -Reason "I entered erroneous information and had to cancel."
+Stop-AzDataBoxJob -ResourceGroupName myResourceGroup \
+    -Name "myDataBoxOrderPSTest" \
+    -Reason "I entered erroneous information and need to cancel and re-order."
 ```
 
-Here is the output from running the command:
+  The following example output indicates that the command was completed successfully:
 
 ```output
 Confirm
 "Cancelling Databox Job "myDataBoxOrderPSTest
 [Y] Yes  [N] No  [S] Suspend  [?] Help (default is "Y"): y
-PS C:\WINDOWS\system32>
 ```
 
 ### Delete an order
 
-If you have canceled an Azure Data Box order, you can run [Remove-AzDataBoxJob](https://docs.microsoft.com/powershell/module/az.databox/remove-azdataboxjob) to delete the order.
+After canceling an Azure Data Box order, you can delete it using the [`Remove-AzDataBoxJob`](/powershell/module/az.databox/remove-azdataboxjob) cmdlet.
 
-```azurepowershell
-Remove-AzDataBoxJob -Name <String> -ResourceGroup <String>
-```
-
-The following table shows the parameter information for `Remove-AzDataBoxJob`:
+The following table shows parameter information for `Remove-AzDataBoxJob`:
 
 | Parameter | Description |  Sample value |
 |---|---|---|
@@ -773,36 +684,38 @@ The following table shows the parameter information for `Remove-AzDataBoxJob`:
 |Name [Required]| The name of the order to be deleted. | "mydataboxorder"|
 |Force | Forces the cmdlet to run without user confirmation. | -Force |
 
-Here is an example of the command with output:
+The following example can be used to delete a specific Data Box order after canceling:
 
 ```azurepowershell
-PS C:\Windows> Remove-AzDataBoxJob -ResourceGroup "myresourcegroup" \
-                                   -Name "mydataboxtest3"
+Remove-AzDataBoxJob -ResourceGroup "myresourcegroup" \
+    -Name "mydataboxtest3"
 ```
 
-Here is the output from running the command:
+The following example output indicates that the command was completed successfully:
 
 ```output
 Confirm
 "Removing Databox Job "mydataboxtest3
 [Y] Yes  [N] No  [S] Suspend  [?] Help (default is "Y"): y
-PS C:\Windows>
 ```
 
 ---
 
 ## Next steps
 
-In this tutorial, you learned about Azure Data Box articles such as:
+In this tutorial, you learned about Azure Data Box topics such as:
 
 > [!div class="checklist"]
 >
 > * Prerequisites to deploy Data Box
-> * Order Data Box
-> * Track the order
-> * Cancel the order
+> * Ordering Data Box
+> * Tracking the Data Box order
+> * Canceling the Data Box order
 
 Advance to the next tutorial to learn how to set up your Data Box.
 
 > [!div class="nextstepaction"]
 > [Set up your Azure Data Box](./data-box-deploy-set-up.md)
+:::zone pivot="dbx-ng"
+
+:::zone-end

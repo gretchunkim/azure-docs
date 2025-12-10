@@ -1,11 +1,11 @@
 ---
 title: include file
 description: include file
-author: anthonychu
-ms.service: signalr
+author: vicancy
+ms.service: azure-signalr-service
 ms.topic: include
 ms.date: 09/14/2018
-ms.author: antchu
+ms.author: lianwei
 ms.custom: include file
 ---
 ## Clean up resources

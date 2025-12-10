@@ -1,140 +1,223 @@
 ---
-title: Management and monitoring security features - Microsoft Azure | Microsoft Docs
-description: This article provides an overview of the security features and services that Azure provides to aid in the management and monitoring of Azure cloud services and virtual machines.
+title: Azure security management and monitoring overview
+description: Learn about security management and monitoring capabilities in Azure, including Azure Monitor, Azure Policy, Azure Update Manager, and Azure role-based access control.
 services: security
-documentationcenter: na
-author: TerryLanfear
-manager: barbkess
-editor: TomSh
+author: msmbaldwin
 
 ms.assetid: 5cf2827b-6cd3-434d-9100-d7411f7ed424
 ms.service: security
 ms.subservice: security-fundamentals
-ms.devlang: na
-ms.topic: article
-ms.tgt_pltfrm: na
-ms.workload: na
-ms.date: 10/28/2019
-ms.author: terrylan
+ms.topic: overview
+ms.date: 11/04/2025
+ms.author: mbaldwin
 
 ---
 # Azure security management and monitoring overview
-This article provides an overview of the security features and services that Azure provides to aid in the management and monitoring of Azure cloud services and virtual machines.
 
-## Role-Based Access Control
+Azure provides comprehensive security management and monitoring capabilities to help you govern, secure, and maintain visibility across your Azure resources. This article covers key management and monitoring services that support secure operations.
 
-Role-Based Access Control (RBAC) provides detailed access management for Azure resources. By using RBAC, you can grant people only the amount of access that they need to perform their jobs. RBAC can also help you ensure that when people leave the organization, they lose access to resources in the cloud.
+## Azure Monitor
 
-Learn more:
+[Azure Monitor](/azure/azure-monitor/overview) collects, analyzes, and acts on telemetry data from your Azure and on-premises environments. Monitor helps you maximize the availability and performance of your applications and proactively identify issues.
 
-* [Active Directory team blog on RBAC](https://cloudblogs.microsoft.com/enterprisemobility/?product=azure-active-directory)
-* [Azure role-based access control (Azure RBAC)](../../role-based-access-control/role-assignments-portal.md)
+Azure Monitor provides:
 
-## Antimalware
+* **Metrics and logs**: Collect and analyze data from Azure resources, operating systems, and applications
+* **Log Analytics workspaces**: Centralized storage and analysis of log data with powerful query capabilities
+* **Application Insights**: Application performance management (APM) for monitoring live web applications
+* **Azure Monitor Alerts**: Proactive notifications based on metrics, logs, and activity data
+* **Azure Workbooks**: Interactive visual reports combining text, queries, metrics, and parameters
 
-With Azure, you can use antimalware software from major security vendors such as Microsoft, Symantec, Trend Micro, McAfee, and Kaspersky. This software helps protect your virtual machines from malicious files, adware, and other threats.
-
-Microsoft Antimalware for Azure Cloud Services and Virtual Machines offers you the ability to install an antimalware agent for both PaaS roles and virtual machines. Based on System Center Endpoint Protection, this feature brings proven on-premises security technology to the cloud.
-
-We also offer deep integration for Trend’s [Deep Security](https://www.trendmicro.com/us/enterprise/cloud-solutions/deep-security/) and [SecureCloud](https://www.trendmicro.com/us/enterprise/cloud-solutions/secure-cloud/) products in the Azure platform. Deep Security is an antivirus solution, and SecureCloud is an encryption solution. Deep Security is deployed inside VMs through an extension model. By using the Azure portal UI and PowerShell, you can choose to use Deep Security inside new VMs that are being spun up, or existing VMs that are already deployed.
-
-Symantec Endpoint Protection (SEP) is also supported on Azure. Through portal integration, you can specify that you intend to use SEP on a VM. SEP can be installed on a new VM via the Azure portal, or it can be installed on an existing VM via PowerShell.
+For security monitoring, Azure Monitor integrates with Microsoft Sentinel and Microsoft Defender for Cloud to provide comprehensive threat detection and response capabilities.
 
 Learn more:
 
-* [Deploying Antimalware Solutions on Azure Virtual Machines](https://azure.microsoft.com/blog/deploying-antimalware-solutions-on-azure-virtual-machines/)
-* [Microsoft Antimalware for Azure Cloud Services and Virtual Machines](antimalware.md)
-* [How to install and configure Trend Micro Deep Security as a Service on a Windows VM](/azure/virtual-machines/windows/classic/install-trend)
-* [How to install and configure Symantec Endpoint Protection on a Windows VM](/azure/virtual-machines/windows/classic/install-symantec)
-* [New Antimalware Options for Protecting Azure Virtual Machines](https://azure.microsoft.com/blog/new-antimalware-options-for-protecting-azure-virtual-machines/)
+* [Azure Monitor overview](/azure/azure-monitor/overview)
+* [Azure Monitor Logs overview](/azure/azure-monitor/logs/data-platform-logs)
+* [Threat detection overview](/azure/security/fundamentals/threat-detection)
 
-## Multi-Factor Authentication
+## Azure role-based access control
 
-Azure Multi-Factor Authentication is a method of authentication that requires the use of more than one verification method. It adds a critical second layer of security to user sign-ins and transactions.
+Azure role-based access control (Azure RBAC) provides fine-grained access management for Azure resources. With Azure RBAC, you grant users only the access they need to perform their jobs, following the principle of least privilege.
 
-Multi-Factor Authentication helps safeguard access to data and applications while meeting user demand for a simple sign-in process. It delivers strong authentication via a range of verification options (phone call, text message, or mobile app notification or verification code) and third-party OATH tokens.
+Azure RBAC enables you to:
 
-Learn more:
-
-* [Multi-Factor Authentication](https://azure.microsoft.com/documentation/services/multi-factor-authentication/)
-* [What is Azure Multi-Factor Authentication?](/azure/active-directory/authentication/multi-factor-authentication)
-* [How Azure Multi-Factor Authentication works](../../active-directory/authentication/concept-mfa-howitworks.md)
-
-## ExpressRoute
-
-You can use Azure ExpressRoute to extend your on-premises networks into the Microsoft Cloud over a dedicated private connection that's facilitated by a connectivity provider. With ExpressRoute, you can establish connections to Microsoft cloud services such as Azure, Office 365, and CRM Online. Connectivity can be from:
-
-* An any-to-any (IP VPN) network.
-* A point-to-point Ethernet network.
-* A virtual cross-connection through a connectivity provider at a co-location facility.
-
-ExpressRoute connections don't go over the public internet. They can offer more reliability, faster speeds, lower latencies, and higher security than typical connections over the internet.
+* Assign built-in roles or create custom roles
+* Control access at multiple scope levels (management group, subscription, resource group, resource)
+* Separate duties within teams and grant only necessary access
+* Integrate with Microsoft Entra ID for identity-based access control
+* Audit role assignments through Azure Activity Log
 
 Learn more:
 
-* [ExpressRoute technical overview](../../expressroute/expressroute-introduction.md)
+* [What is Azure role-based access control (Azure RBAC)?](/azure/role-based-access-control/overview)
+* [Azure built-in roles](/azure/role-based-access-control/built-in-roles)
+* [Identity management security overview](/azure/security/fundamentals/identity-management-overview)
 
-## Virtual network gateways
+## Azure Policy
 
-VPN gateways, also called Azure virtual network gateways, are used to send network traffic between virtual networks and on-premises locations. They are also used to send traffic between multiple virtual networks within Azure (network to network). VPN gateways provide secure cross-premises connectivity between Azure and your infrastructure.
+[Azure Policy](/azure/governance/policy/overview) helps you enforce organizational standards and assess compliance at scale. Azure Policy evaluates resources in Azure by comparing their properties to defined rules.
 
-Learn more:
+Azure Policy capabilities include:
 
-* [About VPN gateways](../../vpn-gateway/vpn-gateway-about-vpngateways.md)
-* [Azure network security overview](network-overview.md)
+* **Policy definitions**: Rules that describe compliance conditions and effects
+* **Initiatives**: Collections of policy definitions grouped to achieve specific compliance goals
+* **Compliance reporting**: Dashboard views showing compliant and non-compliant resources
+* **Automatic remediation**: Deploy corrective configurations for non-compliant resources
+* **Regulatory compliance**: Built-in policy sets aligned with standards like Microsoft cloud security benchmark, ISO 27001, and NIST
 
-## Privileged Identity Management
+Common security use cases:
 
-Sometimes users need to carry out privileged operations in Azure resources or other SaaS applications. This often means organizations give them permanent privileged access in Azure Active Directory (Azure AD).
-
-This is a growing security risk for cloud-hosted resources because organizations can't sufficiently monitor what those users are doing with their privileged access. Additionally, if a user account with privileged access is compromised, that one breach can affect an organization's overall cloud security. Azure AD Privileged Identity Management helps to resolve this risk by lowering the exposure time of privileges and increasing visibility into usage.  
-
-Privileged Identity Management introduces the concept of a temporary admin for a role or “just in time” administrator access. This kind of admin is a user who needs to complete an activation process for that assigned role. The activation process changes the assignment of the user to a role in Azure AD from inactive to active, for a specified time period.
-
-Learn more:
-
-* [Azure AD Privileged Identity Management](../../active-directory/privileged-identity-management/pim-configure.md)
-* [Get started with Azure AD Privileged Identity Management](../../active-directory/privileged-identity-management/pim-getting-started.md)
-
-## Identity Protection
-
-Azure AD Identity Protection provides a consolidated view of suspicious sign-in activities and potential vulnerabilities to help protect your business. Identity Protection detects suspicious activities for users and privileged (admin) identities, based on signals like:
-
-* Brute-force attacks.
-* Leaked credentials.
-* Sign-ins from unfamiliar locations and infected devices.
-
-By providing notifications and recommended remediation, Identity Protection helps to mitigate risks in real time. It calculates user risk severity. You can configure risk-based policies to automatically help safeguard application access from future threats.
+* Enforce encryption requirements for storage accounts and databases
+* Require diagnostic settings for audit logging
+* Restrict resource deployments to approved Azure regions
+* Enforce naming conventions and tagging standards
+* Require specific security configurations (TLS versions, firewall rules)
 
 Learn more:
 
-* [Azure Active Directory Identity Protection](/azure/active-directory/active-directory-identityprotection)
-* [Channel 9: Azure AD and Identity Show: Identity Protection Preview](https://channel9.msdn.com/Series/Azure-AD-Identity/Azure-AD-and-Identity-Show-Identity-Protection-Preview)
+* [What is Azure Policy?](/azure/governance/policy/overview)
+* [Azure Policy regulatory compliance](/azure/governance/policy/concepts/regulatory-compliance)
 
-## Security Center
+## Azure Update Manager
 
-Azure Security Center helps you prevent, detect, and respond to threats. Security Center gives you increased visibility into, and control over, the security of your Azure resources. It provides integrated security monitoring and policy management across your Azure subscriptions. It helps detect threats that might otherwise go unnoticed, and works with a broad ecosystem of security solutions.
+[Azure Update Manager](/azure/update-manager/overview) is a unified service that helps you manage and govern operating system updates for Windows and Linux virtual machines across Azure, on-premises, and multicloud environments.
 
-Security Center helps you optimize and monitor the security of your Azure resources by:
+Azure Update Manager provides:
 
-* Enabling you to define policies for your Azure subscription resources according to:
-  * Your company’s security needs.
-  * The type of applications or sensitivity of the data in each subscription.
-* Monitoring the state of your Azure virtual machines, networking, and applications.
-* Providing a list of prioritized security alerts, including alerts from integrated partner solutions. It also provides the information that you need to quickly investigate an attack and recommendations on how to remediate it.
+* **Update assessment**: Automatic or on-demand assessment of available updates
+* **Scheduled patching**: Configure recurring maintenance windows for update installation
+* **One-time updates**: Install updates immediately for urgent security patches
+* **Hotpatching**: Install security updates on Windows Server without requiring reboots (supported SKUs)
+* **Update compliance reporting**: Dashboard views and Azure Workbooks showing update status
+* **Integration with Azure Policy**: Enforce update policies at scale
+
+Update Manager features include:
+
+* Native Azure experience with zero onboarding required
+* Granular access control at the resource level using Azure RBAC
+* Support for Azure VMs and Azure Arc-enabled servers
+* Pre and post-event scripts for custom automation
+* Integration with Azure Monitor for alerts and notifications
 
 Learn more:
 
-* [Introduction to Azure Security Center](../../security-center/security-center-intro.md)
-* [Improve your secure score in Azure Security Center](../../security-center/security-center-secure-score.md)
+* [About Azure Update Manager](/azure/update-manager/overview)
+* [Scheduled patching in Update Manager](/azure/update-manager/scheduled-patching)
 
-## Intelligent Security Graph
+## Activity logging and auditing
 
-Intelligent Security Graph provides real-time threat protection in Microsoft products and services. It uses advanced analytics that link a massive amount of threat intelligence and security data to provide insights that can strengthen organizational security. Microsoft uses advanced analytics—processing more than 450 billion authentications per month, scanning 400 billion emails for malware and phishing, and updating one billion devices—to deliver richer insights. These insights can help your organization detect and respond to attacks quickly.
+Azure Activity Log records subscription-level events including administrative operations, service health events, and resource health changes. Activity Log provides visibility into who performed what operations and when.
 
-* [Intelligent Security Graph](https://www.microsoft.com/security/intelligence)
+Activity Log capabilities:
 
-## Next Steps
-Learn about the [shared responsibility model](shared-responsibility.md) and which security tasks are handled by Microsoft and which tasks are handled by you.
+* **Administrative operations**: Create, update, delete operations on Azure resources
+* **Service health**: Azure service incidents and maintenance notifications  
+* **Resource health**: Availability status changes for Azure resources
+* **Retention and export**: Retain logs for up to 90 days; export to Log Analytics, Storage, or Event Hubs for longer retention
+* **Integration with alerts**: Create alert rules based on Activity Log events
 
-For more information about security management, see [Security management in Azure](management.md).
+For comprehensive security auditing, you can configure diagnostic settings to send logs to Log Analytics workspaces for analysis with Microsoft Sentinel or Defender for Cloud.
+
+Learn more:
+
+* [Azure Activity Log](/azure/azure-monitor/essentials/activity-log)
+* [Diagnostic settings](/azure/azure-monitor/essentials/diagnostic-settings)
+
+## Microsoft Cost Management
+
+[Microsoft Cost Management](/azure/cost-management-billing/costs/overview-cost-management) helps you monitor, allocate, and optimize your Azure spending. Understanding costs is essential for security management as unauthorized resource deployments can indicate security incidents.
+
+Cost Management provides:
+
+* **Cost analysis**: Visualize and analyze costs across subscriptions, resource groups, and tags
+* **Budgets**: Set spending limits with proactive alerts
+* **Recommendations**: Identify opportunities to reduce costs without compromising security
+* **Cost allocation**: Distribute costs across business units using tags and subscriptions
+* **Anomaly detection**: Identify unusual spending patterns that may indicate security issues
+
+Learn more:
+
+* [What is Microsoft Cost Management?](/azure/cost-management-billing/costs/overview-cost-management)
+* [Create and manage budgets](/azure/cost-management-billing/costs/tutorial-acm-create-budgets)
+
+## Azure Resource Graph
+
+[Azure Resource Graph](/azure/governance/resource-graph/overview) provides efficient resource exploration with the ability to query at scale across subscriptions. Resource Graph enables security teams to quickly identify resources with specific configurations or security postures.
+
+Resource Graph capabilities:
+
+* **Fast querying**: Query thousands of resources across multiple subscriptions in seconds
+* **Complex queries**: Use Kusto Query Language (KQL) to analyze resource properties and relationships
+* **Resource inventory**: Discover all resources of specific types or with particular configurations
+* **Compliance verification**: Identify resources that don't meet security or compliance requirements
+* **Change tracking**: Track resource property changes over time
+
+Learn more:
+
+* [What is Azure Resource Graph?](/azure/governance/resource-graph/overview)
+* [Starter Resource Graph queries](/azure/governance/resource-graph/samples/starter)
+
+## Azure Automation
+
+[Azure Automation](/azure/automation/overview) delivers cloud-based automation and configuration management supporting consistent governance across Azure and non-Azure environments.
+
+Azure Automation provides:
+
+* **Process automation**: Automate frequent, time-consuming, and error-prone tasks using PowerShell and Python runbooks
+* **Configuration management**: Apply and maintain desired state configurations using State Configuration (DSC)
+* **Shared resources**: Centralized storage for credentials, certificates, connections, and variables used in automation
+* **Change tracking**: Monitor configuration changes across files, registry, services, and software
+* **Inventory collection**: Discover and track software and configurations across machines
+
+Common security automation scenarios:
+
+* Automated incident response workflows
+* Scheduled security scans and remediation
+* Configuration drift detection and correction
+* Automated backup and disaster recovery operations
+
+Learn more:
+
+* [Azure Automation overview](/azure/automation/overview)
+* [Change Tracking and Inventory overview](/azure/automation/change-tracking/overview)
+
+## Azure Advisor
+
+[Azure Advisor](/azure/advisor/advisor-overview) is a personalized cloud consultant that provides best practice recommendations to optimize your Azure deployments. Advisor includes security recommendations from Microsoft Defender for Cloud.
+
+Advisor recommendation categories:
+
+* **Reliability**: Improve availability and disaster recovery capabilities
+* **Security**: Detect threats and vulnerabilities through Defender for Cloud integration
+* **Performance**: Improve application speed and responsiveness
+* **Cost**: Optimize and reduce overall Azure spending
+* **Operational Excellence**: Achieve process and workflow efficiency
+
+Learn more:
+
+* [Azure Advisor overview](/azure/advisor/advisor-overview)
+* [Get started with Azure Advisor](/azure/advisor/advisor-get-started)
+
+## Azure Service Health
+
+[Azure Service Health](/azure/service-health/overview) provides personalized information about the health of your Azure services and regions. Service Health helps you plan for maintenance and respond to incidents that may affect availability.
+
+Service Health components:
+
+* **Azure status**: Global view of Azure service health across all regions
+* **Service Health**: Personalized view of the health of Azure services you use in the regions you use them
+* **Resource Health**: Health information about individual Azure resources
+* **Health alerts**: Proactive notifications about service issues, planned maintenance, and health advisories
+
+Learn more:
+
+* [What is Azure Service Health?](/azure/service-health/overview)
+* [Create activity log alerts on service notifications](/azure/service-health/alerts-activity-log-service-notifications-portal)
+
+## Next steps
+
+* [Threat detection and protection](/azure/security/fundamentals/threat-detection)
+* [Identity management security overview](/azure/security/fundamentals/identity-management-overview)
+* [Network security overview](/azure/security/fundamentals/network-overview)
+* [Azure security best practices and patterns](/azure/security/fundamentals/best-practices-and-patterns)

@@ -3,10 +3,10 @@ title: Microsoft Threat Modeling Tool overview - Azure
 description: Overview of the Microsoft Threat Modeling Tool, containing information on getting started with the tool, including the Threat Modeling process.
 author: jegeib
 ms.author: jegeib
-ms.service: security
-ms.subservice: security-develop
+ms.service: information-protection
 ms.topic: article
 ms.date: 02/16/2017
+#customer intent: As a software architect or developer, I want to understand how to use the Microsoft Threat Modeling Tool so that I can identify and mitigate potential security issues early in the design process.
 ---
 
 # Microsoft Threat Modeling Tool
@@ -45,7 +45,7 @@ See also: [System requirements](threat-modeling-tool-releases.md)
 
 Here are a few older articles still relevant to threat modeling today:
 
-* [Article on the Importance of Threat Modeling](https://docs.microsoft.com/archive/msdn-magazine/2009/january/security-briefs-getting-started-with-the-sdl-threat-modeling-tool)
+* [Article on the Importance of Threat Modeling](/archive/msdn-magazine/2009/january/security-briefs-getting-started-with-the-sdl-threat-modeling-tool)
 * [Training Published by Trustworthy Computing](https://www.microsoft.com/download/details.aspx?id=16420)
 
 Check out what a few Threat Modeling Tool experts have done:

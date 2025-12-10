@@ -1,157 +1,188 @@
 ---
-title: Deploy from local Git repo
-description: Learn how to enable local Git deployment to Azure App Service. One of the simplest ways to deploy code from your local machine.
-ms.assetid: ac50a623-c4b8-4dfd-96b2-a09420770063
-ms.topic: article
-ms.date: 06/18/2019
+title: Deploy From a Local Git Repository
+description: Learn how to configure and carry out local Git deployment to Azure App Service.
+ms.topic: how-to
+ms.date: 06/26/2025
 ms.reviewer: dariac
-ms.custom: seodec18
-
+ms.custom: devx-track-azurecli, devx-track-azurepowershell
+author: cephalin
+ms.author: cephalin
+ms.service: azure-app-service
 ---
-# Local Git deployment to Azure App Service
+# Deploy to Azure App Service by using local Git
 
-This how-to guide shows you how to deploy your app to [Azure App Service](overview.md) from a Git repository on your local computer.
+One of the simplest ways to deploy code is from your local computer. This article shows you how to deploy your app to [Azure App Service](overview.md) from a Git repository on your local computer.
+
+> [!NOTE]
+> Local Git deployment requires [Source Control Manager (SCM) basic authentication](deploy-configure-credentials.md), which is less secure than [other deployment methods](deploy-authentication-types.md). If [basic authentication is disabled](configure-basic-auth-disable.md), you can't configure local Git deployment in the app's Deployment Center.
 
 ## Prerequisites
 
-To follow the steps in this how-to guide:
+To complete the steps in this article, you need:
 
-- [!INCLUDE [quickstarts-free-trial-note](../../includes/quickstarts-free-trial-note.md)]
-  
-- [Install Git](https://www.git-scm.com/downloads).
-  
-- Have a local Git repository with code you want to deploy. To download a sample repository, run the following command in your local terminal window:
+- An Azure account and subscription with permission to create App Services resources. [!INCLUDE [quickstarts-free-trial-note](~/reusable-content/ce-skilling/azure/includes/quickstarts-free-trial-note.md)]
+- [Git installed](https://www.git-scm.com/downloads), and a local Git repository that contains app code to deploy.
+
+  You can clone a sample Node.js app repository by running the following command in your local Bash terminal window:
   
   ```bash
   git clone https://github.com/Azure-Samples/nodejs-docs-hello-world.git
   ```
 
+- If you want to use the Azure CLI commands, the latest version of the [Azure CLI installed](/cli/azure/install-azure-cli) on your local machine. Sign in to Azure using [az login](/cli/azure/reference-index#az-login).
+- If you want to run the Azure PowerShell commands, the latest version of [Azure PowerShell installed](/powershell/azure/install-azure-powershell). Sign in to Azure using [Connect-AzAccount](/powershell/module/az.accounts/connect-azaccount).
+
 [!INCLUDE [Prepare repository](../../includes/app-service-deploy-prepare-repo.md)]
 
-[!INCLUDE [cloud-shell-try-it.md](../../includes/cloud-shell-try-it.md)]
+### Deployment user credentials
 
-## Deploy with Kudu build server
+You need deployment user credentials to authenticate and deploy your app. These are different from your Azure subscription credentials, and you can use either [user-scope](deploy-configure-credentials.md#userscope) or [application-scope](deploy-configure-credentials.md#appscope) credentials.
 
-The easiest way to enable local Git deployment for your app with the Kudu App Service build server is to use Azure Cloud Shell. 
+A user-scope deployment user for local Git deployment only needs a user name, not a password. You can set the user-scope user name by running the Azure CLI command `az webapp deployment user set --user-name <username>`, or under **User-scope** on the **Local Git/FTPS credentials** tab of an app's **Deployment Center**.
 
-### Configure a deployment user
+Once you create your user-scope deployment user, you can use it for all the App Service apps you have access to. For more information, see [Configure user-scope credentials](deploy-configure-credentials.md#userscope).
 
-[!INCLUDE [Configure a deployment user](../../includes/configure-deployment-user-no-h.md)]
+An application-scope deployment user is app-specific and is created automatically when you create an app. You can get the application-scope user credentials to use for deployment from the **Local Git/FTPS credentials** tab in the app's **Deployment Center**.
 
-### Get the deployment URL
+## Create and configure a Git-enabled app
 
-To get the URL to enable local Git deployment for an existing app, run [`az webapp deployment source config-local-git`](/cli/azure/webapp/deployment/source?view=azure-cli-latest#az-webapp-deployment-source-config-local-git) in the Cloud Shell. Replace \<app-name> and \<group-name> with the names of your app and its Azure resource group.
+You can create and configure a Git-enabled app, or configure local Git deployment for a preexisting app, by using Azure CLI, Azure PowerShell, or the Azure portal.
 
-```azurecli-interactive
-az webapp deployment source config-local-git --name <app-name> --resource-group <group-name>
+# [Azure CLI](#tab/cli)
+
+- To create a new web app configured for local Git deployment, run [az webapp create](/cli/azure/webapp#az-webapp-create) with the `--deployment-local-git` option. For example:
+
+  ```azurecli
+  az webapp create --resource-group myResourceGroup --plan myAppServicePlan --name myApp --runtime "NODE:24-lts" --deployment-local-git
+  ```
+
+- To configure local Git deployment for an already-existing app, run [az webapp deployment source config-local-git](/cli/azure/webapp/deployment/source#az-webapp-deployment-source-config-local-git). For example:
+
+  ```azurecli
+  az webapp deployment source config-local-git --name myApp --resource-group myResourceGroup
+  ```
+
+Either command produces output that includes a URL, such as:
+
+```output
+Local git is configured with url of 'https://contoso-user@myapp.scm.azurewebsites.net/myApp.git'
 ```
-> [!NOTE]
-> If you are using a linux app-service-plan, you need to add this parameter: --runtime python|3.7
+The preceding URL contains the [user-scope deployment user name](deploy-configure-credentials.md#userscope) `contoso-user`. If you don't have a user-scope deployment user name, the URL uses the [application-scope user name](deploy-configure-credentials.md#appscope), for example `https://$myApp@myApp.scm.azurewebsites.net/myApp.git`.
 
+Use this Git clone URL to deploy your app in the next step.
 
-Or, to create a new Git-enabled app, run [`az webapp create`](/cli/azure/webapp?view=azure-cli-latest#az-webapp-create) in the Cloud Shell with the `--deployment-local-git` parameter. Replace \<app-name>, \<group-name>, and \<plan-name> with the names for your new Git app, its Azure resource group, and its Azure App Service plan.
+# [Azure PowerShell](#tab/powershell)
 
-```azurecli-interactive
-az webapp create --name <app-name> --resource-group <group-name> --plan <plan-name> --deployment-local-git
-```
+1. In a local PowerShell terminal, change directory to the root of your cloned Git repository.
+1. To create a new web app, run [New-AzWebApp](/powershell/module/az.websites/new-azwebapp). For example:
 
-Either command returns a URL like: `https://<deployment-username>@<app-name>.scm.azurewebsites.net/<app-name>.git`. Use this URL to deploy your app in the next step.
-
-Instead of using this account-level URL, you can also enable local Git by using app-level credentials. Azure App Service automatically generates these credentials for every app. 
-
-Get the app credentials by running the following command in the Cloud Shell. Replace \<app-name> and \<group-name> with your app's name and Azure resource group name.
-
-```azurecli-interactive
-az webapp deployment list-publishing-credentials --name <app-name> --resource-group <group-name> --query scmUri --output tsv
-```
-
-Use the URL that returns to deploy your app in the next step.
-
-### Deploy the web app
-
-1. Open a local terminal window to your local Git repository, and add an Azure remote. In the following command, replace \<url> with the deployment user-specific URL or app-specific URL you got from the previous step.
-   
-   ```bash
-   git remote add azure <url>
+   ```azurepowershell
+   New-AzWebApp -Name myApp
    ```
-   
-1. Push to the Azure remote with `git push azure master`. 
-   
-1. In the **Git Credential Manager** window, enter your [deployment user password](#configure-a-deployment-user), not your Azure sign-in password.
-   
-1. Review the output. You may see runtime-specific automation, such as MSBuild for ASP.NET, `npm install` for Node.js, and `pip install` for Python. 
-   
-1. Browse to your app in the Azure portal to verify that the content is deployed.
 
-## Deploy with Azure Pipelines builds
+   When you run this cmdlet from a directory that's a Git repository, it automatically creates a Git remote repository named `azure` for your App Service app.
 
-If your account has the necessary permissions, you can set up Azure Pipelines (Preview) to enable local Git deployment for your app. 
+1. For your new or preexisting app, run the [Set-AzResource](/powershell/module/az.resources/set-azresource) cmdlet to set the `scmType` to `LocalGit`. For example:
 
-- Your Azure account must have permissions to write to Azure Active Directory and create a service. 
-  
-- Your Azure account must have the **Owner** role in your Azure subscription.
-
-- You must be an administrator in the Azure DevOps project you want to use.
-
-To enable local Git deployment for your app with Azure Pipelines (Preview):
-
-1. In the [Azure portal](https://portal.azure.com), search for and select **App Services**. 
-
-1. Select your Azure App Service app and select **Deployment Center** in the left menu.
+   ```azurepowershell
+   $PropertiesObject = @{
+       scmType = "LocalGit";
+   }
    
-1. On the **Deployment Center** page, select **Local Git**, and then select **Continue**. 
-   
-   ![Select Local Git, and then select Continue](media/app-service-deploy-local-git/portal-enable.png)
-   
-1. On the **Build provider** page, select **Azure Pipelines (Preview)**, and then select **Continue**. 
-   
-   ![Select Azure Pipelines (Preview), and then select Continue.](media/app-service-deploy-local-git/pipeline-builds.png)
-
-1. On the **Configure** page, configure a new Azure DevOps organization, or specify an existing organization, and then select **Continue**.
-   
-   > [!NOTE]
-   > If your existing Azure DevOps organization isn't listed, you may need to link it to your Azure subscription. For more information, see [Define your CD release pipeline](/azure/devops/pipelines/apps/cd/deploy-webdeploy-webapps#cd).
-   
-1. Depending on your App Service plan [pricing tier](https://azure.microsoft.com/pricing/details/app-service/plans/), you may see a **Deploy to staging** page. Choose whether to [enable deployment slots](deploy-staging-slots.md), and then select **Continue**.
-   
-1. On the **Summary** page, review the settings, and then select **Finish**.
-   
-1. When the Azure Pipeline is ready, copy the Git repository URL from the **Deployment Center** page to use in the next step. 
-   
-   ![Copy the Git repository URL](media/app-service-deploy-local-git/vsts-repo-ready.png)
-
-1. In your local terminal window, add an Azure remote to your local Git repository. In the command, replace \<url> with the URL of the Git repository that you got from the previous step.
-   
-   ```bash
-   git remote add azure <url>
+   Set-AzResource -PropertyObject $PropertiesObject -ResourceGroupName myapp `
+   -ResourceType Microsoft.Web/sites/config -ResourceName myApp/web `
+   -ApiVersion 2015-08-01 -Force
    ```
-   
-1. Push to the Azure remote with `git push azure master`. 
-   
-1. On the **Git Credential Manager** page, sign in with your visualstudio.com username. For other authentication methods, see [Azure DevOps Services authentication overview](/vsts/git/auth-overview?view=vsts).
-   
-1. Once deployment is finished, view the build progress at `https://<azure_devops_account>.visualstudio.com/<project_name>/_build`, and the deployment progress at `https://<azure_devops_account>.visualstudio.com/<project_name>/_release`.
-   
-1. Browse to your app in the Azure portal to verify that the content is deployed.
 
-[!INCLUDE [What happens to my app during deployment?](../../includes/app-service-deploy-atomicity.md)]
+# [Azure portal](#tab/portal)
+
+### Create the web app
+
+In the [Azure portal](https://portal.azure.com), create an App Service app by following any of the portal-based instructions under **Create your first app** at [Getting started with Azure App Service](getting-started.md). For the sample repository, use the [Node.js](getting-started.md?pivots=stack-nodejs#nodejs) instructions and select **Node 24 LTS** for **Runtime stack** on the **Basics** tab.
+
+At the bottom of the **Deployment** tab on the **Create Web App** page, set **Basic Authentication** to **Enabled**.
+
+When the app is created, select **Go to resource**.
+
+### Configure local Git deployment
+
+1. On the Azure portal page for your new or preexisting app, select **Deployment Center** under **Deployment** in the left navigation menu.
+1. On the **Settings** tab, select **Local Git** from the dropdown list next to **Source**, and then select **Save**.
+
+   :::image type="content" source="media/deploy-local-git/enable-portal.png" alt-text="Screenshot that shows how to enable local Git deployment for App Service in the Azure portal.":::
+
+1. When the configuration completes, the **Git clone URI** appears under **Local Git** on the **Settings** screen. This URI doesn't contain any sign-in information. Copy the value to use in the next step.
+
+-----
+
+## Deploy the web app
+
+To deploy the app to Azure, create a remote branch if necessary, make sure you're deploying to the correct branch, and then push your code to the remote.
+
+### Create the remote branch
+
+If you used Azure PowerShell `New-AzWebApp` to create the app from the sample code, the `azure` remote was already created. Otherwise, follow these instructions to create the remote:
+
+1. In a local terminal, change directory to the root of your cloned Git repository. 
+1. Add a Git remote named `azure` by using your Git clone URL. If you don't know your Git clone URL, use `https://<app-name>.scm.azurewebsites.net/<app-name>.git`.
+
+   ```bash
+   git remote add azure <git-clone-url>
+   ```
+
+<a name="change-deployment-branch"></a>
+### Push to the correct branch
+
+App Service repositories deploy files to the `master` branch by default. If your preexisting local files are in the `master` branch of your repository, you can now deploy your app by running `git push azure master`.
+
+However, many Git repositories, including the sample code repository for this article, use `main` or another default branch name. To deploy to the correct branch, you must either explicitly deploy to the remote `master` branch, or change the deployment branch to `main` or other branch name and deploy to that branch.
+
+Explicitly deploy to `master` from your `main` branch by using the following `push` command:
+
+```bash
+git push azure main:master
+```
+
+Or change your app's `DEPLOYMENT_BRANCH` app setting to `main` and then push directly to `main`, as follows:
+
+- Azure CLI:
+
+  ```azurecli
+  az webapp config appsettings set --name <app-name> --resource-group <group-name> --settings DEPLOYMENT_BRANCH='main'
+  git push azure main
+  ```
+
+- Azure portal:
+
+  1. On the portal page for your app, select **Environment variables** under **Settings** in the left navigation menu.
+  1. Select **Add**, add an application setting with the name *DEPLOYMENT_BRANCH* and value *main*, and select **Apply**.
+  1. In the terminal window, run `git push azure main`.
+
+### Finish and verify the deployment
+
+If the **Git Credential Manager** dialog appears after you push your code, enter your user-scope deployment user name or application-scope user name and password. If your Git remote URL already contains the sign-in information, you aren't prompted to enter it.
+
+Review the output from the `push` command. You might see runtime-specific automation, such as `npm install` for Node.js, `MSBuild` for ASP.NET, or `pip install` for Python. If you get errors, see [Troubleshoot deployment](#troubleshoot-deployment).
+
+Go to the Azure portal and verify that the app deployed successfully by selecting the **Default domain** link on the app's **Overview** page. The app should open in a browser tab and display **Hello World!**.
 
 ## Troubleshoot deployment
 
-You may see the following common error messages when you use Git to publish to an App Service app in Azure:
+The following common errors might occur when you use local Git to publish to an App Service app in Azure:
 
-|Message|Cause|Resolution
----|---|---|
-|`Unable to access '[siteURL]': Failed to connect to [scmAddress]`|The app isn't up and running.|Start the app in the Azure portal. Git deployment isn't available when the web app is stopped.|
-|`Couldn't resolve host 'hostname'`|The address information for the 'azure' remote is incorrect.|Use the `git remote -v` command to list all remotes, along with the associated URL. Verify that the URL for the 'azure' remote is correct. If needed, remove and recreate this remote using the correct URL.|
-|`No refs in common and none specified; doing nothing. Perhaps you should specify a branch such as 'master'.`|You didn't specify a branch during `git push`, or you haven't set the `push.default` value in `.gitconfig`.|Run `git push` again, specifying the master branch: `git push azure master`.|
-|`src refspec [branchname] does not match any.`|You tried to push to a branch other than master on the 'azure' remote.|Run `git push` again, specifying the master branch: `git push azure master`.|
-|`RPC failed; result=22, HTTP code = 5xx.`|This error can happen if you try to push a large git repository over HTTPS.|Change the git configuration on the local machine to make the `postBuffer` bigger. For example: `git config --global http.postBuffer 524288000`.|
-|`Error - Changes committed to remote repository but your web app not updated.`|You deployed a Node.js app with a _package.json_ file that specifies additional required modules.|Review the `npm ERR!` error messages before this error for more context on the failure. The following are the known causes of this error, and the corresponding `npm ERR!` messages:<br /><br />**Malformed package.json file**: `npm ERR! Couldn't read dependencies.`<br /><br />**Native module doesn't have a binary distribution for Windows**:<br />`npm ERR! \cmd "/c" "node-gyp rebuild"\ failed with 1` <br />or <br />`npm ERR! [modulename@version] preinstall: \make || gmake\ `|
+|Message|Cause|Resolution|
+|---|---|---|
+|`Unable to access '[siteURL]': Failed to connect to [scmAddress]`|The app isn't running.|In the Azure portal, start the app. Git deployment isn't available when the web app is stopped.|
+|`Couldn't resolve host 'hostname'`|The address information for the `azure` remote is incorrect.|Use the `git remote -v` command to list all remotes and their associated URLs. Verify that the URL for the `azure` remote is correct. If necessary, remove the incorrect URL by using `git remote remove` and then recreate the remote with the correct URL.|
+|`No refs in common and none specified; doing nothing. Perhaps you should specify a branch such as 'main'.`|You didn't specify a branch when you ran `git push` or you didn't set the `push.default` value in `.gitconfig`.|Run `git push` again and specify the correct branch with `git push azure <branch>`.|
+|`Error - Changes committed to remote repository but deployment to website failed.`|You pushed a local branch that doesn't match the app deployment branch on `azure`.|Verify that the current branch is `master`, or change the deployment branch by following the instructions at [Push to the correct branch](#push-to-the-correct-branch). |
+|`src refspec [branchname] does not match any.`|You tried to push to a branch other than `main` on the `azure` remote.|Run `git push` again, and specify the `main` branch with `git push azure main`.|
+|`RPC failed; result=22, HTTP code = 5xx.`|You tried to push a large Git repository over HTTPS.|Change the git configuration on the local computer to set a higher value for `postBuffer`. For example: `git config --global http.postBuffer 524288000`.|
+|`Error - Changes committed to remote repository but your web app not updated.`|You deployed a Node.js app with a *package.json* file that specifies added required modules.|Review the `npm ERR!` error messages that appear before this error for more context. The following known causes of this error produce the corresponding `npm ERR!` messages:<br />**Malformed package.json file**: `npm ERR! Couldn't read dependencies.`<br />**Native module doesn't have a binary distribution for Windows**: `npm ERR! \cmd "/c" "node-gyp rebuild"\ failed with 1`<br />or `npm ERR! [modulename@version] preinstall: \make \|\| gmake\` |
 
-## Additional resources
+## Related content
 
-- [Project Kudu documentation](https://github.com/projectkudu/kudu/wiki)
+- [App Service build server (Project Kudu documentation)](https://github.com/projectkudu/kudu/wiki)
 - [Continuous deployment to Azure App Service](deploy-continuous-deployment.md)
 - [Sample: Create a web app and deploy code from a local Git repository (Azure CLI)](./scripts/cli-deploy-local-git.md?toc=%2fcli%2fazure%2ftoc.json)
 - [Sample: Create a web app and deploy code from a local Git repository (PowerShell)](./scripts/powershell-deploy-local-git.md?toc=%2fpowershell%2fmodule%2ftoc.json)

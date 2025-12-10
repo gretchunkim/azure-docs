@@ -1,13 +1,13 @@
 ---
-title: Troubleshoot issues with the configuration server during disaster recovery of VMware VMs and physical servers to Azure by using Azure Site Recovery | Microsoft Docs
+title: Troubleshoot issues with the configuration server during disaster recovery of VMware VMs and physical servers to Azure by using Azure Site Recovery
 description: This article provides troubleshooting information for deploying the configuration server for disaster recovery of VMware VMs and physical servers to Azure by using Azure Site Recovery.
-author: Rajeswari-Mamilla
-manager: rochakm
-ms.service: site-recovery
-ms.topic: article
-ms.date: 02/13/2019
-ms.author: ramamill
+ms.service: azure-site-recovery
+ms.topic: troubleshooting
+ms.date: 12/09/2025
+author: Jeronika-MS
+ms.author: v-gajeronika 
 
+# Customer intent: As a system administrator, I want to troubleshoot issues with the configuration server during disaster recovery of VMware VMs and physical servers to the cloud, so that I can ensure a successful and reliable disaster recovery process.
 ---
 # Troubleshoot configuration server issues
 
@@ -49,7 +49,7 @@ The source machine registers with the configuration server when you install the 
     c. Open the Installation_Directory/Fx/uninstall.sh file and comment out the entire section that's trying to stop the Fx service.
     d. [Uninstall](vmware-physical-manage-mobility-service.md#uninstall-mobility-service) the mobility agent. After successful uninstallation, reboot the system, and then try to reinstall the mobility agent.
 
-8. Ensure that multi-factor authentication is not enabled for user account. Azure Site Recovery does not support multi-factor authentication for user account as of now. Register the configuration server without multi-factor authentication enabled user account.  
+8. Ensure that multifactor authentication is not enabled for user account. Azure Site Recovery does not support multifactor authentication for user account as of now. Register the configuration server without multifactor authentication enabled user account.  
 
 ## Installation failure: Failed to load accounts
 
@@ -59,10 +59,10 @@ This error occurs when the service can't read data from the transport connection
 
 To resolve vCenter discovery failures, add the vCenter server to the byPass list proxy settings. 
 
-- Download PsExec tool from [here](https://aka.ms/PsExec) to access System user content.
+- Download PsExec tool from [here](/sysinternals/downloads/psexec) to access System user content.
 - Open Internet Explorer in system user content by running the following command line
     psexec -s -i "%programfiles%\Internet Explorer\iexplore.exe"
-- Add proxy settings in IE and restart tmanssvc service.
+- Add proxy settings in Internet Explorer and restart tmanssvc service.
 - To configure DRA proxy settings, run 
     cd C:\Program Files\Microsoft Azure Site Recovery Provider
 - Next, execute DRCONFIGURATOR.EXE /configure /AddBypassUrls [add IP Address/FQDN of vCenter Server provided during **Configure vCenter Server/vSphere ESXi server** step of [Configuration Server deployment](vmware-azure-deploy-configuration-server.md#configure-settings)]
@@ -183,17 +183,18 @@ Manually stop the following services:
 - Microsoft Azure Site Recovery Service, 
 - tmansvc
   
-To update the configuration server, run the [unified setup](service-updates-how-to.md#links-to-currently-supported-update-rollups) again.
+To update the configuration server, run the [unified setup](/azure/site-recovery/service-updates-how-to#updates-support) again.
 
-## Azure Active Directory application creation failure
+<a name='azure-active-directory-application-creation-failure'></a>
 
-You have insufficient permissions to create an application in Azure Active Directory (AAD) using the [Open Virtualization Application (OVA)](vmware-azure-deploy-configuration-server.md#deploy-a-configuration-server-through-an-ova-template
-) template.
+## Microsoft Entra application creation failure
+
+You have insufficient permissions to create an application in Microsoft Entra ID using the [Open Virtualization Application (OVA)](vmware-azure-deploy-configuration-server.md#deploy-a-configuration-server-through-an-ova-template) template.
 
 To resolve the issue, sign in to the Azure portal and do one of the following:
 
-- Request the Application Developer role in AAD. For more information on the Application Developer role, see [Administrator role permissions in Azure Active Directory](../active-directory/users-groups-roles/directory-assign-admin-roles.md).
-- Verify that the **User can create application** flag is set to *true* in AAD. For more information, see [How to: Use the portal to create an Azure AD application and service principal that can access resources](../active-directory/develop/howto-create-service-principal-portal.md#permissions-required-for-registering-an-app).
+- Request the Application Developer role in Microsoft Entra ID. For more information on the Application Developer role, see [Administrator role permissions in Microsoft Entra ID](../active-directory/roles/permissions-reference.md).
+- Verify that the **User can create application** flag is set to *true* in Microsoft Entra ID. For more information, see [How to: Use the portal to create a Microsoft Entra application and service principal that can access resources](../active-directory/develop/howto-create-service-principal-portal.md#permissions-required-for-registering-an-app).
 
 ## Process server/Master Target are unable to communicate with the configuration server 
 
@@ -247,13 +248,12 @@ To resolve the issue:
     ```
 4. Refresh the portal page.
 
-## An infinite sign in loop occurs when entering your credentials
+## An infinite sign-in loop occurs when entering your credentials
 
-After entering the correct username and password on the configuration server OVF, Azure sign in continues to prompt for the correct credentials.
+After entering the correct username and password on the configuration server OVF, Azure sign-in continues to prompt for the correct credentials.
 
 This issue can occur when the system time is incorrect.
 
 To resolve the issue:
 
-Set the correct time on the computer and retry the sign in. 
- 
+Set the correct time on the computer and retry the sign-in. 

@@ -1,20 +1,17 @@
 ---
 title: Deploy to existing virtual network
 description: Describes how to enable users of your managed application to select an existing virtual network. The virtual network can be outside of the managed application.
-author: tfitzmac
-
-ms.topic: conceptual
-ms.date: 05/11/2020
-ms.author: tomfitz
-
+ms.topic: how-to
+ms.date: 06/24/2024
 ---
+
 # Use existing virtual network with Azure Managed Applications
 
 This article shows you how to define an Azure Managed Application that integrates with an existing virtual network in the consumer's subscription. The managed application lets the consumer decide whether to create a new virtual network or use an existing one. The existing virtual network can be outside of the managed resource group.
 
 ## Main template
 
-First, let's look at the **mainTemplate.json** file. The whole template for deploying a virtual machine and its associated resources is shown below. Later, you'll examine more closely the parts of the template that are related to using an existing virtual network.
+First, let's look at the _mainTemplate.json_ file. The whole template for deploying a virtual machine and its associated resources is shown. Later, you review the parts of the template that are related to using an existing virtual network.
 
 :::code language="json" source="~/resourcemanager-templates/managed-app-existing-vnet/mainTemplate.json":::
 
@@ -34,7 +31,7 @@ The network interface is set to the subnet ID variable.
 
 ## UI definition
 
-Now, let's look at the **createUiDefinition.json** file. The whole file is:
+Now, let's look at the _createUiDefinition.json_ file. The whole file is:
 
 :::code language="json" source="~/resourcemanager-templates/managed-app-existing-vnet/createUiDefinition.json":::
 
@@ -49,7 +46,7 @@ That element lets the consumer select either a new or existing virtual network.
 In the outputs, you include a value that indicates whether the consumer selected a new or existing virtual network. There's also a managed identity value.
 
 > [!NOTE]
-> The output value for the managed identity must be named **managedIdentity**.
+> The output value for the managed identity must be named `managedIdentity`.
 
 :::code language="json" source="~/resourcemanager-templates/managed-app-existing-vnet/createUiDefinition.json" range="136-148" highlight="6,12":::
 

@@ -3,25 +3,25 @@ title: Azure CLI Script Sample - Delete an Azure App Configuration Store
 titleSuffix: Azure App Configuration
 description: Delete an Azure App Configuration store using a sample Azure CLI script. See reference article links to commands used in the script.
 services: azure-app-configuration
-author: lisaguthrie
+author: maud-lv
 
 ms.service: azure-app-configuration
 ms.devlang: azurecli
 ms.topic: sample
-ms.date: 02/19/2020
-ms.author: lcozzens 
+ms.date: 04/12/2024
+ms.author: malev 
 ms.custom: devx-track-azurecli
 ---
 
-# Delete an Azure App Configuration store
+# Delete an Azure App Configuration store with the Azure CLI
 
-This sample script deletes an instance of Azure App Configuration.
+This sample script deletes an instance of Azure App Configuration using the Azure CLI.
 
-[!INCLUDE [quickstarts-free-trial-note](../../../includes/quickstarts-free-trial-note.md)]
+[!INCLUDE [quickstarts-free-trial-note](~/reusable-content/ce-skilling/azure/includes/quickstarts-free-trial-note.md)]
 
-[!INCLUDE [cloud-shell-try-it.md](../../../includes/cloud-shell-try-it.md)]
+[!INCLUDE [azure-cli-prepare-your-environment.md](~/reusable-content/azure-cli/azure-cli-prepare-your-environment.md)]
 
-If you choose to install and use the CLI locally, this article requires that you are running the Azure CLI version 2.0 or later. Run `az --version` to find the version. If you need to install or upgrade, see [Install the Azure CLI](/cli/azure/install-azure-cli).
+ - This tutorial requires version 2.0 or later of the Azure CLI. If using Azure Cloud Shell, the latest version is already installed.
 
 ## Sample script
 

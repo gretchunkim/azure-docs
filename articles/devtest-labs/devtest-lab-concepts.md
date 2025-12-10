@@ -1,78 +1,110 @@
 ---
-title: DevTest Labs concepts | Microsoft Docs
-description: Learn the basic concepts of DevTest Labs, and how it can make it easy to create, manage, and monitor Azure virtual machines
-ms.topic: article
-ms.date: 06/26/2020
+title: Azure DevTest Labs concepts
+description: Learn about some basic Azure DevTest Labs concepts related to labs, virtual machines (VMs), and environments.
+ms.topic: conceptual
+ms.author: rosemalcolm
+author: RoseHJM
+ms.date: 03/20/2025
+ms.custom: UpdateFrequency2
+
+#customer intent: As a lab user or administrator, I want to understand basic DevTest Labs concepts so I can manage or use labs, VMs, and environments.
 ---
 
-# DevTest Labs concepts
-## Overview
-The following list contains key DevTest Labs concepts and definitions:
+# Azure DevTest Labs concepts
+
+This article describes key [Azure DevTest Labs](https://azure.microsoft.com/services/devtest-lab) concepts and definitions. DevTest Labs is a service for easily creating, using, and managing Azure virtual machines (VMs) and other resources.
 
 ## Labs
-A lab is the infrastructure that encompasses a group of resources, such as Virtual Machines (VMs), that lets you better manage those resources by specifying limits and quotas.
 
-## Virtual machine
-An Azure VM is one of several types of [on-demand, scalable computing resources](/azure/architecture/guide/technology-choices/compute-decision-tree) that Azure offers. Azure VMs give you the flexibility of virtualization without having to buy and maintain the physical hardware that runs it, although you still need to maintain the VM by performing certain tasks, such as configuring, patching, and installing the software that runs on it.
+A DevTest Labs lab is the infrastructure that encompasses a group of resources such as VMs. DevTest Labs administrators can:
 
-[Overview of Windows virtual machines in Azure](../virtual-machines/windows/overview.md) gives you information about what you should consider before you create a VM, how you create it, and how you manage it.
+- Add and configure lab users.
+- Create ready-made VMs for lab users to claim and use.
+- Create and use Azure Resource Manager (ARM) templates to create and configure labs, VMs, and environments.
+- Connect artifact and template source control repositories to the lab.
+- Let users create and configure their own lab VMs and environments.
+- Specify allowed virtual machine (VM) limits, sizes, and configurations.
+- Set autoshutdown and autostartup policies.
+- Track and manage lab costs.
 
-## Claimable VM
-An Azure Claimable VM is a virtual machine that is available for use by any lab user with permissions. A lab admin can prepare VMs with specific base images and artifacts and save them to a shared pool. A lab user can then claim a working VM from the pool when they need one with that specific configuration.
+### Roles
 
-A VM that is claimable is not initially assigned to any particular user, but will show up in every user's list under "Claimable virtual machines". After a VM is claimed by a user, it is moved up to their "My virtual machines" area and is no longer claimable by any other user.
+[Azure role-based access control (RBAC)](/azure/role-based-access-control/overview) defines DevTest Labs access and roles. DevTest Labs has three roles that define lab member permissions: **Owner**, **Contributor**, and **DevTest Labs User**.
 
-## Environment
-In DevTest Labs, an environment refers to a collection of Azure resources in a lab. [This blog post](./devtest-lab-faq.md#blog-post) discusses how to create multi-VM environments from your Azure Resource Manager templates.
+- Lab **Owners** can do all lab tasks, including reading or writing to lab resources, setting policies and configurations, adding repositories and base images, and managing users. Only lab Owners can add and manage lab users and roles. For more information about managing user access and roles, see [Add lab owners, contributors, and users](devtest-lab-add-devtest-user.md).
 
-## Base images
-Base images are VM images with all the tools and settings preinstalled and configured to quickly create a VM. You can provision a VM by picking an existing base and adding an artifact to install your test agent. You can then save the provisioned VM as a base so that the base can be used without having to reinstall the test agent for each provisioning of the VM.
+  Lab Owners can also create and assign custom DevTest Labs roles. For more information, see [Grant user permissions to specific lab policies](devtest-lab-grant-user-permissions-to-specific-lab-policies.md).
 
-## Artifacts
-Artifacts are used to deploy and configure your application after a VM is provisioned. Artifacts can be:
+  A lab Owner must either be an Owner of the Azure subscription the lab is in, or a subscription or lab Owner must grant them the lab Owner role. Subscription Owners can access all subscription resources and users, so they automatically inherit the Owner role for labs in their subscriptions.
 
-* Tools that you want to install on the VM - such as agents, Fiddler, and Visual Studio.
-* Actions that you want to run on the VM - such as cloning a repo.
-* Applications that you want to test.
+- Lab **Contributors** can do everything that lab Owners can, such as create and configure labs and policies, except they can't assign or manage users and roles. Azure subscription Contributors can create labs, but they aren't Owners of those labs unless they inherit or are granted the lab Owner role.
 
-Artifacts are [Azure Resource Manager](../azure-resource-manager/management/overview.md) JSON files that contain instructions to perform deployment and apply configuration.
+- **DevTest Labs Users** can view all lab resources and policies and can create and modify their own VMs and environments, within policy restrictions such as number of VMs per user.
 
-## Artifact repositories
-Artifact repositories are git repositories where artifacts are checked in. Artifact repositories can be added to multiple labs in your organization enabling reuse and sharing.
+  DevTest Labs Users can't modify lab policies, or view or change any other users' VMs unless the lab or VM owner grants them permission. DevTest Labs Users automatically have Owner permissions on their own VMs.
 
-## Formulas
-Formulas, in addition to base images, provide a mechanism for fast VM provisioning. A formula in DevTest Labs is a list of default property values used to create a lab VM.
-With formulas, VMs with the same set of properties - such as base image, VM size, virtual network, and artifacts - can be created without needing to specify those
-properties each time. When creating a VM from a formula, the default values can be used as-is or modified.
+### Policies
 
-## Policies
-Policies help in controlling cost in your lab. For example, you can create a policy to automatically shut down VMs based on a defined schedule.
+Lab policies help control costs and reduce waste. For example, policies can automatically shut down lab VMs based on a defined schedule, or limit the number or sizes of VMs per user or lab. For more information, see [Manage lab policies to control costs](devtest-lab-set-lab-policy.md).
 
-## Caps
-Caps is a mechanism to minimize waste in your lab. For example, you can set a cap to restrict the number of VMs that can be created per user, or in a lab.
+## Templates
 
-## Security levels
-Security access is determined by Azure role-based access control (Azure RBAC). To understand how access works, it helps to understand the differences between a permission, a role, and a scope as defined by RBAC.
+You can use ARM templates to create and update DevTest Labs labs, environments, VMs, and artifacts.
 
-* Permission - A permission is a defined access to a specific action (e.g. read-access to all virtual machines).
-* Role - A role is a set of permissions that can be grouped and assigned to a user. For example, the *subscription owner* role has access to all resources within a subscription.
-* Scope - A scope is a level within the hierarchy of an Azure resource, such as a resource group, a single lab, or the entire subscription.
+[!INCLUDE [About Azure Resource Manager](~/reusable-content/ce-skilling/azure/includes/resource-manager-quickstart-introduction.md)] For more information about ARM template structure and properties, see [Template format](/azure/azure-resource-manager/templates/syntax#template-format).
 
-Within the scope of DevTest Labs, there are two types of roles to define user permissions: lab owner and lab user.
+For more information about using ARM templates in DevTest Labs, see:
 
-* Lab Owner - A lab owner has access to any resources within the lab. Therefore, a lab owner can modify policies, read and write any VMs, change the virtual network, and so on.
-* Lab User - A lab user can view all lab resources, such as VMs, policies, and virtual networks, but cannot modify policies or any VMs created by other users.
+- [Create labs from ARM templates](create-lab-windows-vm-template.md).
+- [Create environments from ARM templates](devtest-lab-create-environment-from-arm.md).
+- [Create ARM templates for VMs](devtest-lab-use-resource-manager-template.md).
 
-To see how to create custom roles in DevTest Labs, refer to the article, [Grant user permissions to specific lab policies](devtest-lab-grant-user-permissions-to-specific-lab-policies.md).
+### Repositories
 
-Since scopes are hierarchical, when a user has permissions at a certain scope, they are automatically granted those permissions at every lower-level scope encompassed. For instance, if a user is assigned to the role of subscription owner, then they have access to all resources in a subscription, which include all virtual machines, all virtual networks, and all labs. Therefore, a subscription owner automatically inherits the role of lab owner. However, the opposite is not true. A lab owner has access to a lab, which is a lower scope than the subscription level. Therefore, a lab owner will not be able to see virtual machines or virtual networks or any resources that are outside of the lab.
+Lab users can use templates and artifacts from public and private Git source control repositories to create lab VMs and environments. The [DevTest Labs public GitHub repositories](https://github.com/Azure/azure-devtestlab) offer many ready-to-use artifacts and ARM templates.
 
-## Azure Resource Manager templates
-All of the concepts discussed in this article can be configured by using Azure Resource Manager templates, which let you define the infrastructure/configuration of your Azure solution and repeatedly deploy it in a consistent state.
+Lab administrators can also store custom artifacts and ARM templates in private Git repositories and connect the repositories to their labs. Lab users and automated processes can then use the templates and artifacts. You can add the same repositories to multiple labs in your organization, promoting consistency, reuse, and sharing. For more information, see [Add template repositories to labs](devtest-lab-use-resource-manager-template.md#add-template-repositories-to-labs) and [Add an artifact repository to a lab](add-artifact-repository.md).
 
-[Understand the structure and syntax of Azure Resource Manager templates](../azure-resource-manager/templates/template-syntax.md#template-format) describes the structure of an Azure Resource Manager template and the properties that are available in the different sections of a template.
+## Virtual machines
+
+You can use templates, artifacts, custom images, and formulas to create and manage DevTest Labs VMs.
+
+Azure VMs are [on-demand, scalable computing resources](/azure/architecture/guide/technology-choices/compute-decision-tree) that give you the flexibility of virtualization without having to buy and maintain the physical hardware to run it. For more information about Azure VMs, see [Windows virtual machines in Azure](/azure/virtual-machines/windows/overview). 
+
+### Base images
+
+A base image is a VM image that can have software and settings preinstalled and configured. Using base images reduces VM creation time and complexity. Lab administrators can choose which base images to make available for their lab users to use for VM creation. For more information, see [Create and add virtual machines to a lab](devtest-lab-add-vm.md).
+
+### Artifacts
+
+Artifacts are tools, actions, or software you can add to lab VMs during or after VM creation. For example, artifacts can be:
+
+- Tools to install on the VM, like agents, Fiddler, or Visual Studio.
+- Actions to take on the VM, such as cloning a repository or joining a domain.
+- Applications that you want to test.
+
+For more information, see [Add artifacts to DevTest Labs VMs](add-artifact-vm.md).
+
+Lab administrators can specify mandatory artifacts to be installed on all lab VMs during VM creation. For more information, see [Specify mandatory artifacts for DevTest Labs VMs](devtest-lab-mandatory-artifacts.md).
+
+### Claimable VMs
+
+Lab administrators can prepare VMs with specific configurations and save them to a shared pool, where they appear in the lab's **Claimable virtual machines** list. Any lab user can claim a VM from the claimable pool when they need a VM with that configuration.
+
+After a lab user claims a VM, the VM moves to that user's **My virtual machines** list, and the user becomes the owner of the VM. The VM is no longer claimable or configurable by other users. For more information, see [Create and manage claimable VMs](devtest-lab-add-claimable-vm.md).
+
+### Custom images and formulas
+
+DevTest Labs custom images and formulas are mechanisms for fast VM creation and provisioning.
+
+- A custom image is a VM image created from an existing VM or virtual hard disk (VHD), which can have software and other artifacts installed. Lab users can create identical VMs from the custom image. For more information, see [Create a custom image from a VM](devtest-lab-create-custom-image-from-vm-using-portal.md).
+
+- A formula is a list of default property values for creating a lab VM, such as base image, VM size, virtual network, and artifacts. When you create a VM from a formula, you can use the default values as-is or modify them. For more information, see [Manage Azure DevTest Labs formulas](devtest-lab-manage-formulas.md).
+
+For more information about custom images and formulas, see [Compare custom images and formulas](devtest-lab-comparing-vm-base-image-types.md).
+
+## Environments
+
+A DevTest Labs environment is a collection of Azure platform-as-a-service (PaaS) resources, such as an Azure Web App or a SharePoint farm, that an ARM template defines. Lab administrators can add public or privately created environment templates to labs, and lab users can use them to quickly create environments. For more information, see [Use ARM templates to create DevTest Labs environments](devtest-lab-create-environment-from-arm.md).
 
 [!INCLUDE [devtest-lab-try-it-out](../../includes/devtest-lab-try-it-out.md)]
-
-## Next steps
-[Create a lab in DevTest Labs](devtest-lab-create-lab.md)

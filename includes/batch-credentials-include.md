@@ -2,11 +2,11 @@
  title: include file
  description: include file
  services: batch
- author: laurenhughes
- ms.service: batch
+ author: prkannap
+ ms.service: azure-batch
  ms.topic: include
- ms.date: 10/02/2018
- ms.author: lahugh
+ ms.date: 04/20/2022
+ ms.author: prkannap
  ms.custom: include file
 ---
 

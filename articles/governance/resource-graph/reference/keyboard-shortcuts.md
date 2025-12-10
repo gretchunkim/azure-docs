@@ -1,16 +1,14 @@
 ---
 title: Keyboard shortcuts in the Azure portal for Azure Resource Graph Explorer
 description: Azure Resource Graph Explorer in the Azure portal supports keyboard shortcuts to help you perform actions and navigate.
-ms.date: 08/25/2020
+ms.date: 07/11/2024
 ms.topic: reference
 ms.custom: accessibility
 ---
+
 # Keyboard shortcuts for Azure Resource Graph Explorer
 
-This article lists the keyboard shortcuts that work in the Azure Resource Graph Explorer page of the
-Azure portal. For a list of global keyboard shortcuts or a list of keyboard shortcuts available for
-other pages, visit
-[Keyboard shortcuts in the Azure portal](../../../azure-portal/azure-portal-keyboard-shortcuts.md).
+This article lists the keyboard shortcuts that work in the Azure Resource Graph Explorer page of the Azure portal. For a list of global keyboard shortcuts or a list of keyboard shortcuts available for other pages, visit [Keyboard shortcuts in the Azure portal](/azure/azure-portal/azure-portal-keyboard-shortcuts).
 
 ## Keyboard shortcuts for editing queries
 
@@ -21,7 +19,7 @@ other pages, visit
 |Increase indent |<kbd>CTRL</kbd>+<kbd>]</kbd> |<kbd>Cmd</kbd>+<kbd>]</kbd> |
 |Move the line down |<kbd>ALT</kbd>+<kbd>↓</kbd> |<kbd>Option</kbd>+<kbd>↓</kbd> |
 |Move the line up |<kbd>ALT</kbd>+<kbd>↑</kbd> |<kbd>Option</kbd>+<kbd>↑</kbd> |
-|Replace |<kbd>CTRL</kbd>+<kbd>F</kbd> |<kbd>Cmd</kbd>+<kbd>ALT</kbd>+<kbd>F</kbd> |
+|Replace |<kbd>CTRL</kbd>+<kbd>H</kbd> |<kbd>Cmd</kbd>+<kbd>H</kbd> |
 |Select all |<kbd>CTRL</kbd>+<kbd>A</kbd> |<kbd>Cmd</kbd>+<kbd>A</kbd> |
 |Select downward |<kbd>SHIFT</kbd>+<kbd>↓</kbd> |<kbd>SHIFT</kbd>+<kbd>↓</kbd> |
 |Select right |<kbd>SHIFT</kbd>+<kbd>→</kbd> |<kbd>SHIFT</kbd>+<kbd>→</kbd> |
@@ -61,5 +59,5 @@ other pages, visit
 
 ## Next steps
 
-- [Keyboard shortcuts in the Azure portal](../../../azure-portal/azure-portal-keyboard-shortcuts.md)
-- [Query language for Resource Graph](../concepts/query-language.md)
+- [Keyboard shortcuts in the Azure portal](/azure/azure-portal/azure-portal-keyboard-shortcuts)
+- [Understanding the Azure Resource Graph query language](../concepts/query-language.md)

@@ -1,23 +1,32 @@
 ---
-title: Service Bus queues and topics as event handlers for Azure Event Grid events
-description: Describes how you can use Service Bus queues and topics as event handlers for Azure Event Grid events.
-ms.topic: conceptual
-ms.date: 09/03/2020
+title: Configure Service Bus Queues and Topics as Event Handlers for Azure Event Grid
+description: Learn to configure Service Bus queues and topics as event handlers for Azure Event Grid to process events in enterprise applications.
+#customer intent: As a developer, I want to configure Service Bus queues or topics as event handlers so that I can process Azure Event Grid events in enterprise applications.  
+ms.topic: how-to
+ms.date: 07/29/2025
+ms.custom:
+  - ai-gen-docs-bap
+  - ai-gen-description
+  - ai-seo-date:07/29/2025
 ---
 
-# Service Bus queues and topics as event handlers for Azure Event Grid events
-An event handler is the place where the event is sent. The handler takes some further action to process the event. Several Azure services are automatically configured to handle events and **Azure Service Bus** is one of them. 
-
-You can use a Service queue or topic as a handler for events from Event Grid. 
+# Configure Service Bus queues and topics as event handlers for Azure Event Grid events
+Azure Event Grid enables seamless event-driven architectures by routing events from sources to handlers. In this article, you'll learn how to configure Azure Service Bus queues and topics as event handlers for Event Grid events. This step-by-step guide will help you set up Service Bus queues and topics to process events in enterprise applications using the Azure portal, CLI, PowerShell, and REST APIs.
 
 ## Service Bus queues
-You can route events in Event Grid directly to Service Bus queues for use in buffering or command & control scenarios in enterprise applications.
 
-In the Azure portal, while creating an event subscription, select **Service Bus Queue** as endpoint type and then click **select an endpoint** to choose a Service Bus queue.
+You can route events in Event Grid directly to Service Bus queues for use in buffering or command and control scenarios in enterprise applications. 
 
-### Using CLI to add a Service Bus queue handler
+### Use Azure portal
+In the Azure portal, while creating an event subscription, select **Service Bus Queue** as the endpoint type and then click **select an endpoint** to choose a Service Bus queue.
 
-For Azure CLI, the following example subscribes and connects an event grid topic to a Service Bus queue:
+:::image type="content" source="./media/handler-service-bus/queue.png" lightbox="./media/handler-service-bus/queue.png" alt-text="Screenshot of configuring a Service Bus queue as an event handler in Azure Event Grid.":::
+
+> [!NOTE]
+> If you are using session enabled queue/topic subscription as the destination, you need to set the session property on the event using Delivery Property with the header name 'SessionId'.
+ 
+### Use Azure CLI
+Use the [`az eventgrid event-subscription create`](/cli/azure/eventgrid/event-subscription) command with `--endpoint-type` set to `servicebusqueue` and `--endpoint` set to `/subscriptions/{AZURE SUBSCRIPTION}/resourceGroups/<RESOURCE GROUP NAME>/providers/Microsoft.ServiceBus/namespaces/<NAMESPACE NAME>/queues/<QUEUE NAME>`. Here's an example:
 
 ```azurecli-interactive
 az eventgrid event-subscription create \
@@ -27,15 +36,33 @@ az eventgrid event-subscription create \
     --endpoint /subscriptions/{SubID}/resourceGroups/TestRG/providers/Microsoft.ServiceBus/namespaces/ns1/queues/queue1
 ```
 
+You can also use the [`az eventgrid topic event-subscription`](/cli/azure/eventgrid/topic/event-subscription) command for custom topics, the [`az eventgrid system-topic event-subscription`](/cli/azure/eventgrid/system-topic/event-subscription) command for system topics, and the [`az eventgrid partner topic event-subscription create`](/cli/azure/eventgrid/partner/topic/event-subscription#az-eventgrid-partner-topic-event-subscription-create) command for partner topics.
+
+### Use Azure PowerShell
+Use the [New-AzEventGridSubscription](/powershell/module/az.eventgrid/new-azeventgridsubscription) command with `-EndpointType` set to `servicebusqueue` and `-Endpoint` set to `/subscriptions/{AZURE SUBSCRIPTION}/resourceGroups/<RESOURCE GROUP NAME>/providers/Microsoft.ServiceBus/namespaces/<NAMESPACE NAME>/queues/<QUEUE NAME>`. Here's an example:
+
+
+```azurepowershell-interactive
+New-AzEventGridSubscription -ResourceGroup MyResourceGroup `
+            -TopicName Topic1 `
+            -EndpointType servicebusqueue `
+            -Endpoint /subscriptions/{SubID}/resourceGroups/TestRG/providers/Microsoft.ServiceBus/namespaces/ns1/queues/queue1 `
+            -EventSubscriptionName EventSubscription1
+```
+
+You can also use the [`New-AzEventGridSystemTopicEventSubscription`](/powershell/module/az.eventgrid/new-azeventgridsystemtopiceventsubscription) command for system topics, and the [`New-AzEventGridPartnerTopicEventSubscription`](/powershell/module/az.eventgrid/new-azeventgridpartnertopiceventsubscription) command for partner topics.
+
 ## Service Bus topics
 
-You can route events in Event Grid directly to Service Bus topics to handle Azure system events with Service Bus topics, or for command & control messaging scenarios.
+You can route events in Event Grid directly to Service Bus topics for command and control messaging scenarios. 
 
-In the Azure portal, while creating an event subscription, select **Service Bus Topic** as endpoint type and then click **select and endpoint** to choose a Service Bus topic.
+### Use Azure portal
+In the Azure portal, while creating an event subscription, select **Service Bus Topic** as the endpoint type and then click **select an endpoint** to choose a Service Bus topic.
 
-### Using CLI to add a Service Bus topic handler
+:::image type="content" source="./media/handler-service-bus/topic.png" lightbox="./media/handler-service-bus/topic.png" alt-text="Screenshot showing the configuration of a Service Bus topic handler.":::
 
-For Azure CLI, the following example subscribes and connects an event grid topic to a Service Bus queue:
+### Use Azure CLI
+Use the [`az eventgrid event-subscription create`](/cli/azure/eventgrid/event-subscription) command with `--endpoint-type` set to `servicebustopic` and `--endpoint` set to `/subscriptions/{AZURE SUBSCRIPTION}/resourceGroups/<RESOURCE GROUP NAME>/providers/Microsoft.ServiceBus/namespaces/<NAMESPACE NAME>/topics/<TOPIC NAME>`. Here's an example:
 
 ```azurecli-interactive
 az eventgrid event-subscription create \
@@ -45,21 +72,51 @@ az eventgrid event-subscription create \
     --endpoint /subscriptions/{SubID}/resourceGroups/TestRG/providers/Microsoft.ServiceBus/namespaces/ns1/topics/topic1
 ```
 
-## Message properties
-If you use a **Service Bus topic or queue** as an event handler for events from Event Grid, set the following message headers: 
+You can also use the [`az eventgrid topic event-subscription`](/cli/azure/eventgrid/topic/event-subscription) command for custom topics, the [`az eventgrid system-topic event-subscription`](/cli/azure/eventgrid/system-topic/event-subscription) command for system topics, and the [`az eventgrid partner topic event-subscription create`](/cli/azure/eventgrid/partner/topic/event-subscription#az-eventgrid-partner-topic-event-subscription-create) command for partner topics.
 
-| Property name | Description |
-| ------------- | ----------- | 
-| aeg-subscription-name | Name of event subscription. |
-| aeg-delivery-count | <p>Number of attempts made for the event.</p> <p>Example: "1"</p> |
-| aeg-event-type | <p>Type of the event.</p><p> Example: "Microsoft.Storage.blobCreated"</p> | 
-| aeg-metadata-version | <p>Metadata version of the event.</p> <p>Example: "1".</p><p> For **Event Grid event schema**, this property represents the metadata version and for **cloud event schema**, it represents the **spec version**. </p>|
-| aeg-data-version | <p>Data version of the event.</p><p>Example: "1".</p><p>For **Event Grid event schema**, this property represents the data version and for **cloud event schema**, it doesn't apply.</p> |
+### Use Azure PowerShell
+Use the [New-AzEventGridSubscription](/powershell/module/az.eventgrid/new-azeventgridsubscription) command with `-EndpointType` set to `servicebustopic` and `-Endpoint` set to `/subscriptions/{AZURE SUBSCRIPTION}/resourceGroups/<RESOURCE GROUP NAME>/providers/Microsoft.ServiceBus/namespaces/<NAMESPACE NAME>/topics/<TOPIC NAME>`. Here's an example:
 
-## Message headers
-When sending an event to a Service Bus queue or topic as a brokered message, the `messageid` of the brokered message is an internal system ID.
 
-The internal system ID for the message will be maintained across redelivery of the event so that you can avoid duplicate deliveries by turning on **duplicate detection** on the service bus entity. We recommend that you enable duration of the duplicate detection on the Service Bus entity to be either the time-to-live (TTL) of the event or max retry duration, whichever is longer.
+```azurepowershell-interactive
+New-AzEventGridSubscription -ResourceGroup MyResourceGroup `
+            -TopicName Topic1 `
+            -EndpointType servicebustopic `
+            -Endpoint /subscriptions/{SubID}/resourceGroups/TestRG/providers/Microsoft.ServiceBus/namespaces/ns1/topics/topic1 `
+            -EventSubscriptionName EventSubscription1
+```
+
+You can also use the [`New-AzEventGridSystemTopicEventSubscription`](/powershell/module/az.eventgrid/new-azeventgridsystemtopiceventsubscription) command for system topics, and the [`New-AzEventGridPartnerTopicEventSubscription`](/powershell/module/az.eventgrid/new-azeventgridpartnertopiceventsubscription) command for partner topics.
+
+
+[!INCLUDE [message-headers](./includes/message-headers.md)]
+
+When you send an event to a Service Bus queue or topic as a brokered message, the `messageid` of the brokered message is an internal system ID.
+
+The internal system ID for the message is maintained across redelivery of the event so that you can avoid duplicate deliveries by turning on **duplicate detection** on the service bus entity. We recommend that you enable duration of the duplicate detection on the Service Bus entity to be either the time-to-live (TTL) of the event or max retry duration, whichever is longer.
+
+## Delivery properties
+Event subscriptions allow you to set up HTTP headers that are included in delivered events. This capability allows you to set custom headers that the destination requires. You can set custom headers on the events that are delivered to Azure Service Bus queues and topics.
+
+Azure Service Bus supports the use of following message properties when sending single messages. 
+
+| Header name | Header type |
+| :-- | :-- |
+| `MessageId` | Dynamic |  
+| `PartitionKey` | Static or dynamic |
+| `SessionId` | Static or dynamic |
+| `CorrelationId` | Static or dynamic |
+| `Label` | Static or dynamic |
+| `ReplyTo` | Static or dynamic | 
+| `ReplyToSessionId` | Static or dynamic |
+| `To` |Static or dynamic |
+| `ViaPartitionKey` | Static or dynamic |
+
+> [!NOTE]
+> - The default value of `MessageId` is the internal ID of the Event Grid event. You can override it. For example, `data.field`.
+> - You can only set either `SessionId` or `MessageId`. 
+
+For more information, see [Custom delivery properties](delivery-properties.md). 
 
 ## REST examples (for PUT)
 
@@ -152,5 +209,8 @@ The internal system ID for the message will be maintained across redelivery of t
 }
 ```
 
+> [!NOTE]
+> When a failover occurs for a Service Bus namespace that's [Geo-Disaster Recovery](../service-bus-messaging/service-bus-geo-dr.md) enabled, the secondary namespace doesn't emit events to Event Grid. You need to manually add the Event Grid subscription for the secondary namespace. 
+
 ## Next steps
-See the [Event handlers](event-handlers.md) article for a list of supported event handlers. 
+See the [Event handlers](event-handlers.md) article for a list of supported event handlers.

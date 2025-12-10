@@ -1,12 +1,12 @@
-﻿---
+---
  title: include file
  description: include file
  services: iot-hub
- author: robinsh
- ms.service: iot-hub
+ author: SoniaLopezBravo
+ ms.service: azure-iot-hub
  ms.topic: include
  ms.date: 04/30/2020
- ms.author: robinsh
+ ms.author: sonialopez
  ms.custom: include file
 ---
 
@@ -15,7 +15,7 @@
 
 |Error Code|Description|
 |----------|-----------|
-|401002| Iot Hub Unauthorized Access|
+|401002| IoT Hub Unauthorized Access|
 |413001| Message too large|
 |403004| Device maximum queue depth exceeded|
 |503008| Receive link throttled|

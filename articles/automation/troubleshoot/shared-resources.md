@@ -2,13 +2,14 @@
 title: Troubleshoot Azure Automation shared resource issues
 description: This article tells how to troubleshoot and resolve issues with Azure Automation shared resources.
 services: automation
-author: mgoedtel
-ms.author: magoedte
-ms.date: 03/12/2019
-ms.topic: conceptual
-ms.service: automation
-manager: carmonm
+ms.subservice:
+ms.date: 08/24/2023
+ms.topic: troubleshooting 
+ms.custom:
+ms.author: v-jasmineme
+author: jasminemehndir
 ---
+
 # Troubleshoot shared resource issues
 
 This article discusses issues that might arise when you're using [shared resources](../automation-intro.md#shared-resources) in Azure Automation.
@@ -23,11 +24,11 @@ A module is stuck in the *Importing* state when you're importing or updating you
 
 #### Cause
 
-Because importing PowerShell modules is a complex, multistep process, a module might not import correctly, and can be stuck in a transient state. To learn more about the import process, see [Importing a PowerShell module](/powershell/scripting/developer/module/importing-a-powershell-module#the-importing-process).
+Because importing PowerShell modules is a complex, multistep process, a module might not import correctly and can be stuck in a transient state. To learn more about the import process, see [Importing a PowerShell module](/powershell/scripting/developer/module/importing-a-powershell-module#the-importing-process).
 
 #### Resolution
 
-To resolve this issue, you must remove the module that is stuck by using the [Remove-AzAutomationModule](/powershell/module/Az.Automation/Remove-AzAutomationModule?view=azps-3.7.0) cmdlet. You can then retry importing the module.
+To resolve this issue, you must remove the module that is stuck by using the [Remove-AzAutomationModule](/powershell/module/Az.Automation/Remove-AzAutomationModule) cmdlet. You can then retry importing the module.
 
 ```azurepowershell-interactive
 Remove-AzAutomationModule -Name ModuleName -ResourceGroupName ExampleResourceGroup -AutomationAccountName ExampleAutomationAccount -Force
@@ -64,7 +65,7 @@ Some common reasons that a module might not successfully import to Azure Automat
 * The structure doesn't match the structure that Automation needs.
 * The module depends on another module that hasn't been deployed to your Automation account.
 * The module is missing its dependencies in the folder.
-* The [New-AzAutomationModule](/powershell/module/Az.Automation/New-AzAutomationModule?view=azps-3.7.0) cmdlet is being used to upload the module, and you haven't provided the full storage path or haven't loaded the module by using a publicly accessible URL.
+* The [New-AzAutomationModule](/powershell/module/Az.Automation/New-AzAutomationModule) cmdlet is being used to upload the module, and you haven't provided the full storage path or haven't loaded the module by using a publicly accessible URL.
 
 #### Resolution
 
@@ -93,44 +94,30 @@ It's not common that all the AzureRM or Az modules are required in the same Auto
 
 If the update process suspends, add the `SimultaneousModuleImportJobCount` parameter to the **Update-AzureModules.ps1** script, and provide a lower value than the default of 10. If you implement this logic, try starting with a value of 3 or 5. `SimultaneousModuleImportJobCount` is a parameter of the **Update-AutomationAzureModulesForAccount** system runbook that is used to update Azure modules. If you make this adjustment, the update process runs longer, but has a better chance of completing. The following example shows the parameter and where to put it in the runbook:
 
- ```powershell
-         $Body = @"
-            {
-               "properties":{
-               "runbook":{
-                   "name":"Update-AutomationAzureModulesForAccount"
-               },
-               "parameters":{
-                    ...
-                    "SimultaneousModuleImportJobCount":"3",
-                    ... 
-               }
-              }
-           }
+```powershell
+$Body = @"
+   {
+      "properties":{
+      "runbook":{
+            "name":"Update-AutomationAzureModulesForAccount"
+      },
+      "parameters":{
+            ...
+            "SimultaneousModuleImportJobCount":"3",
+            ... 
+      }
+      }
+   }
 "@
 ```
 
+
 ## Run As accounts
 
-### <a name="unable-create-update"></a>Scenario: You're unable to create or update a Run As account
+> [!NOTE]
+> Azure Automation Run as accounts, including  Classic Run as accounts have retired on **30 September 2023** and replaced with [Managed Identities](../automation-security-overview.md#managed-identities)
+You would no longer be able to create or renew Run as accounts through the Azure portal. For more information, see [migrating from an existing Run As accounts to managed identity](../migrate-run-as-accounts-managed-identity.md#sample-scripts).
 
-#### Issue
-
-When you try to create or update a Run As account, you receive an error similar to the following:
-
-```error
-You do not have permissions to create…
-```
-
-#### Cause
-
-You don't have the permissions that you need to create or update the Run As account, or the resource is locked at a resource group level.
-
-#### Resolution
-
-To create or update a Run As account, you must have appropriate [permissions](../manage-runas-account.md#permissions) to the various resources used by the Run As account. 
-
-If the problem is because of a lock, verify that the lock can be removed. Then go to the resource that is locked in Azure portal, right-click the lock, and select **Delete**.
 
 ### <a name="iphelper"></a>Scenario: You receive the error "Unable to find an entry point named 'GetPerAdapterInfo' in DLL 'iplpapi.dll'" when executing a runbook
 
@@ -144,7 +131,7 @@ Unable to find an entry point named 'GetPerAdapterInfo' in DLL 'iplpapi.dll'
 
 #### Cause
 
-This error is most likely caused by an incorrectly configured [Run As account](../manage-runas-account.md).
+This error is most likely caused by an incorrectly configured [Run As account](../automation-security-overview.md).
 
 #### Resolution
 
@@ -161,6 +148,5 @@ Connect-AzAccount -ServicePrincipal -Tenant $connection.TenantID `
 If this article doesn't resolve your issue, try one of the following channels for additional support:
 
 * Get answers from Azure experts through [Azure Forums](https://azure.microsoft.com/support/forums/).
-* Connect with [@AzureSupport](https://twitter.com/azuresupport). This is the official Microsoft Azure account for connecting the Azure community to the right resources: answers, support, and experts.
+* Connect with [@AzureSupport](https://x.com/azuresupport). This is the official Microsoft Azure account for connecting the Azure community to the right resources: answers, support, and experts.
 * File an Azure support incident. Go to the [Azure support site](https://azure.microsoft.com/support/options/), and select **Get Support**.
-

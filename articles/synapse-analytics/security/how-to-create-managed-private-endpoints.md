@@ -1,27 +1,26 @@
 ---
 title: Create a Managed private endpoint to connect to your data source results
 description: This article will teach you how to create a Managed private endpoint to your data sources from an Azure Synapse workspace.  
-author: RonyMSFT 
-ms.service: synapse-analytics 
+author: ashinMSFT 
+ms.service: azure-synapse-analytics
 ms.topic: how-to
 ms.subservice: security 
 ms.date: 04/15/2020 
-ms.author: ronytho
-ms.reviewer: jrasnick
+ms.author: seshin
+ms.custom: sfi-image-nochange
 ---
 
-# Create a Managed private endpoint to your data source (preview)
+# Create a Managed private endpoint to your data source
 
 This article will teach you how to create a Managed private endpoint to your data source in Azure. See [Managed private endpoints](./synapse-workspace-managed-private-endpoints.md) to learn more.
 
 ## Step 1: Open your Azure Synapse workspace in Azure portal
 
-You can create a Managed private endpoint to your data source from Azure Synapse Studio. Select the **Overview** tab in Azure portal and select **Launch Synapse Studio**.
-![Launch Azure Synapse Studio](./media/how-to-create-managed-private-endpoints/managed-private-endpoint-1.png)
+You can create a Managed private endpoint to your data source from Azure Synapse Studio. Select the **Overview** tab in Azure portal and select **Open** on the Open Synapse Studio card in the Getting started section.
 
 ## Step 2: Navigate to the Managed Virtual Networks tab in Synapse Studio
 
-In Azure Synapse Studio, select the **Manage** tab from the left navigation. Select **Managed Virtual Networks** and then select **+ New**.
+In Azure Synapse Studio, select the **Manage** tab from the left navigation. Select **Managed private endpoints** and then select **+ New**.
 ![Create a new Managed private endpoint](./media/how-to-create-managed-private-endpoints/managed-private-endpoint-2.png)
 
 ## Step 3: Select the data source type
@@ -41,6 +40,7 @@ After submitting the request, you'll see its status. To verify the successful cr
 You can also see that the *Approval State* is *Pending*. The owner of the target resource can approve or deny the private endpoint connection request. If the owner approves the private endpoint connection request, then a private link is established. If denied, then a private link isn't established.
 ![Managed private endpoint creation request status](./media/how-to-create-managed-private-endpoints/managed-private-endpoint-5.png)
 
-## Next steps
+## Related content
 
-Learn more about [Managed private endpoints](./synapse-workspace-managed-private-endpoints.md)
+- You can also [deploy managed private endpoints using the Azure CLI](/cli/azure/synapse/managed-private-endpoints).
+- Learn more about [managed private endpoints](./synapse-workspace-managed-private-endpoints.md).

@@ -1,54 +1,59 @@
 ---
 title: 'Quickstart: Create an Azure DNS zone and record - Azure Resource Manager template (ARM template)'
 titleSuffix: Azure DNS
-description: Learn how to create a DNS zone and record in Azure DNS. This is a step-by-step quickstart to create and manage your first DNS zone and record using Azure Resource Manager template (ARM template).
+description: Learn how to create a DNS zone and record in Azure DNS. This article is a step-by-step quickstart to create and manage your first DNS zone and record using Azure Resource Manager template (ARM template).
 services: dns
-author: duongau
-ms.service: dns
+author: asudbring
+ms.author: allensu
+ms.date: 11/05/2024
 ms.topic: quickstart
-ms.date: 09/8/2020
-ms.author: duau 
-
+ms.service: azure-dns
+ms.custom:
+  - subject-armqs
+  - mode-arm
+  - devx-track-arm-template
+  - sfi-image-nochange
 #Customer intent: As an administrator or developer, I want to learn how to configure Azure DNS using Azure ARM template so I can use Azure DNS for my name resolution.
+# Customer intent: As an administrator or developer, I want to create a DNS zone and record using an ARM template, so that I can efficiently manage name resolution for my applications in Azure.
 ---
 
 # Quickstart: Create an Azure DNS zone and record using an ARM template
 
-This quickstart describes how to use an Azure Resource Manager template (ARM Template) to create a DNS zone with an A record in it.
+This quickstart describes how to use an Azure Resource Manager template (ARM Template) to create a DNS zone with an `A` record in it.
 
-[!INCLUDE [About Azure Resource Manager](../../includes/resource-manager-quickstart-introduction.md)]
+[!INCLUDE [About Azure Resource Manager](~/reusable-content/ce-skilling/azure/includes/resource-manager-quickstart-introduction.md)]
 
 If your environment meets the prerequisites and you're familiar with using ARM templates, select the **Deploy to Azure** button. The template will open in the Azure portal.
 
-[![Deploy to Azure](../media/template-deployments/deploy-to-azure.svg)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fazure-quickstart-templates%2Fmaster%2F101-azure-dns-new-zone%2Fazuredeploy.json)
+:::image type="content" source="~/reusable-content/ce-skilling/azure/media/template-deployments/deploy-to-azure-button.svg" alt-text="Button to deploy the Resource Manager template to Azure." border="false" link="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fazure-quickstart-templates%2Fmaster%2Fquickstarts%2Fmicrosoft.network%2Fazure-dns-new-zone%2Fazuredeploy.json":::
 
 ## Prerequisites
 
-If you don't have an Azure subscription, create a [free account](https://azure.microsoft.com/free/?WT.mc_id=A261C142F) before you begin.
+If you don't have an Azure subscription, create a [free account](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn) before you begin.
 
 ## Review the template
 
-The template used in this quickstart is from [Azure Quickstart Templates](https://azure.microsoft.com/resources/templates/101-azure-dns-new-zone).
+The template used in this quickstart is from [Azure Quickstart Templates](https://azure.microsoft.com/resources/templates/azure-dns-new-zone).
 
-In this quickstart, you'll create a unique DNS zone with a suffix of *<span>azurequickstart.</span>org*. An *A* record pointing to two IP addresses will also be placed in the zone.
+In this quickstart, you'll create a unique DNS zone with a suffix of `azurequickstart.org`. An `A` record pointing to two IP addresses will also be placed in the zone.
 
-:::code language="json" source="~/quickstart-templates/101-azure-dns-new-zone/azuredeploy.json":::
+:::code language="json" source="~/quickstart-templates/quickstarts/microsoft.network/azure-dns-new-zone/azuredeploy.json":::
 
 Two Azure resources have been defined in the template:
 
-* [**Microsoft.Network/dnsZones**](/azure/templates/microsoft.network/dnsZones)
-* [**Microsoft.Network/dnsZones/A**](/azure/templates/microsoft.network/dnsZones/A) (Used to create an A record in the zone)
+- [**Microsoft.Network/dnsZones**](/azure/templates/microsoft.network/dnsZones)
+- [**Microsoft.Network/dnsZones/A**](/azure/templates/microsoft.network/dnsZones/A): Used to create an `A` record in the zone.
 
 To find more templates that are related to Azure Traffic Manager, see [Azure Quickstart Templates](https://azure.microsoft.com/resources/templates/?resourceType=Microsoft.Network&pageNumber=1&sort=Popular).
 
 ## Deploy the template
 
-1. Select **Try it** from the following code block to open Azure Cloud Shell, and then follow the instructions to sign in to Azure. 
+1. Select **Try it** from the following code block to open Azure Cloud Shell, and then follow the instructions to sign in to Azure.
 
     ```azurepowershell-interactive
     $projectName = Read-Host -Prompt "Enter a project name that is used for generating resource names"
     $location = Read-Host -Prompt "Enter the location (i.e. centralus)"
-    $templateUri = "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/101-azure-dns-new-zone/azuredeploy.json"
+    $templateUri = "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/quickstarts/microsoft.network/azure-dns-new-zone/azuredeploy.json"
 
     $resourceGroupName = "${projectName}rg"
 
@@ -66,7 +71,7 @@ To find more templates that are related to Azure Traffic Manager, see [Azure Qui
 
 1. Enter the values.
 
-    The template deployment creates a zone with one A record pointing to two IP addresses. The resource group name is the project name with **rg** appended.
+    The template deployment creates a zone with one `A` record pointing to two IP addresses. The resource group name is the project name with `rg` appended.
 
     It takes a couple seconds to deploy the template. When completed, the output is similar to:
 
@@ -80,13 +85,13 @@ Azure PowerShell is used to deploy the template. In addition to Azure PowerShell
 
 1. Select **Resource groups** from the left pane.
 
-1. Select the resource group that you created in the previous section. The default resource group name is the project name with **rg** appended.
+1. Select the resource group that you created in the previous section. The default resource group name is the project name with `rg` appended.
 
 1. The resource group should contain the following resources seen here:
 
     :::image type="content" source="./media/dns-getstarted-template/resource-group-dns-zone.png" alt-text="DNS zone deployment resource group":::
 
-1. Select the DNS zone with the suffix of **<span>azurequickstart.</span>org** to verify that the zone is created properly with an **A** record referencing the value of **1.2.3.4** and **1.2.3.5**.
+1. Select the DNS zone with the suffix of `azurequickstart.org` to verify that the zone is created properly with an `A` record referencing the value of `203.0.113.1` and `203.0.113.2`.
 
     :::image type="content" source="./media/dns-getstarted-template/dns-zone-overview.png" alt-text="DNS zone deployment":::
 
@@ -94,13 +99,13 @@ Azure PowerShell is used to deploy the template. In addition to Azure PowerShell
 
 1. Open a command prompt, and run the following command:
 
-   ```
+   ```cmd
    nslookup www.<dns zone name> <name server name>
    ```
 
    For example:
 
-   ```
+   ```cmd
    nslookup www.2lwynbseszpam.azurequickstart.org ns1-09.azure-dns.com.
    ```
 
@@ -108,11 +113,11 @@ Azure PowerShell is used to deploy the template. In addition to Azure PowerShell
 
     :::image type="content" source="./media/dns-getstarted-template/dns-zone-validation.png" alt-text="DNS zone nslookup":::
 
-The host name **www<span>.2lwynbseszpam.azurequickstart.</span>org** resolves to **1.2.3.4** and **1.2.3.5**, just as you configured it. This result verifies that name resolution is working correctly.
+The host name `www.2lwynbseszpam.azurequickstart.org` resolves to `203.0.113.1` and `203.0.113.2`, just as you configured it. This result verifies that name resolution is working correctly.
 
 ## Clean up resources
 
-When you no longer need the resources that you created with the DNS zone, delete the resource group. This removes the DNS zone and all the related resources.
+When you no longer need the resources that you created with the DNS zone, delete the resource group. This action removes the DNS zone and all the related resources.
 
 To delete the resource group, call the `Remove-AzResourceGroup` cmdlet:
 
@@ -123,10 +128,11 @@ Remove-AzResourceGroup -Name <your resource group name>
 ## Next steps
 
 In this quickstart, you created a:
-* DNS zone
-* A record
 
-Now that you've created your first DNS zone and record using Azure Resource Manager template, you can create records for a web app in a custom domain.
+- DNS zone
+- `A` record
+
+Now that you've created your first DNS zone and record using an ARM template, you can create records for a web app in a custom domain.
 
 > [!div class="nextstepaction"]
 > [Create DNS records for a web app in a custom domain](./dns-web-sites-custom-domain.md)

@@ -1,12 +1,11 @@
 ---
 title: Compliance using Azure Policy
 description: Assign built-in policies in Azure Policy to audit compliance of your Azure SignalR Service resources.
-author: JialinXin
-
-ms.service: signalr
-ms.topic: conceptual
-ms.date: 06/17/2020
-ms.author: jixin
+author: vicancy
+ms.service: azure-signalr-service
+ms.topic: how-to
+ms.date: 07/18/2022
+ms.author: lianwei
 ---
 
 # Audit compliance of Azure SignalR Service resources using Azure Policy
@@ -21,13 +20,13 @@ There are no charges for using Azure Policy.
 
 The following built-in policy definitions are specific to Azure SignalR Service:
 
-[!INCLUDE [azure-policy-reference-policies-signalr](../../includes/policy/reference/bycat/policies-signalr.md)]
+[!INCLUDE [azure-policy-reference-policies-signalr](~/azure-policy-autogen-docs/includes/policy/reference/bycat/policies-signalr.md)]
 
 ## Assign policy definitions
 
-* Assign policy definitions using the [Azure portal](../governance/policy/assign-policy-portal.md), [Azure CLI](../governance/policy/assign-policy-azurecli.md), a [Resource Manager template](../governance/policy/assign-policy-template.md), or the Azure Policy SDKs.
-* Scope a policy assignment to a resource group, a subscription, or an [Azure management group](../governance/management-groups/overview.md). SignalR policy assignments apply to existing and new SignalR resources within the scope.
-* Enable or disable [policy enforcement](../governance/policy/concepts/assignment-structure.md#enforcement-mode) at any time.
+- Assign policy definitions using the [Azure portal](../governance/policy/assign-policy-portal.md), [Azure CLI](../governance/policy/assign-policy-azurecli.md), a [Resource Manager template](../governance/policy/assign-policy-template.md), or the Azure Policy SDKs.
+- Scope a policy assignment to a resource group, a subscription, or an [Azure management group](../governance/management-groups/overview.md). SignalR policy assignments apply to existing and new SignalR resources within the scope.
+- Enable or disable [policy enforcement](../governance/policy/concepts/assignment-structure.md#enforcement-mode) at any time.
 
 > [!NOTE]
 > After you assign or update a policy, it takes some time for the assignment to be applied to resources in the defined scope. See information about [policy evaluation triggers](../governance/policy/how-to/get-compliance-data.md#evaluation-triggers).
@@ -43,9 +42,10 @@ When a resource is non-compliant, there are many possible reasons. To determine 
 1. Select **All services**, and search for **Policy**.
 1. Select **Compliance**.
 1. Use the filters to limit compliance states or to search for policies
-   
-    [ ![Policy compliance in portal](./media/signalr-howto-azure-policy/azure-policy-compliance.png) ](./media/signalr-howto-azure-policy/azure-policy-compliance.png#lightbox)
-2. Select a policy to review aggregate compliance details and events. If desired, then select a specific SignalR for resource compliance.
+
+   [ ![Screenshot showing policy compliance in portal.](./media/signalr-howto-azure-policy/azure-policy-compliance.png) ](./media/signalr-howto-azure-policy/azure-policy-compliance.png#lightbox)
+
+1. Select a policy to review aggregate compliance details and events. If desired, then select a specific SignalR for resource compliance.
 
 ### Policy compliance in the Azure CLI
 
@@ -80,12 +80,12 @@ az policy state list \
 
 ## Next steps
 
-* Learn more about Azure Policy [definitions](../governance/policy/concepts/definition-structure.md) and [effects](../governance/policy/concepts/effects.md)
+- Learn more about Azure Policy [definitions](../governance/policy/concepts/definition-structure.md) and [effects](../governance/policy/concepts/effects.md)
 
-* Create a [custom policy definition](../governance/policy/tutorials/create-custom-policy-definition.md)
+- Create a [custom policy definition](../governance/policy/tutorials/create-custom-policy-definition.md)
 
-* Learn more about [governance capabilities](../governance/index.yml) in Azure
-
+- Learn more about [governance capabilities](../governance/index.yml) in Azure
 
 <!-- LINKS - External -->
+
 [terms-of-use]: https://azure.microsoft.com/support/legal/preview-supplemental-terms/

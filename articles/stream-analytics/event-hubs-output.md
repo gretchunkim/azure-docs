@@ -1,12 +1,12 @@
 ---
 title: Event Hubs output from Azure Stream Analytics
 description: This article describes how to output data from Azure Stream Analytics to Azure Event Hubs.
-author: mamccrea
-ms.author: mamccrea
-ms.reviewer: mamccrea
-ms.service: stream-analytics
+author: an-emma
+ms.author: raan
+ms.service: azure-stream-analytics
+ms.custom: build-2023
 ms.topic: conceptual
-ms.date: 08/25/2020
+ms.date: 02/27/2023
 ---
 # Event Hubs output from Azure Stream Analytics
 
@@ -32,7 +32,7 @@ The following table has the parameters needed to configure data streams from eve
 
 ## Partitioning
 
-Partitioning varies depending on partition alignment. When the partition key for event hub output is equally aligned with the upstream (previous) query step, the number of writers is the same as the number of partitions in event hub output. Each writer uses the [EventHubSender class](/dotnet/api/microsoft.servicebus.messaging.eventhubsender?view=azure-dotnet) to send events to the specific partition. When the partition key for event hub output is not aligned with the upstream (previous) query step, the number of writers is the same as the number of partitions in that prior step. Each writer uses the [SendBatchAsync class](/dotnet/api/microsoft.servicebus.messaging.eventhubclient.sendasync?view=azure-dotnet) in **EventHubClient** to send events to all the output partitions. 
+Partitioning varies depending on partition alignment. When the partition key for event hub output is equally aligned with the upstream (previous) query step, the number of writers is the same as the number of partitions in event hub output. Each writer uses the [EventHubSender class](/dotnet/api/microsoft.servicebus.messaging.eventhubsender) to send events to the specific partition. When the partition key for event hub output is not aligned with the upstream (previous) query step, the number of writers is the same as the number of partitions in that prior step. Each writer uses the [SendBatchAsync class](/dotnet/api/microsoft.servicebus.messaging.eventhubclient.sendasync) in **EventHubClient** to send events to all the output partitions. 
 
 ## Output batch size
 
@@ -40,13 +40,30 @@ The maximum message size is 256 KB or 1 MB per message. For more information, se
 
 ## Custom metadata properties for output
 
-You can attach query columns as user properties to your outgoing messages. These columns don't go into the payload. The properties are present in the form of a dictionary on the output message. *Key* is the column name and *value* is the column value in the properties dictionary. All Stream Analytics data types are supported except Record and Array.  
+You can attach query columns as user properties to your outgoing messages. These columns don't go into the payload. The properties are present in the form of a dictionary on the output message. *Key* is the column name and *value* is the column value in the properties dictionary. All Stream Analytics data types are supported except Record and Array.
+
+In the following example, the fields `DeviceId` and `DeviceStatus` are added to the metadata.
+
+1. Use the following query:
+
+   ```sql
+   select *, DeviceId, DeviceStatus from iotHubInput
+   ```
+
+1. Configure `DeviceId,DeviceStatus` as property columns in the output.
+
+   :::image type="content" source="media/event-hubs-output/property-columns.png" alt-text="Property columns":::
+
+The following image is of the expected output message properties inspected in an event hub using [Service Bus Explorer](https://github.com/paolosalvatori/ServiceBusExplorer).
+
+:::image type="content" source="media/event-hubs-output/custom-properties.png" alt-text="Event custom properties":::
+
+## Exactly Once Delivery
+
+Exactly once delivery is supported in Event Hubs output by default. Regardless of your input, Stream Analytics guarantees no data loss or no duplicates in an Event Hubs output, across user-initiated restarts from last output time, preventing duplicates from being produced. This greatly simplifies the streaming pipeline by not having to monitor, implement, and troubleshoot deduplication logic.
+
 
 ## Next steps
 
+* [Use managed identities to access an event hub from an Azure Stream Analytics job (Preview)](event-hubs-managed-identity.md)
 * [Quickstart: Create a Stream Analytics job by using the Azure portal](stream-analytics-quick-create-portal.md)
-* [Quickstart: Create an Azure Stream Analytics job using the Azure CLI](quick-create-azure-cli.md)
-* [Quickstart: Create an Azure Stream Analytics job by using an ARM template](quick-create-azure-resource-manager.md)
-* [Quickstart: Create a Stream Analytics job using Azure PowerShell](stream-analytics-quick-create-powershell.md)
-* [Quickstart: Create an Azure Stream Analytics job by using Visual Studio](stream-analytics-quick-create-vs.md)
-* [Quickstart: Create an Azure Stream Analytics job in Visual Studio Code](quick-create-vs-code.md)

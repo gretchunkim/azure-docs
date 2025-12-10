@@ -1,13 +1,13 @@
 ---
 title: Submit Apache Hadoop jobs in HDInsight 
 description: Submit Apache Hadoop jobs in Azure HDInsight using Microsoft .NET SDK, curl, or PowerShell
-author: hrasheed-msft
-ms.author: hrasheed
-ms.reviewer: jasonh
-ms.service: hdinsight
+ms.service: azure-hdinsight
 ms.topic: conceptual
-ms.custom: hdinsightactive
-ms.date: 12/16/2019
+ms.custom: hdinsightactive, devx-track-dotnet
+author: hareshg
+ms.author: hgowrisankar
+ms.reviewer: nijelsf
+ms.date: 03/15/2024
 ---
 
 # Submit Apache Hadoop jobs in HDInsight
@@ -35,6 +35,6 @@ You can submit Apache Hadoop jobs in Azure HDInsight by using the Microsoft .NET
   - [Use Apache Sqoop with Apache Hadoop in HDInsight](apache-hadoop-use-sqoop-powershell.md)
   - [Run MapReduce jobs with Apache Hadoop in HDInsight by using PowerShell](apache-hadoop-use-mapreduce-powershell.md)
 
-## See also
+## Next steps
 
-- [Azure HDInsight documentation](https://docs.microsoft.com/azure/hdinsight/)
+- [Azure HDInsight documentation](../index.yml)

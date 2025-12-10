@@ -1,21 +1,26 @@
 ---
 title: Enterprise Security Package for Azure HDInsight
 description: Learn the Enterprise Security Package components and versions in Azure HDInsight.
-author: hrasheed-msft
-ms.author: hrasheed
-ms.reviewer: jasonh
-ms.service: hdinsight
+ms.service: azure-hdinsight
 ms.topic: conceptual
-ms.date: 05/08/2020
+author: hareshg
+ms.author: hgowrisankar
+ms.reviewer: nijelsf
+ms.date: 09/06/2024
 ---
 
 # Enterprise Security Package for Azure HDInsight
 
-Enterprise Security is an optional package that you can add on your HDInsight cluster as part of create cluster workflow. The Enterprise Security Package supports:
+Enterprise Security is an optional package that you can add on your HDInsight cluster as part of create cluster workflow. 
+
+> [!NOTE]
+> Enterprise Security Package for HDInsight is retiring, and will reach end of support by July 31, 2026.
+
+The Enterprise Security Package supports:
 
 * Integration with Active Directory for authentication.
 
-    In the past, you created HDInsight clusters with local admin user and local SSH user. The local admin user can access all the files, folders, tables, and columns.  With  Enterprise Security Package, you enable role-based access control by integrating HDInsight with your Azure Active Directory Domain Services.
+    In the past, you created HDInsight clusters with local admin user and local SSH user. The local admin user can access all the files, folders, tables, and columns.  With  Enterprise Security Package, you enable Azure role-based access control by integrating HDInsight with your Microsoft Entra Domain Services.
 
     For more information, see:
 
@@ -23,9 +28,9 @@ Enterprise Security is an optional package that you can add on your HDInsight cl
 
     * [Plan Azure domain-joined Apache Hadoop clusters in HDInsight](./domain-joined/apache-domain-joined-architecture.md)
 
-    * [Configure domain-joined sandbox environment](./domain-joined/apache-domain-joined-configure.md)
+    * [Configure domain-joined sandbox environment](./domain-joined/apache-domain-joined-configure-using-azure-adds.md)
 
-    * [Configure Domain-joined HDInsight clusters using Azure Active Directory Domain Services](./domain-joined/apache-domain-joined-configure-using-azure-adds.md)
+    * [Configure Domain-joined HDInsight clusters using Microsoft Entra Domain Services](./domain-joined/apache-domain-joined-configure-using-azure-adds.md)
 
 * Authorization for data
 
@@ -40,7 +45,7 @@ Enterprise Security is an optional package that you can add on your HDInsight cl
 
 Currently, only the following cluster types support the Enterprise Security Package:
 
-* Hadoop (HDInsight 3.6 only)
+* Hadoop
 * Spark
 * Kafka
 * HBase
@@ -58,5 +63,5 @@ For information on pricing and SLA for the Enterprise Security Package, see [HDI
 
 * [Cluster setup for Apache Hadoop, Spark, and more on HDInsight](hdinsight-hadoop-provision-linux-clusters.md)
 * [Work in Apache Hadoop on HDInsight from a Windows PC](hdinsight-hadoop-windows-tools.md)
-* [Hortonworks release notes associated with Azure HDInsight versions](./hortonworks-release-notes.md)
+* [Azure HDInsight release notes](./hdinsight-release-notes.md)
 * [Apache components on HDInsight](./hdinsight-component-versioning.md)

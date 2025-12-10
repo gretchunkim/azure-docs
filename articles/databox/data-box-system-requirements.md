@@ -1,46 +1,51 @@
 ---
 title: Microsoft Azure Data Box system requirements| Microsoft Docs
-description: Learn about important system requirements for your Azure Data Box and for the clients connecting to the Data Box.
+description: Learn about important system requirements for your Azure Data Box and for clients that connect to the Data Box. 
 services: databox
-author: alkohli
+author: stevenmatthew
 
-ms.service: databox
-ms.subservice: pod
-ms.topic: article
-ms.date: 07/20/2020
-ms.author: alkohli
+ms.service: azure-databox
+ms.topic: concept-article
+ms.date: 03/06/2025
+ms.author: shaas
+# Customer intent: As a system administrator, I want to review the system requirements for Azure Data Box, so that I can ensure compatibility and optimal performance for deployment and data transfer.
 ---
-# Azure Data Box system requirements
 
-This article describes the important system requirements for your Microsoft Azure Data Box and for the clients connecting to the Data Box. We recommend you review the information carefully before you deploy your Data Box, and then refer back to it as necessary during the deployment and subsequent operation.
+# Azure Data Box system requirements 
+
+This article describes important system requirements for your Microsoft Azure Data Box and for clients that connect to the Data Box. We recommend you review the information carefully before you deploy your Data Box and then refer to it when you need to during deployment and operation.
 
 The system requirements include:
 
-* **Software requirements for hosts connecting to Data Box** - describes the supported platforms, browsers for the local web UI, SMB clients, and any additional requirements for hosts that can connect to the Data Box.
-* **Networking requirements for the Data Box** - provides information about the networking requirements for the optimum operation of the Data Box.
+* **Software requirements** for hosts that connect to Data Box.<br>
+They describe supported operating systems, file transfer protocols, storage accounts, storage types, and browsers for the local web UI.
+* **Networking requirements** for the Data Box device.<br>
+They describe network connections and ports used for optimal Data Box device operation.
 
 
 ## Software requirements
 
-The software requirements include the information on the supported operating systems, supported browsers for the local web UI, and SMB clients.
+The software requirements include supported operating systems, file transfer protocols, storage accounts, storage types, and browsers for the local web UI.
 
 ### Supported operating systems for clients
 
 [!INCLUDE [data-box-supported-os-clients](../../includes/data-box-supported-os-clients.md)]
 
-
-### Supported filesystems for Linux clients
+### Supported file transfer protocols for clients
 
 [!INCLUDE [data-box-supported-file-systems-clients](../../includes/data-box-supported-file-systems-clients.md)]
 
-
-> [!IMPORTANT] 
-> Connection to Data Box shares is not supported via REST for export orders. 
+> [!IMPORTANT]
+> Connection to Data Box shares is not supported via REST for export orders.
+>
+> You can transport your data to Data Box from on-premises Network File System (NFS) clients by using NFSv4. However, when copying data from Data Box to Azure, Data Box supports REST-based transport only. Azure file shares with NFSv4.1 doesn't support REST for data access or transfer.
 
 ### Supported storage accounts
 
-[!INCLUDE [data-box-supported-storage-accounts](../../includes/data-box-supported-storage-accounts.md)]
+> [!Note]
+> Classic storage accounts will not be supported starting **August 1, 2023**.
 
+[!INCLUDE [data-box-supported-storage-accounts](../../includes/data-box-supported-storage-accounts.md)]
 
 ### Supported storage types
 
@@ -52,11 +57,11 @@ The software requirements include the information on the supported operating sys
 
 ## Networking requirements
 
-Your datacenter needs to have high-speed network. We strongly recommend that you have at least one 10-GbE connection. If a 10-GbE connection is not available, a 1-GbE data link can be used to copy data but the copy speeds are impacted.
+Your datacenter needs to have high-speed network. We strongly recommend you have at least one 10-GbE connection. If a 10-GbE connection isn't available, you can use a 1-GbE data link to copy data, but the copy speeds are affected.
 
 ### Port requirements
 
-The following table lists the ports that need to be opened in your firewall to allow for SMB or NFS traffic. In this table, *in* or *inbound* refers to the direction from which incoming client requests access to your device. *Out* or *outbound* refers to the direction in which your Data Box device sends data externally, beyond the deployment: for example, outbound to the Internet.
+The following table lists the ports that need to be opened in your firewall to allow for Server Message Block (SMB) or  Network File System (NFS) traffic. In this table, *In* (*inbound*) refers to the direction from which incoming client requests access to your device. *Out* (or *outbound*) refers to the direction in which your Data Box device sends data externally, beyond the deployment. For example, data might be outbound to the Internet.
 
 [!INCLUDE [data-box-port-requirements](../../includes/data-box-port-requirements.md)]
 
@@ -64,3 +69,4 @@ The following table lists the ports that need to be opened in your firewall to a
 ## Next steps
 
 * [Deploy your Azure Data Box](data-box-deploy-ordered.md)
+

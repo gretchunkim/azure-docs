@@ -1,13 +1,13 @@
 ---
 title: An introduction to Apache Kafka on HDInsight - Azure 
 description: 'Learn about Apache Kafka on HDInsight: What it is, what it does, and where to find examples and getting started information.'
-author: hrasheed-msft
-ms.author: hrasheed
-ms.reviewer: jasonh
-ms.service: hdinsight
+ms.service: azure-hdinsight
 ms.topic: overview
 ms.custom: hdinsightactive
-ms.date: 02/25/2020
+author: yeturis
+ms.author: sairamyeturi
+ms.reviewer: nijelsf
+ms.date: 05/09/2024
 #Customer intent: As a developer, I want to understand how Kafka on HDInsight is different from Kafka on other platforms.
 ---
 
@@ -23,13 +23,15 @@ The following are specific characteristics of Kafka on HDInsight:
 
 * It uses Azure Managed Disks as the backing store for Kafka. Managed Disks can provide up to 16 TB of storage per Kafka broker. For information on configuring managed disks with Kafka on HDInsight, see [Increase scalability of Apache Kafka on HDInsight](apache-kafka-scalability.md).
 
-    For more information on managed disks, see [Azure Managed Disks](../../virtual-machines/managed-disks-overview.md).
+    For more information on managed disks, see [Azure Managed Disks](/azure/virtual-machines/managed-disks-overview).
 
 * Kafka was designed with a single dimensional view of a rack. Azure separates a rack into two dimensions - Update Domains (UD) and Fault Domains (FD). Microsoft provides tools that rebalance Kafka partitions and replicas across UDs and FDs.
 
     For more information, see [High availability with Apache Kafka on HDInsight](apache-kafka-high-availability.md).
 
-* HDInsight allows you to change the number of worker nodes (which host the Kafka-broker) after cluster creation. Scaling can be performed from the Azure portal, Azure PowerShell, and other Azure management interfaces. For Kafka, you should rebalance partition replicas after scaling operations. Rebalancing partitions allows Kafka to take advantage of the new number of worker nodes.
+* HDInsight allows you to change the number of worker nodes (which host the Kafka-broker) after cluster creation. Upward scaling can be performed from the Azure portal, Azure PowerShell, and other Azure management interfaces. For Kafka, you should rebalance partition replicas after scaling operations. Rebalancing partitions allows Kafka to take advantage of the new number of worker nodes.
+
+   HDInsight Kafka does not support downward scaling or decreasing the number of brokers within a cluster. If an attempt is made to decrease the number of nodes, an `InvalidKafkaScaleDownRequestErrorCode` error is returned.
 
     For more information, see [High availability with Apache Kafka on HDInsight](apache-kafka-high-availability.md).
 
@@ -41,7 +43,7 @@ The following are specific characteristics of Kafka on HDInsight:
 
 The following diagram shows a typical Kafka configuration that uses consumer groups, partitioning, and replication to offer parallel reading of events with fault tolerance:
 
-![Kafka cluster configuration diagram](./media/apache-kafka-introduction/kafka-cluster-diagram.png)
+:::image type="content" source="./media/apache-kafka-introduction/kafka-cluster-diagram.png" alt-text="Kafka cluster configuration diagram." border="false":::
 
 Apache ZooKeeper manages the state of the Kafka cluster. Zookeeper is built for concurrent, resilient, and low-latency transactions.
 
@@ -55,17 +57,17 @@ Replication is employed to duplicate partitions across nodes, protecting against
 
 The following are common tasks and patterns that can be performed using Kafka on HDInsight:
 
-|Use |Description |
-|---|---|
-|Replication of Apache Kafka data|Kafka provides the MirrorMaker utility, which replicates data between Kafka clusters. For information on using MirrorMaker, see [Replicate Apache Kafka topics with Apache Kafka on HDInsight](apache-kafka-mirroring.md).|
-|Publish-subscribe messaging pattern|Kafka provides a Producer API for publishing records to a Kafka topic. The Consumer API is used when subscribing to a topic. For more information, see [Start with Apache Kafka on HDInsight](apache-kafka-get-started.md).|
-|Stream processing|Kafka is often used with Apache Storm or Spark for real-time stream processing. Kafka 0.10.0.0 (HDInsight version 3.5 and 3.6) introduced a streaming API that allows you to build streaming solutions without requiring Storm or Spark. For more information, see [Start with Apache Kafka on HDInsight](apache-kafka-get-started.md).|
-|Horizontal scale|Kafka partitions streams across the nodes in the HDInsight cluster. Consumer processes can be associated with individual partitions to provide load balancing when consuming records. For more information, see [Start with Apache Kafka on HDInsight](apache-kafka-get-started.md).|
-|In-order delivery|Within each partition, records are stored in the stream in the order that they were received. By associating one consumer process per partition, you can guarantee that records are processed in-order. For more information, see [Start with Apache Kafka on HDInsight](apache-kafka-get-started.md).|
-|Messaging|Since it supports the publish-subscribe message pattern, Kafka is often used as a message broker.|
-|Activity tracking|Since Kafka provides in-order logging of records, it can be used to track and re-create activities. For example, user actions on a web site or within an application.|
-|Aggregation|Using stream processing, you can aggregate information from different streams to combine and centralize the information into operational data.|
-|Transformation|Using stream processing, you can combine and enrich data from multiple input topics into one or more output topics.|
+|Use | Description                                                                                                                                                                                                                                                                                                        |
+|---|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|Replication of Apache Kafka data| Kafka provides the MirrorMaker utility, which replicates data between Kafka clusters. For information on using MirrorMaker, see [Replicate Apache Kafka topics with Apache Kafka on HDInsight](apache-kafka-mirroring.md).                                                                                         |
+|Publish-subscribe messaging pattern| Kafka provides a Producer API for publishing records to a Kafka topic. The Consumer API is used when subscribing to a topic. For more information, see [Start with Apache Kafka on HDInsight](apache-kafka-get-started.md).                                                                                        |
+|Stream processing| Kafka is often used with Spark for real-time stream processing. Kafka 2.1.1 and 2.4.1 (HDInsight version 4.0 and 5.0) support streaming API's that allows you to build streaming solutions without requiring Spark. For more information, see [Start with Apache Kafka on HDInsight](apache-kafka-get-started.md). |
+|Horizontal scale| Kafka partitions streams across the nodes in the HDInsight cluster. Consumer processes can be associated with individual partitions to provide load balancing when consuming records. For more information, see [Start with Apache Kafka on HDInsight](apache-kafka-get-started.md).                               |
+|In-order delivery| Within each partition, records are stored in the stream in the order that they were received. By associating one consumer process per partition, you can guarantee that records are processed in-order. For more information, see [Start with Apache Kafka on HDInsight](apache-kafka-get-started.md).             |
+|Messaging| Since it supports the publish-subscribe message pattern, Kafka is often used as a message broker.                                                                                                                                                                                                                  |
+|Activity tracking| Since Kafka provides in-order logging of records, it can be used to track and re-create activities. For example, user actions on a web site or within an application.                                                                                                                                              |
+|Aggregation| Using stream processing, you can aggregate information from different streams to combine and centralize the information into operational data.                                                                                                                                                                     |
+|Transformation| Using stream processing, you can combine and enrich data from multiple input topics into one or more output topics.                                                                                                                                                                                                |
 
 ## Next steps
 
@@ -77,4 +79,3 @@ Use the following links to learn how to use Apache Kafka on HDInsight:
 
 * [Tutorial: Use Apache Spark with Apache Kafka on HDInsight](../hdinsight-apache-spark-with-kafka.md)
 
-* [Tutorial: Use Apache Storm with Apache Kafka on HDInsight](../hdinsight-apache-storm-with-kafka.md)

@@ -2,13 +2,17 @@
 title: Quickstart - Create an Azure private DNS zone using the Azure CLI
 description: In this quickstart, you create and test a private DNS zone and record in Azure DNS. This is a step-by-step guide to create and manage your first private DNS zone and record using Azure CLI.
 services: dns
-author: rohinkoul
-ms.service: dns
+author: asudbring
+ms.service: azure-dns
 ms.topic: quickstart
-ms.date: 10/05/2019
-ms.author: rohink 
-ms.custom: devx-track-azurecli
-#Customer intent: As an experienced network administrator I want to create an  Azure private DNS zone, so I can resolve host names on my private virtual networks.
+ms.date: 11/30/2023
+ms.author: allensu
+ms.custom:
+  - devx-track-azurecli
+  - mode-api
+  - sfi-image-nochange
+#Customer intent: As an experienced network administrator, I want to create an  Azure private DNS zone, so I can resolve host names on my private virtual networks.
+# Customer intent: "As a network administrator, I want to create and manage a private DNS zone using command line tools, so that I can efficiently resolve host names within my private network environment."
 ---
 
 # Quickstart: Create an Azure private DNS zone using the Azure CLI
@@ -17,19 +21,15 @@ This quickstart walks you through the steps to create your first private DNS zon
 
 A DNS zone is used to host the DNS records for a particular domain. To start hosting your domain in Azure DNS, you need to create a DNS zone for that domain name. Each DNS record for your domain is then created inside this DNS zone. To publish a private DNS zone to your virtual network, you specify the list of virtual networks that are allowed to resolve records within the zone.  These are called *linked* virtual networks. When autoregistration is enabled, Azure DNS also updates the zone records whenever a virtual machine is created, changes its' IP address, or is deleted.
 
-In this quickstart, you learn how to:
+:::image type="content" source="media/private-dns-portal/private-dns-quickstart-summary.png" alt-text="Summary diagram of the quickstart setup." border="false" lightbox="media/private-dns-portal/private-dns-quickstart-summary.png":::
 
-> [!div class="checklist"]
-> * Create a private DNS zone
-> * Create test virtual machines
-> * Create an additional DNS record
-> * Test the private zone
+[!INCLUDE [quickstarts-free-trial-note](~/reusable-content/ce-skilling/azure/includes/quickstarts-free-trial-note.md)]
 
-If you don’t have an Azure subscription, create a [free account](https://azure.microsoft.com/free/?WT.mc_id=A261C142F) before you begin.
+## Prerequisites
 
-If you prefer, you can complete this quickstart using [Azure PowerShell](private-dns-getstarted-powershell.md).
+[!INCLUDE [azure-cli-prepare-your-environment-no-header.md](~/reusable-content/azure-cli/azure-cli-prepare-your-environment-no-header.md)]
 
-[!INCLUDE [cloud-shell-try-it.md](../../includes/cloud-shell-try-it.md)]
+- You can also complete this quickstart using [Azure PowerShell](private-dns-getstarted-powershell.md).
 
 ## Create the resource group
 
@@ -93,7 +93,9 @@ az vm create \
  --nsg NSG01 \
  --nsg-rule RDP \
  --image win2016datacenter
+```
 
+```azurecli
 az vm create \
  -n myVM02 \
  --admin-username AzureAdmin \
@@ -106,7 +108,7 @@ az vm create \
  --image win2016datacenter
 ```
 
-This will take a few minutes to complete.
+Creating a virtual machine will take a few minutes to complete.
 
 ## Create an additional DNS record
 
@@ -153,13 +155,13 @@ Repeat for myVM02.
 
 1. From the myVM02 Windows PowerShell command prompt, ping myVM01 using the automatically registered host name:
 
-   ```
+   ```powershell
    ping myVM01.private.contoso.com
    ```
 
-   You should see output that looks similar to this:
+   You should see an output that looks similar to what is shown below:
 
-   ```
+   ```output
    PS C:\> ping myvm01.private.contoso.com
 
    Pinging myvm01.private.contoso.com [10.2.0.4] with 32 bytes of data:
@@ -177,13 +179,13 @@ Repeat for myVM02.
 
 2. Now ping the **db** name you created previously:
 
-   ```
+   ```powershell
    ping db.private.contoso.com
    ```
 
-   You should see output that looks similar to this:
+   You should see an output that looks similar to what is shown below:
 
-   ```
+   ```output
    PS C:\> ping db.private.contoso.com
 
    Pinging db.private.contoso.com [10.2.0.4] with 32 bytes of data:
@@ -199,7 +201,7 @@ Repeat for myVM02.
    PS C:\>
    ```
 
-## Delete all resources
+## Clean up resources
 
 When no longer needed, delete the **MyAzureResourceGroup** resource group to delete the resources created in this quickstart.
 
@@ -211,4 +213,3 @@ az group delete --name MyAzureResourceGroup
 
 > [!div class="nextstepaction"]
 > [Azure DNS Private Zones scenarios](private-dns-scenarios.md)
-

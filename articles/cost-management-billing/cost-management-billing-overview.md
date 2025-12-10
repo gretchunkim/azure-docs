@@ -1,119 +1,144 @@
 ---
-title: Overview of Azure Cost Management + Billing
-description: You use Azure Cost Management + Billing features to conduct billing administrative tasks and manage billing access to costs. You also use the features to monitor and control Azure spending and to optimize Azure resource use.
-keywords:
-author: bandersmsft
-ms.author: banders
-ms.date: 08/20/2020
+title: Overview of Billing
+titleSuffix: Microsoft Cost Management
+description: You use Billing features to manage billing accounts, invoices, and purchased products. You also use the features to monitor and control Azure spending and to optimize Azure resource use.
+author: vikramdesai01
+ms.author: vikdesai
+ms.reviewer: vikdesai
+ms.date: 06/27/2025
 ms.topic: overview
 ms.service: cost-management-billing
 ms.subservice: common
-ms.custom:
+ms.custom: engagement-fy2
 ---
 
-# What is Azure Cost Management + Billing?
+# What is Microsoft Billing?
 
-By using the Microsoft cloud, you can significantly improve the technical performance of your business workloads. It can also reduce your costs and the overhead required to manage organizational assets. However, the business opportunity creates a risk because of the potential for waste and inefficiencies that are introduced into your cloud deployments. Azure Cost Management + Billing is a suite of tools provided by Microsoft that help you analyze, manage, and optimize the costs of your workloads. Using the suite helps ensure that your organization is taking advantage of the benefits provided by the cloud.
+Billing is where you can manage your accounts, invoices, and payments. Billing is available to anyone with access to a billing account or other billing scope, like billing profiles and invoice sections. The cloud finance team and organizational leaders are typically included.
 
-You can think of your Azure workloads like the lights in your home. When you leave to go out for the day, are you leaving the lights on? Could you use different bulbs that are more efficient to help reduce your monthly energy bill? Do you have more lights in one room than are needed? You can use Azure Cost Management + Billing to apply a similar thought process to the workloads used by your organization.
+A few examples of what you can do in Billing include:
 
-With Azure products and services, you only pay for what you use. As you create and use Azure resources, you’re charged for the resources. Because of the deployment ease for new resources, the costs of your workloads can jump significantly without proper analysis and monitoring. You use Azure Cost Management + Billing features to:
+- Create and organize subscriptions to customize invoices.
+- Configure payment options and pay invoices.
+- Manage your billing information, such as legal entity, tax information, and agreements.
+- Report on and analyze costs in the Azure portal, Microsoft 365 admin center, or externally by exporting data.
+- Monitor costs proactively with budgets and scheduled alerts.
 
-- Conduct billing administrative tasks such as paying your bill
-- Manage billing access to costs
-- Download cost and usage data that was used to generate your monthly invoice
-- Proactively apply data analysis to your costs
-- Set spending thresholds
-- Identify opportunities for workload changes that can optimize your spending
+## How charges are processed
 
-To learn more about how to approach cost management as an organization, take a look at the [Azure Cost Management best practices](./costs/cost-mgt-best-practices.md) article.
+To understand how Billing works, you should first understand the Commerce system. At its core, Microsoft Commerce is a data pipeline that underpins all Microsoft commercial transactions, whether consumer or commercial. There are many inputs and connections to the pipeline. It includes the sign-up and Marketplace purchase experiences. However, we'll focus on the pieces that make up your cloud billing account and how charges are processed within the system.
 
-## Understand Azure Billing
+:::image type="content" source="./media/commerce-pipeline.svg" alt-text="Diagram showing the Commerce data pipeline." border="false" lightbox="./media/commerce-pipeline.svg":::
 
-Azure Billing features are used to review your invoiced costs and manage access to billing information. In larger organizations, procurement and finance teams usually conduct billing tasks.
+On the left side of the diagram, your Azure, Microsoft 365, Dynamics 365, and Power Platform services are all pushing data into the Commerce data pipeline. Each service publishes data on a different cadence. In general, if data for one service is slower than another, it's due to how frequently those services are publishing their usage and charges.
 
-A billing account is created when you sign up to use Azure. You use your billing account to manage your invoices, payments, and track costs. You can have access to multiple billing accounts. For example, you might have signed up for Azure for your personal projects. So, you might have an individual Azure subscription with a billing account. You could also have access through your organization's Enterprise Agreement or Microsoft Customer Agreement. For each scenario, you would have a separate billing account.
+As the data makes its way through the pipeline, the rating system applies discounts based on your specific price sheet and generates *rated usage*, which includes price and quantity for each cost record. It's the basis for what you see in Microsoft Cost Management, but we'll cover that later. At the end of the month, credits are applied and the invoice is published. The process starts 72 hours after your billing period ends, which is usually the last day of the calendar month for most accounts. For example, if your billing period ends on March 31, charges will be finalized on April 4 at midnight.
 
-### Billing accounts
+> [!IMPORTANT]
+> Credits are applied like a gift card or other payment instrument before the invoice is generated. While credit status is tracked as new charges flow into the data pipeline, credits aren't explicitly applied to these charges until the end of the month.
 
-The Azure portal currently supports the following types of billing accounts:
+Everything up to this point makes up the billing process. It's where charges are finalized, discounts are applied, and invoices are published. Billing account and billing profile owners may be familiar with this process as part of the Billing experience within the Azure portal or Microsoft 365 admin center. The Billing experience allows you to review credits, manage your billing address and payment methods, pay invoices, and more – everything related to managing your billing relationship with Microsoft.
 
-- **Microsoft Online Services Program**: An individual billing account for a Microsoft Online Services Program is created when you sign up for Azure through the Azure website. For example, when you sign up for an [Azure Free Account](https://azure.microsoft.com/offers/ms-azr-0044p/), [account with pay-as-you-go rates](https://azure.microsoft.com/offers/ms-azr-0003p/) or as a [Visual studio subscriber](https://azure.microsoft.com/pricing/member-offers/credit-for-visual-studio-subscribers/).
+After discounts are applied, cost details then flow into Cost Management, where:
 
-- **Enterprise Agreement**: A billing account for an Enterprise Agreement is created when your organization signs an [Enterprise Agreement (EA)](https://azure.microsoft.com/pricing/enterprise-agreement/) to use Azure.
+- The [anomaly detection](./understand/analyze-unexpected-charges.md) model identifies anomalies daily based on normalized usage (not rated usage).
+- The cost allocation engine applies tag inheritance and [splits shared costs](./costs/allocate-costs.md).
+- Azure Advisor cost recommendations are pulled in to enable cost savings insights for subscriptions and resource groups.
+- Cost alerts are sent out for [budgets](./costs/tutorial-acm-create-budgets.md), [anomalies](./understand/analyze-unexpected-charges.md#create-an-anomaly-alert), [scheduled alerts](./costs/save-share-views.md#subscribe-to-scheduled-alerts), and more based on the configured settings.
 
-- **Microsoft Customer Agreement**: A billing account for a Microsoft Customer Agreement is created when your organization works with a Microsoft representative to sign a Microsoft Customer Agreement. Some customers in select regions, who sign up through the Azure website for an [account with pay-as-you-go rates](https://azure.microsoft.com/offers/ms-azr-0003p/) or upgrade their [Azure Free Account](https://azure.microsoft.com/offers/ms-azr-0044p/) may have a billing account for a Microsoft Customer Agreement as well. For more information, see [Get started with your billing account for Microsoft Customer Agreement](./understand/mca-overview.md).
+Lastly, cost details are made available from [Cost Analysis](./costs/quick-acm-cost-analysis.md) in the Azure portal and published to your storage account via [scheduled exports](./costs/tutorial-improved-exports.md).
 
-### Scopes for billing accounts
-A scope is a node in a billing account that you use to view and manage billing. It's where you manage billing data, payments, invoices, and conduct general account management.
+## How Cost Management and Billing relate
 
-#### Microsoft Online Services Program
+[Cost Management](https://portal.azure.com/#view/Microsoft_Azure_CostManagement/Menu) is a set of FinOps tools that enable you to analyze, manage, and optimize your costs.
 
-|Scope  |Definition  |
-|---------|---------|
-|Billing account     | Represents a single owner (Account administrator) for one or more Azure subscriptions. An Account Administrator is authorized to do various billing tasks like create subscriptions, view invoices or change the billing for subscriptions.  |
-|Subscription     |  Represents a grouping of Azure resources. An invoice is generated at the subscription scope. It has its own payment methods that are used to pay its invoice.|
+[Billing](https://portal.azure.com/#view/Microsoft_Azure_GTM/ModernBillingMenuBlade) provides all the tools you need to manage your billing account and pay invoices.
 
-#### Enterprise Agreement
+Cost Management is available from within the Billing experience. It's also available from every subscription, resource group, and management group in the Azure portal. The availability is to ensure everyone has full visibility into the costs they're responsible for. And, so they can optimize their workloads to maximize efficiency. Cost Management is also available independently to streamline the process for managing cost across multiple billing accounts, subscriptions, resource groups, and management groups.
 
-|Scope  |Definition  |
-|---------|---------|
-|Billing account    | Represents an Enterprise Agreement enrollment. Invoice is generated at the billing account scope. It's structured using departments and enrollment accounts.  |
-|Department     |  Optional grouping of enrollment accounts.      |
-|Enrollment account     |  Represents a single account owner. Azure subscriptions are created under the enrollment account scope.  |
+:::image type="content" source="./media/cost-management-availability.svg" alt-text="Diagram showing how billing organization relates to Cost Management." border="false" lightbox="./media/cost-management-availability.svg":::
 
-#### Microsoft Customer Agreement
 
-|Scope  |Tasks  |
-|---------|---------|
-|Billing account     |   Represents a customer agreement for multiple Microsoft products and services. The billing account is structured using billing profiles and invoice sections.   |
-|Billing profile     |  Represents an invoice and its payment methods. Invoice is generated at this scope. The billing profile can have multiple invoice sections.      |
-|Invoice section     |   Represents a group of costs in an invoice. Subscriptions and other purchases are associated to the invoice section scope.    |
+## What data is included?
 
-## Understand Azure Cost Management
+Within the Billing experience, you can manage all the products, subscriptions, and recurring purchases you use; review your credits and commitments; and view and pay your invoices. Invoices are available online or as PDFs and include all billed charges and any applicable taxes. Credits are applied to the total invoice amount when invoices are generated. This invoicing process happens in parallel to Cost Management data processing, which means Cost Management doesn't include credits, taxes, and some purchases, like support charges in non-Microsoft Customer Agreement (MCA) accounts.
 
-Although related, billing differs from cost management. Billing is the process of invoicing customers for goods or services and managing the commercial relationship.
+The classic Cloud Solution Provider (CSP) and sponsorship subscriptions aren't supported in Cost Management. These subscriptions will be supported after they transition to MCA.
 
-Cost Management shows organizational cost and usage patterns with advanced analytics. Reports in Cost Management show the usage-based costs consumed by Azure services and third-party Marketplace offerings. Costs are based on negotiated prices and factor in reservation and Azure Hybrid Benefit discounts. Collectively, the reports show your internal and external costs for usage and Azure Marketplace charges. Other charges, such as reservation purchases, support, and taxes aren't yet shown in reports. The reports help you understand your spending and resource use and can help find spending anomalies. Predictive analytics are also available. Cost Management uses Azure management groups, budgets, and recommendations to show clearly how your expenses are organized and how you might reduce costs.
+For more information about supported offers, what data is included, or how data is refreshed and retained in Cost Management, see [Understand Cost Management data](./costs/understand-cost-mgt-data.md).
 
-You can use the Azure portal or various APIs for export automation to integrate cost data with external systems and processes. Automated billing data export and scheduled reports are also available.
+## Manage your billing account and invoices
 
-Watch the [Azure Cost Management overview video](https://www.youtube.com/watch?v=el4yN5cHsJ0) for a quick overview about how Azure Cost Management can help you save money in Azure. To watch other videos, visit the [Cost Management YouTube channel](https://www.youtube.com/c/AzureCostManagement).
+Microsoft has several types of billing accounts. Each type has a slightly different experience to support the unique aspects of the billing account. To learn more, see [Billing accounts and scopes](./manage/view-all-accounts.md).
 
->[!VIDEO https://www.youtube.com/embed/el4yN5cHsJ0]
+Use billing account management tasks to:
 
-### Plan and control expenses
+- View invoices and make payments.
+- Configure your billing address and PO numbers.
+- Create and organize subscriptions into departments or billing profiles.
+- Renew or cancel products you've purchased.
+- Enable access to Cost Management, Reservations, and Marketplace offers.
+- View agreements, credits, and commitments.
 
-The ways that Cost Management help you plan for and control your costs include: Cost analysis, budgets, recommendations, and exporting cost management data.
+Management for classic Cloud Solution Provider (CSP) and classic sponsorship subscriptions isn't available in Billing or Cost Management experiences because they're billed differently.
 
-You use cost analysis to explore and analyze your organizational costs. You can view aggregated costs by organization to understand where costs are accrued and to identify spending trends. And you can see accumulated costs over time to estimate monthly, quarterly, or even yearly cost trends against a budget.
+## Report on and analyze costs
 
-Budgets help you plan for and meet financial accountability in your organization. They help prevent cost thresholds or limits from being surpassed. Budgets can also help you inform others about their spending to proactively manage costs. And with them, you can see how spending progresses over time.
+Cost Management and Billing include several tools to help you understand, report on, and analyze your invoiced Microsoft Cloud costs.
 
-Recommendations show how you can optimize and improve efficiency by identifying idle and underutilized resources. Or, they can show less expensive resource options. When you act on the recommendations, you change the way you use your resources to save money. To act, you first view cost optimization recommendations to view potential usage inefficiencies. Next, you act on a recommendation to modify your Azure resource use to a more cost-effective option. Then you verify the action to make sure that the change you make is successful.
+- [**Cost Analysis**](./costs/quick-acm-cost-analysis.md) is a tool for ad-hoc cost exploration. Get quick answers with lightweight insights and analytics.
+**Power BI** is an advanced solution to build more extensive dashboards and complex reports or combine costs with other data. Power BI is available for billing accounts and billing profiles.
+- [**Exports and the Cost Details API**](./automate/usage-details-best-practices.md) enable you to integrate cost details into external systems or business processes.
+- The **Credits** page shows your available credits or prepaid commitment balance. They aren't included in Cost Analysis.
+- The **Invoices** page provides a list of all previously invoiced charges and their payment status for your billing account.
 
-If you use external systems to access or review cost management data, you can easily export the data from Azure. And you can set a daily scheduled export in CSV format and store the data files in Azure storage. Then, you can access the data from your external system.
+For more information, see [Get started with Cost Management and Billing reporting](./costs/reporting-get-started.md).
 
-### Cloudyn deprecation
+## Organize and allocate costs
 
-[Cloudyn](./cloudyn/overview.md) is an Azure service related to Cost Management that is being deprecated by the end of 2020. Existing Cloudyn features are being integrated directly into the Azure portal wherever possible. No new customers are being onboarded at this time, but support will remain for the product until it is fully deprecated.
- 
-Watch the [Azure Cost Management and Cloudyn video](https://www.youtube.com/watch?v=15DzKPMBRxM) to learn more about when you should use either Azure Cost Management or Cloudyn, based on your business needs. To watch other videos, visit the [Cost Management YouTube channel](https://www.youtube.com/c/AzureCostManagement).
- 
->[!VIDEO https://www.youtube.com/embed/15DzKPMBRxM]
+Organizing and allocating costs are critical to ensuring invoices are routed to the correct business units and can be further split for internal billing, also known as *chargeback*. Cost Management and Billing offer the following options to organize resources and subscriptions:
 
-### Additional Azure tools
+- MCA **billing profiles** and **invoice sections** are used to [group subscriptions into invoices](./manage/mca-section-invoice.md). Each billing profile represents a separate invoice that can be billed to a different business unit and each invoice section is segmented separately within those invoices. You can also view costs by billing profile or invoice section in Cost Analysis.
+- EA **departments** and **enrollment accounts** are conceptually similar to invoice sections, as groups of subscriptions, but they aren't represented within the invoice PDF. However, they are included within the cost details backing each invoice. You can also view costs by department or enrollment account in Cost Analysis.
+- **Management groups** also allow grouping subscriptions together, but offer a few key differences:
+  - Management group access is inherited down to the subscriptions and resources.
+  - Management groups can be layered into multiple levels and subscriptions can be placed at any level.
+  - Management groups aren't included in cost details.
+  - All historical costs are returned for management groups based on the subscriptions currently within that hierarchy. When a subscription moves, all historical cost moves.
+  - Management groups are supported by Azure Policy and can have rules assigned to automate compliance reporting for your cost governance strategy.
+- **Subscriptions** and **resource groups** are the lowest level at which you can organize your cloud solutions. At Microsoft, every product – sometimes even limited to a single region – is managed within its own subscription. It simplifies cost governance but requires more overhead for subscription management. Most organizations use subscriptions for business units and separating dev/test from production or other environments, then use resource groups for the products. It complicates cost management because resource group owners don't have a way to manage cost across resource groups. On the other hand, it's a straightforward way to understand who's responsible for most resource-based charges. Keep in mind that not all charges come from resources and some don't have resource groups or subscriptions associated with them. It also changes as you move to MCA billing accounts.
+- **Resource tags** are the only way to add your own business context to cost details and are perhaps the most flexible way to map resources to applications, business units, environments, owners, etc. For more information, see [How tags are used in cost and usage data](./costs/understand-cost-mgt-data.md#how-tags-are-used-in-cost-and-usage-data) for limitations and important considerations.
 
-Azure has other tools that aren't a part of the Azure Cost Management + Billing feature set. However, they play an important role in the cost management process. To learn more about these tools, see the following links.
+Cost allocation is the set of practices to divide up a consolidated invoice. Or, to bill the people responsible for its various component parts. It's the process of assigning costs to different groups within an organization based on their consumption of resources and application of benefits. By providing visibility into costs to groups who are responsible for it, cost allocation helps organizations track and optimize their spending, improve budgeting and forecasting, and increase accountability and transparency. For more information, see [Cost allocation](./costs/cost-allocation-introduction.md).
 
-- [Azure Pricing Calculator](https://azure.microsoft.com/pricing/calculator/) - Use this tool to estimate your up-front cloud costs.
-- [Azure Migrate](../migrate/migrate-overview.md) - Assess your current datacenter workload for insights about what's needed from an Azure replacement solution.
-- [Azure Advisor](../advisor/advisor-overview.md) - Identify unused VMs and receive recommendations about Azure reserved instance purchases.
-- [Azure Hybrid Benefit](https://azure.microsoft.com/pricing/hybrid-benefit/) - Use your current on-premises Windows Server or SQL Server licenses for VMs in Azure to save.
+How you organize and allocate costs plays a huge role in how people within your organization can manage and optimize costs. Be sure to plan ahead and revisit your allocation strategy yearly.
+
+## Monitor costs with alerts
+
+Cost Management and Billing offers many different types of emails and alerts to keep you informed and help you proactively manage your account and incurred costs.
+
+- [**Budget alerts**](./costs/tutorial-acm-create-budgets.md) notify recipients when cost exceeds a predefined cost or forecast amount. Budgets can be visualized in Cost Analysis and are available on every scope supported by Cost Management. Subscription and resource group budgets can also be configured to notify an action group to take automated actions to reduce or even stop further charges.
+- [**Scheduled alerts**](./costs/save-share-views.md#subscribe-to-scheduled-alerts) notify recipients about the latest costs on a daily, weekly, or monthly schedule based on a saved cost view. Alert emails include a visual chart representation of the view and can optionally include a CSV file. Views are configured in Cost Analysis, but recipients don't require access to cost in order to view the email, chart, or linked CSV.
+- **EA commitment balance alerts** are automatically sent to any notification contacts configured on the EA billing account when the balance is 90% or 100% used.
+- **Invoice alerts** can be configured for MCA billing profiles and Microsoft Online Services Program (MOSP) subscriptions. For details, see [View and download your Azure invoice](./understand/download-azure-invoice.md).
+
+For for information, see [Monitor usage and spending with cost alerts](./costs/cost-mgt-alerts-monitor-usage-spending.md).
+
+## Optimize costs
+
+Microsoft offers a wide range of tools for optimizing your costs. Some of these tools are available outside the Cost Management and Billing experience, but are included for completeness.
+
+- There are many [**free services**](https://azure.microsoft.com/pricing/free-services/) available in Azure. Be sure to pay close attention to the constraints. Different services are free indefinitely, for 12 months, or 30 days. Some are free up to a specific amount of usage and some may have dependencies on other services that aren't free.
+- The [**Azure pricing calculator**](https://azure.microsoft.com/pricing/calculator/) is the best place to start when planning a new deployment. You can tweak many aspects of the deployment to understand how you'll be charged for that service and identify which SKUs/options will keep you within your desired price range. For more information about pricing for each of the services you use, see [pricing details](https://azure.microsoft.com/pricing/).
+- [**Azure savings plans**](./savings-plan/index.yml) save you money when you have consistent usage of Azure compute resources. A savings plan can significantly reduce your resource costs by up to 65% from pay-as-you-go prices.
+- [**Azure reservations**](https://azure.microsoft.com/reservations/) help you save up to 72% compared to pay-as-you-go rates by pre-committing to specific usage amounts for a set time duration.
+- [**Azure Hybrid Benefit**](https://azure.microsoft.com/pricing/hybrid-benefit/) helps you significantly reduce costs by using on-premises Windows Server and SQL Server licenses or RedHat and SUSE Linux subscriptions on Azure.
+
+For other options, see [Azure benefits and incentives](https://azure.microsoft.com/pricing/offers/#cloud).
 
 ## Next steps
 
-Now that you're familiar with Cost Management + Billing, the next step is to start using the service.
+Now that you're familiar with Billing, the next step is to start using the service.
 
-- Start using Azure Cost Management to [analyze costs](./costs/quick-acm-cost-analysis.md).
-- You can also read more about [Azure Cost Management best practices](./costs/cost-mgt-best-practices.md).
+- Start using Cost Management to [analyze costs](./costs/quick-acm-cost-analysis.md).
+- You can also read more about [Cost Management best practices](./costs/cost-mgt-best-practices.md).

@@ -1,25 +1,26 @@
 ---
-title: Connect SQL on-demand to Power BI Desktop & create report
-description: In this tutorial, learn how to connect SQL on-demand in Azure Synapse Analytics to Power BI desktop and create a demo report based on a view.
+title: 'Tutorial: Connect serverless SQL pool to Power BI Desktop & create report'
+description: In this tutorial, learn how to connect serverless SQL pool in Azure Synapse Analytics to Power BI desktop and create a demo report based on a view.
 services: synapse analytics
 author: azaricstefan
-ms.service: synapse-analytics
+ms.service: azure-synapse-analytics
 ms.topic: tutorial
 ms.subservice: sql
 ms.date: 05/20/2020
-ms.author: v-stazar
-ms.reviewer: jrasnick, carlrab
+ms.author: stefanazaric
+ms.custom: sfi-image-nochange
+ 
 ---
 
-# Tutorial: Use SQL on-demand with Power BI Desktop & create a report
+# Tutorial: Use serverless SQL pool with Power BI Desktop & create a report
 
-In this tutorial, you learn how to:
+In this tutorial, you'll learn how to:
 
 > [!div class="checklist"]
 >
 > - Create demo database
 > - Create view used for report
-> - Connect Power BI Desktop to SQL on-demand
+> - Connect Power BI Desktop to serverless SQL pool
 > - Create report based on view
 
 ## Prerequisites
@@ -27,20 +28,20 @@ In this tutorial, you learn how to:
 To complete this tutorial, you need the following prerequisites:
 
 - [Power BI Desktop](https://powerbi.microsoft.com/downloads/) - needed to visualize the data and create a report.
-- [Azure Synapse workspace](https://docs.microsoft.com/azure/synapse-analytics/quickstart-synapse-studio) - needed to create database, external data source and view.
+- [Azure Synapse workspace](../get-started-create-workspace.md) - needed to create database, external data source, and view.
 
 Optional:
 
-- A SQL query tool, such as [Azure Data Studio](/sql/azure-data-studio/download-azure-data-studio), or [SQL Server Management Studio (SSMS)](/sql/ssms/download-sql-server-management-studio-ssms).
+- A SQL query tool, such as [Azure Data Studio](/azure-data-studio/download-azure-data-studio), or [SQL Server Management Studio (SSMS)](/sql/ssms/download-sql-server-management-studio-ssms).
 
 Values for the following parameters:
 
 | Parameter                                 | Description                                                   |
 | ----------------------------------------- | ------------------------------------------------------------- |
-| SQL on-demand service endpoint address    | Used as server name                                   |
-| SQL on-demand service endpoint region     | Used to determine the storage used in the samples |
+| Serverless SQL pool service endpoint address    | Used as server name                                   |
+| Serverless SQL pool service endpoint region     | Used to determine the storage used in the samples |
 | Username and password for endpoint access | Used to access endpoint                               |
-| Database you will use to create views     | The database used as starting point in the samples       |
+| Database you'll use to create views     | The database used as starting point in the samples       |
 
 ## 1 - Create database
 
@@ -60,12 +61,12 @@ GO
 
 ## 2 - Create data source
 
-A data source is necessary for the SQL on-demand service to access files in storage. Create the data source for a storage account that is located in the same region as your endpoint. Although SQL on-demand can access storage accounts from different regions, having the storage and endpoint in the same region provides better performance.
+A data source is necessary for the serverless SQL pool service to access files in storage. Create the data source for a storage account that is located in the same region as your endpoint. Although serverless SQL pool can access storage accounts from different regions, having the storage and endpoint in the same region provides better performance.
 
 Create the data source by running the following Transact-SQL (T-SQL) script:
 
 ```sql
--- There is no credential in data surce. We are using public storage account which doesn't need a secret.
+-- There is no credential in data source. We are using public storage account which doesn't need a secret.
 CREATE EXTERNAL DATA SOURCE AzureOpenData
 WITH ( LOCATION = 'https://azureopendatastorage.blob.core.windows.net/')
 ```
@@ -153,7 +154,7 @@ Once you're done using this report, delete the resources with the following step
 1. Delete the credential for the storage account
 
    ```sql
-   DROP EXTENAL DATA SOURCE AzureOpenData
+   DROP EXTERNAL DATA SOURCE AzureOpenData
    ```
 
 2. Delete the view

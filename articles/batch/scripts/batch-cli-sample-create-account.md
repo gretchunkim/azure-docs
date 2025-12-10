@@ -1,35 +1,39 @@
 ---
-title: Azure CLI Script Example - Create Batch account - Batch service
-description: This script creates an Azure Batch account in Batch service mode and shows how to query or update various properties of the account.
+title: Azure CLI Script Example - Create Batch account - Batch service | Microsoft Docs
+description: Learn how to create a Batch account in Batch service mode with this Azure CLI script example. This script also shows how to query or update various properties of the account.
 ms.topic: sample
-ms.date: 01/29/2018 
-ms.custom: devx-track-azurecli
+ms.date: 04/02/2025
+ms.custom: devx-track-azurecli, seo-azure-cli
+keywords: batch, azure cli samples, azure cli code samples, azure cli script samples
+# Customer intent: "As a cloud administrator, I want to create and manage a Batch account using CLI scripts, so that I can efficiently allocate compute resources and manage configurations for batch processing tasks."
 ---
 
 # CLI example: Create a Batch account in Batch service mode
 
 This script creates an Azure Batch account in Batch service mode and shows how to query or update various properties of the account. When you create a Batch account in the default Batch service mode, its compute nodes are assigned internally by the Batch
-service. Allocated compute nodes are subject to a separate vCPU (core) quota and the account can be 
-authenticated either via shared key credentials or an Azure Active Directory token.
+service. Allocated compute nodes are subject to a separate vCPU (core) quota and the account can be authenticated either via shared key credentials or a Microsoft Entra token.
 
-[!INCLUDE [cloud-shell-try-it.md](../../../includes/cloud-shell-try-it.md)]
+[!INCLUDE [quickstarts-free-trial-note](~/reusable-content/ce-skilling/azure/includes/quickstarts-free-trial-note.md)]
 
-If you choose to install and use the CLI locally, this article requires that you are running the Azure CLI version 2.0.20 or later. Run `az --version` to find the version. If you need to install or upgrade, see [Install Azure CLI](/cli/azure/install-azure-cli). 
+[!INCLUDE [azure-cli-prepare-your-environment.md](~/reusable-content/azure-cli/azure-cli-prepare-your-environment.md)]
 
-## Example script
+## Sample script
 
-[!code-azurecli-interactive[main](../../../cli_scripts/batch/create-account/create-account.sh "Create Account")]
+[!INCLUDE [cli-launch-cloud-shell-sign-in.md](~/reusable-content/ce-skilling/azure/includes/cli-launch-cloud-shell-sign-in.md)]
 
-## Clean up deployment
+### Run the script
 
-Run the following command to remove the
-resource group and all resources associated with it.
+:::code language="azurecli" source="~/azure_cli_scripts/batch/create-account/create-account.sh" id="FullScript":::
 
-```azurecli-interactive
-az group delete --name myResourceGroup
+## Clean up resources
+
+[!INCLUDE [cli-clean-up-resources.md](~/reusable-content/ce-skilling/azure/includes/cli-clean-up-resources.md)]
+
+```azurecli
+az group delete --name $resourceGroup
 ```
 
-## Script explanation
+## Sample reference
 
 This script uses the following commands. Each command in the table links to command-specific documentation.
 

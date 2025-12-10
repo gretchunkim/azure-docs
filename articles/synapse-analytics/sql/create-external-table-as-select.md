@@ -1,32 +1,34 @@
 ---
-title: Store query results to storage
-description: In this article, you'll learn how to store query results to storage using SQL on-demand (preview).
-services: synapse-analytics
+title: Store query results from serverless SQL pool
+description: In this article, you'll learn how to store query results to storage using serverless SQL pool.
 author: vvasic-msft
-ms.service: synapse-analytics
+ms.service: azure-synapse-analytics
 ms.topic: overview
 ms.subservice: sql
-ms.date: 04/15/2020
+ms.date: 02/20/2025
 ms.author: vvasic
-ms.reviewer: jrasnick, carlrab
+ 
 ---
 
-# Store query results to storage using SQL on-demand (preview) using Azure Synapse Analytics
+# Store query results to storage using serverless SQL pool in Azure Synapse Analytics
 
-In this article, you'll learn how to store query results to storage using SQL On-demand (preview).
+In this article, you'll learn how to store query results to storage using serverless SQL pool.
 
 ## Prerequisites
 
-Your first step is to **create a database** where you will execute the queries. Then initialize the objects by executing [setup script](https://github.com/Azure-Samples/Synapse/blob/master/SQL/Samples/LdwSample/SampleDB.sql) on that database. This setup script will create the data sources, database scoped credentials, and external file formats that are used to read data in these samples.
+Your first step is to **create a database** where you'll execute the queries. Then initialize the objects by executing [setup script](https://github.com/Azure-Samples/Synapse/blob/master/SQL/Samples/LdwSample/SampleDB.sql) on that database. This setup script will create the data sources, database scoped credentials, and external file formats that are used to read data in these samples.
 
 Follow the instructions in this article to create data sources, database scoped credentials, and external file formats that are used to write data into the output storage.
 
 ## Create external table as select
 
-You can use the CREATE EXTERNAL TABLE AS SELECT (CETAS) statement to store the query results to  storage.
+You can use the CREATE EXTERNAL TABLE AS SELECT (CETAS) statement to store the query results to storage.
 
 > [!NOTE]
-> Change the first line in the query, i.e., [mydbname], so you're using the database you created.
+> Change these values in the query to reflect your environment:
+> - mydbname - change it to the name of the database you created
+> - storage-account-sas - the [shared access signature](/azure/ai-services/document-intelligence/authentication/create-sas-tokens#generating-sas-tokens) for a storage account where you want to write your results
+> - your-storage-account-name - the name of your storage account where you want to write your results (Make sure you have a container called 'csv' or that you change the name of the container here also)
 
 ```sql
 USE [mydbname];
@@ -34,11 +36,11 @@ GO
 
 CREATE DATABASE SCOPED CREDENTIAL [SasTokenWrite]
 WITH IDENTITY = 'SHARED ACCESS SIGNATURE',
-     SECRET = 'sv=2018-03-28&ss=bfqt&srt=sco&sp=rwdlacup&se=2019-04-18T20:42:12Z&st=2019-04-18T12:42:12Z&spr=https&sig=lQHczNvrk1KoYLCpFdSsMANd0ef9BrIPBNJ3VYEIq78%3D';
+     SECRET = 'storage-account-sas';
 GO
 
 CREATE EXTERNAL DATA SOURCE [MyDataSource] WITH (
-    LOCATION = 'https://<storage account name>.blob.core.windows.net/csv', CREDENTIAL = [SasTokenWrite]
+    LOCATION = 'https://your-storage-account-name.blob.core.windows.net/csv', CREDENTIAL = [SasTokenWrite]
 );
 GO
 
@@ -69,26 +71,35 @@ FROM
 
 ```
 
+> [!NOTE]
+> You must modify this script and change the target location to execute it again. External tables can't be created on the location where you already have some data.
+
 ## Use the external table
 
 You can use the external table created through CETAS like a regular external table.
 
 > [!NOTE]
-> Change the first line in the query, i.e., [mydbname], so you're using the database you created.
+> Change the first line in the query, that is, [mydbname], so you're using the database you created.
 
 ```sql
 USE [mydbname];
 GO
 
 SELECT
-    country_name, population
+    CountryName, PopulationCount
 FROM PopulationCETAS
 WHERE
-    [year] = 2019
+    [Year] = 2019
 ORDER BY
-    [population] DESC;
+    [PopulationCount] DESC;
 ```
 
-## Next steps
+## Remarks
+
+Once you store your results, the data in the external table can't be modified. You can't repeat this script because CETAS won't overwrite the underlying data created in the previous execution.
+
+The only supported output types are currently Parquet and CSV.
+
+## Related content
 
 For more information on how to query different file types, see the [Query single CSV file](query-single-csv-file.md), [Query Parquet files](query-parquet-files.md), and [Query JSON files](query-json-files.md) articles.

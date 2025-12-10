@@ -1,12 +1,12 @@
 ---
 title: Understand reservation discount - Azure Database for MySQL
 description: Learn how a reservation discount is applied to your Azure Database for MySQL servers.
-author: kummanish
-ms.author: manishku
+author: pri-mittal
+ms.author: primittal
 ms.service: cost-management-billing
 ms.subservice: reservations
 ms.topic: conceptual
-ms.date: 02/13/2020
+ms.date: 10/28/2025
 ---
 
 # How a reservation discount is applied to Azure Database for MySQL
@@ -15,9 +15,11 @@ After you buy an Azure Database for MySQL reserved capacity, the reservation dis
 
 ## How reservation discount is applied
 
-A reservation discount is ***use-it-or-lose-it***. So, if you don't have matching resources for any hour, then you lose a reservation quantity for that hour. You can't carry forward unused reserved hours.</br>
+A reservation discount is ***use-it-or-lose-it***. So, if you don't have matching resources for any hour, then you lose a reservation quantity for that hour. You can't carry forward unused reserved hours.
 
 When you shut down a resource, the reservation discount automatically applies to another matching resource in the specified scope. If no matching resources are found in the specified scope, then the reserved hours are lost.
+
+Stopped resources are billed and continue to use reservation hours. Deallocate or delete resources or scale-in other resources to use your available reservation hours with other workloads. 
 
 ## Discount applied to Azure Database for MySQL
 
@@ -35,8 +37,8 @@ For the rest of these examples, assume that the Azure Database for MySQL reserve
 
 * **Example 4**: You run one 16 vCore Azure Database for MySQL server from 1 pm to 1:45 pm. You run another 16 vCore Azure Database for MySQL server from 1:30 to 2 pm. You're charged the pay-as-you-go price for the 15-minute overlap. The reservation discount applies to the compute usage for the rest of the time.
 
-To understand and view the application of your Azure Reservations in billing usage reports, see [Understand Azure reservation usage](https://docs.microsoft.com/azure/billing/billing-understand-reserved-instance-usage-ea).
+To understand and view the application of your Azure Reservations in billing usage reports, see [Understand Azure reservation usage](./understand-reserved-instance-usage-ea.md).
 
-## Next steps
+## Related content
 
 If you have questions or need help, [create a support request](https://go.microsoft.com/fwlink/?linkid=2083458).

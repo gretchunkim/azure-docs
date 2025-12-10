@@ -1,11 +1,14 @@
 ---
 title: Hyper-V VM disaster recovery using Azure Site Recovery and PowerShell
 description: Automate disaster recovery of Hyper-V VMs to Azure with the Azure Site Recovery service using PowerShell and Azure Resource Manager.
-author: sujayt
-manager: rochakm
-ms.topic: article
+author: Jeronika-MS
+ms.service: azure-site-recovery
+ms.custom: devx-track-azurepowershell, devx-track-arm-template
+ms.topic: how-to
 ms.date: 01/10/2020
-ms.author: sutalasi
+ms.author: v-gajeronika 
+ms.tool: azure-powershell
+# Customer intent: "As a system administrator, I want to automate the disaster recovery of Hyper-V VMs to Azure using PowerShell, so that I can ensure business continuity and minimize downtime in case of a failure."
 ---
 
 # Set up disaster recovery to Azure for Hyper-V VMs using PowerShell and Azure Resource Manager
@@ -14,7 +17,7 @@ ms.author: sutalasi
 
 This article describes how to use Windows PowerShell, together with Azure Resource Manager, to replicate Hyper-V VMs to Azure. The example used in this article shows you how to replicate a single VM running on a Hyper-V host, to Azure.
 
-[!INCLUDE [updated-for-az](../../includes/updated-for-az.md)]
+[!INCLUDE [updated-for-az](~/reusable-content/ce-skilling/azure/includes/updated-for-az.md)]
 
 ## Azure PowerShell
 
@@ -30,7 +33,7 @@ You don't need to be a PowerShell expert to use this article, but you do need to
 Make sure you have these prerequisites in place:
 
 - A [Microsoft Azure](https://azure.microsoft.com/) account. You can start with a [free trial](https://azure.microsoft.com/pricing/free-trial/). In addition, you can read about [Azure Site Recovery Manager pricing](https://azure.microsoft.com/pricing/details/site-recovery/).
-- Azure PowerShell. For information about this release and how to install it, see [Install Azure PowerShell](/powershell/azure/install-az-ps).
+- Azure PowerShell. For information about this release and how to install it, see [Install Azure PowerShell](/powershell/azure/install-azure-powershell).
 
 In addition, the specific example described in this article has the following prerequisites:
 

@@ -2,17 +2,18 @@
 title: Restrict web traffic using PowerShell
 titleSuffix: Azure Web Application Firewall
 description: Learn how to restrict web traffic with a Web Application Firewall on an application gateway using Azure PowerShell.
-services: web-application-firewall
-author: vhorne
-ms.service: web-application-firewall
-ms.date: 08/31/2020
-ms.author: victorh
-ms.topic: how-to
+author: halkazwini
+ms.author: halkazwini
+ms.service: azure-web-application-firewall
+ms.topic: how-to 
+ms.date: 03/26/2021
+ms.custom: devx-track-azurepowershell
+# Customer intent: "As a cloud engineer, I want to set up a Web Application Firewall using PowerShell on an application gateway, so that I can secure my application against web exploits and attacks effectively."
 ---
 
 # Enable Web Application Firewall using Azure PowerShell
 
-You can restrict traffic on an application gateway with a [Web Application Firewall](ag-overview.md) (WAF). The WAF uses [OWASP](https://www.owasp.org/index.php/Category:OWASP_ModSecurity_Core_Rule_Set_Project) rules to protect your application. These rules include protection against attacks such as SQL injection, cross-site scripting attacks, and session hijacks. 
+You can restrict traffic on an application gateway with a [Web Application Firewall (WAF)](ag-overview.md). The WAF uses [OWASP](https://owasp.org/www-project-modsecurity-core-rule-set/) rules to protect your application. These rules include protection against attacks such as SQL injection, cross-site scripting attacks, and session hijacks. 
 
 In this article, you learn how to:
 
@@ -21,24 +22,25 @@ In this article, you learn how to:
 * Create a virtual machine scale set
 * Create a storage account and configure diagnostics
 
-![Web application firewall example](../media/tutorial-restrict-web-traffic-powershell/scenario-waf.png)
+:::image type="content" source="../media/tutorial-restrict-web-traffic-powershell/scenario-waf.png" alt-text="Diagram of the Web application firewall example." lightbox="../media/tutorial-restrict-web-traffic-powershell/scenario-waf.png":::
 
 If you prefer, you can complete this article using the [Azure portal](application-gateway-web-application-firewall-portal.md) or the [Azure CLI](tutorial-restrict-web-traffic-cli.md).
 
-If you don't have an Azure subscription, create a [free account](https://azure.microsoft.com/free/?WT.mc_id=A261C142F) before you begin.
+If you don't have an Azure subscription, create a [free account](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn) before you begin.
 
-[!INCLUDE [updated-for-az](../../../includes/updated-for-az.md)]
+[!INCLUDE [updated-for-az](~/reusable-content/ce-skilling/azure/includes/updated-for-az.md)]
 
-[!INCLUDE [cloud-shell-try-it.md](../../../includes/cloud-shell-try-it.md)]
+[!INCLUDE [cloud-shell-try-it.md](~/reusable-content/ce-skilling/azure/includes/cloud-shell-try-it.md)]
 
-If you choose to install and use the PowerShell locally, this article requires the Azure PowerShell module version 1.0.0 or later. Run `Get-Module -ListAvailable Az` to find the version. If you need to upgrade, see [Install Azure PowerShell module](/powershell/azure/install-az-ps). If you're running PowerShell locally, you also need to run `Login-AzAccount` to create a connection with Azure.
+If you choose to install and use the PowerShell locally, this article requires the Azure PowerShell module version 1.0.0 or later. Run `Get-Module -ListAvailable Az` to find the version. If you need to upgrade, see [Install Azure PowerShell module](/powershell/azure/install-azure-powershell). If you're running PowerShell locally, you also need to run `Login-AzAccount` to create a connection with Azure.
 
 ## Create a resource group
 
 A resource group is a logical container into which Azure resources are deployed and managed. Create an Azure resource group using [New-AzResourceGroup](/powershell/module/az.resources/new-azresourcegroup).  
 
 ```azurepowershell-interactive
-New-AzResourceGroup -Name myResourceGroupAG -Location eastus
+$location = "eastus"
+$rgname = New-AzResourceGroup -Name myResourceGroupAG -Location $location
 ```
 
 ## Create network resources 
@@ -133,6 +135,7 @@ $defaultlistener = New-AzApplicationGatewayHttpListener `
 $frontendRule = New-AzApplicationGatewayRequestRoutingRule `
   -Name rule1 `
   -RuleType Basic `
+  -Priority 1000 `
   -HttpListener $defaultlistener `
   -BackendAddressPool $defaultPool `
   -BackendHttpSettings $poolSettings
@@ -148,9 +151,12 @@ $sku = New-AzApplicationGatewaySku `
   -Tier WAF_v2 `
   -Capacity 2
 
-$policySetting = New-AzApplicationGatewayFirewallPolicySetting -Mode Prevention -State Enabled -MaxRequestBodySizeInKb 100 -MaxFileUploadInMb 256
+$policySetting = New-AzApplicationGatewayFirewallPolicySetting `
+   -Mode Prevention -State Enabled `
+   -MaxRequestBodySizeInKb 100 -MaxFileUploadInMb 256
 
-$wafPolicy = New-AzApplicationGatewayFirewallPolicy -Name wafpolicyNew -ResourceGroup $rgname -Location $location -PolicySetting $PolicySetting
+$wafPolicy = New-AzApplicationGatewayFirewallPolicy -Name wafpolicyNew -ResourceGroup myResourceGroupAG `
+   -Location $location -PolicySetting $PolicySetting
 
 $appgw = New-AzApplicationGateway `
   -Name myAppGateway `
@@ -169,7 +175,9 @@ $appgw = New-AzApplicationGateway `
 
 ## Create a virtual machine scale set
 
-In this example, you create a virtual machine scale set to provide servers for the backend pool in the application gateway. You assign the scale set to the backend pool when you configure the IP settings.
+In this example, you create a virtual machine scale set to provide servers for the backend pool in the application gateway. You assign the scale set to the backend pool when you configure the IP settings. 
+
+Replace *\<username>* and *\<password>* with your values before you run this script.
 
 ```azurepowershell-interactive
 $vnet = Get-AzVirtualNetwork `
@@ -186,7 +194,7 @@ $backendPool = Get-AzApplicationGatewayBackendAddressPool `
 
 $ipConfig = New-AzVmssIpConfig `
   -Name myVmssIPConfig `
-  -SubnetId $vnet.Subnets[1].Id `
+  -SubnetId $vnet.Subnets[0].Id `
   -ApplicationGatewayBackendAddressPoolsId $backendPool.Id
 
 $vmssConfig = New-AzVmssConfig `
@@ -203,8 +211,8 @@ Set-AzVmssStorageProfile $vmssConfig `
   -OsDiskCreateOption FromImage
 
 Set-AzVmssOsProfile $vmssConfig `
-  -AdminUsername azureuser `
-  -AdminPassword "Azure123456!" `
+  -AdminUsername <username> `
+  -AdminPassword "<password>" `
   -ComputerNamePrefix myvmss
 
 Add-AzVmssNetworkInterfaceConfiguration `
@@ -272,7 +280,7 @@ $store = Get-AzStorageAccount `
 Set-AzDiagnosticSetting `
   -ResourceId $appgw.Id `
   -StorageAccountId $store.Id `
-  -Categories ApplicationGatewayAccessLog, ApplicationGatewayPerformanceLog, ApplicationGatewayFirewallLog `
+  -Category ApplicationGatewayAccessLog, ApplicationGatewayPerformanceLog, ApplicationGatewayFirewallLog `
   -Enabled $true `
   -RetentionEnabled $true `
   -RetentionInDays 30
@@ -298,4 +306,4 @@ Remove-AzResourceGroup -Name myResourceGroupAG
 
 ## Next steps
 
-[Customize web application firewall rules](application-gateway-customize-waf-rules-portal.md)
+- [Customize web application firewall rules](application-gateway-customize-waf-rules-portal.md)

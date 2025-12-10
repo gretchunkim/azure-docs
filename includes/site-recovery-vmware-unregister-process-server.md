@@ -1,6 +1,6 @@
 ---
 author: Rajeswari-Mamilla
-ms.service: site-recovery
+ms.service: azure-site-recovery
 ms.topic: include
 ms.date: 04/28/2019
 ms.author: ramamill
@@ -12,7 +12,7 @@ Follow the steps for your specific circumstances.
 
 1. Establish a remote connection to the process server as an Administrator.
 2. In the **Control Panel**, open **Programs > Uninstall a program**.
-3. Uninstall the program **Microsoft Azure Site Recovery Mobility Service/Master Target Server**.
+3. Uninstall the program **Microsoft Azure Site Recovery Mobility Service/Target Server**.
 4. Uninstall the program **Microsoft Azure Site Recovery Configuration/Process Server**.
 5. After the programs in steps 3 and 4 are uninstalled, uninstall **Microsoft Azure Site Recovery Configuration/Process Server Dependencies**.
 
@@ -27,11 +27,10 @@ Only use these steps if there's no way to revive the machine on which the proces
     ```
     perl Unregister-ASRComponent.pl -IPAddress <IP_of_Process_Server> -Component PS
     ```
-    - S. No: the process server serial number.
     - IP/Name: The IP address and name of the machine running the process server.
-    - Heartbeat: Last heartbeat from the process server machine.
-    ![Unregister-cmd](media/site-recovery-vmware-unregister-process-server/Unregister-cmd.PNG)
+
+    :::image type="Unregister Process Server" source="./media/site-recovery-vmware-unregister-process-server/Unregister-cmd.PNG" alt-text="Screenshot shows a plaintext display of information about your process servers and the text. Choose one of the above servers to unregister.":::
 
 4. Specify the serial number of the process server you want to unregister.
-5. Unregistering a process server remove all of its details from the system, and displays the message: **Successfully unregistered server-name> (server-IP-address)**
+5. Unregistering a process server removes all of its details from the system, and displays the message: **Successfully unregistered server-name> (server-IP-address)**
 

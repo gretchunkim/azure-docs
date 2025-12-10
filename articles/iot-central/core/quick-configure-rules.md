@@ -1,80 +1,136 @@
 ---
-title: Quickstart - Configure rules and actions in Azure IoT Central
-description: This quickstart shows you, as a builder, how to configure telemetry-based rules and actions in your Azure IoT Central application.
+title: Quickstart - Configure Azure IoT Central rules and actions
+description: In this quickstart, you learn how to configure telemetry-based rules and actions in your IoT Central application.
 author: dominicbetts
 ms.author: dobett
-ms.date: 02/12/2020
+ms.date: 08/06/2025
 ms.topic: quickstart
-ms.service: iot-central
+ms.service: azure-iot-central
 services: iot-central
-ms.custom: mvc
-manager: philmea
+ms.custom:
+  - mvc
+  - mode-other
+  - sfi-image-nochange
+
+# Customer intent: As a new user of IoT Central, I want to learn how to use rules to notify me when a specific condition is detected on one of my device.
 ---
 
 # Quickstart: Configure rules and actions for your device in Azure IoT Central
 
-*This article applies to operators, builders, and administrators.*
+In this quickstart, you configure an IoT Central rule. IoT Central rules let you automate actions that occur in response to specific conditions. The example in this quickstart uses accelerometer telemetry from the phone to trigger a rule when the phone is turned over.
 
-In this quickstart, you create a rule that sends an email when the temperature reported by a device sensor exceeds 90&deg; F.
+In this quickstart, you:
+
+- Create a rule that detects when a telemetry value passes a threshold.
+- Configure the rule to notify you by email.
+- Use the smartphone app to test the rule.
 
 ## Prerequisites
 
-Before you begin, you should complete the two previous quickstarts [Create an Azure IoT Central application](./quick-deploy-iot-central.md) and [Add a simulated device to your IoT Central application](./quick-create-simulated-device.md) to create the **MXChip IoT DevKit** device template to work with.
+- An Azure account with an active subscription. [Create an account for free](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn).
+- Complete [Quickstart - Use your smartphone as a device to send telemetry to an IoT Central application](./quick-deploy-iot-central.md).
 
 ## Create a telemetry-based rule
 
+The smartphone app sends telemetry that includes values from the accelerometer sensor. The sensor works differently on Android and iOS devices:
+
+# [Android](#tab/android)
+
+When the phone is lying on its back, the **z** value is greater than `9`, when the phone is lying on its front, the **z** value is less than `-9`.
+
 1. To add a new telemetry-based rule to your application, in the left pane, select **Rules**.
 
-1. To create a new rule, select **+**.
+1. To create a new rule, select **Create a rule**.
 
-1. Enter **Environmental temperature** as the rule name.
+1. Enter **Phone turned over** as the rule name.
 
-1. In the **Target devices** section, select **MXChip IoT DevKit** as the device template. This option filters the devices the rule applies to by device template type. You can add more filter criteria by selecting **+ Filter**.
+1. In the **Target devices** section, select **IoT Plug and Play mobile** as the **Device template**. This option filters the devices the rule applies to by device template type. You can add more filter criteria by selecting **+ Filter**.
 
-1. In the **Conditions** section, you define what triggers your rule. Use the following information to define a condition based on temperature telemetry:
+1. In the **Conditions** section, you define what triggers your rule. Use the following information to define a single condition based on accelerometer z-axis telemetry. This rule uses aggregation, so you receive a maximum of one email for each device every five minutes:
 
-    | Field        | Value            |
-    | ------------ | ---------------- |
-    | Measurement  | Temperature      |
-    | Operator     | is greater than  |
-    | Value        | 90               |
+    | Field            | Value            |
+    |------------------|------------------|
+    | Time aggregation | On, 5 minutes    |
+    | Telemetry        | Acceleration / Z |
+    | Operator         | Is less than     |
+    | Aggregation      | Minimum          |
+    | Value            | -9               |
 
-    To add more conditions, select **+ Condition**.
+    :::image type="content" source="media/quick-configure-rules/rule-target-condition-android.png" alt-text="Screenshot that shows the rule condition." lightbox="media/quick-configure-rules/rule-target-condition-android.png":::
 
-    ![Create rule condition](./media/quick-configure-rules/condition.png)
-
-1. To add an email action to run when the rule triggers, select **+ Email**.
+1. To add an email action to run when the rule triggers, in the **Actions** section, select **+ Email**.
 
 1. Use the information in the following table to define your action and then select **Done**:
 
-    | Setting   | Value                                             |
-    | --------- | ------------------------------------------------- |
-    | Display name | Operator email action                          |
-    | To        | Your email address                                |
-    | Notes     | Environmental temperature exceeded the threshold. |
+    | Setting      | Value                    |
+    |--------------|--------------------------|
+    | Display name | Your phone moved         |
+    | To           | Your email address       |
+    | Notes        | Your phone is face down! |
 
-    > [!NOTE]
-    > To receive an email notification, the email address must be a [user ID in the application](howto-administer.md), and that user must have signed in to the application at least once.
+    > [!TIP]
+    > To receive an email notification, the email address must be a [user ID in the application](howto-manage-users-roles.md), and the user must have signed in to the application at least once.
 
-    ![Create rule action](./media/quick-configure-rules/action.png)
+    :::image type="content" source="media/quick-configure-rules/rule-action.png" alt-text="Screenshot that shows an email action added to the rule" lightbox="media/quick-configure-rules/rule-action.png":::
 
-1. Select **Save**. Your rule is listed on the **Rules** page.
+1. Select **Save**. Your rule is now listed on the **Rules** page.
+
+# [iOS](#tab/ios)
+
+When the phone is lying on its back, the **z** value is less than `-0.9`, when the phone is lying on its front, the **z** value is greater than `0.9`.
+
+1. To add a new telemetry-based rule to your application, in the left pane, select **Rules**.
+
+1. To create a new rule, select **Create a rule**.
+
+1. Enter **Phone turned over** as the rule name.
+
+1. In the **Target devices** section, select **IoT Plug and Play mobile** as the **Device template**. This option filters the devices the rule applies to by device template type. You can add more filter criteria by selecting **+ Filter**.
+
+1. In the **Conditions** section, you define what triggers your rule. Use the following information to define a single condition based on accelerometer z-axis telemetry. This rule uses aggregation so you receive a maximum of one email for each device every five minutes:
+
+    | Field            | Value            |
+    |------------------|------------------|
+    | Time aggregation | On, 5 minutes    |
+    | Telemetry        | Acceleration / Z |
+    | Operator         | Is greater than  |
+    | Aggregation      | Maximum          |
+    | Value            | 0.9              |
+
+    :::image type="content" source="media/quick-configure-rules/rule-target-condition-ios.png" alt-text="Screenshot that shows the rule condition." lightbox="media/quick-configure-rules/rule-target-condition-ios.png":::
+
+1. To add an email action to run when the rule triggers, in the **Actions** section, select **+ Email**.
+
+1. Use the information in the following table to define your action and then select **Done**:
+
+    | Setting      | Value                    |
+    |--------------|--------------------------|
+    | Display name | Your phone moved         |
+    | To           | Your email address       |
+    | Notes        | Your phone is face down! |
+
+    > [!TIP]
+    > To receive an email notification, the email address must be a [user ID in the application](howto-manage-users-roles.md), and the user must have signed in to the application at least once.
+
+    :::image type="content" source="media/quick-configure-rules/rule-action.png" alt-text="Screenshot that shows an email action added to the rule" lightbox="media/quick-configure-rules/rule-action.png":::
+
+1. Select **Save**. Your rule is now listed on the **Rules** page.
+
+---
 
 ## Test the rule
 
-Shortly after you save the rule, it becomes live. When the conditions defined in the rule are met, your application sends a message to the email address you specified in the action.
+Shortly after you save the rule, it becomes live. When the conditions defined in the rule are met, IoT Central sends an email to the address you specified in the action.
 
-> [!NOTE]
-> After your testing is complete, turn off the rule to stop receiving alerts in your inbox.
+To trigger the rule, make sure the smartphone app is sending data, and then place it face down on your desk. After five minutes, IoT Central sends you an email to notify you that your smartphone is face down.
 
-## Next steps
+After your testing is complete, disable the rule to stop receiving the notification emails in your inbox.
 
-In this quickstart, you learned how to:
+## Next step
 
-* Create a telemetry-based rule
-* Add an action
+In this quickstart, you learned how to create a telemetry-based rule and add an action to it.
 
-To learn more about monitoring devices connected to your application, continue to the quickstart:
+To learn more about integrating your IoT Central application with other services, see:
 
 > [!div class="nextstepaction"]
-> [Use Azure IoT Central to monitor your devices](quick-monitor-devices.md).
+> [Quickstart: Export data from an IoT Central application](quick-export-data.md).

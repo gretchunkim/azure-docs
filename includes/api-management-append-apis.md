@@ -1,20 +1,40 @@
 ---
 author: vladvino
-ms.service: api-management
+ms.service: azure-api-management
 ms.topic: include
-ms.date: 11/09/2018
+ms.date: 03/27/2025
 ms.author: vlvinogr
+ms.custom: sfi-image-nochange
 ---
 ## Append other APIs
 
-An API can be composed of APIs exposed by different services, including the OpenAPI Specification, a SOAP API, the API Apps feature of Azure App Service, Azure Function App, Azure Logic Apps, and Azure Service Fabric.
+You can compose an API out of APIs that are exposed by different services, including:
 
-![Import an API](./media/api-management-append-apis/import.png)
+* An OpenAPI specification
+* A SOAP API
+* A GraphQL API
+* A Web App that's hosted in Azure App Service
+* Azure Functions
+* Azure Logic Apps
+* Azure Service Fabric
 
-To append a different API to your existing API, complete the following steps. When you import another API, the operations are appended to your current API.
+>[!NOTE] 
+> When you import an API, the operations are appended to your current API.
 
-1. Go to your Azure API Management instance in the Azure portal.
-2. Select **APIs** from the menu on the left.
-3. Click **...** next to the API that you want to append another API to.
-4. Select **Import** from the drop-down menu.
-5. Select a service from which to import an API.
+To append an API to an existing API: 
+
+1. Go to your Azure API Management instance in the Azure portal:
+
+    :::image type="content" source="./media/api-management-append-apis/service-page-1.png" alt-text="Screenshot that shows the API Management services page." lightbox="./media/api-management-append-apis/service-page-1.png":::
+
+1. Select **APIs** on the **Overview** page or select **APIs** > **APIs** in the menu on the left.
+
+    :::image type="content" source="./media/api-management-append-apis/api-select-1.png" alt-text="Screenshot that shows the APIs selection on the Overview page." lightbox="./media/api-management-append-apis/api-select-1.png":::
+
+1. Select the ellipsis (**...**) next to the API that you want to append another API to.
+
+1. Select **Import** from the drop-down menu:
+
+    :::image type="content" source="./media/api-management-append-apis/append-02.png" alt-text="Screenshot that shows the Import command." lightbox="./media/api-management-append-apis/append-02.png":::
+
+1. Select a service from which to import an API.

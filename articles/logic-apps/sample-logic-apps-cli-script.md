@@ -3,26 +3,28 @@ title: Azure CLI script sample - create a logic app
 description: Sample script to create a logic app through the Logic Apps extension in the Azure CLI.
 services: logic-apps
 ms.suite: integration
-ms.reviewer: estfan, logicappspm
-ms.topic: article
-ms.custom: mvc
-ms.date: 07/30/2020
+ms.reviewer: estfan, azla
+ms.topic: concept-article
+ms.custom: mvc, devx-track-azurecli
+ms.date: 07/18/2025
 ---
 
 # Azure CLI script sample - create a logic app
 
-This script creates a sample logic app through the [Azure CLI Logic Apps extension](/cli/azure/ext/logic/logic?view=azure-cli-latest), (`az logic`). For a detailed guide to creating and managing logic apps through the Azure CLI, see the [Logic Apps quickstart for the Azure CLI](quickstart-logic-apps-azure-cli.md).
+[!INCLUDE [logic-apps-sku-consumption](~/reusable-content/ce-skilling/azure/includes/logic-apps-sku-consumption.md)]
+
+This script creates a sample logic app through the [Azure CLI Logic Apps extension](/cli/azure/logic), (`az logic`). For a detailed guide to creating and managing logic apps through the Azure CLI, see the [Logic Apps quickstart for the Azure CLI](quickstart-logic-apps-azure-cli.md).
 
 > [!WARNING]
 > The Azure CLI Logic Apps extension is currently *experimental* and *not covered by customer support*. Use this CLI extension with caution, especially if you choose to use the extension in production environments.
 
 ## Prerequisites
 
-* An Azure account with an active subscription. If you don't have an Azure subscription, [create a free account](https://azure.microsoft.com/free/?WT.mc_id=A261C142F).
-* The [Azure CLI](/cli/azure/install-azure-cli?view=azure-cli-latest) installed on your local computer.
-* The [Logic Apps Azure CLI extension](/cli/azure/azure-cli-extensions-list?view=azure-cli-latest) installed on your computer. To install this extension, use this command: `az extension add --name logic`
+* An Azure account with an active subscription. If you don't have an Azure subscription, [create a free account](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn).
+* The [Azure CLI](/cli/azure/install-azure-cli) installed on your local computer.
+* The [Logic Apps Azure CLI extension](/cli/azure/azure-cli-extensions-list) installed on your computer. To install this extension, use this command: `az extension add --name logic`
 * A [workflow definition](quickstart-logic-apps-azure-cli.md#workflow-definition) for your logic app. This JSON file must follow the [Workflow Definition language schema](logic-apps-workflow-definition-language.md).
-* An API connection to an email account through a supported [Logic Apps connector](../connectors/apis-list.md) in the same resource group as your logic app. This example uses the [Office 365 Outlook](../connectors/connectors-create-api-office365-outlook.md) connector, but you can also use other connectors like [Outlook.com](../connectors/connectors-create-api-outlook.md).
+* An API connection to an email account through a supported [Azure Logic Apps connector](/connectors/connector-reference/connector-reference-logicapps-connectors) in the same resource group as your logic app. This example uses the [Office 365 Outlook](../connectors/connectors-create-api-office365-outlook.md) connector, but you can also use other connectors like [Outlook.com](../connectors/connectors-create-api-outlook.md).
 
 ### Prerequisite check
 
@@ -30,13 +32,13 @@ Validate your environment before you begin:
 
 * Sign in to the Azure portal and check that your subscription is active by running `az login`.
 
-* Check your version of the Azure CLI in a terminal or command window by running `az --version`. For the latest version, see the [latest release notes](/cli/azure/release-notes-azure-cli?tabs=azure-cli&view=azure-cli-latest).
+* Check your version of the Azure CLI in a terminal or command window by running `az --version`. For the latest version, see the [latest release notes](/cli/azure/release-notes-azure-cli).
 
-  * If you don't have the latest version, update your installation by following the [installation guide for your operating system or platform](/cli/azure/install-azure-cli?view=azure-cli-latest).
+  * If you don't have the latest version, update your installation by following the [installation guide for your operating system or platform](/cli/azure/install-azure-cli).
 
 ### Sample workflow explanation
 
-This example workflow definition file creates the same basic logic app as the [Logic Apps quickstart for the Azure portal](quickstart-create-first-logic-app-workflow.md). 
+This example workflow definition file creates the same basic example Consumption logic app workflow as in the [quickstart for the Azure portal](quickstart-create-example-consumption-workflow.md).
 
 This sample workflow: 
 
@@ -113,14 +115,14 @@ Before you run the sample script, you must first create a sample [workflow defin
             "$connections": {
                 "value": {
                     "office365": {
-                        "connectionId": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/testResourceGroup/providers/Microsoft.Web/connections/office365",
+                        "connectionId": "/subscriptions/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e/resourceGroups/testResourceGroup/providers/Microsoft.Web/connections/office365",
                         "connectionName": "office365",
-                        "id": "/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.Web/locations/westus/managedApis/office365"
+                        "id": "/subscriptions/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e/providers/Microsoft.Web/locations/westus/managedApis/office365"
                     },
                     "rss": {
-                        "connectionId": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/testResourceGroup/providers/Microsoft.Web/connections/rss",
+                        "connectionId": "/subscriptions/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e/resourceGroups/testResourceGroup/providers/Microsoft.Web/connections/rss",
                         "connectionName": "rss",
-                        "id": "/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.Web/locations/westus/managedApis/rss"
+                        "id": "/subscriptions/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e/providers/Microsoft.Web/locations/westus/managedApis/rss"
                     }
                 }
             }
@@ -192,12 +194,12 @@ This sample script uses the following commands to create a new resource group an
 
 | Command | Notes |
 | ------- | ----- |
-| [`az group create`](/cli/azure/group?view=azure-cli-latest#az-group-create) | Creates a resource group in which your logic app's resources are stored. |
-| [`az logic workflow create`](/cli/azure/ext/logic/logic/workflow?view=azure-cli-latest#ext-logic-az-logic-workflow-create) | Creates a logic app based on the workflow defined in the parameter `--definition`. |
-| [`az group delete`](/cli/azure/vm/extension?view=azure-cli-latest) | Deletes a resource group and all of its nested resources. |
+| [`az group create`](/cli/azure/group#az-group-create) | Creates a resource group in which your logic app's resources are stored. |
+| [`az logic workflow create`](/cli/azure/logic/workflow#az-logic-workflow-create) | Creates a logic app based on the workflow defined in the parameter `--definition`. |
+| [`az group delete`](/cli/azure/vm/extension) | Deletes a resource group and all of its nested resources. |
 
 ## Next steps
 
-For more information on the Azure CLI, see the [Azure CLI documentation](/cli/azure/?view=azure-cli-latest).
+For more information on the Azure CLI, see the [Azure CLI documentation](/cli/azure/).
 
 You can find additional Logic Apps CLI script samples in [Microsoft's code samples browser](/samples/browse/?products=azure-logic-apps).

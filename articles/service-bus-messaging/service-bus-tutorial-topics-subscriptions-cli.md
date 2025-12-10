@@ -1,10 +1,15 @@
 ---
 title: Use the Azure CLI to create Service Bus topics and subscriptions
 description: In this quickstart, you learn how to create a Service Bus topic and subscriptions to that topic by using the Azure CLI
-ms.date: 06/23/2020
+ms.date: 09/28/2021
 ms.topic: quickstart
 author: spelluru
-ms.author: spelluru 
+ms.author: spelluru
+ms.devlang: azurecli
+ms.custom:
+  - mode-api
+  - devx-track-azurecli
+  - sfi-ropc-nochange
 ---
 
 # Use Azure CLI to create a Service Bus topic and subscriptions to the topic
@@ -24,15 +29,16 @@ Service Bus topics and subscriptions enable you to scale to process a large numb
 ## Prerequisites
 If you don't have an Azure subscription, you can create a [free account][free account] before you begin.
 
-In this quickstart, you use Azure Cloud Shell that you can launch after sign into the Azure portal. For details about Azure Cloud Shell, see [Overview of Azure Cloud Shell](../cloud-shell/overview.md). You can also [install](/cli/azure/install-azure-cli) and use Azure PowerShell on your machine. 
+In this quickstart, you use Azure Cloud Shell that you can launch after sign in to the Azure portal. For details about Azure Cloud Shell, see [Overview of Azure Cloud Shell](../cloud-shell/overview.md). You can also [install](/cli/azure/install-azure-cli) and use Azure PowerShell on your machine. 
 
 ## Create a Service Bus topic and subscriptions
 Each [subscription to a topic](service-bus-messaging-overview.md#topics) can receive a copy of each message. Topics are fully protocol and semantically compatible with Service Bus queues. Service Bus topics support a wide array of selection rules with filter conditions, with optional actions that set or modify message properties. Each time a rule matches, it produces a message. To learn more about rules, filters, and actions, follow this [link](topic-filters.md).
 
-1. Sign into the [Azure portal](https://portal.azure.com).
+1. Sign in to the [Azure portal](https://portal.azure.com).
 2. Launch Azure Cloud Shell by selecting the icon shown in the following image. Switch to **Bash** mode if the Cloud Shell is in **PowerShell** mode. 
 
-    :::image type="content" source="./media/service-bus-quickstart-powershell/launch-cloud-shell.png" alt-text="Launch Cloud Shell":::
+    :::image type="icon" source="~/reusable-content/ce-skilling/azure/media/cloud-shell/launch-cloud-shell-button.png" alt-text="Button to launch the Azure Cloud Shell." border="false" link="https://shell.azure.com":::
+
 3. Run the following command to create an Azure resource group. Update the resource group name and the location if you want. 
 
     ```azurecli-interactive
@@ -77,7 +83,7 @@ Each [subscription to a topic](service-bus-messaging-overview.md#topics) can rec
 9. Create a filter on the third subscription with a filter using customer properties (`StoreId` not in `Store1`, `Store2`, `Store3`, or `Store4`).
 
     ```azurecli-interactive
-    az servicebus topic subscription rule create --resource-group MyResourceGroup --namespace-name $namespaceName --topic-name MyTopic --subscription-name S3 --name MyThirdFilter --filter-sql-expression "StoreId IN ('Store1','Store2','Store3', 'Store4')"     
+    az servicebus topic subscription rule create --resource-group MyResourceGroup --namespace-name $namespaceName --topic-name MyTopic --subscription-name S3 --name MyThirdFilter --filter-sql-expression "StoreId NOT IN ('Store1','Store2','Store3', 'Store4')"     
     ```
 10. Run the following command to get the primary connection string for the namespace. You use this connection string to connect to the queue and send and receive messages. 
 
@@ -95,7 +101,7 @@ To learn how to send messages to a topic and receive those messages via a subscr
 > [Publish and subscribe for messages](service-bus-dotnet-how-to-use-topics-subscriptions.md)
 
 
-[free account]: https://azure.microsoft.com/free/?ref=microsoft.com&utm_source=microsoft.com&utm_medium=docs&utm_campaign=visualstudio
+[free account]: https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn
 [fully qualified domain name]: https://wikipedia.org/wiki/Fully_qualified_domain_name
 [Install the Azure CLI]: /cli/azure/install-azure-cli
 [az group create]: /cli/azure/group#az_group_create

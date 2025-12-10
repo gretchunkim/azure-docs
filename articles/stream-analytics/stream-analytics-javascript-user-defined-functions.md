@@ -1,15 +1,13 @@
 ---
 title: Azure Stream Analytics JavaScript user-defined functions
 description: This article is an introduction to JavaScript user-defined functions in Stream Analytics.
-author: rodrigoaatmicrosoft
-ms.author: rodrigoa
-ms.service: stream-analytics
+ms.service: azure-stream-analytics
 ms.topic: tutorial
-ms.reviewer: mamccrea
-ms.custom: mvc, devx-track-javascript
-ms.date: 06/16/2020
 
-#Customer intent: "As an IT admin/developer I want to run JavaScript user-defined functions within Stream Analytics jobs."
+ms.custom: mvc, devx-track-js
+ms.date: 12/15/2020
+
+#Customer intent: As an IT admin/developer I want to run JavaScript user-defined functions within Stream Analytics jobs.
 ---
 
 # JavaScript user-defined functions in Azure Stream Analytics
@@ -52,7 +50,7 @@ You must then provide the following properties and select **Save**.
 
 ## Test and troubleshoot JavaScript UDFs 
 
-You can test and debug your JavaScript UDF logic in any browser. Debugging and testing the logic of these user-defined functions is currently not supported in the Stream Analytics portal. Once the function works as expected, you can add it to the Stream Analytics job as mentioned above and then invoke it directly from your query. You can test your query logic with JavaScript UDF using [Stream Analytics tools for Visual Studio](https://docs.microsoft.com/azure/stream-analytics/stream-analytics-tools-for-visual-studio-install).
+You can test and debug your JavaScript UDF logic in any browser. Debugging and testing the logic of these user-defined functions is currently not supported in the Stream Analytics portal. Once the function works as expected, you can add it to the Stream Analytics job as mentioned above and then invoke it directly from your query. You can test your query logic with JavaScript UDF using [Stream Analytics tools for Visual Studio](./stream-analytics-tools-for-visual-studio-install.md).
 
 JavaScript runtime errors are considered fatal, and are surfaced through the Activity log. To retrieve the log, in the Azure portal, go to your job and select **Activity log**.
 
@@ -183,7 +181,71 @@ FROM
     input A
 ```
 
+### toLocaleString()
+The **toLocaleString** method in JavaScript can be used to return a language sensitive string that represents the date time data from where this method is called.
+Even though Azure Stream Analytics only accepts UTC date time as system timestamp, this method can be used to covert the system timestamp to another locale and timezone.
+This method follows the same implementation behavior as the one available in Internet Explorer .
+
+**JavaScript user-defined function definition:**
+
+```javascript
+function main(datetime){
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    return datetime.toLocaleDateString('de-DE', options);
+}
+```
+
+**Sample query: Pass a datetime as input value**
+```SQL
+SELECT
+    udf.toLocaleString(input.datetime) as localeString
+INTO
+    output
+FROM
+    input
+```
+
+The output of this query will be the input datetime in **de-DE** with the options provided.
+```
+Samstag, 28. December 2019
+```
+
+## User Logging
+The logging mechanism allows users to capture custom information while a job is running. Log data can be used to debug or assess the correctness of the custom code in real time. This mechanism is available through three different methods.
+
+### Console.Info()
+Console.Info method is used to log general information during code execution. This method will log data without interrupting computation. The message logged will be marked as Event Level Informational.
+
+```javascript
+console.info('my info message');
+```
+
+### Console.Warn()
+Console.Warn method is used to log data that might not be correct or expected but is still accepted for computation. This method will not interrupt computation and will resume running after the method is returned. The message logged will be marked as Event Level Warning.
+
+```javascript
+console.warn('my warning message');
+```
+
+### Console.Error() and Console.Log()
+Console.Error method is only used to log error cases where code cannot continue to run. This method will throw an exception with the error information provided as the input parameter and job will stop running. The error message logged will be marked as Event Level Error.
+
+```javascript
+console.error('my error message');
+```
+
+You can access log messages through the [diagnostic logs](data-errors.md).
+
+## atob() and btoa()
+The method btoa() can be used to encode an ASCII string into Base64. This is usually done to transfer data in a binary format. The atob() method can be used to decode a string of data encoded in Base64 to an ASCII string format.
+
+```javascript
+var myAsciiString = 'ascii string';
+var encodedString = btoa(myAsciiString);
+var decodedString = atob(encodedString);
+```
+
 ## Next steps
 
-* [Machine Learning UDF](https://docs.microsoft.com/azure/stream-analytics/machine-learning-udf)
-* [C# UDF](https://docs.microsoft.com/azure/stream-analytics/stream-analytics-edge-csharp-udf-methods)
+* [Machine Learning UDF](./machine-learning-udf.md)
+* [C# UDF](./stream-analytics-edge-csharp-udf-methods.md)

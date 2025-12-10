@@ -1,38 +1,27 @@
 ---
-title: How to install IoT Edge on Kubernetes | Microsoft Docs 
+title: How to install IoT Edge on Kubernetes
 description: Learn on how to install IoT Edge on Kubernetes using a local development cluster environment
-author: kgremban
-manager: philmea
-ms.author: veyalla
-ms.date: 04/26/2019
-ms.topic: conceptual
-ms.service: iot-edge
+author: sethmanheim
+ms.author: sethm
+ms.date: 05/08/2025
+ms.topic: concept-article
+ms.service: azure-iot-edge
 services: iot-edge
 ---
 
-# How to install IoT Edge on Kubernetes (Preview)
+# How to install IoT Edge on Kubernetes
 
-IoT Edge can integrate with Kubernetes using it as a resilient, highly available infrastructure layer. Here is where this support fits in a high level IoT Edge solution:
+You can install IoT Edge on Kubernetes using [KubeVirt](https://www.cncf.io/projects/kubevirt/) technology. KubeVirt is an open-source project from the Cloud Native Computing Foundation (CNCF) that provides a Kubernetes virtualization API and runtime to define and manage virtual machines. 
 
-![k8s intro](./media/how-to-install-iot-edge-kubernetes/kubernetes-model.png)
+## Architecture
 
->[!TIP]
->A good mental model for this integration is to think of Kubernetes as another operating environment IoT Edge applications can run on in addition to Linux and Windows.
+:::image type="content" source="./media/how-to-install-iot-edge-kubernetes/iotedge-kubevirt.png" alt-text="Screenshot showing IoT Edge on Kubernetes with KubeVirt." lightbox="./media/how-to-install-iot-edge-kubernetes/iotedge-kubevirt.png":::
 
-## Architecture 
-On Kubernetes, IoT Edge provides *Custom Resource Definition* (CRD) for edge workload deployments. IoT Edge Agent assumes the role of a  *CRD controller* that reconciles cloud-managed desired state with the local cluster state.
+| Note | Description |
+|-|-|
+|  1 | Install KubeVirt custom resource definitions (CRDs) into the Kubernetes cluster. Like the Kubernetes cluster, management and updates to KubeVirt components are outside the purview of IoT Edge. |
+|  2️ | A KubeVirt `VirtualMachine` custom resource defines a virtual machine with required resources and a base operating system. A running *instance* of this resource is created in a Kubernetes pod using [KVM](https://en.wikipedia.org/wiki/Kernel-based_Virtual_Machine) and [QEMU](https://wiki.qemu.org/Main_Page) technologies. If your Kubernetes node is itself a virtual machine, you need to enable nested virtualization to use KubeVirt.|
+|  3️ | The environment inside the QEMU container is like an OS environment. IoT Edge and its dependencies (like the Docker container engine) can be set up using standard installation instructions or a [cloud-init](https://github.com/Azure-Samples/IoT-Edge-K8s-KubeVirt-Deployment/blob/12e3192b66aa9b49157c8ee9f6b832b322659f2f/deployment/helm/templates/_helper.tpl#L31) script. |
 
-Module lifetime is managed by the Kubernetes scheduler, which maintains module availability and chooses their placement. IoT Edge manages the edge application platform running on top, continuously reconciling the desired state specified in IoT Hub with the state on the edge cluster. The application model is still the familiar model based on IoT Edge modules and routes. The IoT Edge Agent controller performs *automatic* translation IoT Edge's application model to the Kubernetes native constructs like pods, deployments, services etc.
-
-Here is a high-level architecture diagram:
-
-![kubernetes arch](./media/how-to-install-iot-edge-kubernetes/publicpreview-refresh-kubernetes.png)
-
-Every component of the edge deployment is scoped to a Kubernetes namespace specific to the device, making it possible to share the same cluster resources among multiple edge devices and their deployments.
-
->[!NOTE]
->IoT Edge on Kubernetes is in [public preview](https://azure.microsoft.com/support/legal/preview-supplemental-terms/).
-
-## Tutorials and references 
-
-Please see the [IoT Edge on Kubernetes preview docs mini-site](https://aka.ms/edgek8sdoc) for more information, including in-depth tutorials and references.
+## Sample
+A functional sample for running IoT Edge on Azure Kubernetes Service (AKS) with KubeVirt is available at [https://aka.ms/iotedge-kubevirt](https://aka.ms/iotedge-kubevirt). 

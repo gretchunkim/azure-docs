@@ -1,14 +1,13 @@
 ---
 title: Automation scenarios for Azure billing and cost management
 description: Learn how common billing and cost management scenarios are mapped to different APIs.
-author: bandersmsft
-ms.reviewer: adwise
-tags: billing
+author: vikramdesai01
+ms.reviewer: vikdesai
 ms.service: cost-management-billing
 ms.subservice: common
 ms.topic: reference
-ms.date: 02/12/2020
-ms.author: banders
+ms.date: 07/08/2025
+ms.author: vikdesai
 ---
 
 # Automation scenarios for billing and cost management
@@ -27,7 +26,7 @@ You can use the billing and cost management APIs in several scenarios to answer 
 
 - **Cost tracking**: I want to see how much I'm spending and using Azure over time. What are the trends? How can I do better?
 
-- **Azure spending during the month**: How much is my current month’s spending to date? Do I need to make any changes in my spending and/or usage of Azure? When during the month am I consuming Azure the most?
+- **Azure spending during the month**: How much is my current month's spending to date? Do I need to make any changes in my spending and/or usage of Azure? When during the month am I consuming Azure the most?
 
 - **Alerts**: How can I set up resource-based consumption or monetary-based alerts?
 
@@ -41,94 +40,92 @@ You can use the billing and cost management APIs in several scenarios to answer 
 | Reservation Recommendations |                           |                  |           X          |                  |                    |           |
 | Reservation Details         |                           |                  |           X          |         X        |                    |           |
 | Reservation Summaries       |                           |                  |           X          |         X        |                    |           |
-| Usage Details               |             X             |         X        |           X          |         X        |          X         |     X     |
+| Cost Details               |             X             |         X        |           X          |         X        |          X         |     X     |
 | Billing Periods             |             X             |         X        |           X          |         X        |                    |           |
 | Invoices                    |             X             |         X        |           X          |         X        |                    |           |
-| RateCard                    |             X             |                  |           X          |         X        |          X         |           |
-| Unrated Usage               |             X             |                  |           X          |                  |          X         |           |
+| Azure Retail Prices                    |             X             |                  |           X          |         X        |                    |           |
 
-> [!NOTE]
-> The scenario-to-API mapping doesn't include the Enterprise Consumption APIs. Where possible, use the general Consumption APIs for new development scenarios.
 
 ## API summaries
 
 ### Consumption
 Web Direct and Enterprise customers can use all the following APIs, except where noted:
 
--	[Budgets API](https://docs.microsoft.com/rest/api/consumption/budgets) (*Enterprise customers only*): Create either cost or usage budgets for resources, resource groups, or billing meters. When you've created budgets, you can configure alerts to notify you when you've exceeded defined budget thresholds. You can also configure actions to occur when you've reached budget amounts.
+-    [Budgets API](/rest/api/consumption/budgets) (*Enterprise customers only*): Create either cost or usage budgets for resources, resource groups, or billing meters. When you've created budgets, you can configure alerts to notify you when you've exceeded defined budget thresholds. You can also configure actions to occur when you've reached budget amounts.
 
--	[Marketplace Charges API](https://docs.microsoft.com/rest/api/consumption/marketplaces): Get charge and usage data on all Azure Marketplace resources (Azure partner offerings). You can use this data to add up costs across all Marketplace resources or to investigate costs/usage on specific resources.
+-    [Marketplace Charges API](/rest/api/consumption/marketplaces): Get charge and usage data on all Azure Marketplace resources (Azure partner offerings). You can use this data to add up costs across all Marketplace resources or to investigate costs/usage on specific resources.
 
--	[Price Sheet API](https://docs.microsoft.com/rest/api/consumption/pricesheet) (*Enterprise customers only*): Get custom pricing for all meters. Enterprises can use this data in combination with usage details and marketplace usage information to calculate costs by using usage and marketplace data.
+-    [Reservation Recommendations API](/rest/api/consumption/reservationrecommendations): Get recommendations for purchasing Reserved VM Instances. Recommendations help you analyze expected cost savings and purchase amounts. For more information, see [APIs for Azure reservation automation](../reservations/reservation-apis.md).
 
--	[Reservation Recommendations API](https://docs.microsoft.com/rest/api/consumption/reservationrecommendations): Get recommendations for purchasing Reserved VM Instances. Recommendations help you analyze expected cost savings and purchase amounts. For more information, see [APIs for Azure reservation automation](../reservations/reservation-apis.md).
+-    [Reservation Details API](/rest/api/consumption/reservationsdetails): See information on previously purchased VM reservations, such as how much consumption is reserved versus how much is used. You can see data at per-VM-level detail. For more information, see [APIs for Azure reservation automation](../reservations/reservation-apis.md).
 
--	[Reservation Details API](https://docs.microsoft.com/rest/api/consumption/reservationsdetails): See information on previously purchased VM reservations, such as how much consumption is reserved versus how much is used. You can see data at per-VM-level detail. For more information, see [APIs for Azure reservation automation](../reservations/reservation-apis.md).
+-    [Reservation Summaries API](/rest/api/consumption/reservationssummaries): See aggregated information on VM reservations that your organization bought, like how much consumption is reserved versus how much is used in the aggregate. For more information, see [APIs for Azure reservation automation](../reservations/reservation-apis.md).
 
--	[Reservation Summaries API](https://docs.microsoft.com/rest/api/consumption/reservationssummaries): See aggregated information on VM reservations that your organization bought, like how much consumption is reserved versus how much is used in the aggregate. For more information, see [APIs for Azure reservation automation](../reservations/reservation-apis.md).
+-    [Azure Retail Prices](/rest/api/cost-management/retail-prices/azure-retail-prices): Get meter rates with pay-as-you-go pricing. You can then use the returned information with your resource usage information to manually calculate the expected bill.
 
--	[Usage Details API](https://docs.microsoft.com/rest/api/consumption/usagedetails): Get charge and usage information on all Azure resources from Microsoft. Information is in the form of usage detail records, which are currently emitted once per meter per day. You can use the information to add up the costs across all resources or investigate costs/usage on specific resources.
+### Cost Management
+The following APIs are part of the Cost Management family and support a wide range of automation scenarios for cost analysis, reporting, alerting, and benefit management:
 
--	[RateCard API](/previous-versions/azure/reference/mt219005(v=azure.100)): Get meter rates if you're a Web Direct customer. You can then use the returned information with your resource usage information to manually calculate the expected bill.
+- [Exports API](/rest/api/cost-management/exports) – Schedule and manage recurring exports of cost details data to Azure Storage. Recommended for large-scale, automated cost data ingestion and historical analysis. See [Retrieve large cost datasets with exports](../costs/ingest-azure-usage-at-scale.md).
 
--	[Unrated Usage API](/previous-versions/azure/reference/mt219003(v=azure.100)): Get raw usage information before Azure does any metering/charging.
+- [Generate Cost Details Report API](/rest/api/cost-management/generate-cost-details-report) – Generate and download a cost details CSV file on demand for a specific date range and scope. Useful for ad-hoc or small dataset retrieval. See [Get small cost datasets on demand](../automate/get-small-usage-datasets-on-demand.md).
+
+- [Query API](/rest/api/cost-management/query) – Run custom queries for cost, usage, and forecast data. Supports grouping, filtering, and aggregation for advanced reporting and dashboards. See [Query cost data](../costs/cost-analysis-common-uses.md).
+
+- [Alerts API](/rest/api/cost-management/alerts) – Manage cost-related alerts generated by budgets or other triggers. Integrate with monitoring and automation workflows.
+
+- [Cost Allocation API](/rest/api/cost-management/cost-allocation-rules) – Allocate costs across subscriptions, resource groups, or custom dimensions for internal chargeback and showback scenarios. See [Allocate costs](../costs/allocate-costs.md).
+
+- [Cost Management Dimensions API](/rest/api/cost-management/dimensions) – List and manage available dimensions (such as resource, tag, or meter) for use in cost analysis and reporting.
+
+- [Cost Management Forecast API](/rest/api/cost-management/forecast) – Retrieve forecasted cost data to predict future spending and support proactive budgeting.
+
+- [Price Sheet API](/rest/api/cost-management/price-sheet) – Retrieve the full list of meter prices and rates for your Azure account, including negotiated and retail prices. Useful for cost estimation, reconciliation, and custom reporting. 
+  
+- [Benefit Recommendations API](/rest/api/cost-management/benefit-recommendations) – Get recommendations for optimizing your Azure costs by identifying potential savings opportunities, such as reserved instances or savings plans, based on your historical and forecasted usage.
+
+- [Benefit Utilization Summaries API](/rest/api/cost-management/generate-benefit-utilization-summaries-report) – Retrieve summaries of Azure Savings Plans and Reservations utilization.
+
+- [Savings Plan Utilization Summaries API](/rest/api/cost-management/benefit-utilization-summaries) – Retrieve Azure Savings Plan utilization summaries.
+
+
+These APIs enable automation for scenarios such as:
+- Invoice reconciliation
+- Cross-charging and cost allocation
+- Cost optimization and trend analysis
+- Budgeting and alerting
+- Custom reporting and dashboarding
+- Tracking and optimizing benefit utilization
+- Analyzing savings from Reservations and Savings Plans
+- Automating reservation and savings plan reporting
+- Forecasting and planning future benefit purchases
+
+For a full list of Cost Management APIs and their capabilities, see the [Cost Management REST API reference](/rest/api/cost-management/operation-groups).
 
 ### Billing
--	[Billing Periods API](https://docs.microsoft.com/rest/api/billing/enterprise/billing-enterprise-api-billing-periods): Determine a billing period to analyze, along with the invoice IDs for that period. You can use invoice IDs with the Invoices API.
+-    Billing Periods API: Determine a billing period to analyze, along with the invoice IDs for that period. You can use invoice IDs with the Invoices API.
 
--	[Invoices API](/rest/api/billing/2019-10-01-preview/invoices): Get the download URL for an invoice for a billing period in PDF form.
-
-### Enterprise consumption
-The following APIs are for Enterprise only:
-
--	[Balance Summary API](https://docs.microsoft.com/rest/api/billing/enterprise/billing-enterprise-api-balance-summary): Get a monthly summary of information on balances, new purchases, Azure Marketplace service charges, adjustments, and overage charges. You can get this information for the current billing period or any period in the past. Enterprises can use this data to compare with manually calculated summary charges. This API does not provide resource-specific information or an aggregate view of costs.
-
--	[Usage Details API](https://docs.microsoft.com/rest/api/billing/enterprise/billing-enterprise-api-usage-detail): Get information about Azure usage (of Microsoft offerings) for the current month, a specific billing period, or a custom date period. Enterprises can use this data to manually calculate bills based on rate and consumption. Enterprises can also use department/organization information to attribute costs across organizations. The data provides a resource-specific view of usage/cost.
-
--	[Marketplace Store Charge API](https://docs.microsoft.com/rest/api/billing/enterprise/billing-enterprise-api-marketplace-storecharge): Get information about Azure usage (of partner offerings) for the current month, a specific billing period, or a custom date period. Enterprises can use this data to manually calculate bills based on rate and consumption. Enterprises can also use department/organization information to attribute costs across organizations. This API provides a resource-specific view of usage/cost.
-
--	[Price Sheet API](https://docs.microsoft.com/rest/api/billing/enterprise/billing-enterprise-api-pricesheet): Get the applicable rate for each meter for the given enrollment and billing period. You can use this rate information in combination with usage details and marketplace usage information to manually calculate the expected bill.
-
--	[Billing Periods API](https://docs.microsoft.com/rest/api/billing/enterprise/billing-enterprise-api-billing-periods): Get a list of billing periods. The API also gives you a property that points to the API route for the four sets of Enterprise API data that pertain to the billing period: BalanceSummary, UsageDetails, Marketplace Charges, and PriceSheet.
-
--	[Reserved Instance Recommendations API](https://docs.microsoft.com/rest/api/billing/enterprise/billing-enterprise-api-reserved-instance-recommendation): Look at 7 days, 30 days, or 60 days of virtual machine usage and get Single and Shared Purchase recommendations. You can use this API to analyze expected cost savings and recommended purchase amounts. For more information, see [APIs for Azure reservation automation](../reservations/reservation-apis.md).
+-    [Invoices API](/rest/api/billing/2019-10-01-preview/invoices): Get the download URL for an invoice for a billing period in PDF form.
 
 ## Frequently asked questions
 
-### What's the difference between the Enterprise Reporting APIs and the Consumption APIs? When should I use each?
-These APIs have a similar set of functionality and can answer the same broad set of questions in the billing and cost management space. But they target different audiences:
-
-- Enterprise Reporting APIs are available to customers who have signed an Enterprise Agreement with Microsoft that grants them access to negotiated monetary commitments and custom pricing. The APIs require a key that you can get from the [Enterprise Portal](https://ea.azure.com). For a description of these APIs, see [Overview of Reporting APIs for Enterprise customers](enterprise-api.md).
-
-- Consumption APIs are available to all customers, with a few exceptions. For more information, see [Azure consumption API overview](consumption-api-overview.md) and the [Azure Consumption API reference](https://docs.microsoft.com/rest/api/consumption/). We recommend the provided APIs as the solution for the latest development scenarios.
-
-### What's the difference between the Usage Details API and the Usage API?
-These APIs provide fundamentally different data:
-
-- The [Usage Details API](https://docs.microsoft.com/rest/api/consumption/usagedetails) provides Azure usage and cost information per meter instance. The provided data has already passed through the cost metering system in Azure and had cost applied to it, along with other possible changes:
-
-   - Changes to account for the use of prepaid monetary commitments
-   - Changes to account for usage discrepancies discovered by Azure
-
-- The [Usage API](/previous-versions/azure/reference/mt219003(v=azure.100)) provides raw Azure usage information before it passes through the cost metering system in Azure. This data might not have any correlation with the usage or charge amount that's seen after the Azure charge metering system.
-
-### What's the difference between the Invoice API and the Usage Details API?
+### What's the difference between the Invoice API and the Cost Details API?
 These APIs provide a different view of the same data:
 
 - The [Invoice API](/rest/api/billing/2019-10-01-preview/invoices) is for Web Direct customers only. It provides a monthly rollup of your bill based on the aggregate charges for each meter type.
 
-- The [Usage Details API](https://docs.microsoft.com/rest/api/consumption/usagedetails) provides a granular view of the usage/cost records for each day. Both Enterprise and Web Direct customers can use it.
+- The [Cost Details API](/rest/api/cost-management/generate-cost-details-report) provides a granular view of the usage/cost records for each day. This is only available to enterprise customers.
 
 ### What's the difference between the Price Sheet API and the RateCard API?
 These APIs provide similar sets of data but have different audiences:
 
-- The [Price Sheet API](https://docs.microsoft.com/rest/api/consumption/pricesheet) provides the custom pricing that was negotiated for an Enterprise customer.
+- The [Price Sheet API](/rest/api/cost-management/price-sheet) provides the custom pricing that was negotiated for an Enterprise customer.
 
-- The [RateCard API](/previous-versions/azure/reference/mt219005(v=azure.100)) provides the public-facing pricing that applies to Web Direct customers.
+- The [Azure Retail Prices API](/rest/api/cost-management/retail-prices/azure-retail-prices) provides public-facing pay-as-you-go pricing that applies to Web Direct customers.
 
 ## Next steps
 
-- For information about using Azure APIs to programmatically get insight into your Azure usage, see [Azure Consumption API overview](consumption-api-overview.md) and [Azure Billing API overview](usage-rate-card-overview.md).
+- For information about using REST APIs retrieve prices for all Azure services, see [Azure Retail Prices overview](/rest/api/cost-management/retail-prices/azure-retail-prices).
 
 - To compare your invoice with the detailed daily usage file and the cost management reports in the Azure portal, see [Understand your bill for Microsoft Azure](../understand/review-individual-bill.md).
 

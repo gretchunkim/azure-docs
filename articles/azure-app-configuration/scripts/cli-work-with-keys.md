@@ -1,15 +1,15 @@
 ---
 title: Azure CLI Script Sample - Work with key-values in App Configuration Store
 titleSuffix: Azure App Configuration
-description: Use Azure CLI script to create, view, update and delete key values from App Configuration store
+description: Use Azure CLI script to create, view, update and delete key-values from App Configuration store
 services: azure-app-configuration
-author: lisaguthrie
+author: maud-lv
 
 ms.service: azure-app-configuration
 ms.devlang: azurecli
 ms.topic: sample
-ms.date: 02/19/2020
-ms.author: lcozzens 
+ms.date: 04/12/2024
+ms.author: malev 
 ms.custom: devx-track-azurecli
 ---
 
@@ -21,12 +21,11 @@ This sample script shows how to:
 * Update the value of a newly created key
 * Delete the new key-value pair
 
-[!INCLUDE [quickstarts-free-trial-note](../../../includes/quickstarts-free-trial-note.md)]
+[!INCLUDE [quickstarts-free-trial-note](~/reusable-content/ce-skilling/azure/includes/quickstarts-free-trial-note.md)]
 
-[!INCLUDE [cloud-shell-try-it.md](../../../includes/cloud-shell-try-it.md)]
+[!INCLUDE [azure-cli-prepare-your-environment.md](~/reusable-content/azure-cli/azure-cli-prepare-your-environment.md)]
 
-This article requires Azure CLI version 2.0 or later. Run `az --version` to find the version. If you need to install or upgrade, see [Install the Azure CLI](/cli/azure/install-azure-cli). 
-
+ - This tutorial requires version 2.0 or later of the Azure CLI. If using Azure Cloud Shell, the latest version is already installed.
 ## Sample script
 
 ```azurecli-interactive
@@ -51,13 +50,13 @@ az appconfig kv set --name $appConfigName --key $newKey --value "Value 2"
 az appconfig kv list --name $appConfigName
 
 # Create a new key-value referencing a value stored in Azure Key Vault
-az appconfig kv set --name $appConfigName --key $refKey --content-type "application/vnd.microsoft.appconfig.keyvaultref+json;charset=utf-8" --value "{\"uri\":\"$uri\"}"
+az appconfig kv set-keyvault  --name $appConfigName --key $refKey --secret-identifier $uri
 
 # List current key-values
 az appconfig kv list --name $appConfigName
 
 # Update Key Vault reference
-az appconfig kv set --name $appConfigName --key $refKey --value "{\"uri\":\"$uri2\"}"
+az appconfig kv set-keyvault --name $appConfigName --key $refKey --secret-identifier $uri2
 
 # List current key-values
 az appconfig kv list --name $appConfigName

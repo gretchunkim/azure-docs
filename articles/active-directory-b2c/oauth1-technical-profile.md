@@ -2,23 +2,29 @@
 title: Define an OAuth1 technical profile in a custom policy
 titleSuffix: Azure AD B2C
 description: Define an OAuth 1.0 technical profile in a custom policy in Azure Active Directory B2C.
-services: active-directory-b2c
-author: msmimart
-manager: celestedg
 
-ms.service: active-directory
-ms.workload: identity
+author: kengaderdus
+manager: CelesteDG
+
+ms.service: azure-active-directory
+
 ms.topic: reference
-ms.date: 09/10/2018
-ms.author: mimart
-ms.subservice: B2C
+ms.date: 01/11/2024
+ms.author: kengaderdus
+ms.subservice: b2c
+
+
+#Customer intent: As a developer implementing Azure Active Directory B2C custom policies, I want to define an OAuth1 technical profile, so that I can federate with an OAuth1 based identity provider like X and allow users to sign in with their existing social or enterprise identities.
+
 ---
 
 # Define an OAuth1 technical profile in an Azure Active Directory B2C custom policy
 
+[!INCLUDE [active-directory-b2c-end-of-sale-notice-b](../../includes/active-directory-b2c-end-of-sale-notice-b.md)]
+
 [!INCLUDE [active-directory-b2c-advanced-audience-warning](../../includes/active-directory-b2c-advanced-audience-warning.md)]
 
-Azure Active Directory B2C (Azure AD B2C) provides support for the [OAuth 1.0 protocol](https://tools.ietf.org/html/rfc5849) identity provider. This article describes the specifics of a technical profile for interacting with a claims provider that supports this standardized protocol. With an OAuth1 technical profile, you can federate with an OAuth1 based identity provider, such as Twitter. Federating with the identity provider allows users to sign in with their existing social or enterprise identities.
+Azure Active Directory B2C (Azure AD B2C) provides support for the [OAuth 1.0 protocol](https://tools.ietf.org/html/rfc5849) identity provider. This article describes the specifics of a technical profile for interacting with a claims provider that supports this standardized protocol. With an OAuth1 technical profile, you can federate with an OAuth1 based identity provider, such as X. Federating with the identity provider allows users to sign in with their existing social or enterprise identities.
 
 ## Protocol
 
@@ -26,7 +32,7 @@ The **Name** attribute of the **Protocol** element needs to be set to `OAuth1`. 
 
 ```xml
 <TechnicalProfile Id="Twitter-OAUTH1">
-  <DisplayName>Twitter</DisplayName>
+  <DisplayName>X</DisplayName>
   <Protocol Name="OAuth1" />
   ...
 ```
@@ -41,7 +47,7 @@ The **OutputClaims** element contains a list of claims returned by the OAuth1 id
 
 The **OutputClaimsTransformations** element may contain a collection of **OutputClaimsTransformation** elements that are used to modify the output claims or generate new ones.
 
-The following example shows the claims returned by the Twitter identity provider:
+The following example shows the claims returned by the X identity provider:
 
 - The **user_id** claim that is mapped to the **issuerUserId** claim.
 - The **screen_name** claim that is mapped to the **displayName** claim.
@@ -84,23 +90,8 @@ The **CryptographicKeys** element contains the following attribute:
 
 ## Redirect URI
 
-When you configure the redirect URL of your identity provider, enter `https://login.microsoftonline.com/te/tenant/policyId/oauth1/authresp`. Make sure to replace **tenant** with your tenant name (for example, contosob2c.onmicrosoft.com) and **policyId** with the identifier of your policy (for example, b2c_1a_policy). The redirect URI needs to be in all lowercase. Add a redirect URL for all policies that use the identity provider login.
-
-If you are using the **b2clogin.com** domain instead of **login.microsoftonline.com** Make sure to use b2clogin.com instead of login.microsoftonline.com.
+When you configure the redirect URI of your identity provider, enter `https://{tenant-name}.b2clogin.com/{tenant-name}.onmicrosoft.com/{policy-id}/oauth1/authresp`. Make sure to replace `{tenant-name}` with your tenant's name (for example, contosob2c) and `{policy-id}` with the identifier of your policy (for example, b2c_1a_policy). The redirect URI needs to be in all lowercase. Add a redirect URL for all policies that use the identity provider login.
 
 Examples:
 
-- [Add Twitter as an OAuth1 identity provider by using custom policies](identity-provider-twitter-custom.md)
-
-
-
-
-
-
-
-
-
-
-
-
-
+- [Add X as an OAuth1 identity provider by using custom policies](identity-provider-twitter.md)

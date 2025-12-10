@@ -1,14 +1,15 @@
 ---
-title: Azure Data Box troubleshooting for using the REST interface| Microsoft Docs 
+title: Azure Data Box troubleshooting for using the REST interface | Microsoft Docs 
 description: Describes how to troubleshoot issues seen in Azure Data Box when data copy is via the REST interface.
 services: databox
-author: alkohli
+author: stevenmatthew
 
-ms.service: databox
-ms.subservice: disk
+ms.service: azure-data-box-disk
+ms.custom: devx-track-python, linux-related-content
 ms.topic: troubleshooting
-ms.date: 04/19/2019
-ms.author: alkohli
+ms.date: 03/06/2025
+ms.author: shaas
+# Customer intent: "As a data engineer, I want to troubleshoot issues encountered while using Azure Data Box via the REST interface, so that I can ensure successful data transfers without interruptions."
 ---
 
 # Troubleshoot issues related to Azure Data Box Blob storage
@@ -61,6 +62,7 @@ These errors are not specific to any application.
 |Error message  |Recommended action |
 |---------|---------|
 |The connection times out. |Sign into the Data Box device and check that it is unlocked. Any time the device restarts, it stays locked until someone signs in.|
+|The REST API authentication fails with the error: Server failed to authenticate the request. Make sure the value of Authorization header is formed correctly including the signature. ErrorCode:AuthenticationFailed. |One of the reasons why this could happen is when the device time is not synced with that of Azure. If there is a large time skew, the REST API authentication will break when you are trying to copy data to the Data Box via the REST API. In this situation, you can open the outbound UDP 123 port to allow access to `time.windows.com`. Once the device time is synced with that of Azure, authentication should succeed. |
 
 ## Next steps
 

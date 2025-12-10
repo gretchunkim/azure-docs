@@ -1,56 +1,24 @@
 ---
- title: include file
- description: include file
+ title: Include file
+ description: Include file
  services: storage
- author: roygara
- ms.service: storage
+ author: khdownie
+ ms.service: azure-file-storage
  ms.topic: include
- ms.date: 12/27/2019
- ms.author: rogarana
+ ms.date: 07/11/2025
+ ms.author: kendownie
  ms.custom: include file
 ---
-Azure Files offers four different tiers of storage, premium, transaction optimized, hot, and cool to allow you to tailor your shares to the performance and price requirements of your scenario:
+Azure Files offers two media tiers of storage: solid-state disk (SSD) and hard disk drive (HDD). These tiers allow you to tailor your shares to the performance and price requirements of your scenario:
 
-- **Premium**: Premium file shares are backed by solid-state drives (SSDs) and are deployed in the **FileStorage storage account** type. Premium file shares provide consistent high performance and low latency, within single-digit milliseconds for most IO operations, for IO-intensive workloads. This makes them suitable for a wide variety of workloads like databases, web site hosting, and development environments. 
-- **Transaction optimized**: Transaction optimized file shares enable transaction heavy workloads that don't need the latency offered by premium file shares. Transaction optimized file shares are offered on the standard storage hardware backed by hard disk drives (HDDs) and are deployed in the **general purpose version 2 (GPv2) storage account** type. This tier of storage has historically been called "standard", however this refers to the storage media type rather than the tier itself (the hot and cool are also "standard" tiers, because they are on standard storage hardware).
-- **Hot**: Hot file shares offer storage optimized for general purpose file sharing scenarios such as team shares and Azure File Sync. Hot file shares are offered on the standard storage hardware backed by HDDs and are deployed in the **general purpose version 2 (GPv2) storage account** type.
-- **Cool**: Cool file shares offer cost-efficient storage optimized for online archive storage scenarios. Azure File Sync may also be a good fit for lower churn workloads. Cool file shares are offered on the standard storage hardware backed by HDDs and are deployed in the **general purpose version 2 (GPv2) storage account** type.
+- **SSD (premium)**: SSD file shares provide consistent high performance and low latency, within single-digit milliseconds for most I/O operations, for I/O-intensive workloads. SSD file shares are suitable for a wide variety of workloads, like databases, website hosting, and development environments.
 
-Premium file shares are only available in a provisioned billing model. For more information on the provisioned billing model for premium file shares, see [Understanding provisioning for premium file shares](../articles/storage/files/storage-files-planning.md#understanding-provisioning-for-premium-file-shares). Standard file shares, including transaction optimized, hot, and cool file shares, are available in a pay as you go model.
+  You can use SSD file shares with both the SMB and NFS protocols. SSD file shares are available in the [provisioned v2](../articles/storage/files/understanding-billing.md#provisioned-v2-model) and [provisioned v1](../articles/storage/files/understanding-billing.md#provisioned-v1-model) billing models. SSD file shares offer a [higher availability SLA](https://www.microsoft.com/licensing/docs/view/Service-Level-Agreements-SLA-for-Online-Services) than HDD file shares.
 
-Hot and cool file shares are currently available in the following subset of public regions (transaction optimized file shares are available in all Azure regions):
+- **HDD (standard)**: HDD file shares provide a cost-effective storage option for general-purpose file shares. HDD file shares are available with the [provisioned v2](../articles/storage/files/understanding-billing.md#provisioned-v2-model) and [pay-as-you-go](../articles/storage/files/understanding-billing.md#pay-as-you-go-model) billing models, although we recommend the provisioned v2 model for new deployments of file shares. For information about the SLA, see the [Azure SLA page for online services](https://www.microsoft.com/licensing/docs/view/Service-Level-Agreements-SLA-for-Online-Services).
 
-- Australia Central
-- Australia Central 2
-- Australia East
-- Australia Southeast
-- Brazil South
-- Canada East
-- Canada Central
-- France Central
-- France South
-- Germany North (public)
-- Germany West Central (public)
-- India Central
-- India South
-- India West
-- Japan East
-- Japan West
-- Korea Central
-- Korea South
-- Norway East
-- Norway West
-- South Africa North
-- South Africa West
-- Switzerland North
-- Switzerland West
-- UAE Central
-- UAE North
-- UK South
-- UK West
-- North Central US
-- South Central US
-- West Central US
-- West US 2
+When you're selecting a media tier for your workload, consider your performance and usage requirements. If your workload requires single-digit latency, or you're using SSD storage media on-premises, SSD file shares are probably the best fit. If low latency isn't as much of a concern, HDD file shares might be a better fit from a cost perspective. For example, low-latency might be less of a concern with team shares mounted on-premises from Azure or cached on-premises through Azure File Sync.
 
-To deploy a hot or cool file share, see [Create a hot or cool file share](../articles/storage/files/storage-how-to-create-file-share.md#create-a-hot-or-cool-file-share). 
+After you create a file share in a storage account, you can't directly move it to a different media tier. For example, to move an HDD file share to the SSD media tier, you must create a new SSD file share and [copy the data from your original share to the new file share](../articles/storage/files/migrate-files-between-shares.md).
+
+You can find more information about the SSD and HDD media tiers in [Understand Azure Files billing models](../articles/storage/files/understanding-billing.md) and [Understand and optimize Azure file share performance](../articles/storage/files/understand-performance.md).

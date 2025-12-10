@@ -2,17 +2,18 @@
 title: 'Tutorial: Improve web application access - Azure Application Gateway'
 description: In this tutorial, learn how to create an autoscaling, zone-redundant application gateway with a reserved IP address using Azure PowerShell.
 services: application-gateway
-author: vhorne
-ms.service: application-gateway
+author: mbender-ms
+ms.service: azure-application-gateway
 ms.topic: tutorial
-ms.date: 11/13/2019
-ms.author: victorh
-ms.custom: mvc
+ms.date: 03/08/2021
+ms.author: mbender
+ms.custom: mvc, devx-track-azurepowershell
 #Customer intent: As an IT administrator new to Application Gateway, I want to configure the service in a way that automatically scales based on customer demand and is highly available across availability zones to ensure my customers can access their web applications when they need them.
+# Customer intent: As an IT administrator, I want to configure an application gateway with autoscaling and zone redundancy, so that I can ensure high availability and optimal access to web applications based on varying customer demand.
 ---
 # Tutorial: Create an application gateway that improves web application access
 
-If you're an IT admin concerned with improving web application access, you can optimize your application gateway to scale based on customer demand and span multiple availability zones. This tutorial helps you configure Azure Application Gateway features that do that: autoscaling, zone redundancy, and reserved VIPs (static IP). You'll use Azure PowerShell cmdlets and the Azure Resource Manager deployment model to solve the problem.
+If you're an IT administrator aiming to improve web application access, you can optimize your application gateway to scale dynamically based on customer demand and span multiple [availability zones](../reliability/availability-zones-overview.md). This tutorial helps you configure key Azure Application Gateway v2 features, including autoscaling, zone redundancy, and static VIPs, to achieve those improvements. You'll use Azure PowerShell cmdlets and the Azure Resource Manager deployment model to solve the problem.
 
 In this tutorial, you learn how to:
 
@@ -25,13 +26,16 @@ In this tutorial, you learn how to:
 > * Create the application gateway
 > * Test the application gateway
 
-If you don't have an Azure subscription, create a [free account](https://azure.microsoft.com/free/?WT.mc_id=A261C142F) before you begin.
+If you don't have an Azure subscription, create a [free account](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn) before you begin.
+
+For more information about availability zone support in Application Gateway v2, see [Reliability for Application Gateway v2](../reliability/reliability-application-gateway-v2.md).
 
 ## Prerequisites
 
-[!INCLUDE [updated-for-az](../../includes/updated-for-az.md)]
+> [!NOTE]
+> We recommend that you use the Azure Az PowerShell module to interact with Azure. To get started, see [Install Azure PowerShell](/powershell/azure/install-azure-powershell). To learn how to migrate to the Az PowerShell module, see [Migrate Azure PowerShell from AzureRM to Az](/powershell/azure/migrate-from-azurerm-to-az).
 
-This tutorial requires that you run Azure PowerShell locally. You must have Azure PowerShell module version 1.0.0 or later installed. Run `Get-Module -ListAvailable Az` to find the version. If you need to upgrade, see [Install Azure PowerShell module](https://docs.microsoft.com/powershell/azure/install-az-ps). After you verify the PowerShell version, run `Connect-AzAccount` to create a connection with Azure.
+This tutorial requires that you run an administrative Azure PowerShell session locally. You must have Azure PowerShell module version 1.0.0 or later installed. Run `Get-Module -ListAvailable Az` to find the version. If you need to upgrade, see [Install Azure PowerShell module](/powershell/azure/install-azure-powershell). After you verify the PowerShell version, run `Connect-AzAccount` to create a connection with Azure.
 
 ## Sign in to Azure
 
@@ -53,7 +57,7 @@ New-AzResourceGroup -Name $rg -Location $location
 
 ## Create a self-signed certificate
 
-For production use, you should import a valid certificate signed by trusted provider. For this tutorial, you create a self-signed certificate using [New-SelfSignedCertificate](https://docs.microsoft.com/powershell/module/pkiclient/new-selfsignedcertificate). You can use [Export-PfxCertificate](https://docs.microsoft.com/powershell/module/pkiclient/export-pfxcertificate) with the Thumbprint that was returned to export a pfx file from the certificate.
+For production use, you should import a valid certificate signed by trusted provider. For this tutorial, you create a self-signed certificate using [New-SelfSignedCertificate](/powershell/module/pki/new-selfsignedcertificate). You can use [Export-PfxCertificate](/powershell/module/pki/export-pfxcertificate) with the Thumbprint that was returned to export a pfx file from the certificate.
 
 ```powershell
 New-SelfSignedCertificate `
@@ -71,16 +75,17 @@ Thumbprint                                Subject
 E1E81C23B3AD33F9B4D1717B20AB65DBB91AC630  CN=www.contoso.com
 ```
 
-Use the thumbprint to create the pfx file:
+Use the thumbprint to create the pfx file. Replace *\<password>* with a password of your choice:
 
 ```powershell
-$pwd = ConvertTo-SecureString -String "Azure123456!" -Force -AsPlainText
+$pwd = ConvertTo-SecureString -String "<password>" -Force -AsPlainText
 
 Export-PfxCertificate `
   -cert cert:\localMachine\my\E1E81C23B3AD33F9B4D1717B20AB65DBB91AC630 `
   -FilePath c:\appgwcert.pfx `
   -Password $pwd
 ```
+
 
 ## Create a virtual network
 
@@ -101,7 +106,7 @@ Specify the allocation method of PublicIPAddress as **Static**. An autoscaling a
 ```azurepowershell
 #Create static public IP
 $pip = New-AzPublicIpAddress -ResourceGroupName $rg -name "AppGwVIP" `
-       -location $location -AllocationMethod Static -Sku Standard
+       -location $location -AllocationMethod Static -Sku Standard -Zone 1,2,3
 ```
 
 ## Retrieve details
@@ -109,21 +114,33 @@ $pip = New-AzPublicIpAddress -ResourceGroupName $rg -name "AppGwVIP" `
 Retrieve details of the resource group, subnet, and IP in a local object to create the IP configuration details for the application gateway.
 
 ```azurepowershell
-$resourceGroup = Get-AzResourceGroup -Name $rg
 $publicip = Get-AzPublicIpAddress -ResourceGroupName $rg -name "AppGwVIP"
 $vnet = Get-AzvirtualNetwork -Name "AutoscaleVNet" -ResourceGroupName $rg
 $gwSubnet = Get-AzVirtualNetworkSubnetConfig -Name "AppGwSubnet" -VirtualNetwork $vnet
 ```
 
+## Create web apps
+
+Configure two web apps for the backend pool. Replace *\<site1-name>* and *\<site2-name>* with unique names in the `azurewebsites.net` domain.
+
+```azurepowershell
+New-AzAppServicePlan -ResourceGroupName $rg -Name "ASP-01"  -Location $location -Tier Basic `
+   -NumberofWorkers 2 -WorkerSize Small
+New-AzWebApp -ResourceGroupName $rg -Name <site1-name> -Location $location -AppServicePlan ASP-01
+New-AzWebApp -ResourceGroupName $rg -Name <site2-name> -Location $location -AppServicePlan ASP-01
+```
+
 ## Configure the infrastructure
 
-Configure the IP config, front-end IP config, back-end pool, HTTP settings, certificate, port, listener, and rule in an identical format to the existing Standard application gateway. The new SKU follows the same object model as the Standard SKU.
+Configure the IP config, frontend IP config, backend pool, HTTP settings, certificate, port, listener, and rule in an identical format to the existing Standard application gateway. The new SKU follows the same object model as the Standard SKU.
+
+Replace your two web app FQDNs (for example: `mywebapp.azurewebsites.net`) in the $pool variable definition.
 
 ```azurepowershell
 $ipconfig = New-AzApplicationGatewayIPConfiguration -Name "IPConfig" -Subnet $gwSubnet
-$fip = New-AzApplicationGatewayFrontendIPConfig -Name "FrontendIPCOnfig" -PublicIPAddress $publicip
+$fip = New-AzApplicationGatewayFrontendIPConfig -Name "FrontendIPConfig" -PublicIPAddress $publicip
 $pool = New-AzApplicationGatewayBackendAddressPool -Name "Pool1" `
-       -BackendIPAddresses testbackend1.westus.cloudapp.azure.com, testbackend2.westus.cloudapp.azure.com
+       -BackendIPAddresses <your first web app FQDN>, <your second web app FQDN>
 $fp01 = New-AzApplicationGatewayFrontendPort -Name "SSLPort" -Port 443
 $fp02 = New-AzApplicationGatewayFrontendPort -Name "HTTPPort" -Port 80
 
@@ -136,29 +153,22 @@ $listener02 = New-AzApplicationGatewayHttpListener -Name "HTTPListener" `
              -Protocol Http -FrontendIPConfiguration $fip -FrontendPort $fp02
 
 $setting = New-AzApplicationGatewayBackendHttpSettings -Name "BackendHttpSetting1" `
-          -Port 80 -Protocol Http -CookieBasedAffinity Disabled
+          -Port 80 -Protocol Http -CookieBasedAffinity Disabled -PickHostNameFromBackendAddress
 $rule01 = New-AzApplicationGatewayRequestRoutingRule -Name "Rule1" -RuleType basic `
-         -BackendHttpSettings $setting -HttpListener $listener01 -BackendAddressPool $pool
+         -BackendHttpSettings $setting -HttpListener $listener01 -BackendAddressPool $pool -Priority 1
 $rule02 = New-AzApplicationGatewayRequestRoutingRule -Name "Rule2" -RuleType basic `
-         -BackendHttpSettings $setting -HttpListener $listener02 -BackendAddressPool $pool
+         -BackendHttpSettings $setting -HttpListener $listener02 -BackendAddressPool $pool -Priority 2
 ```
 
 ## Specify autoscale
 
-Now you can specify the autoscale configuration for the application gateway. Two autoscaling configuration types are supported:
-
-* **Fixed capacity mode**. In this mode, the application gateway does not autoscale and operates at a fixed Scale Unit capacity.
-
-   ```azurepowershell
-   $sku = New-AzApplicationGatewaySku -Name Standard_v2 -Tier Standard_v2 -Capacity 2
-   ```
-
-* **Autoscaling mode**. In this mode, the application gateway autoscales based on the application traffic pattern.
+Now you can specify the autoscale configuration for the application gateway. 
 
    ```azurepowershell
    $autoscaleConfig = New-AzApplicationGatewayAutoscaleConfiguration -MinCapacity 2
    $sku = New-AzApplicationGatewaySku -Name Standard_v2 -Tier Standard_v2
    ```
+In this mode, the application gateway autoscales based on the application traffic pattern.
 
 ## Create the application gateway
 
@@ -177,7 +187,11 @@ $appgw = New-AzApplicationGateway -Name "AutoscalingAppGw" -Zone 1,2,3 `
 
 Use Get-AzPublicIPAddress to get the public IP address of the application gateway. Copy the public IP address or DNS name, and then paste it into the address bar of your browser.
 
-`Get-AzPublicIPAddress -ResourceGroupName $rg -Name AppGwVIP`
+```azurepowershell
+$pip = Get-AzPublicIPAddress -ResourceGroupName $rg -Name AppGwVIP
+$pip.IpAddress
+```
+
 
 ## Clean up resources
 

@@ -1,115 +1,129 @@
 ---
-title: Tutorial of IoT Connected logistics | Microsoft Docs
-description: A tutorial of Connected logistics application template for IoT Central
-author: KishorIoT
-ms.author: nandab
-ms.service: iot-central
-ms.subservice: iot-central-retail
-ms.topic: overview
-ms.date: 10/20/2019
+title: Tutorial of IoT Connected logistics
+description: Learn how to deploy and use an IoT Central connected logistics application from an application template
+author: dominicbetts
+ms.author: dobett
+ms.service: azure-iot-central
+ms.topic: tutorial
+ms.date: 08/07/2025
+ms.custom: sfi-image-nochange
+
+#customer intent: As a developer, I want to learn how to deploy and use an IoT Central connected logistics application from an application template so that I can build similar solutions in the future.
 ---
 
 # Tutorial: Deploy and walk through a connected logistics application template
 
+In this tutorial, you learn how to deploy and use an IoT Central connected logistics application from an application template. Global logistics spending is expected to reach $10.6 trillion in 2020. Transportation of goods accounts for most of this spending and shipping providers are under intense competitive pressure and constraints.
 
+You can use IoT sensors to collect and monitor ambient conditions such as temperature, humidity, tilt, shock, light, and the location of a shipment. In cloud-based business intelligence systems, you can combine telemetry gathered from sensors and devices with other data sources such as weather and traffic information.
 
-This tutorial shows you how to get started by deploying an IoT Central **connected logistics** application template. You will learn how to deploy the template, what is included out of the box, and what you might want to do next.
+The benefits of a connected logistics solution include:
 
-In this tutorial, you will learn how to,
+- Shipment monitoring with real-time tracing and tracking.
+- Shipment integrity with real-time ambient condition monitoring.
+- Security from theft, loss, or damage of shipments.
+- Geo-fencing, route optimization, fleet management, and vehicle analytics.
+- Forecasting for predictable departure and arrival of shipments.
 
-* create connected logistics application
-* walk through the application 
+In this tutorial, you:
+
+> [!div class="checklist"]
+> * Create a connected logistics application
+> * Use the key features in the application
+> * Use a dashboard to show the critical logistics device operations activity
+> * Use a device template
+> * Use rules
+> * Use jobs
 
 ## Prerequisites
 
-* No specific pre-requisites required to deploy this app
-* Recommended to have Azure subscription, but you can even try without it
+An active Azure subscription. If you don't have an Azure subscription, create a [free account](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn) before you begin.
 
-## Create connected logistics application template
+## Solution architecture
 
-You can create application using following steps
+:::image type="content" source="media/tutorial-iot-central-connected-logistics/connected-logistics-architecture.png" alt-text="Diagram of the connected logistics application architecture." border="false":::
 
-1. Navigate to the Azure IoT Central application manager website. Select **Build** from the left-hand navigation bar and then click the **Retail** tab.
+*IoT tags (1)* provide physical, ambient, and environmental sensor capabilities such as temperature, humidity, shock, tilt, and light. IoT tags typically connect to gateway device through Zigbee (802.15.4). Tags are less expensive sensors and can be discarded at the end of a typical logistics journey to avoid challenges with reverse logistics.
 
-    > [!div class="mx-imgBorder"]
-    > ![Connected Logistics Dashboard](./media/tutorial-iot-central-connected-logistics/iotc-retail-homepage.png)
+*Gateways (2)* enable upstream Azure IoT cloud connectivity using cellular or Wi-Fi channels. Bluetooth, NFC, and 802.15.4 Wireless Sensor Network modes are used for downstream communication with IoT tags. Gateways provide end-to-end secure cloud connectivity, IoT tag pairing, sensor data aggregation, data retention, and the ability to configure alarm thresholds.
 
-2. Select **Create app** under **Connected Logistics Application**
+Azure IoT Central is a solution development platform that simplifies IoT device connectivity, configuration, and management. The platform significantly reduces the burden and costs of IoT device management, operations, and related developments. You can build end-to-end enterprise solutions to achieve a digital feedback loop in logistics.
 
-3. **Create app** will open New application form and fill up the requested details as show below.
-   * **Application name**: you can use default suggested name or enter your friendly application name.
-   * **URL**: you can use suggested default URL or enter your friendly unique memorable URL. Next, the default setting is recommended if you already have an Azure Subscription. You can start with 7-day free trial pricing plan and choose to convert to a standard pricing plan at any time before the free trail expires.
-   * **Billing Info**: The Directory, Azure Subscription, and Region details are required to provision the resources.
-   * **Create**: Select create at the bottom of the page to deploy your application.
+The IoT Central platform provides rich extensibility options through _data export and APIs (3)_. Business insights based on telemetry data processing or raw telemetry are typically exported to a preferred _line-of-business application (4,5)_.
 
-    > [!div class="mx-imgBorder"]
-    > ![Connected Logistics Dashboard](./media/tutorial-iot-central-connected-logistics/connected-logistics-app-create.png)
+This tutorial shows you how to get started with the IoT Central *connected logistics* application template. You learn how to deploy and use the template.
 
-    > [!div class="mx-imgBorder"]
-    > ![Connected Logistics billing info](./media/tutorial-iot-central-connected-logistics/connected-logistics-app-create-billinginfo.png)
+## Create connected logistics application
 
-## Walk through the application 
+To create your IoT Central application:
 
-## Dashboard
+1. Navigate to the [Create IoT Central Application](https://portal.azure.com/#create/Microsoft.IoTCentral) page in the Azure portal. If prompted, sign in with your Azure account.
 
-After successfully deploying the app template, your default dashboard is a connected logistics operator focused portal. Northwind Trader is a fictitious logistics provider managing fleet of cargo in the ocean and on the land. In this dashboard, you will see two different gateways providing telemetry about shipments along with associated commands, jobs, and actions that you can do. 
-This dashboard is pre-configured to showcase the critical logistics device operations activity.
-The dashboard is logically divided between two different gateway device management operations, 
-   * Logistics route for truck shipment and location details of the ocean shipment is an essential element for all the multi-modal transportation
-   * View the gateway status & relevant information 
+1. Enter the following information:
 
-> [!div class="mx-imgBorder"]
-> ![Connected Logistics Dashboard](./media/tutorial-iot-central-connected-logistics/connected-logistics-dashboard1.png)
+    | Field | Description |
+    | ----- | ----------- |
+    | Subscription | The Azure subscription you want to use. |
+    | Resource group | The resource group you want to use. You can create a new resource group or use an existing one. |
+    | Resource name | A valid Azure resource name. |
+    | Application URL | The URL subdomain for your application. The URL for an IoT Central application looks like `https://yoursubdomain.azureiotcentral.com`. |
+    | Template | **Connected Logistics** |
+    | Region | The Azure region you want to use. |
+    | Pricing plan | The pricing plan you want to use. |
 
-   * You can easily track the total number of gateways, active, and unknown tags.
-   * You can do device management operations such as update firmware, disable sensor, enable sensor, update sensor threshold, update telemetry intervals, & update device service contracts.
-   * View device battery consumption
+1. Select **Review + create**. Then select **Create**.
 
-> [!div class="mx-imgBorder"]
-> ![Connected Logistics Dashboard](./media/tutorial-iot-central-connected-logistics/connected-logistics-dashboard2.png)
+[!INCLUDE [iot-central-navigate-from-portal](../../../includes/iot-central-navigate-from-portal.md)]
 
-## Device Template
+## Walk through the application
 
-Click on the Device templates tab, and you will see the gateway capability model. A capability model is structured around two different interfaces **Gateway Telemetry & Property** and **Gateway Commands**
+The following sections walk you through the key features of the application.
 
-**Gateway Telemetry & Property** - This interface represents all the telemetry related to sensors, location, and device info as well as device twin property capability such as sensor thresholds & update intervals.
+### Dashboard
 
-> [!div class="mx-imgBorder"]
-> ![Connected Logistics Dashboard](./media/tutorial-iot-central-connected-logistics/connected-logistics-devicetemplate1.png)
+After you deploy the application, your default dashboard is a connected logistics operator focused portal. Northwind Trader is a fictitious logistics provider managing a cargo fleet at sea and on land. In this dashboard, you see two different gateways providing telemetry from shipments, along with associated commands, jobs, and actions.
 
-**Gateway Commands** - This interface organizes all the gateway command capabilities
+This preconfigured dashboard shows the critical logistics device operations activity.
 
-> [!div class="mx-imgBorder"]
-> ![Connected Logistics Dashboard](./media/tutorial-iot-central-connected-logistics/connected-logistics-devicetemplate2.png)
+The dashboard enables two different gateway device management operations:
 
-## Rules
-Select the rules tab to see two different rules that exist in this application template. These rules are configured to email notifications to the operators for further investigations.
- 
-**Gateway theft alert**: This rule is triggered when there's unexpected light detection by the sensors during the journey. Operators need to be notified ASAP to investigate potential theft.
- 
-**Unresponsive Gateway**: This rule will trigger if the gateway doesn't report to the cloud for a prolonged period. Gateway could be unresponsive because of low battery mode, loss of connectivity, device health.
+- View the logistics routes for truck shipments and the details of ocean shipments.
+- View the gateway status and other relevant information.
+- You can track the total number of gateways, active, and unknown tags.
+- You can do device management operations such as: update firmware, disable and enable sensors, update a sensor threshold, update telemetry intervals, and update device service contracts.
+- View device battery consumption.
 
-> [!div class="mx-imgBorder"]
-> ![Connected Logistics Dashboard](./media/tutorial-iot-central-connected-logistics/connected-logistics-rules.png)
+:::image type="content" source="media/tutorial-iot-central-connected-logistics/connected-logistics-dashboard.png" alt-text="Screenshot showing the connected logistics application dashboard." lightbox="media/tutorial-iot-central-connected-logistics/connected-logistics-dashboard.png":::
 
-## Jobs
-Select the jobs tab to see five different jobs that exist as part of this application template:
+#### Device template
 
-> [!div class="mx-imgBorder"]
-> ![Connected Logistics Dashboard](./media/tutorial-iot-central-connected-logistics/connected-logistics-jobs.png)
+Select **Device templates** to see the gateway capability model. A capability model is structured around two interfaces:
 
-You can use jobs feature to do solution-wide operations. Here jobs are using the device commands and twin capability to do tasks such as disabling specific sensors across all the gateway or modifying the sensor threshold depending on the shipment mode and route. 
-   * It is a standard operation to disable shock sensors during ocean shipment to conserve battery or decrease temperature threshold during cold chain transportation. 
- 
-   * Jobs enable you to do system-wide operations such as updating firmware on the gateways or updating service contract to stay current on maintenance activities.
+- **Gateway Telemetry & Property** - This interface defines all the telemetry related to sensors, location, and device information. The interface also defines device twin property capabilities such as sensor thresholds and update intervals.
+- **Gateway Commands** - This interface organizes all the gateway command capabilities.
+
+:::image type="content" source="media/tutorial-iot-central-connected-logistics/connected-logistics-device-template.png" alt-text="Screenshot showing the connected logistics application device template." lightbox="media/tutorial-iot-central-connected-logistics/connected-logistics-device-template.png":::
+
+### Rules
+
+Select the **Rules** tab to the rules in this application template. These rules are configured to email notifications to the operators for further investigations:
+
+- **Gateway theft alert**: This rule triggers when there's unexpected light detection by the sensors during the journey. Operators must be notified immediately to investigate potential theft.
+- **Lost gateway alert**: This rule triggers if the gateway doesn't report to the cloud for a prolonged period. The gateway could be unresponsive because of low battery, loss of connectivity, or device damage.
+
+:::image type="content" source="media/tutorial-iot-central-connected-logistics/connected-logistics-rules.png" alt-text="Screenshot showing the connected logistics application rules." lightbox="media/tutorial-iot-central-connected-logistics/connected-logistics-rules.png":::
+
+### Jobs
+
+Select the **Jobs** tab to create the jobs in this application. The following screenshot shows an example of created jobs:
+
+:::image type="content" source="media/tutorial-iot-central-connected-logistics/connected-logistics-jobs.png" alt-text="Screenshot showing the connected logistics application job." lightbox="media/tutorial-iot-central-connected-logistics/connected-logistics-jobs.png":::
+
+You can use jobs to do application-wide operations. The jobs in this application use device commands and twin capabilities to do tasks such as disabling specific sensors across all the gateways or modifying the sensor threshold depending on the shipment mode and route:
+
+- It's a standard operation to disable shock sensors during ocean shipment to conserve battery or lower temperature threshold during cold chain transportation.
+- Jobs enable you to do system-wide operations such as updating firmware on the gateways or updating service contract to stay current on maintenance activities.
 
 ## Clean up resources
-If you're not going to continue to use this application, delete the application template by visiting **Administration** > **Application settings** and click **Delete**.
 
-> [!div class="mx-imgBorder"]
-> ![Connected Logistics Dashboard](./media/tutorial-iot-central-connected-logistics/connected-logistics-cleanup.png)
-
-## Next steps
-* Learn more about [connected logistics concept](./architecture-connected-logistics.md)
-* Learn more about other [IoT Central retail templates](./overview-iot-central-retail.md)
-* Learn more about [IoT Central overview](../core/overview-iot-central.md)
+[!INCLUDE [iot-central-clean-up-resources-industry](../../../includes/iot-central-clean-up-resources-industry.md)]

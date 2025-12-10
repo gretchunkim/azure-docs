@@ -1,18 +1,20 @@
 ---
 title: Enable Web Application Firewall - Azure CLI
 description: Learn how to restrict web traffic with a Web Application Firewall on an application gateway using the Azure CLI.
-services: web-application-firewall
-author: vhorne
-ms.service: web-application-firewall
-ms.date: 08/31/2020
-ms.author: victorh
+author: halkazwini
+ms.author: halkazwini
+ms.service: azure-web-application-firewall
 ms.topic: how-to 
-ms.custom: devx-track-azurecli
+ms.date: 06/23/2022
+ms.custom:
+  - devx-track-azurecli
+  - sfi-image-nochange
+# Customer intent: "As a cloud architect, I want to configure a Web Application Firewall on an application gateway using the command line, so that I can enhance the security of web applications by protecting against common vulnerabilities and attacks."
 ---
 
 # Enable Web Application Firewall using the Azure CLI
 
-You can restrict traffic on an application gateway with a [Web Application Firewall](ag-overview.md) (WAF). The WAF uses [OWASP](https://www.owasp.org/index.php/Category:OWASP_ModSecurity_Core_Rule_Set_Project) rules to protect your application. These rules include protection against attacks such as SQL injection, cross-site scripting attacks, and session hijacks.
+You can restrict traffic on an application gateway with a [Web Application Firewall (WAF)](ag-overview.md). The WAF uses [OWASP](https://owasp.org/www-project-modsecurity-core-rule-set/) rules to protect your application. These rules include protection against attacks such as SQL injection, cross-site scripting attacks, and session hijacks.
 
 In this article, you learn how to:
 
@@ -21,15 +23,15 @@ In this article, you learn how to:
  * Create a virtual machine scale set
  * Create a storage account and configure diagnostics
 
-![Web Application Firewall example](../media/tutorial-restrict-web-traffic-cli/scenario-waf.png)
+:::image type="content" source="../media/tutorial-restrict-web-traffic-cli/scenario-waf.png" alt-text="Diagram of the Web application firewall example." lightbox="../media/tutorial-restrict-web-traffic-cli/scenario-waf.png":::
 
 If you prefer, you can complete this procedure using [Azure PowerShell](tutorial-restrict-web-traffic-powershell.md).
 
-If you don't have an Azure subscription, create a [free account](https://azure.microsoft.com/free/?WT.mc_id=A261C142F) before you begin.
+[!INCLUDE [quickstarts-free-trial-note](~/reusable-content/ce-skilling/azure/includes/quickstarts-free-trial-note.md)]
 
-[!INCLUDE [cloud-shell-try-it.md](../../../includes/cloud-shell-try-it.md)]
+[!INCLUDE [azure-cli-prepare-your-environment.md](~/reusable-content/azure-cli/azure-cli-prepare-your-environment.md)]
 
-If you choose to install and use the CLI locally, this article requires you to run the Azure CLI version 2.0.4 or later. To find the version, run `az --version`. If you need to install or upgrade, see [Install Azure CLI]( /cli/azure/install-azure-cli).
+- This article requires version 2.0.4 or later of the Azure CLI. If using Azure Cloud Shell, the latest version is already installed.
 
 ## Create a resource group
 
@@ -66,11 +68,17 @@ az network public-ip create \
   --sku Standard
 ```
 
-## Create an application gateway with a WAF
+## Create an application gateway with a WAF policy
 
 You can use [az network application-gateway create](/cli/azure/network/application-gateway) to create the application gateway named *myAppGateway*. When you create an application gateway using the Azure CLI, you specify configuration information, such as capacity, sku, and HTTP settings. The application gateway is assigned to *myAGSubnet* and *myAGPublicIPAddress*.
 
 ```azurecli-interactive
+az network application-gateway waf-policy create \
+  --name waf-pol \
+  --resource-group myResourceGroupAG \
+  --type OWASP \
+  --version 3.2
+
 az network application-gateway create \
   --name myAppGateway \
   --location eastus \
@@ -83,14 +91,9 @@ az network application-gateway create \
   --frontend-port 80 \
   --http-settings-port 80 \
   --http-settings-protocol Http \
-  --public-ip-address myAGPublicIPAddress
-
-az network application-gateway waf-config set \
-  --enabled true \
-  --gateway-name myAppGateway \
-  --resource-group myResourceGroupAG \
-  --firewall-mode Detection \
-  --rule-set-version 3.0
+  --public-ip-address myAGPublicIPAddress \
+  --waf-policy waf-pol \
+  --priority 1
 ```
 
 It may take several minutes for the application gateway to be created. After the application gateway is created, you can see these new features of it:
@@ -105,13 +108,15 @@ It may take several minutes for the application gateway to be created. After the
 
 In this example, you create a virtual machine scale set that provides two servers for the backend pool in the application gateway. The virtual machines in the scale set are associated with the *myBackendSubnet* subnet. To create the scale set, you can use [az vmss create](/cli/azure/vmss#az-vmss-create).
 
+Replace \<username> and \<password> with your values before you run this.
+
 ```azurecli-interactive
 az vmss create \
   --name myvmss \
   --resource-group myResourceGroupAG \
-  --image UbuntuLTS \
-  --admin-username azureuser \
-  --admin-password Azure123456! \
+  --image Ubuntu2204 \
+  --admin-username <username> \
+  --admin-password <password> \
   --instance-count 2 \
   --vnet-name myVNet \
   --subnet myBackendSubnet \
@@ -139,7 +144,7 @@ In this article, the application gateway uses a storage account to store data fo
 
 ### Create a storage account
 
-Create a storage account named *myagstore1* with [az storage account create](/cli/azure/storage/account?view=azure-cli-latest#az-storage-account-create).
+Create a storage account named *myagstore1* with [az storage account create](/cli/azure/storage/account#az-storage-account-create).
 
 ```azurecli-interactive
 az storage account create \
@@ -152,7 +157,7 @@ az storage account create \
 
 ### Configure diagnostics
 
-Configure diagnostics to record data into the ApplicationGatewayAccessLog, ApplicationGatewayPerformanceLog, and ApplicationGatewayFirewallLog logs. Replace `<subscriptionId>` with your subscription identifier and then configure diagnostics with [az monitor diagnostic-settings create](/cli/azure/monitor/diagnostic-settings?view=azure-cli-latest#az-monitor-diagnostic-settings-create).
+Configure diagnostics to record data into the ApplicationGatewayAccessLog, ApplicationGatewayPerformanceLog, and ApplicationGatewayFirewallLog logs. Replace `<subscriptionId>` with your subscription identifier and then configure diagnostics with [az monitor diagnostic-settings create](/cli/azure/monitor/diagnostic-settings#az-monitor-diagnostic-settings-create).
 
 ```azurecli-interactive
 appgwid=$(az network application-gateway show --name myAppGateway --resource-group myResourceGroupAG --query id -o tsv)

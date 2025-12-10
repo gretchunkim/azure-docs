@@ -2,12 +2,14 @@
 title: Deploy and configure Azure Firewall using Azure CLI
 description: In this article, you learn how to deploy and configure Azure Firewall using the Azure CLI. 
 services: firewall
-author: vhorne
-ms.service: firewall
-ms.date: 08/29/2019
-ms.author: victorh
+author: duongau
+ms.service: azure-firewall
+ms.custom: devx-track-azurecli
+ms.date: 10/31/2022
+ms.author: duau
 ms.topic: how-to
 #Customer intent: As an administrator new to this service, I want to control outbound network access from resources located in an Azure subnet.
+# Customer intent: As an administrator deploying network security solutions, I want to configure Azure Firewall using the command-line interface, so that I can control outbound access and manage network traffic effectively within my Azure environment.
 ---
 
 # Deploy and configure Azure Firewall using Azure CLI
@@ -21,41 +23,30 @@ One way you can control outbound network access from an Azure subnet is with Azu
 
 Network traffic is subjected to the configured firewall rules when you route your network traffic to the firewall as the subnet default gateway.
 
-For this article, you create a simplified single VNet with three subnets for easy deployment. For production deployments, a [hub and spoke model](https://docs.microsoft.com/azure/architecture/reference-architectures/hybrid-networking/hub-spoke) is recommended. The firewall is in its own VNet. The workload servers are in peered VNets in the same region with one or more subnets.
+For this article, you create a simplified single VNet with three subnets for easy deployment. For production deployments, a [hub and spoke model](/azure/architecture/reference-architectures/hybrid-networking/hub-spoke) is recommended. The firewall is in its own VNet. The workload servers are in peered VNets in the same region with one or more subnets.
 
 * **AzureFirewallSubnet** - the firewall is in this subnet.
 * **Workload-SN** - the workload server is in this subnet. This subnet's network traffic goes through the firewall.
 * **Jump-SN** - The "jump" server is in this subnet. The jump server has a public IP address that you can connect to using Remote Desktop. From there, you can then connect to (using another Remote Desktop) the workload server.
 
-![Tutorial network infrastructure](media/tutorial-firewall-rules-portal/Tutorial_network.png)
+:::image type="content" source="media/tutorial-firewall-rules-portal/Tutorial_network.png" alt-text="Diagram of network infrastructure." lightbox="media/tutorial-firewall-rules-portal/Tutorial_network.png":::
 
 In this article, you learn how to:
 
 * Set up a test network environment
 * Deploy a firewall
 * Create a default route
-* Configure an application rule to allow access to www.google.com
+* Configure an application rule to allow access to www.microsoft.com
 * Configure a network rule to allow access to external DNS servers
 * Test the firewall
 
 If you prefer, you can complete this procedure using the [Azure portal](tutorial-firewall-deploy-portal.md) or [Azure PowerShell](deploy-ps.md).
 
-If you don't have an Azure subscription, create a [free account](https://azure.microsoft.com/free/?WT.mc_id=A261C142F) before you begin.
+[!INCLUDE [quickstarts-free-trial-note](~/reusable-content/ce-skilling/azure/includes/quickstarts-free-trial-note.md)]
 
-[!INCLUDE [cloud-shell-try-it.md](../../includes/cloud-shell-try-it.md)]
+[!INCLUDE [azure-cli-prepare-your-environment.md](~/reusable-content/azure-cli/azure-cli-prepare-your-environment.md)]
 
-## Prerequisites
-
-### Azure CLI
-
-If you choose to install and use the CLI locally, run Azure CLI version 2.0.4 or later. To find the version, run **az --version**. For information about installing or upgrading, see [Install Azure CLI]( /cli/azure/install-azure-cli).
-
-Install the Azure Firewall extension:
-
-```azurecli-interactive
-az extension add -n azure-firewall
-```
-
+- This article requires version 2.55.0 or later of the Azure CLI. If using Azure Cloud Shell, the latest version is already installed.
 
 ## Set up the network
 
@@ -74,7 +65,7 @@ az group create --name Test-FW-RG --location eastus
 This virtual network has three subnets.
 
 > [!NOTE]
-> The size of the AzureFirewallSubnet subnet is /26. For more information about the subnet size, see [Azure Firewall FAQ](firewall-faq.md#why-does-azure-firewall-need-a-26-subnet-size).
+> The size of the AzureFirewallSubnet subnet is /26. For more information about the subnet size, see [Azure Firewall FAQ](firewall-faq.yml#why-does-azure-firewall-need-a--26-subnet-size).
 
 ```azurecli-interactive
 az network vnet create \
@@ -126,7 +117,7 @@ az network nic create \
    --vnet-name Test-FW-VN \
    --subnet Workload-SN \
    --public-ip-address "" \
-   --dns-servers 209.244.0.3 209.244.0.4
+   --dns-servers <replace with External DNS ip #1> <replace with External DNS ip #2>
 ```
 
 Now create the workload virtual machine.
@@ -141,6 +132,8 @@ az vm create \
     --nics Srv-Work-NIC \
     --admin-username azureadmin
 ```
+
+[!INCLUDE [ephemeral-ip-note.md](~/reusable-content/ce-skilling/azure/includes/ephemeral-ip-note.md)]
 
 ## Deploy the firewall
 
@@ -176,7 +169,7 @@ Note the private IP address. You'll use it later when you create the default rou
 
 ## Create a default route
 
-Create a table, with BGP route propagation disabled
+Create a route table, with BGP route propagation disabled
 
 ```azurecli-interactive
 az network route-table create \
@@ -211,16 +204,16 @@ az network vnet subnet update \
 
 ## Configure an application rule
 
-The application rule allows outbound access to www.google.com.
+The application rule allows outbound access to www.microsoft.com.
 
 ```azurecli-interactive
 az network firewall application-rule create \
    --collection-name App-Coll01 \
    --firewall-name Test-FW01 \
-   --name Allow-Google \
+   --name Allow-Microsoft \
    --protocols Http=80 Https=443 \
    --resource-group Test-FW-RG \
-   --target-fqdns www.google.com \
+   --target-fqdns www.microsoft.com \
    --source-addresses 10.0.2.0/24 \
    --priority 200 \
    --action Allow
@@ -230,12 +223,12 @@ Azure Firewall includes a built-in rule collection for infrastructure FQDNs that
 
 ## Configure a network rule
 
-The network rule allows outbound access to two IP addresses at port 53 (DNS).
+The network rule allows outbound access to two public DNS IP addresses of your choosing at port 53 (DNS).
 
 ```azurecli-interactive
 az network firewall network-rule create \
    --collection-name Net-Coll01 \
-   --destination-addresses 209.244.0.3 209.244.0.4 \
+   --destination-addresses <replace with DNS ip #1> <replace with DNS ip #2> \
    --destination-ports 53 \
    --firewall-name Test-FW01 \
    --name Allow-DNS \
@@ -272,14 +265,14 @@ Now, test the firewall to confirm that it works as expected.
 1. Run the following commands:
 
    ```
-   Invoke-WebRequest -Uri https://www.google.com
-   Invoke-WebRequest -Uri https://www.google.com
+   Invoke-WebRequest -Uri https://www.microsoft.com
+   Invoke-WebRequest -Uri https://www.microsoft.com
 
-   Invoke-WebRequest -Uri https://www.microsoft.com
-   Invoke-WebRequest -Uri https://www.microsoft.com
+   Invoke-WebRequest -Uri <Replace with external website>
+   Invoke-WebRequest -Uri <Replace with external website>
    ```
 
-   The `www.google.com` requests should succeed, and the `www.microsoft.com` requests should fail. This demonstrates that your firewall rules are operating as expected.
+   The `www.microsoft.com` requests should succeed, and the other `External Website` requests should fail. This demonstrates that your firewall rules are operating as expected.
 
 So now you've verified that the firewall rules are working:
 
@@ -297,4 +290,4 @@ az group delete \
 
 ## Next steps
 
-* [Tutorial: Monitor Azure Firewall logs](./tutorial-diagnostics.md)
+* [Tutorial: Monitor Azure Firewall logs](./firewall-diagnostics.md)

@@ -1,13 +1,12 @@
 ---
-title: Optimize data storage for Apache Spark - Azure HDInsight 
+title: Optimize data storage for Apache Spark - Azure HDInsight
 description: Learn how to optimize data storage for use with Apache Spark on Azure HDInsight.
-author: hrasheed-msft
-ms.author: hrasheed
-ms.reviewer: jasonh
-ms.service: hdinsight
+ms.service: azure-hdinsight
 ms.topic: conceptual
-ms.date: 05/20/2020
-ms.custom: contperfq1
+author: abhishjain002
+ms.author: abhishjain
+ms.reviewer: sairamyeturi
+ms.date: 09/06/2024
 ---
 # Data storage optimization for Apache Spark
 

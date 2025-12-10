@@ -1,15 +1,16 @@
 ---
 title: Network security for Azure Relay
-description: This article describes how to configure access from private endpoints
-ms.topic: conceptual
-ms.date: 06/23/2020
+description: This article describes how to use security features - IP firewall rules and private endpoints - supported by Azure Relay.
+ms.topic: concept-article
+ms.date: 12/10/2024
+# Customer intent: As an Azure Relay user, I want to know what security features are available in Azure Relay. 
 ---
 
 # Network security for Azure Relay 
 This article describes how to use the following security features with Azure Relay: 
 
-- IP firewall rules (preview)
-- Private endpoints (preview)
+- IP firewall rules
+- Private endpoints 
 
 > [!NOTE]
 > Azure Relay doesn't support network service endpoints. 
@@ -20,23 +21,20 @@ By default, Relay namespaces are accessible from internet as long as the request
 
 This feature is helpful in scenarios in which Azure Relay should be only accessible from certain well-known sites. Firewall rules enable you to configure rules to accept traffic originating from specific IPv4 addresses. For example, if you use Relay with [Azure Express Route](../expressroute/expressroute-faqs.md#supported-services), you can create a **firewall rule** to allow traffic from only your on-premises infrastructure IP addresses. 
 
-The IP firewall rules are applied at the Relay namespace level. Therefore, the rules apply to all connections from clients using any supported protocol. Any connection attempt from an IP address that does not match an allowed IP rule on the Relay namespace is rejected as unauthorized. The response does not mention the IP rule. IP filter rules are applied in order, and the first rule that matches the IP address determines the accept or reject action.
+The IP firewall rules are applied at the Relay namespace level. Therefore, the rules apply to all connections from clients using any supported protocol. Any connection attempt from an IP address that doesn't match an allowed IP rule on the Relay namespace is rejected as unauthorized. The response doesn't mention the IP rule. IP filter rules are applied in order, and the first rule that matches the IP address determines the accept or reject action.
 
 For more information, see [How to configure IP firewall for a Relay namespace](ip-firewall-virtual-networks.md)
 
 ## Private endpoints
 
-Azure **Private Link Service** enables you to access Azure services (for example, Azure Relay, Azure Service Bus, Azure Event Hubs, Azure Storage, and Azure Cosmos DB) and Azure hosted customer/partner services over a private endpoint in your virtual network. For more information, see [What is Azure Private Link (Preview)?](../private-link/private-link-overview.md)
+Azure **Private Link Service** enables you to access Azure services (for example, Azure Relay, Azure Service Bus, Azure Event Hubs, Azure Storage, and Azure Cosmos DB) and Azure hosted customer/partner services over a private endpoint in your virtual network. For more information, see [What is Azure Private Link?](../private-link/private-link-overview.md)
 
-A **private endpoint** is a network interface that allows your workloads running in a virtual network to connect privately and securely to a service that has a **private link resource** (for example, a Relay namespace). The private endpoint uses a private IP address from your VNet, effectively bringing the service into your VNet. All traffic to the service can be routed through the private endpoint, so no gateways, NAT devices, ExpressRoute, VPN connections, or public IP addresses are needed. Traffic between your virtual network and the service traverses over the Microsoft backbone network eliminating exposure from the public Internet. You can provide a level of granularity in access control by allowing connections to specific Azure Relay namespaces.
-
-> [!NOTE]
-> This feature is currently in **preview**. 
+A **private endpoint** is a network interface that allows your workloads running in a virtual network to connect privately and securely to a service that has a **private link resource** (for example, a Relay namespace). The private endpoint uses a private IP address from your virtual network, effectively bringing the service into your virtual network. All traffic to the service can be routed through the private endpoint, so no gateways, NAT devices, ExpressRoute, VPN connections, or public IP addresses are needed. Traffic between your virtual network and the service traverses over the Microsoft backbone network eliminating exposure from the public Internet. You can provide a level of granularity in access control by allowing connections to specific Azure Relay namespaces.
 
 For more information, see [How to configure private endpoints](private-link-service.md)
 
 
-## Next steps
+## Related content
 See the following articles:
 
 - [How to configure IP firewall](ip-firewall-virtual-networks.md)

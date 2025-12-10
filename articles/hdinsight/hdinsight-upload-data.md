@@ -1,18 +1,18 @@
 ---
 title: Upload data for Apache Hadoop jobs in HDInsight
 description: Learn how to upload and access data for Apache Hadoop jobs in HDInsight. Use Azure classic CLI, Azure Storage Explorer, Azure PowerShell, the Hadoop command line, or Sqoop.
-author: hrasheed-msft
-ms.author: hrasheed
-ms.reviewer: jasonh
-ms.service: hdinsight
+ms.service: azure-hdinsight
 ms.topic: how-to
-ms.custom: hdiseo17may2017,seoapr2020
-ms.date: 04/27/2020
---- 
+ms.custom: devx-track-azurepowershell
+author: hareshg
+ms.author: hgowrisankar
+ms.reviewer: nijelsf
+ms.date: 05/10/2024
+---
 
 # Upload data for Apache Hadoop jobs in HDInsight
 
-HDInsight provides a Hadoop distributed file system (HDFS) over Azure Storage, and Azure Data Lake Storage. This storage includes Gen1 and Gen2. Azure Storage and Data Lake Storage Gen1 and Gen2 are designed as HDFS extensions. They enable the full set of components in the Hadoop environment to operate directly on the data it manages. Azure Storage, Data Lake Storage Gen1, and Gen2 are distinct file systems. The systems are optimized for storage of data and computations on that data. For information about the benefits of using Azure Storage, see [Use Azure Storage with HDInsight](hdinsight-hadoop-use-blob-storage.md). See also, [Use Data Lake Storage Gen1 with HDInsight](hdinsight-hadoop-use-data-lake-store.md), and [Use Data Lake Storage Gen2 with HDInsight](hdinsight-hadoop-use-data-lake-storage-gen2.md).
+HDInsight provides a Hadoop distributed file system (HDFS) over Azure Storage, and Azure Data Lake Storage. This storage includes Gen2. Azure Storage and Data Lake Storage Gen2 are designed as HDFS extensions. They enable the full set of components in the Hadoop environment to operate directly on the data it manages. Azure Storage, Data Lake Storage Gen2 are distinct file systems. The systems are optimized for storage of data and computations on that data. For information about the benefits of using Azure Storage, see [Use Azure Storage with HDInsight](hdinsight-hadoop-use-blob-storage.md). See also, [Use Data Lake Storage Gen2 with HDInsight](hdinsight-hadoop-use-data-lake-storage-gen2.md).
 
 ## Prerequisites
 
@@ -21,7 +21,6 @@ Note the following requirements before you begin:
 * An Azure HDInsight cluster. For instructions, see [Get started with Azure HDInsight](hadoop/apache-hadoop-linux-tutorial-get-started.md).
 * Knowledge of the following articles:
     * [Use Azure Storage with HDInsight](hdinsight-hadoop-use-blob-storage.md)
-    * [Use Data Lake Storage Gen1 with HDInsight](hdinsight-hadoop-use-data-lake-store.md)
     * [Use Data Lake Storage Gen2 with HDInsight](hdinsight-hadoop-use-data-lake-storage-gen2.md)  
 
 ## Upload data to Azure Storage
@@ -59,7 +58,7 @@ Because the default file system for HDInsight is in Azure Storage, /example/data
 
 `wasbs:///example/data/data.txt`
 
-or
+Or
 
 `wasbs://<ContainerName>@<StorageAccountName>.blob.core.windows.net/example/data/davinci.txt`
 
@@ -75,7 +74,7 @@ There are also several applications that provide a graphical interface for worki
 | Client | Linux | OS X | Windows |
 | --- |:---:|:---:|:---:|
 | [Microsoft Visual Studio Tools for HDInsight](hadoop/apache-hadoop-visual-studio-tools-get-started.md#explore-linked-resources) |✔ |✔ |✔ |
-| [Azure Storage Explorer](../storage/blobs/storage-quickstart-blobs-storage-explorer.md) |✔ |✔ |✔ |
+| [Azure Storage Explorer](../storage/blobs/quickstart-storage-explorer.md) |✔ |✔ |✔ |
 | [`Cerulea`](https://www.cerebrata.com/products/cerulean/features/azure-storage) | | |✔ |
 | [CloudXplorer](https://clumsyleaf.com/products/cloudxplorer) | | |✔ |
 | [CloudBerry Explorer for Microsoft Azure](https://www.cloudberrylab.com/free-microsoft-azure-explorer.aspx) | | |✔ |
@@ -83,7 +82,7 @@ There are also several applications that provide a graphical interface for worki
 
 ## Mount Azure Storage as Local Drive
 
-See [Mount Azure Storage as Local Drive](https://docs.microsoft.com/archive/blogs/bigdatasupport/mount-azure-blob-storage-as-local-drive).
+See [Mount Azure Storage as Local Drive](/archive/blogs/bigdatasupport/mount-azure-blob-storage-as-local-drive).
 
 ## Upload using services
 
@@ -94,7 +93,7 @@ The Azure Data Factory service is a fully managed service for composing data: st
 |Storage type|Documentation|
 |----|----|
 |Azure Blob storage|[Copy data to or from Azure Blob storage by using Azure Data Factory](../data-factory/connector-azure-blob-storage.md)|
-|Azure Data Lake Storage Gen1|[Copy data to or from Azure Data Lake Storage Gen1 by using Azure Data Factory](../data-factory/connector-azure-data-lake-store.md)|
+(../data-factory/connector-azure-data-lake-store.md)|
 |Azure Data Lake Storage Gen2 |[Load data into Azure Data Lake Storage Gen2 with Azure Data Factory](../data-factory/load-azure-data-lake-storage-gen2.md)|
 
 ### Apache Sqoop

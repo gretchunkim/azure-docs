@@ -1,75 +1,73 @@
 ---
-title: About Azure DevTest Labs | Microsoft Docs
-description: Learn how DevTest Labs can make it easy to create, manage, and monitor Azure virtual machines
-ms.topic: article
-ms.date: 06/20/2020
+title: 'Azure DevTest Labs overview: Features, scenarios, and benefits'
+description: Azure DevTest Labs enables fast, cost-effective creation and management of Azure virtual machines for development and testing. Discover key features and benefits.
+ms.topic: overview
+ms.author: rosemalcolm
+author: RoseHJM
+ms.date: 05/29/2025
+ms.custom:
+  - UpdateFrequency2
+  - ai-gen-docs-bap
+  - ai-gen-title
+  - ai-seo-date:05/29/2025
+  - ai-gen-description
+# customer intent: As a business decision-maker, I want to understand how Azure DevTest Labs can help my team quickly create and manage development and testing environments, so that I can evaluate its value for our workflows.
 ---
 
-# About Azure DevTest Labs
-Azure DevTest Labs enables developers on teams to efficiently self-manage virtual machines (VMs) and PaaS resources without waiting for approvals.
+# What is Azure DevTest Labs?
 
-DevTest Labs creates labs consisting of pre-configured bases or Azure Resource Manager templates. These have all the necessary tools and software that you can use to create environments. You can create environments in a few minutes, as opposed to hours or days.
+Azure DevTest Labs is a service that enables developers and testers to quickly create and manage Azure virtual machines for development and testing. With a self-service model, built-in cost control, and automation features, DevTest Labs helps teams efficiently provision environments, reduce costs, and streamline workflows. 
 
-By using DevTest Labs, you can test the latest versions of your applications by doing the following tasks:
+DevTest Labs resources are organized into Labs, which provide preconfigured bases and artifacts for creating VMs. Lab owners create preconfigured VMs with the tools and software lab users need. Lab users claim preconfigured VMs, or create and set up their own VMs. Lab policies and other methods track and control lab usage and costs.
 
-- Quickly provision Windows and Linux environments by using reusable templates and artifacts.
-- Easily integrate your deployment pipeline with DevTest Labs to provision on-demand environments.
-- Scale up your load testing by provisioning multiple test agents and create pre-provisioned environments for training and demos.
+## Common DevTest Labs scenarios
 
-> [!VIDEO https://channel9.msdn.com/Blogs/Azure/What-is-Azure-DevTest-Labs/player]
+Common [DevTest Labs scenarios](devtest-lab-guidance-get-started.md) include VMs for development, testing, and classroom or training labs. DevTest Labs helps you work efficiently, consistently, and control costs by keeping all resource usage within the lab context.
 
-## Capabilities
-DevTest Labs provides the following capabilities to developers working with VMs:
+Use DevTest Labs when you need:
 
-- Create VMs quickly by following fewer than five simple steps.
-- Choose from a curated list of VM bases that are configured, approved, and authorized by the team lead or central IT.
-- Create VMs from pre-created custom images that have all the software and tools already installed. 
-- Create VMs from formulas that are essentially custom images combined with the latest builds of the software that's installed when the VMs are created. 
-- Install artifacts that are extensions deployed on VMs after they're provisioned.
-- Set auto-shutdown and auto-start schedules on VMs.
-- Claim a pre-created VM without going through the creation process.
+- Fast, repeatable VM provisioning
+- Cost control for dev/test workloads
+- Integration with CI/CD pipelines
+- Lightweight governance for distributed teams
 
-DevTest Labs provides the following capabilities to developers working with PaaS environments:
+## How does DevTest Labs work?
+DevTest Labs is built on Azure Resource Manager (ARM) and uses the Azure portal to create and manage labs, VMs, and other resources. Lab owners can create labs with preconfigured bases, artifacts, and templates. Lab users can claim VMs or create their own VMs from the lab's resources.
 
-- Use Resource Manager to quickly create PaaS environments by following fewer than three simple steps.
-- Choose from a curated list of Resource Manager templates, which are configured, and authorized by the team lead or central IT.
-- Spin up an empty resource group (sandbox) by using a Resource Manager template to explore Azure within the context of a lab.
+1. Create a Lab
+   From the Azure portal, search for "DevTest Labs" and create a new lab. You define basic settings like lab name, region, and autoshutdown policies.
 
-DevTest Labs also enables central IT to control wastes, optimize costs on resources, and stay within budgets by doing the following tasks:  
+1. Configure Policies
+   Set limits on VM sizes, number of VMs per user, and total VMs. These policies help enforce governance and budget constraints.
 
-- Setting auto-shutdown and auto-start schedules on VMs.
-- Setting policies on the number of VMs that users can create.
-- Setting policies on VMs' sizes and gallery images that users choose from.
-- Tracking costs and setting targets on labs.
-- Getting notified on high projected costs for labs so you can take necessary actions.
+1. Add Custom Images and Artifacts
+   Upload your own VM images or use Azure Marketplace images. Attach artifacts to automate software installation and configuration.
 
-DevTest Labs provides the following benefits in creating, configuring, and managing environments in the cloud.
+1. Provision VMs
+   Users can create VMs from the lab's templates. These VMs inherit the lab's policies and can be managed individually or as part of a lab.
 
-## Cost control and governance
-DevTest Labs makes it easier to control costs by allowing you to do the following tasks:
+1. Monitor Usage
+   Use built-in dashboards to track cost trends and resource usage, helping teams stay within budget and optimize resource allocation.
 
-- [Set policies on your labs](devtest-lab-set-lab-policy.md), such as number of VMs per user or per lab. 
-- Create [policies to automatically shut down](devtest-lab-set-lab-policy.md) and start VMs.
-- Track costs on VMs and PaaS resources spun up inside labs to stay within [your budget](devtest-lab-configure-cost-management.md).
-- Stay within the context of your labs so you don't spin up resources outside of them.
+## Custom VM bases, artifacts, and templates
 
-## Quickly get to ready-to-test
-DevTest Labs lets you create pre-provisioned environments equipped with everything your team needs to develop and test applications. Just [claim the environments](devtest-lab-add-claimable-vm.md) where the last good build of your application is installed and start working. Or use containers for even faster, leaner environment creation.
+DevTest Labs uses custom images, formulas, artifacts, and templates to create and manage labs and VMs. The [DevTest Labs public GitHub repository](https://github.com/Azure/azure-devtestlab) has many ready-to-use VM artifacts and ARM templates for creating labs or sandbox resource groups. Lab owners create [custom images](devtest-lab-create-custom-image-from-vm-using-portal.md), [formulas](devtest-lab-manage-formulas.md), and ARM templates to create and manage labs and [VMs](devtest-lab-use-resource-manager-template.md#view-edit-and-save-arm-templates-for-vms).
 
-## Create once, use everywhere
-Capture and share PaaS [environment templates](devtest-lab-create-environment-from-arm.md) and [artifacts](add-artifact-repository.md) within your team or organization—all in source control—to easily create developer and test environments.
+Lab owners store artifacts and ARM templates in private Git repositories and connect the [artifact repositories](add-artifact-repository.md) and [template repositories](devtest-lab-use-resource-manager-template.md#add-template-repositories-to-labs) to their labs so lab users can access them directly from the Azure portal. Add the same repositories to multiple labs in your organization to promote consistency, reuse, and sharing.
 
-## Worry-free self-service
-DevTest Labs enables your developers and testers to quickly and easily [create IaaS VMs](devtest-lab-add-vm.md) and [PaaS resources](devtest-lab-create-environment-from-arm.md) by using a set of pre-configured resources.
+## Lab policies and procedures to control costs
 
-## Use IaaS and PaaS resources 
-Developers can also spin up PaaS resources, such as Azure Service Fabric clusters, the Web Apps feature of Azure App Service, and SharePoint farms, by using Resource Manager templates. To get started on PaaS in labs, use the templates from the [public environment repository](devtest-lab-configure-use-public-environments.md) or [connect the lab to your own Git repository](devtest-lab-create-environment-from-arm.md#configure-your-own-template-repositories). You can also track costs on these resources to stay within your budget.
+Lab owners can take several steps to reduce waste and control lab costs.
 
-## Integrate with your existing toolchain
-Use pre-made plug-ins or the API to provision development/testing environments directly from your preferred [continuous integration (CI) tool](devtest-lab-integrate-ci-cd.md), integrated development environment (IDE), or automated release pipeline. You can also use the comprehensive command-line tool.
+- [Set lab policies](devtest-lab-set-lab-policy.md), like the allowed number or size of VMs per user or lab.
+- [Set autoshutdown](devtest-lab-auto-shutdown.md) and [autostartup](devtest-lab-auto-startup-vm.yml) schedules to shut down and start up lab VMs at specific times of day.
+- [Monitor costs](devtest-lab-configure-cost-management.md) to track lab and resource usage and estimate trends.
+- [Set VM expiration dates](devtest-lab-use-resource-manager-template.md#set-vm-expiration-date) or [delete labs or lab VMs](devtest-lab-delete-lab-vm.md) when you no longer need them.
+
 
 ## Next steps
-See the following articles:
 
-- To learn more about DevTest Labs, see [DevTest Labs concepts](devtest-lab-concepts.md).
-- For a walkthrough with step-by-step instructions, see [Tutorial: Set up a lab by using Azure DevTest Labs](tutorial-create-custom-lab.md).
+- [DevTest Labs concepts](devtest-lab-concepts.md)
+- [Quickstart: Create a lab in Azure DevTest Labs](devtest-lab-create-lab.md)
+
+[!INCLUDE [devtest-lab-try-it-out](../../includes/devtest-lab-try-it-out.md)]

@@ -1,18 +1,20 @@
 ---
 title: HTTP to HTTPS redirection using CLI
 titleSuffix: Azure Application Gateway
-description: Learn how to create an application gateway and add a certificate for TLS termination using the Azure CLI.
+description: Learn how to create an HTTP to HTTPS redirection and add a certificate for TLS termination using the Azure CLI.
 services: application-gateway
-author: vhorne
-ms.service: application-gateway
+author: mbender-ms
+ms.service: azure-application-gateway
+ms.custom: devx-track-azurecli
 ms.topic: how-to
-ms.date: 11/15/2019
-ms.author: victorh
+ms.date: 10/06/2025
+ms.author: mbender
+# Customer intent: As a network engineer, I want to configure an application gateway for HTTP to HTTPS redirection using CLI, so that I can enhance security by ensuring all traffic is encrypted.
 ---
 
 # Create an application gateway with HTTP to HTTPS redirection using the Azure CLI
 
-You can use the Azure CLI to create an [application gateway](overview.md) with a certificate for TLS/SSL termination. A routing rule is used to redirect HTTP traffic to the HTTPS port in your application gateway. In this example, you also create a [virtual machine scale set](../virtual-machine-scale-sets/virtual-machine-scale-sets-overview.md) for the backend pool of the application gateway that contains two virtual machine instances.
+You can use the Azure CLI to create an [application gateway](overview.md) with a certificate for TLS/SSL termination. A routing rule is used to redirect HTTP traffic to the HTTPS port in your application gateway. In this example, you also create a [Virtual Machine Scale Set](/azure/virtual-machine-scale-sets/overview) for the backend pool of the application gateway that contains two virtual machine instances.
 
 In this article, you learn how to:
 
@@ -20,13 +22,13 @@ In this article, you learn how to:
 * Set up a network
 * Create an application gateway with the certificate
 * Add a listener and redirection rule
-* Create a virtual machine scale set with the default backend pool
+* Create a Virtual Machine Scale Set with the default backend pool
 
-If you don't have an Azure subscription, create a [free account](https://azure.microsoft.com/free/?WT.mc_id=A261C142F) before you begin.
+[!INCLUDE [quickstarts-free-trial-note](~/reusable-content/ce-skilling/azure/includes/quickstarts-free-trial-note.md)]
 
-[!INCLUDE [cloud-shell-try-it.md](../../includes/cloud-shell-try-it.md)]
+[!INCLUDE [azure-cli-prepare-your-environment.md](~/reusable-content/azure-cli/azure-cli-prepare-your-environment.md)]
 
-If you choose to install and use the CLI locally, this quickstart requires that you are running the Azure CLI version 2.0.4 or later. To find the version, run `az --version`. If you need to install or upgrade, see [Install Azure CLI](/cli/azure/install-azure-cli).
+ - This tutorial requires version 2.0.4 or later of the Azure CLI. If using Azure Cloud Shell, the latest version is already installed.
 
 ## Create a self-signed certificate
 
@@ -50,13 +52,13 @@ A resource group is a logical container into which Azure resources are deployed 
 
 The following example creates a resource group named *myResourceGroupAG* in the *eastus* location.
 
-```azurecli-interactive 
+```azurecli-interactive
 az group create --name myResourceGroupAG --location eastus
 ```
 
 ## Create network resources
 
-Create the virtual network named *myVNet* and the subnet named *myAGSubnet* using [az network vnet create](/cli/azure/network/vnet). You can then add the subnet named *myBackendSubnet* that's needed by the backend servers using [az network vnet subnet create](/cli/azure/network/vnet/subnet). Create the public IP address named *myAGPublicIPAddress* using [az network public-ip create](/cli/azure/network/public-ip).
+Create the virtual network named *myVNet* and the subnet named *myAGSubnet* using [az network vnet create](/cli/azure/network/vnet). You can then add the subnet named *myBackendSubnet* needed by the backend servers using [az network vnet subnet create](/cli/azure/network/vnet/subnet). Create the public IP address named *myAGPublicIPAddress* using [az network public-ip create](/cli/azure/network/public-ip).
 
 ```azurecli-interactive
 az network vnet create \
@@ -78,9 +80,9 @@ az network public-ip create \
 
 ## Create the application gateway
 
-You can use [az network application-gateway create](/cli/azure/network/application-gateway#az-network-application-gateway-create) to create the application gateway named *myAppGateway*. When you create an application gateway using the Azure CLI, you specify configuration information, such as capacity, sku, and HTTP settings. 
+You can use [az network application-gateway create](/cli/azure/network/application-gateway#az-network-application-gateway-create) to create the application gateway named *myAppGateway*. When you create an application gateway using the Azure CLI, you specify configuration information, such as capacity, sku, and HTTP settings.
 
-The application gateway is assigned to *myAGSubnet* and *myAGPublicIPAddress* that you previously created. In this example, you associate the certificate that you created and its password when you create the application gateway. 
+The application gateway is assigned to *myAGSubnet* and *myAGPublicIPAddress* that you previously created. In this example, you associate the certificate that you created and its password when you create the application gateway.
 
 ```azurecli-interactive
 az network application-gateway create \
@@ -165,15 +167,15 @@ az network application-gateway rule create \
   --redirect-config httpToHttps
 ```
 
-## Create a virtual machine scale set
+## Create a Virtual Machine Scale Set
 
-In this example, you create a virtual machine scale set named *myvmss* that provides servers for the backend pool in the application gateway. The virtual machines in the scale set are associated with *myBackendSubnet* and *appGatewayBackendPool*. To create the scale set, you can use [az vmss create](/cli/azure/vmss#az-vmss-create).
+In this example, you create a Virtual Machine Scale Set named *myvmss* that provides servers for the backend pool in the application gateway. The virtual machines in the scale set are associated with *myBackendSubnet* and *appGatewayBackendPool*. To create the scale set, you can use [az vmss create](/cli/azure/vmss#az-vmss-create).
 
 ```azurecli-interactive
 az vmss create \
   --name myvmss \
   --resource-group myResourceGroupAG \
-  --image UbuntuLTS \
+  --image Ubuntu2204 \
   --admin-username azureuser \
   --admin-password Azure123456! \
   --instance-count 2 \
@@ -218,13 +220,4 @@ To accept the security warning if you used a self-signed certificate, select **D
 
 ## Next steps
 
-In this tutorial, you learned how to:
-
-> [!div class="checklist"]
-> * Create a self-signed certificate
-> * Set up a network
-> * Create an application gateway with the certificate
-> * Add a listener and redirection rule
-> * Create a virtual machine scale set with the default backend pool
-
-
+- [Create an application gateway with internal redirection using the Azure CLI](redirect-internal-site-cli.md)

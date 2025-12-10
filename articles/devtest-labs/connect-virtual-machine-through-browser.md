@@ -1,28 +1,35 @@
 ---
-title: Connect to your virtual machines through a browser - Azure | Microsoft Docs
-description: Learn how to connect to your virtual machines through a browser.
-ms.topic: article
-ms.date: 06/26/2020
+title: Connect to lab VMs through a browser
+description: Learn how to connect to Azure DevTest Labs virtual machines (VMs) through an internet browser if Bastion is enabled for the lab.
+ms.topic: how-to
+ms.author: rosemalcolm
+author: RoseHJM
+ms.date: 03/26/2023
+ms.custom:
+  - UpdateFrequency2
+  - sfi-image-nochange
+
+#customer intent: As a lab user, I want to connect to Bastion-enabled lab VMs through my browser, so I can connect securely without using public IP addresses or exposing RDP or SSH ports to the internet.
 ---
 
-# Connect to your virtual machines through a browser 
+# Connect to lab VMs through a browser via Azure Bastion
 
-DevTest Labs integrates with [Azure Bastion](../bastion/index.yml), which enables you to connect to your virtual machines through a browser. For information on how to enable this feature in DevTest Labs, see [Enable browser connection on lab virtual machines](enable-browser-connection-lab-virtual-machines.md).
+This article describes how to connect to your DevTest Labs virtual machine (VM) through a browser by using [Azure Bastion](/azure/bastion/index). Bastion provides secure remote desktop protocol (RDP) or secure shell (SSH) access without using public IP addresses or exposing RDP or SSH ports to the internet.
 
-Once the *Browser connect* is enabled, lab users can access virtual machines through a browser.  
+> [!IMPORTANT]
+> The VM must be in an Azure Bastion-configured virtual network in a lab that has Bastion connections enabled. For more information, see [Enable browser connection to DevTest Labs VMs with Azure Bastion](enable-browser-connection-lab-virtual-machines.md).
 
-## Create a lab virtual machine
+To connect to a lab VM through a browser:
 
-You first need to create the lab virtual machine within a virtual network that has Bastion configured on it. Select the second **subnet** you created, not the AzureBastionSubnet. You can select a virtual network during virtual machine creation by going to the **Advanced settings** tab.
+1. In the [Azure portal](https://portal.azure.com), search for and select **DevTest Labs**.
+1. On the **DevTest Labs** page, select your lab.
+1. On the lab's **Overview** page, select the VM you want to connect to from **My virtual machines**.
+1. On the VM's **Overview** page, from the top menu, select **Connect** > **Connect via Bastion**.
+1. In the **Connect via Bastion** pane, enter the username and password for the VM, and select whether you want the VM to open in a new browser window.
+1. Select **Connect**.
 
-![Create virtual machine](./media/connect-virtual-machine-through-browser/create-virtual-machine.png)
+:::image type="content" source="./media/connect-virtual-machine-through-browser/lab-vm-browser-connect.png" alt-text="Screenshot of the VM Overview screen with the Browser connect button highlighted.":::
 
-## Launch virtual machine in a browser
+> [!NOTE]
+> If you don't see **Connect via Bastion** on the VM's top menu, the lab isn't set up for Azure Bastion. You can select **Connect** to connect via [RDP](connect-windows-virtual-machine.md) or [SSH](connect-linux-virtual-machine.md).
 
-Once the virtual machine is created, you can launch it in a browser by clicking the *Browser connect* button and entering your username and password for the machine.  
-
-![Launch in a browser](./media/connect-virtual-machine-through-browser/browser-connect.png)
-
-## Next Steps
-
-[Add a VM to a lab in Azure DevTest Labs](devtest-lab-add-vm.md)

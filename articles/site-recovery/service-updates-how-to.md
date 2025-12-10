@@ -1,21 +1,20 @@
 ---
 title: Updates and component upgrades in Azure Site Recovery
-description: Provides an overview of Azure Site Recovery service updates, and component upgrades.
-author: Rajeswari-Mamilla
-manager: rochakm
-ms.service: site-recovery
-ms.topic: conceptual
-ms.date: 07/31/2019
-ms.author: ramamill 
-
+ms.reviewer: v-gajeronika
+description: Provides an overview of Azure Site Recovery service updates, MARS agent and component upgrades.
+author: Jeronika-MS
+ms.service: azure-site-recovery
+ms.topic: overview
+ms.author: v-gajeronika
+ms.date: 11/05/2025
+# Customer intent: As a cloud operations manager, I want to keep the Azure Site Recovery components up to date, so that I can ensure optimal performance, support, and security for our disaster recovery processes.
 ---
 # Service updates in Site Recovery
 
 This article provides an overview of [Azure Site Recovery](site-recovery-overview.md) updates, and describes how to upgrade Site Recovery components.
 
 Site Recovery publishes service updates on a regular basis. Updates include new features, support improvements, component updates, and bug fixes. In order to take advantage of the latest features and fixes, we recommend running the latest versions of Site Recovery components. 
- 
- 
+
 ## Updates support
 
 ### Support statement for Azure Site Recovery
@@ -27,12 +26,9 @@ We recommend always upgrading to the latest component versions:
 > [!IMPORTANT]
 > Official support is for upgrading from > N-4 version to N version. For example, if you're running  you are on N-6, you need to first upgrade to N-4, and then upgrade to N.
 
+### Supported update rollups
 
-### Links to currently supported update rollups
-
- Review the latest update rollup (version N) in [this article](site-recovery-whats-new.md). Remember that Site Recovery provides support for N-4 versions.
-
-
+Review the latest update rollup (version N) in [this article](site-recovery-whats-new.md). Remember that Site Recovery provides support for N-4 versions.
 
 ## Component expiry
 
@@ -50,8 +46,7 @@ Next 53 days | Once a week
 Last 7 days | Once a day
 After expiry | Once bi-weekly
 
-
-### Upgrading outside official support
+### Upgrade outside official support
 
 If the difference between your component version and the latest release version is greater than four, this is considered out of support. In this case, upgrade as follows: 
 
@@ -123,12 +118,13 @@ The example in the table shows how this works.
 
 
 ## Between an on-premises VMM site and Azure
+
 1. Download the update for the Microsoft Azure Site Recovery Provider.
 2. Install the Provider on the VMM server. If VMM is deployed in a cluster, install the Provider on all cluster nodes.
-3. Install the latest Microsoft Azure Recovery Services agent on all Hyper-V hosts or cluster nodes.
-
+3. Install the latest Microsoft Azure Recovery Services agent (MARS for Azure Site Recovery) on all Hyper-V hosts or cluster nodes.
 
 ## Between two on-premises VMM sites
+
 1. Download the latest update for the Microsoft Azure Site Recovery Provider.
 2. Install the latest Provider on the VMM server managing the secondary recovery site. If VMM is deployed in a cluster, install the Provider on all cluster nodes.
 3. After the recovery site is updated, install the Provider on the VMM server that's managing the primary site.

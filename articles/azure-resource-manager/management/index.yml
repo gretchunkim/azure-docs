@@ -7,11 +7,10 @@ metadata:
   title: Azure Resource Manager documentation
   description: Learn how to develop Azure Resource Manager templates and use them to deploy Azure resources
   ms.service: azure-resource-manager
+  ms.author: jgao
   ms.subservice: management
   ms.topic: landing-page
-  author: tfitzmac
-  ms.author: tomfitz
-  ms.date: 01/02/2020
+  ms.date: 10/29/2025
 
 # linkListType: architecture | concept | deploy | download | get-started | how-to-guide | learn | overview | quickstart | reference | tutorial | video | whats-new
 
@@ -41,7 +40,7 @@ landingContent:
             url: resource-providers-and-types.md
           - text: Resource providers for each Azure service
             url: azure-services-resource-providers.md
-      
+
   # Card
   - title: Manage resources
     linkLists:
@@ -50,7 +49,7 @@ landingContent:
           - text: Move across resource group and subscriptions
             url: move-resource-group-and-subscription.md
           - text: Move across regions
-            url: move-region.md
+            url: move-resources-overview.md
           - text: Tag resources
             url: tag-resources.md
           - text: Lock resources
@@ -78,18 +77,18 @@ landingContent:
           - text: .NET
             url: /dotnet/api/microsoft.azure.management.resourcemanager
           - text: Java
-            url: /java/api/com.microsoft.azure.management.resources
+            url: /java/api/com.azure.resourcemanager.resources
           - text: Python
-            url: /python/api/overview/azure/resources?view=azure-python
+            url: /python/api/overview/azure/resources
 
    # Card
   - title: Track operations
     linkLists:
       - linkListType: how-to-guide
         links:
-          - text: View activity logs
-            url: view-activity-logs.md
           - text: Request limits and throttling
             url: request-limits-and-throttling.md
           - text: Asynchronous operations
             url: async-operations.md
+          - text: Control plane metrics in Azure Monitor
+            url: control-plane-metrics.md

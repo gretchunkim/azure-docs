@@ -1,14 +1,17 @@
 ---
-title: Node.js best practices and troubleshooting
+title: Node.js Best Practices and Troubleshooting
 description: Learn the best practices and troubleshooting steps for Node.js applications running in Azure App Service.
 author: msangapu-msft
 
 ms.assetid: 387ea217-7910-4468-8987-9a1022a99bef
-ms.devlang: nodejs
-ms.topic: article
+ms.devlang: javascript
+ms.topic: best-practice
 ms.date: 11/09/2017
 ms.author: msangapu
-ms.custom: seodec18
+ms.custom: devx-track-js
+ms.service: azure-app-service
+# customer intent: As a developer, I want to learn best practices for Node.js applications that run in App Service so that I can use these apps more effectively.
+
 ---
 # Best practices and troubleshooting guide for node applications on Azure App Service Windows
 
@@ -51,7 +54,7 @@ This setting controls the directory where iisnode logs stdout/stderr. The defaul
 
 ### debuggerExtensionDll
 
-This setting controls what version of node-inspector iisnode uses when debugging your node application. Currently, iisnode-inspector-0.7.3.dll and iisnode-inspector.dll are the only two valid values for this setting. The default value is iisnode-inspector-0.7.3.dll. The iisnode-inspector-0.7.3.dll version uses node-inspector-0.7.3 and uses web sockets. Enable web sockets on your Azure webapp to use this version. See <https://ranjithblogs.azurewebsites.net/?p=98> for more details on how to configure iisnode to use the new node-inspector.
+This setting controls what version of node-inspector iisnode uses when debugging your node application. Currently, iisnode-inspector-0.7.3.dll and iisnode-inspector.dll are the only two valid values for this setting. The default value is iisnode-inspector-0.7.3.dll. The iisnode-inspector-0.7.3.dll version uses node-inspector-0.7.3 and uses web sockets. Enable web sockets on your Azure webapp to use this version. 
 
 ### flushResponse
 
@@ -102,13 +105,13 @@ This setting controls the logging of stdout and stderr by iisnode. Iisnode captu
 
 ### devErrorsEnabled
 
-The default value is false. When set to true, iisnode displays the HTTP status code and Win32 error code on your browser. The win32 code is helpful in debugging certain types of issues.
+The default value is false. When set to true, iisnode displays the HTTP status code and Win32 error code on your browser. The Win32 code is helpful in debugging certain types of issues.
 
 ### debuggingEnabled (do not enable on live production site)
 
 This setting controls debugging feature. Iisnode is integrated with node-inspector. By enabling this setting, you enable debugging of your node application. Upon enabling this setting, iisnode creates node-inspector files in ‘debuggerVirtualDir’ directory on the first debug request to your node application. You can load the node-inspector by sending a request to `http://yoursite/server.js/debug`. You can control the debug URL segment with ‘debuggerPathSegment’ setting. By default, debuggerPathSegment=’debug’. You can set `debuggerPathSegment` to a GUID, for example, so that it is more difficult to be discovered by others.
 
-Read [Debug node.js applications on Windows](https://tomasz.janczuk.org/2011/11/debug-nodejs-applications-on-windows.html) for more details on debugging.
+Read [Debug Node.js applications on Windows](https://tomasz.janczuk.org/2011/11/debug-nodejs-applications-on-windows.html) for more details on debugging.
 
 ## Scenarios and recommendations/troubleshooting
 
@@ -116,16 +119,16 @@ Read [Debug node.js applications on Windows](https://tomasz.janczuk.org/2011/11/
 
 Many applications would want to make outbound connections as part of their regular operation. For example, when a request comes in, your node app would want to contact a REST API elsewhere and get some information to process the request. You would want to use a keep alive agent when making http or https calls. You could use the agentkeepalive module as your keep alive agent when making these outbound calls.
 
-The agentkeepalive module ensures that sockets are reused on your Azure webapp VM. Creating a new socket on each outbound request adds overhead to your application. Having your application reuse sockets for outbound requests ensures that your application doesn't exceed the maxSockets that are allocated per VM. The recommendation on Azure App Service is to set the agentKeepAlive maxSockets value to a total of (4 instances of node.exe \* 40 maxSockets/instance) 160 sockets per VM.
+The agentkeepalive module ensures that sockets are reused on your Azure webapp VM. Creating a new socket on each outbound request adds overhead to your application. Having your application reuse sockets for outbound requests ensures that your application doesn't exceed the maxSockets that are allocated per VM. The recommendation on Azure App Service is to set the agentKeepAlive maxSockets value to a total of (4 instances of node.exe \* 32 maxSockets/instance) 128 sockets per VM.
 
 Example [agentKeepALive](https://www.npmjs.com/package/agentkeepalive) configuration:
 
 ```nodejs
 let keepaliveAgent = new Agent({
-    maxSockets: 40,
+    maxSockets: 32,
     maxFreeSockets: 10,
     timeout: 60000,
-    keepAliveTimeout: 300000
+    freeSocketTimeout: 300000
 });
 ```
 
@@ -135,7 +138,7 @@ let keepaliveAgent = new Agent({
 
 #### My node application is consuming too much CPU
 
-You may receive a recommendation from Azure App Service on your portal about high cpu consumption. You can also set up monitors to watch for certain [metrics](web-sites-monitor.md). When checking the CPU usage on the [Azure Portal Dashboard](../azure-monitor/app/web-monitor-performance.md), check the MAX values for CPU so you don’t miss the peak values.
+You may receive a recommendation from Azure App Service on your portal about high cpu consumption. You can also set up monitors to watch for certain [metrics](web-sites-monitor.md). When checking the CPU usage on the [Azure portal Dashboard](/azure/azure-monitor/essentials/metrics-charts), check the MAX values for CPU so you don’t miss the peak values.
 If you believe your application is consuming too much CPU and you cannot explain why, you can profile your node application to find out.
 
 #### Profiling your node application on Azure App Service with V8-Profiler
@@ -161,7 +164,7 @@ http.createServer(function (req, res) {
 }).listen(process.env.PORT);
 ```
 
-Go to the Debug Console site `https://yoursite.scm.azurewebsites.net/DebugConsole`
+To go to the Debug Console site for your app, select **Development Tools** > **Advanced Tools**, then select **Go**. In Kudu, select **Debug console** for **CMD** or **PowerShell**.
 
 Go into your site/wwwroot directory. You see a command prompt as shown in the following example:
 
@@ -208,9 +211,9 @@ You can see that 95% of the time was consumed by the WriteConsoleLog function. T
 
 ### My node application is consuming too much memory
 
-If your application is consuming too much memory, you see a notice from Azure App Service on your portal about high memory consumption. You can set up monitors to watch for certain [metrics](web-sites-monitor.md). When checking the memory usage on the [Azure Portal Dashboard](../azure-monitor/app/web-monitor-performance.md), be sure to check the MAX values for memory so you don’t miss the peak values.
+If your application is consuming too much memory, you see a notice from Azure App Service on your portal about high memory consumption. You can set up monitors to watch for certain [metrics](web-sites-monitor.md). When checking the memory usage on the [Azure portal Dashboard](/azure/azure-monitor/essentials/metrics-charts), be sure to check the MAX values for memory so you don’t miss the peak values.
 
-#### Leak detection and Heap Diff for node.js
+#### Leak detection and Heap Diff for Node.js
 
 You could use [node-memwatch](https://github.com/lloyd/node-memwatch) to help you identify memory leaks.
 You can install `memwatch` just like v8-profiler and edit your code to capture and diff heaps to identify the memory leaks in your application.
@@ -219,17 +222,17 @@ You can install `memwatch` just like v8-profiler and edit your code to capture a
 
 There are a few reasons why node.exe is shut down randomly:
 
-1. Your application is throwing uncaught exceptions – Check d:\\home\\LogFiles\\Application\\logging-errors.txt file for the details on the exception thrown. This file has the stack trace to help debug and fix your application.
-2. Your application is consuming too much memory, which is affecting other processes from getting started. If the total VM memory is close to 100%, your node.exe’s could be killed by the process manager. Process manager kills some processes to let other processes get a chance to do some work. To fix this issue, profile your application for memory leaks. If your application requires large amounts of memory, scale up to a larger VM (which increases the RAM available to the VM).
+- Your application is throwing uncaught exceptions – Check d:\\home\\LogFiles\\Application\\logging-errors.txt file for the details on the exception thrown. This file has the stack trace to help debug and fix your application.
+- Your application is consuming too much memory, which is affecting other processes from getting started. If the total VM memory is close to 100%, your node.exe’s could be killed by the process manager. Process manager kills some processes to let other processes get a chance to do some work. To fix this issue, profile your application for memory leaks. If your application requires large amounts of memory, scale up to a larger VM (which increases the RAM available to the VM).
 
 ### My node application does not start
 
 If your application is returning 500 Errors when it starts, there could be a few reasons:
 
-1. Node.exe is not present at the correct location. Check nodeProcessCommandLine setting.
-2. Main script file is not present at the correct location. Check web.config and make sure the name of the main script file in the handlers section matches the main script file.
-3. Web.config configuration is not correct – check the settings names/values.
-4. Cold Start – Your application is taking too long to start. If your application takes longer than (maxNamedPipeConnectionRetry \* namedPipeConnectionRetryDelay) / 1000 seconds, iisnode returns a 500 error. Increase the values of these settings to match your application start time to prevent iisnode from timing out and returning the 500 error.
+- Node.exe is not present at the correct location. Check nodeProcessCommandLine setting.
+- Main script file is not present at the correct location. Check web.config and make sure the name of the main script file in the handlers section matches the main script file.
+- Web.config configuration is not correct – check the settings names/values.
+- Cold Start – Your application is taking too long to start. If your application takes longer than (maxNamedPipeConnectionRetry \* namedPipeConnectionRetryDelay) / 1000 seconds, iisnode returns a 500 error. Increase the values of these settings to match your application start time to prevent iisnode from timing out and returning the 500 error.
 
 ### My node application crashed
 
@@ -240,17 +243,16 @@ Your application is throwing uncaught exceptions – Check `d:\\home\\LogFiles\\
 The common cause for long application start times is a high number of files in the node\_modules. The application tries to load most of these files when starting. By default, since your files are stored on the network share on Azure App Service, loading many files can take time.
 Some solutions to make this process faster are:
 
-1. Be sure you have a flat dependency structure and no duplicate dependencies by using npm3 to install your modules.
-2. Try to lazy load your node\_modules and not load all of the modules at application start. To Lazy load modules, the call to require(‘module’) should be made when you actually need the module within the function before the first execution of module code.
-3. Azure App Service offers a feature called local cache. This feature copies your content from the network share to the local disk on the VM. Since the files are local, the load time of node\_modules is much faster.
+- Try to lazy load your node\_modules and not load all of the modules at application start. To Lazy load modules, the call to require(‘module’) should be made when you actually need the module within the function before the first execution of module code.
+- Azure App Service offers a feature called local cache. This feature copies your content from the network share to the local disk on the VM. Since the files are local, the load time of node\_modules is much faster.
 
 ## IISNODE http status and substatus
 
 The `cnodeconstants` [source file](https://github.com/Azure/iisnode/blob/master/src/iisnode/cnodeconstants.h) lists all of the possible status/substatus combinations iisnode can return due to an error.
 
-Enable FREB for your application to see the win32 error code (be sure you enable FREB only on non-production sites for performance reasons).
+Enable FREB for your application to see the Win32 error code (be sure you enable FREB only on non-production sites for performance reasons).
 
-| Http Status | Http Substatus | Possible Reason? |
+| HTTP Status | HTTP Substatus | Possible Reason? |
 | --- | --- | --- |
 | 500 |1000 |There was some issue dispatching the request to IISNODE – Check if node.exe was started. Node.exe could have crashed when starting. Check your web.config configuration for errors. |
 | 500 |1001 |- Win32Error 0x2 - App is not responding to the URL. Check the URL rewrite rules or check if your express app has the correct routes defined. - Win32Error 0x6d – named pipe is busy – Node.exe is not accepting requests because the pipe is busy. Check high cpu usage. - Other errors – check if node.exe crashed. |
@@ -259,18 +261,18 @@ Enable FREB for your application to see the win32 error code (be sure you enable
 | 500 |1004-1018 |There was some error while sending the request or processing the response to/from node.exe. Check if node.exe crashed. check d:\\home\\LogFiles\\logging-errors.txt for stack trace. |
 | 503 |1000 |Not enough memory to allocate more named pipe connections. Check why your app is consuming so much memory. Check maxConcurrentRequestsPerProcess setting value. If it's not infinite and you have many requests, increase this value to prevent this error. |
 | 503 |1001 |Request could not be dispatched to node.exe because the application is recycling. After the application has recycled, requests should be served normally. |
-| 503 |1002 |Check win32 error code for actual reason – Request could not be dispatched to a node.exe. |
+| 503 |1002 |Check Win32 error code for actual reason – Request could not be dispatched to a node.exe. |
 | 503 |1003 |Named pipe is too Busy – Verify if node.exe is consuming excessive CPU |
 
 NODE.exe has a setting called `NODE_PENDING_PIPE_INSTANCES`. On Azure App Service, this value is set to 5000. Meaning that node.exe can accept 5000 requests at a time on the named pipe. This value should be good enough for most node applications running on Azure App Service. You should not see 503.1003 on Azure App Service because of the high value for the `NODE_PENDING_PIPE_INSTANCES`
 
-## More resources
+## Related content
 
-Follow these links to learn more about node.js applications on Azure App Service.
+Follow these links to learn more about Node.js applications on Azure App Service.
 
 * [Get started with Node.js web apps in Azure App Service](quickstart-nodejs.md)
 * [How to debug a Node.js web app in Azure App Service](/archive/blogs/azureossds/debugging-node-js-apps-on-azure-app-services)
-* [Using Node.js Modules with Azure applications](../nodejs-use-node-modules-azure-apps.md)
+* [Using Node.js Modules with Azure applications](/training/modules/create-nodejs-project-dependencies/)
 * [Azure App Service Web Apps: Node.js](/archive/blogs/silverlining/windows-azure-websites-node-js)
 * [Node.js Developer Center](../nodejs-use-node-modules-azure-apps.md)
-* [Exploring the Super Secret Kudu Debug Console](https://azure.microsoft.com/documentation/videos/super-secret-kudu-debug-console-for-azure-web-sites/)
+* [Exploring the Super Secret Kudu Debug Console](https://www.youtube.com/watch?v=-VjqyvA2XjM)

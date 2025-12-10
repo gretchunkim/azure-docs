@@ -1,28 +1,27 @@
 ---
 title: Move resources to another region with Azure Resource Mover
 description: Learn how to move resources within a resource group to another region with Azure Resource Mover.
-manager: evansma
-author: rayne-wiselman
-ms.service: resource-move
+ms.service: azure-resource-mover
 ms.topic: how-to
-ms.date: 09/08/2020
-ms.author: raynew
-#Customer intent: As an Azure admin,  I want to move Azure resources to a different Azure region.
+author: jasminemehndir
+ms.author: v-jasmineme
+ms.date: 07/31/2025
+ms.custom: sfi-image-nochange
+# Customer intent: As an Azure administrator, I want to relocate resources to a different Azure region using a resource management tool, so that I can optimize resource deployment and achieve better performance or compliance for my applications.
 ---
-# Move resources across regions (from resource group)
 
-In this article, learn how to move resources in a specific resource group to a different Azure region. In the resource group, you select the resources you want to move. Then, you move them using [Azure Resource Mover](overview.md).
+# Move resources across regions (from resource group) with Azure Resource Mover
 
-> [!IMPORTANT]
-> Azure Resource Mover is currently in public preview.
+In this article, learn how to move resources in a specific resource group to a different Azure region with [Azure Resource Mover](overview.md). In the resource group, you select the resources you want to move.
 
+To move services and resources manually or to move services and resources that aren't supported by Azure Resource Mover, see [Azure services relocation guidance](/azure/operational-excellence/overview-relocation).
 
 ## Prerequisites
 
 - You need *Owner* access on the subscription in which resources you want to move are located.
     - The first time you add a resource for a  specific source and destination mapping in an Azure subscription, Resource Mover creates a [system-assigned managed identity](../active-directory/managed-identities-azure-resources/overview.md#managed-identity-types) (formerly known as Managed Service Identify (MSI)) that's trusted by the subscription.
     - To create the identity, and to assign it the required role (Contributor or User Access administrator in the source subscription), the account you use to add resources needs *Owner* permissions on the subscription. [Learn more](../role-based-access-control/rbac-and-directory-admin-roles.md#azure-roles) about Azure roles.
-- The subscription needs enough quota to create the source resources in the target region. If it doesn't, request additional limits. [Learn more](/azure/azure-resource-manager/management/azure-subscription-service-limits).
+- The subscription needs enough quota to create the source resources in the target region. If it doesn't, request additional limits. [Learn more](../azure-resource-manager/management/azure-subscription-service-limits.md).
 - Verify pricing and charges associated with the target region to which you're moving VMs. Use the [pricing calculator](https://azure.microsoft.com/pricing/calculator/) to help you.
 - Check that the resources you want to move are supported by Resource Mover:
     - Azure VMs and associated disks
@@ -53,6 +52,9 @@ In this article, learn how to move resources in a specific resource group to a d
 
 Select resources you want to move. You move resources to a target region in the source region subscription. If you want to change the subscription, you can do that after the resources are moved.
 
+> [!NOTE]
+>  Don't select associated disks or the operation will fail. Associated disks are automatically included in a VM move.
+
 1. In the Azure portal, open the relevant resource group.
 2. In the resource group page, select the resources that you want to move.
 3. Select **Move** > **Move to another region**.
@@ -60,7 +62,6 @@ Select resources you want to move. You move resources to a target region in the 
     ![Selection for moving resources to a different region](./media/move-region-within-resource-group/select-move-region.png)
     
 4. In **Source + destination**, select the target region to which you want to move the resources. Then select **Next**.
-5. In **Metadata region**, select where you want to store metadata about resources you're moving.  A resource group is created specifically for this purpose. Then select **Next**.
 
 
     ![Source and destination page to select target region](./media/move-region-within-resource-group/source-target.png)
@@ -87,20 +88,16 @@ Select resources you want to move. You move resources to a target region in the 
 
 Resources you're moving appear in the **Across regions** page, in a *Prepare pending* state. Start validation as follows:
 
-1. If resources show a *Validate dependencies* message in the **Issues** column, select the **Validate dependencies** button. The validation process begins.
-
-    ![Button to validate dependencies](./media/move-region-within-resource-group/validate-dependencies.png)
-
+1. Dependencies are validated in the background after you add them. If you see a **Validate dependencies** button, select it to trigger the manual validation.
 2. If dependencies are found, select **Add dependencies**. 
 3. In **Add dependencies**, select the dependent resources > **Add dependencies**. Monitor progress in the notifications.
 
     ![Button to add dependencies](./media/move-region-within-resource-group/add-dependencies.png)
 
-3. Add additional dependencies if needed, and validate dependencies as needed. Select **Refresh** to ensure resources show an up-to-date state.
+3. Add additional dependencies if needed, and validate dependencies as needed. Dependency validation happens automatically in the background.
 
 4. On the **Across regions** page, verify that resources are now in a *Prepare pending* state, with no issues.
 
-    ![Page to show prepare pending state for all resources](./media/move-region-within-resource-group/prepare-pending.png)
 
 ## Move the source resource group 
 
@@ -112,7 +109,7 @@ Prepare as follows:
 
 1. In **Across regions**, select the source resource group > **Prepare**.
 2. In **Prepare resources**, select **Prepare**.
-1. 
+
     ![Button to prepare the source resource group](./media/move-region-within-resource-group/prepare-source-resource-group.png)
 
     During the Prepare process, Resource Mover generates Azure Resource Manager (ARM) templates using the resource group settings. Resources inside the resource group aren't affected.
@@ -120,7 +117,6 @@ Prepare as follows:
 > [!NOTE]
 >  After preparing the resource group, it's in the *Initiate move pending* state. Refresh to show the latest state.
 
-![Status showing initiate pending state](./media/move-region-within-resource-group/initiate-resource-group-pending.png)
 
 ### Move the source resource group
 
@@ -130,7 +126,7 @@ Initiate the move as follows:
 2. ln **Move Resources**, select **Initiate move**. The resource group moves into an *Initiate move in progress* state.
 3. After initiating the move, the target resource group is created, based on the generated ARM template. The source resource group moves into a *Commit move pending* state.
 
-![Status showing commit move](./media/move-region-availability-zone/commit-move-pending.png)
+    ![Status showing commit move](./media/move-region-availability-zone/commit-move-pending.png)
 
 To commit and finish the move process:
 
@@ -172,7 +168,6 @@ Now that the source resource group is moved, you can prepare to move the other r
 > - Resource Move generates ARM templates for the other source resources.
 > - After preparing resources, they're in an *Initiate move pending* state.
 
-![Page showing resources in initiate move pending state](./media/move-region-availability-zone/initiate-move-pending.png)
 
 ## Initiate the move
 
@@ -260,7 +255,8 @@ Delete as follows:
     - The cache storage account name is ```resmovecache<guid>```
     - The vault name is ```ResourceMove-<sourceregion>-<target-region>-GUID```.
 
-## Next steps
+## Related content
 
-
-[Learn about](about-move-process.md) the move process.
+- [Azure services relocation guidance](/azure/operational-excellence/overview-relocation)
+- [Cloud Adoption Framework - Relocate cloud workloads](/azure/cloud-adoption-framework/relocate/)
+- [Learn about](about-move-process.md) the move process with Resource Mover.

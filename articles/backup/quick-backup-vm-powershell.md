@@ -3,8 +3,11 @@ title: Quickstart - Back up a VM with PowerShell
 description: In this Quickstart, learn how to back up your Azure virtual machines with the Azure PowerShell module.
 ms.devlang: azurecli
 ms.topic: quickstart
-ms.date: 04/16/2019
-ms.custom: mvc, devx-track-azurepowershell
+ms.date: 01/30/2025
+ms.custom: mvc, devx-track-azurepowershell, mode-api
+author: AbhishekMallick-MS
+ms.author: v-mallicka
+# Customer intent: As an IT administrator, I want to back up my Azure virtual machines using PowerShell, so that I can ensure the protection and recoverability of critical data and applications.
 ---
 
 # Back up a virtual machine in Azure with PowerShell
@@ -13,11 +16,11 @@ The [Azure PowerShell AZ](/powershell/azure/new-azureps-module-az) module is use
 
 [Azure Backup](backup-overview.md) backs up on-premises machines and apps, and Azure VMs. This article shows you how to back up an Azure VM with the AZ module. Alternatively, you can back up a VM using the [Azure CLI](quick-backup-vm-cli.md), or in the [Azure portal](quick-backup-vm-portal.md).
 
-This quickstart enables backup on an existing Azure VM. If you need to create a VM, you can [create a VM with Azure PowerShell](../virtual-machines/scripts/virtual-machines-windows-powershell-sample-create-vm.md?toc=%2fpowershell%2fmodule%2ftoc.json).
+This quickstart enables backup on an existing Azure VM. If you need to create a VM, you can [create a VM with Azure PowerShell](/previous-versions/azure/virtual-machines/scripts/virtual-machines-windows-powershell-sample-create-vm?toc=%2fpowershell%2fmodule%2ftoc.json).
 
-This quickstart requires the Azure PowerShell AZ module version 1.0.0 or later. Run `Get-Module -ListAvailable Az` to find the version. If you need to install or upgrade, see [Install Azure PowerShell module](/powershell/azure/install-az-ps).
+This quickstart requires the Azure PowerShell AZ module version 1.0.0 or later. Run `Get-Module -ListAvailable Az` to find the version. If you need to install or upgrade, see [Install Azure PowerShell module](/powershell/azure/install-azure-powershell).
 
-[!INCLUDE [updated-for-az](../../includes/updated-for-az.md)]
+[!INCLUDE [updated-for-az](~/reusable-content/ce-skilling/azure/includes/updated-for-az.md)]
 
 ## Sign in and register
 
@@ -40,8 +43,8 @@ A [Recovery Services vault](backup-azure-recovery-services-vault-overview.md) is
 When you create the vault:
 
 - For the resource group and location, specify the resource group and location of the VM you want to back up.
-- If you used this [sample script](../virtual-machines/scripts/virtual-machines-windows-powershell-sample-create-vm.md?toc=%2fpowershell%2fmodule%2ftoc.json) to create the VM, the resource group is **myResourceGroup**, the VM is ***myVM**, and the resources are in the **WestEurope** region.
-- Azure Backup automatically handles storage for backed up data. By default the vault uses [Geo-Redundant Storage (GRS)](../storage/common/storage-redundancy.md). Geo-redundancy ensures that backed up data is replicated to a secondary Azure region, hundreds of miles away from the primary region.
+- If you used this [sample script](/previous-versions/azure/virtual-machines/scripts/virtual-machines-windows-powershell-sample-create-vm?toc=%2fpowershell%2fmodule%2ftoc.json) to create the VM, the resource group is **myResourceGroup**, the VM is ***myVM**, and the resources are in the **WestEurope** region.
+- Azure Backup automatically handles storage for backed up data. By default the vault uses [Geo-Redundant Storage (GRS)](../storage/common/storage-redundancy.md#geo-redundant-storage). Geo-redundancy ensures that backed up data is replicated to a secondary Azure region, hundreds of miles away from the primary region.
 
 Now create a vault:
 
@@ -145,6 +148,10 @@ Run an on-demand backup job as follows:
 
 2. When the job status is **Completed**, the VM is protected and has a full recovery point stored.
 
+## Manage VM backups
+
+If you want to perform more actions such as change policy, edit policy etc.. refer to the [manage VM backups section](backup-azure-vms-automation.md#manage-azure-vm-backups).
+
 ## Clean up the deployment
 
 If you no longer need to back up the VM, you can clean it up.
@@ -167,3 +174,4 @@ In this quickstart, you created a Recovery Services vault, enabled protection on
 
 - [Learn how](tutorial-backup-vm-at-scale.md) to back up VMs in the Azure portal.
 - [Learn how](tutorial-restore-disk.md) to quickly restore a VM
+- Learn how to [restore an Azure VM using REST API](backup-azure-arm-userestapi-restoreazurevms.md)

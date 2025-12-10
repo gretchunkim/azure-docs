@@ -1,11 +1,9 @@
 ---
 title: Azure Policy Regulatory Compliance controls for Azure Logic Apps
 description: Lists Azure Policy Regulatory Compliance controls available for Azure Logic Apps. These built-in policy definitions provide common approaches to managing the compliance of your Azure resources.
-ms.date: 09/10/2020
+ms.date: 02/06/2024
 ms.topic: sample
-author: ecfan
-ms.author: estfan
-ms.service: logic-apps
+ms.service: azure-logic-apps
 ms.custom: subject-policy-compliancecontrols
 ---
 # Azure Policy Regulatory Compliance controls for Azure Logic Apps
@@ -19,9 +17,10 @@ with the specific standard.
 
 [!INCLUDE [azure-policy-compliancecontrols-introwarning](../../includes/policy/standards/intro-warning.md)]
 
-[!INCLUDE [azure-policy-compliancecontrols-logicapps](../../includes/policy/standards/byrp/microsoft.logic.md)]
+[!INCLUDE [azure-policy-compliancecontrols-logicapps](~/azure-policy-autogen-docs/includes/policy/standards/byrp/microsoft.logic.md)]
 
 ## Next steps
 
 - Learn more about [Azure Policy Regulatory Compliance](../governance/policy/concepts/regulatory-compliance.md).
+- Review the [regulatory compliance details for Azure Security Benchmark](/azure/governance/policy/samples/gov-azure-security-benchmark).
 - See the built-ins on the [Azure Policy GitHub repo](https://github.com/Azure/azure-policy).

@@ -1,13 +1,13 @@
 ---
 title: 'Quickstart: Create Apache Kafka with Azure PowerShell - HDInsight'
 description: In this quickstart, you learn how to create an Apache Kafka cluster on Azure HDInsight using Azure PowerShell. You also learn about Kafka topics, subscribers, and consumers.
-author: hrasheed-msft
-ms.author: hrasheed
-ms.reviewer: jasonh
-ms.service: hdinsight
-ms.custom: mvc
+ms.service: azure-hdinsight
+ms.custom: mvc, devx-track-azurepowershell, mode-api
 ms.topic: quickstart
-ms.date: 06/12/2019
+author: yeturis
+ms.author: sairamyeturi
+ms.reviewer: nijelsf
+ms.date: 11/25/2024
 #Customer intent: I need to create a Kafka cluster so that I can use it to process streaming data
 ---
 
@@ -17,17 +17,17 @@ ms.date: 06/12/2019
 
 In this quickstart, you learn how to create an [Apache Kafka](https://kafka.apache.org) cluster using Azure PowerShell. You also learn how to use included utilities to send and receive messages using Kafka.
 
-[!INCLUDE [delete-cluster-warning](../../../includes/hdinsight-delete-cluster-warning.md)]
+[!INCLUDE [delete-cluster-warning](../includes/hdinsight-delete-cluster-warning.md)]
 
-The Kafka API can only be accessed by resources inside the same virtual network. In this quickstart, you access the cluster directly using SSH. To connect other services, networks, or virtual machines to Kafka, you must first create a virtual network and then create the resources within the network. For more information, see the [Connect to Apache Kafka using a virtual network](apache-kafka-connect-vpn-gateway.md) document.
+Only resources within the same virtual network have access to the Kafka API. In this quickstart, you access the cluster directly using SSH. To connect other services, networks, or virtual machines to Kafka, you must first create a virtual network and then create the resources within the network. For more information, see the [Connect to Apache Kafka using a virtual network](apache-kafka-connect-vpn-gateway.md) document.
 
-If you don't have an Azure subscription, create a [free account](https://azure.microsoft.com/free/?WT.mc_id=A261C142F) before you begin.
+If you don't have an Azure subscription, create a [free account](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn) before you begin.
 
 ## Prerequisites
 
-[!INCLUDE [updated-for-az](../../../includes/updated-for-az.md)]
+[!INCLUDE [updated-for-az](~/reusable-content/ce-skilling/azure/includes/updated-for-az.md)]
 
-* The PowerShell [Az Module](https://docs.microsoft.com/powershell/azure/) installed.
+* The PowerShell [Az Module](/powershell/azure/) installed.
 
 * An SSH client. For more information, see [Connect to HDInsight (Apache Hadoop) using SSH](../hdinsight-hadoop-linux-use-ssh-unix.md).
 
@@ -97,18 +97,18 @@ New-AzStorageContainer -Name $containerName -Context $storageContext
 Create an Apache Kafka on HDInsight cluster with [New-AzHDInsightCluster](/powershell/module/az.HDInsight/New-azHDInsightCluster).
 
 ```azurepowershell-interactive
-# Create a Kafka 1.1 cluster
+# Create a Kafka 2.4.1 cluster
 $clusterName = Read-Host -Prompt "Enter the name of the Kafka cluster"
 $httpCredential = Get-Credential -Message "Enter the cluster login credentials" -UserName "admin"
 $sshCredentials = Get-Credential -Message "Enter the SSH user credentials" -UserName "sshuser"
 
 $numberOfWorkerNodes = "4"
-$clusterVersion = "3.6"
+$clusterVersion = "5.0"
 $clusterType="Kafka"
 $disksPerNode=2
 
 $kafkaConfig = New-Object "System.Collections.Generic.Dictionary``2[System.String,System.String]"
-$kafkaConfig.Add("kafka", "1.1")
+$kafkaConfig.Add("kafka", "2.4.1")
 
 New-AzHDInsightCluster `
         -ResourceGroupName $resourceGroup `
@@ -129,7 +129,7 @@ New-AzHDInsightCluster `
 
 It can take up to 20 minutes to create the HDInsight cluster.
 
-The `-DisksPerWorkerNode` parameter configures the scalability of Kafka on HDInsight. Kafka on HDInsight uses the local disk of the virtual machines in the cluster to store data. Kafka is I/O heavy, so [Azure Managed Disks](../../virtual-machines/managed-disks-overview.md) are used to provide high throughput and more storage per node.
+The `-DisksPerWorkerNode` parameter configures the scalability of Kafka on HDInsight. Kafka on HDInsight uses the local disk of the virtual machines in the cluster to store data. Kafka is I/O heavy, so [Azure Managed Disks](/azure/virtual-machines/managed-disks-overview) are used to provide high throughput and more storage per node.
 
 The type of managed disk can be either __Standard__ (HDD) or __Premium__ (SSD). The type of disk depends on the VM size used by the worker nodes (Kafka brokers). Premium disks are used automatically with DS and GS series VMs. All other VM types use standard. You can set the VM type by using the `-WorkerNodeSize` parameter. For more information on parameters, see the [New-AzHDInsightCluster](/powershell/module/az.HDInsight/New-azHDInsightCluster) documentation.
 
@@ -190,7 +190,7 @@ In this section, you get the host information from the Apache Ambari REST API on
 
     When prompted, enter the name of the Kafka cluster.
 
-3. To set an environment variable with Zookeeper host information, use the command below. The command retrieves all Zookeeper hosts, then returns only the first two entries. This is because you want some redundancy in case one host is unreachable.
+3. To set an environment variable with Zookeeper host information, use the following command. The command retrieves all Zookeeper hosts, then returns only the first two entries. This is because you want some redundancy in case one host is unreachable.
 
     ```bash
     export KAFKAZKHOSTS=`curl -sS -u admin -G https://$CLUSTERNAME.azurehdinsight.net/api/v1/clusters/$CLUSTERNAME/services/ZOOKEEPER/components/ZOOKEEPER_SERVER | jq -r '["\(.host_components[].HostRoles.host_name):2181"] | join(",")' | cut -d',' -f1,2`
@@ -206,7 +206,7 @@ In this section, you get the host information from the Apache Ambari REST API on
 
     This command returns information similar to the following text:
 
-    `zk0-kafka.eahjefxxp1netdbyklgqj5y1ud.ex.internal.cloudapp.net:2181,zk2-kafka.eahjefxxp1netdbyklgqj5y1ud.ex.internal.cloudapp.net:2181`
+    `<zookeepername1>.eahjefxxp1netdbyklgqj5y1ud.ex.internal.cloudapp.net:2181,<zookeepername2>.eahjefxxp1netdbyklgqj5y1ud.ex.internal.cloudapp.net:2181`
 
 5. To set an environment variable with Kafka broker host information, use the following command:
 
@@ -224,7 +224,7 @@ In this section, you get the host information from the Apache Ambari REST API on
 
     This command returns information similar to the following text:
    
-    `wn1-kafka.eahjefxxp1netdbyklgqj5y1ud.cx.internal.cloudapp.net:9092,wn0-kafka.eahjefxxp1netdbyklgqj5y1ud.cx.internal.cloudapp.net:9092`
+    `<brokername1>.eahjefxxp1netdbyklgqj5y1ud.cx.internal.cloudapp.net:9092,<brokername2>.eahjefxxp1netdbyklgqj5y1ud.cx.internal.cloudapp.net:9092`
 
 ## Manage Apache Kafka topics
 
@@ -246,9 +246,9 @@ Kafka stores streams of data in *topics*. You can use the `kafka-topics.sh` util
         
         In regions with three fault domains, a replication factor of 3 allows replicas to be spread across the fault domains. In regions with two fault domains, a replication factor of four spreads the replicas evenly across the domains.
         
-        For information on the number of fault domains in a region, see the [Availability of Linux virtual machines](../../virtual-machines/windows/manage-availability.md#use-managed-disks-for-vms-in-an-availability-set) document.
+        For information on the number of fault domains in a region, see the [Availability of Linux virtual machines](/azure/virtual-machines/availability) document.
 
-        Kafka is not aware of Azure fault domains. When creating partition replicas for topics, it may not distribute replicas properly for high availability.
+        Kafka is not aware of Azure fault domains. When you create partition replicas for topics, it may not distribute replicas properly for high availability.
 
         To ensure high availability, use the [Apache Kafka partition rebalance tool](https://github.com/hdinsight/hdinsight-kafka-tools). This tool must be ran from an SSH connection to the head node of your Kafka cluster.
 

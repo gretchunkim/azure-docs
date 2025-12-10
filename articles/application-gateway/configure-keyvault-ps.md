@@ -1,26 +1,28 @@
 ---
 title: Configure TLS termination with Key Vault certificates - PowerShell
 titleSuffix: Azure Application Gateway
-description: Learn how you can integrate Azure Application Gateway with Key Vault for server certificates that are attached to HTTPS-enabled listeners.
+description: Learn how to use an Azure PowerShell script to integrate your key vault with your application gateway for TLS/SSL termination certificates.
 services: application-gateway
-author: vhorne
-ms.service: application-gateway
+author: mbender-ms
+ms.service: azure-application-gateway
 ms.topic: how-to
 ms.date: 05/26/2020
-ms.author: victorh
+ms.author: mbender 
+ms.custom: devx-track-azurepowershell
+# Customer intent: "As a cloud administrator, I want to configure TLS termination using Key Vault certificates with Azure PowerShell, so that I can secure my application gateway communications effectively."
 ---
 
 # Configure TLS termination with Key Vault certificates using Azure PowerShell
 
-[Azure Key Vault](../key-vault/general/overview.md) is a platform-managed secret store that you can use to safeguard secrets, keys, and TLS/SSL certificates. Azure Application Gateway supports integration with Key Vault for server certificates that are attached to HTTPS-enabled listeners. This support is limited to the Application Gateway v2 SKU.
+[Azure Key Vault](/azure/key-vault/general/overview) is a platform-managed secret store that you can use to safeguard secrets, keys, and TLS/SSL certificates. Azure Application Gateway supports integration with Key Vault for server certificates that are attached to HTTPS-enabled listeners. This support is limited to the Application Gateway v2 SKU.
 
 For more information, see [TLS termination with Key Vault certificates](key-vault-certs.md).
 
 This article shows you how to use an Azure PowerShell script to integrate your key vault with your application gateway for TLS/SSL termination certificates.
 
-This article requires Azure PowerShell module version 1.0.0 or later. To find the version, run `Get-Module -ListAvailable Az`. If you need to upgrade, see [Install Azure PowerShell module](/powershell/azure/install-az-ps). To run the commands in this article, you also need to create a connection with Azure by running `Connect-AzAccount`.
+This article requires Azure PowerShell module version 1.0.0 or later. To find the version, run `Get-Module -ListAvailable Az`. If you need to upgrade, see [Install Azure PowerShell module](/powershell/azure/install-azure-powershell). To run the commands in this article, you also need to create a connection with Azure by running `Connect-AzAccount`.
 
-If you don't have an Azure subscription, create a [free account](https://azure.microsoft.com/free/?WT.mc_id=A261C142F) before you begin.
+If you don't have an Azure subscription, create a [free account](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn) before you begin.
 
 ## Prerequisites
 
@@ -56,7 +58,7 @@ $identity = New-AzUserAssignedIdentity -Name "appgwKeyVaultIdentity" `
 ### Create a key vault, policy, and certificate to be used by the application gateway
 
 ```azurepowershell
-$keyVault = New-AzKeyVault -Name $kv -ResourceGroupName $rgname -Location $location -EnableSoftDelete 
+$keyVault = New-AzKeyVault -Name $kv -ResourceGroupName $rgname -Location $location
 Set-AzKeyVaultAccessPolicy -VaultName $kv -PermissionsToSecrets get -ObjectId $identity.PrincipalId
 
 $policy = New-AzKeyVaultCertificatePolicy -ValidityInMonths 12 `
@@ -67,8 +69,6 @@ $certificate = Add-AzKeyVaultCertificate -VaultName $kv -Name "cert1" -Certifica
 $certificate = Get-AzKeyVaultCertificate -VaultName $kv -Name "cert1"
 $secretId = $certificate.SecretId.Replace($certificate.Version, "")
 ```
-> [!NOTE]
-> The -EnableSoftDelete flag must be used for TLS termination to function properly. If you're configuring [Key Vault soft-delete through the Portal](../key-vault/general/soft-delete-overview.md#soft-delete-behavior), the retention period must be kept at 90 days, the default value. Application Gateway doesn't support a different retention period yet. 
 
 ### Create a virtual network
 
@@ -86,7 +86,7 @@ $publicip = New-AzPublicIpAddress -ResourceGroupName $rgname -name "AppGwIP" `
   -location $location -AllocationMethod Static -Sku Standard
 ```
 
-### Create pool and front-end ports
+### Create pool and frontend ports
 
 ```azurepowershell
 $gwSubnet = Get-AzVirtualNetworkSubnetConfig -Name "appgwSubnet" -VirtualNetwork $vnet

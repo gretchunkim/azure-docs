@@ -1,12 +1,12 @@
 ---
 title: 'Azure HDInsight: Python samples'
 description: Find Python examples on GitHub for common tasks using the HDInsight SDK for Python.
-author: hrasheed-msft
-ms.author: hrasheed
-ms.reviewer: jasonh
-ms.service: hdinsight
+ms.service: azure-hdinsight
 ms.topic: sample
-ms.date: 11/08/2019
+ms.date: 06/13/2024
+author: apurbasroy
+ms.author: apsinhar
+ms.reviewer: hgowrisankar
 ms.custom: devx-track-python
 ---
 
@@ -26,11 +26,11 @@ This article provides:
 * Links to samples for cluster creation tasks.
 * Links to reference content for other management tasks.
 
-[!INCLUDE [quickstarts-free-trial-note](../../includes/quickstarts-free-trial-note.md)]
+[!INCLUDE [quickstarts-free-trial-note](~/reusable-content/ce-skilling/azure/includes/quickstarts-free-trial-note.md)]
 
 ## Prerequisites
 
-[Azure HDInsight SDK for Python](https://docs.microsoft.com/python/api/overview/azure/hdinsight#sdk-installation)
+[Azure HDInsight SDK for Python](/python/api/overview/azure/hdinsight#sdk-installation)
 
 ## Cluster management - creation
 
@@ -41,6 +41,6 @@ This article provides:
 
 You can get these samples for Python by cloning the [hdinsight-python-sdk-samples](https://github.com/Azure-Samples/hdinsight-python-sdk-samples) GitHub repository.
 
-[!INCLUDE [hdinsight-sdk-additional-functionality](../../includes/hdinsight-sdk-additional-functionality.md)]
+[!INCLUDE [hdinsight-sdk-additional-functionality](includes/hdinsight-sdk-additional-functionality.md)]
 
-Code snippets for this additional SDK functionality can be found in the [HDInsight SDK for Python reference documentation](https://docs.microsoft.com/python/api/overview/azure/hdinsight?view=azure-python).
+Code snippets for this additional SDK functionality can be found in the [HDInsight SDK for Python reference documentation](/python/api/overview/azure/hdinsight).

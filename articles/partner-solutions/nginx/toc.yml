@@ -1,0 +1,24 @@
+items:
+- name: NGINXaaS – An Azure Native ISV Service Documentation
+  href: index.yml
+- name: Overview
+  items:
+  - name: What is NGINXaaS – An Azure Native ISV Service?
+    href: overview.md
+- name: Quickstarts
+  expanded: true
+  items:
+  - name: Create an NGINXaaS deployment
+    href: create.md
+- name: How to
+  items:
+  - name: Manage your NGINXaaS resource
+    href: manage.md
+- name: Troubleshoot
+  items:
+  - name: Get support
+    href: https://my.f5.com/manage/s/
+  - name: Troubleshoot
+    href: /troubleshoot/azure/partner-solutions/marketplace-purchases-errors
+  
+

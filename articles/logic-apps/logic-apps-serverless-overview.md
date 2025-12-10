@@ -1,43 +1,67 @@
 ---
-title: Overview - Azure Serverless for cloud-based apps and solutions
-description: Learn how to create cloud-based apps and solutions without worrying about infrastructure by using Azure Logic Apps and Azure Functions
+title: Azure serverless
+description: Learn how Azure serverless solutions help you focus more on building cloud-based apps and less on managing infrastructure by using Azure Logic Apps and Azure Functions.
 services: logic-apps
 ms.suite: integration
-author: jeffhollan
-ms.author: jehollan
-ms.reviewer: klam, estfan, logicappspm
-ms.topic: article
-ms.date: 03/30/2017
+ms.reviewer: estfan, azla
+ms.topic: concept-article
+ms.date: 07/22/2025
 ---
 
-# Azure Serverless: Overview for building cloud-based apps and solutions with Azure Logic Apps and Azure Functions
+# Azure serverless overview: Create cloud-based apps and solutions with Azure Logic Apps and Azure Functions
 
-[Serverless](https://azure.microsoft.com/solutions/serverless/) apps offer benefits such as increased development speed, reduced code, simplicity, and scale. This article covers the different attributes of serverless solutions and Azure serverless offerings.
+Azure serverless solutions help you focus more on building cloud-based apps and less on managing your infrastructure. Traditional app development often requires that you invest much time and energy on discussions about hosting, scaling, and monitoring solutions to address your apps' requirements and needs.
 
-## What is serverless?
+However, with serverless apps and solutions, you can more easily handle these concerns as part of the app or solution. Serverless offers other benefits such as faster development, less code, simplicity, and scaling flexibility. All these capabilities free you to focus more on your apps' business logic. Serverless is also typically billed or charged based on usage. So, if no consumption happens, you don't incur any charges.
 
-Serverless doesn't mean there are no servers, but rather developers don't have to worry about servers. A large part of traditional application development is answering questions around scaling, hosting, and monitoring solutions to meet the demands of the application. With serverless, these questions are taken care of as part of the solution. In addition, serverless apps are billed on a consumption-based plan. If the app is never used, no charge is incurred. These features help developers focus solely on a solution's business logic.
+This article briefly summarizes the key core serverless offerings in Azure, which are Azure Logic Apps and Azure Functions. Both services align with the previously described principles and help you build robust cloud apps and solutions with minimal code.
 
-The core Azure services for serverless are [Azure Logic Apps](https://azure.microsoft.com/services/logic-apps/) and [Azure Functions](https://azure.microsoft.com/services/functions/). Both solutions follow the previously described principles and help developers to build robust cloud apps with minimal code.
+For more information about serverless in Azure, see the following resources:
 
-## What is Azure Logic Apps?
+- [Serverless on Azure](https://azure.microsoft.com/solutions/serverless/)
+- [Serverless Computing](https://azure.microsoft.com/resources/cloud-computing-dictionary/what-is-serverless-computing)
+- [Azure for developers overview](/azure/developer/intro/azure-developer-overview)
+- [Microsoft Cloud Adoption Framework for Azure](/azure/cloud-adoption-framework/overview)
+- [Azure application architecture fundamentals](/azure/architecture/guide/)
 
-[Azure Logic Apps](logic-apps-overview.md) provides a way to simplify and implement scalable integrations and workflows in the cloud. This service provides a visual designer to model and automate your process as a series of steps called a workflow. There are many [connectors](../connectors/apis-list.md) across cloud services and on-premises systems that quickly connect a serverless app to other APIs. Every logic app begins with a trigger, such as "When an account is added to Dynamics CRM". After the trigger fires, the workflow can run combinations of actions, conversions, and conditional logic. Logic Apps is a great choice when orchestrating different Azure Functions in a process, especially when the process requires interacting with an external system or API.
+## Azure Logic Apps
 
-To get started with Logic Apps, start with [creating your first logic app](quickstart-create-first-logic-app-workflow.md). For more technical information about Logic Apps, see the [developer reference](logic-apps-workflow-definition-language.md).
+This service provides simplified ways for you to design, develop, and orchestrate automated event-driven integration *workflows* that run and scale in the cloud. In Azure Logic Apps, you can use a visual designer to quickly model business processes as workflows. Each workflow always starts with a trigger as the first step. Following the trigger, one or more actions run subsequent operations in the workflow. These operations can include various combinations of actions, including conditional logic and data conversions.
 
-## What is Azure Functions?
+To connect your workflows to other Azure services, Microsoft services, cloud-based environments, and on-premises environments without writing any code, you can add prebuilt triggers and actions to your workflows by choosing from the [1,400+ connectors](/connectors/connector-reference/connector-reference-logicapps-connectors/) that are hosted, managed, and run in global, multitenant Azure. Each of these connectors is actually a proxy or wrapper around an API, which lets the underlying service communicate with Azure Logic Apps. For example, the Office 365 Outlook connector offers a trigger named **When a new email arrives**.
 
-Azure Functions is a service for easily running pieces of code or "functions" in the cloud. You can write only the code necessary for the current problem, without worrying about an entire app or the infrastructure required. Functions can make development even more productive, and you can use your development language of choice, such as C#, F#, Node.js, Python, or PHP. You pay only for the time your code runs and Azure scales as necessary.
+You can also build workflows that orchestrate functions created with Azure Functions. Through this service, you can easily call functions as easily as other actions in your workflow and as a single process, especially when the process requires working with an external API or system.
 
-To get started with Azure Functions, start with [Create your first Azure Function](../azure-functions/functions-create-first-azure-function.md). For more technical information about Functions, see the [developer reference](../azure-functions/functions-reference.md).
+If no prebuilt operations exist to meet your workflow's needs, you can use the built-in **HTTP** operations or the **Request** trigger to communicate with any service endpoint. Or, you can create your own connector around an existing API.
 
-## How can I build and deploy serverless apps in Azure?
+Based on the logic app resource type that you choose, your workflow runs in either multitenant Azure Logic Apps or in single-tenant Azure Logic Apps, which offers specialized hosting options such as agent workflow, App Service Environment, or hybrid deployment. Each logic app resource type offers their own capabilities, benefits, and billing models.
 
-Azure provides rich tools for developing, deploying, and managing serverless apps. You can build apps directly in the Azure portal, with [tools in Visual Studio](logic-apps-serverless-get-started-vs.md), or [Visual Studio Code](quickstart-create-logic-apps-visual-studio-code.md). After you build your app, you can [deploy that app quickly with Azure Resource Manager templates](logic-apps-deploy-azure-resource-manager-templates.md). Azure also provides monitoring, which you can access through the Azure portal, through the API or SDKs, or with integrated tooling for Azure Monitor logs and Application Insights.
+To get up and running quickly, create your logic app resource and workflow by starting with the Azure portal as your entry point and following the [quickstart to create an example Consumption logic app workflow in multitenant Azure Logic Apps](quickstart-create-example-consumption-workflow.md). For local development or other scenarios, you can use Visual Studio Code, Azure PowerShell, Azure CLI, and other tools.
 
-## Next steps
+For more information, see the following resources:
 
-* [Build a serverless app in Visual Studio](logic-apps-serverless-get-started-vs.md)
-* [Create a customer insights dashboard with serverless](logic-apps-scenario-social-serverless.md)
-* [Automate logic app deployment](logic-apps-azure-resource-manager-templates-overview.md)
+- [What is Azure Logic Apps?](logic-apps-overview.md)
+- [Azure Logic Apps](https://azure.microsoft.com/services/logic-apps/)
+- [Single-tenant versus multitenant in Azure Logic Apps](single-tenant-overview-compare.md)
+- [Training: Introduction to Azure Logic Apps](/training/modules/intro-to-logic-apps/)
+- [Training: Route and process data as automated workflows using Azure Logic Apps](/training/modules/route-and-process-data-logic-apps/)
+
+## Azure Functions
+
+This service provides a simplified way for you to write and run pieces of code or *functions* in the cloud. You can write only the code that you need for the current problem, without setting up a complete app or the required infrastructure, making development faster and more productive. You can use your preferred development language, such as C#, Java, JavaScript, PowerShell, Python, and TypeScript. You're billed only for the duration when your code runs, and Azure scales as necessary.
+
+To get up and running quickly, create your function app and functions by starting with the Azure portal as your entry point and follow the [creating your first Azure function in the Azure portal](../azure-functions/functions-create-function-app-portal.md).
+
+For more information, see the following resources:
+
+- [What is Azure Functions?](../azure-functions/functions-overview.md)
+- [Azure Functions](https://azure.microsoft.com/services/functions/)
+- [Getting started with Azure Functions](../azure-functions/functions-get-started.md)
+- [Compare Azure Functions and Azure Logic Apps](../azure-functions/functions-compare-logic-apps-ms-flow-webjobs.md#compare-azure-functions-and-azure-logic-apps)
+- [Training: Introduction to Azure Functions](/training/modules/intro-azure-functions/)
+- [Training: Create serverless logic with Azure Functions](/training/modules/create-serverless-logic-with-azure-functions/)
+
+## Related content
+
+- [Tutorial: Create workflows that process emails using Azure Logic Apps, Azure Functions, and Azure Storage](tutorial-process-email-attachments-workflow.md)
+- [Choose the right integration and automation services in Azure](../azure-functions/functions-compare-logic-apps-ms-flow-webjobs.md)

@@ -1,13 +1,10 @@
 ---
 title: Create virtual networks for Azure HDInsight clusters
 description: Learn how to create an Azure Virtual Network to connect HDInsight to other cloud resources, or resources in your datacenter.
-author: hrasheed-msft
-ms.author: hrasheed
-ms.reviewer: jasonh
-ms.service: hdinsight
+ms.service: azure-hdinsight
 ms.topic: how-to
-ms.custom: hdinsightactive
-ms.date: 04/16/2020
+ms.custom: hdinsightactive, devx-track-azurecli, devx-track-azurepowershell
+ms.date: 09/06/2024
 ---
 
 # Create virtual networks for Azure HDInsight clusters
@@ -22,21 +19,21 @@ Before executing any of the code samples in this article, have an understanding 
 
 Other prerequisites for the samples in this article include the following items:
 
-* If you're using PowerShell, you'll need to install the [AZ Module](https://docs.microsoft.com/powershell/azure/).
-* If you want to use Azure CLI and haven't yet installed it, see [Install the Azure CLI](https://docs.microsoft.com/cli/azure/install-azure-cli).
+* If you're using PowerShell, you need to install the [AZ Module](/powershell/azure/).
+* If you want to use Azure CLI and haven't yet installed it, see [Install the Azure CLI](/cli/azure/install-azure-cli).
 
 > [!IMPORTANT]  
-> If you are looking for step by step guidance on connecting HDInsight to your on-premises network using an Azure Virtual Network, see the [Connect HDInsight to your on-premises network](connect-on-premises-network.md) document.
+> If you are looking for step by step guidance on connecting HDInsight to your on-premises network using an Azure Virtual Network, see [How to connect HDInsight to your on-premises network](connect-on-premises-network.md).
 
 ## <a id="hdinsight-nsg"></a>Example: network security groups with HDInsight
 
 The examples in this section demonstrate how to create network security group rules. The rules allow HDInsight to communicate with the Azure management services. Before using the examples, adjust the IP addresses to match the ones for the Azure region you're using. You can find this information in [HDInsight management IP addresses](hdinsight-management-ip-addresses.md).
 
-### Azure Resource Management template
+### Azure Resource Manager template
 
-The following Resource Management template creates a virtual network that restricts inbound traffic, but allows traffic from the IP addresses required by HDInsight. This template also creates an HDInsight cluster in the virtual network.
+The following Resource Manager template creates a virtual network that restricts inbound traffic, but allows traffic from the IP addresses required by HDInsight. This template also creates an HDInsight cluster in the virtual network.
 
-* [Deploy a secured Azure Virtual Network and an HDInsight Hadoop cluster](https://azure.microsoft.com/resources/templates/101-hdinsight-secure-vnet/)
+* [Deploy a secured Azure Virtual Network and an HDInsight Hadoop cluster](https://azure.microsoft.com/resources/templates/hdinsight-secure-vnet/)
 
 ### Azure PowerShell
 
@@ -199,7 +196,7 @@ Use the following steps to create a virtual network that restricts inbound traff
 
     Once this command completes, you can install HDInsight into the Virtual Network.
 
-These steps only open access to the HDInsight health and management service on the Azure cloud. Any other access to the HDInsight cluster from outside the Virtual Network is blocked. To enable access from outside the virtual network, you must add additional Network Security Group rules.
+These steps only open access to the HDInsight health and management service on the Azure cloud. Any other access to the HDInsight cluster from outside the Virtual Network is blocked. To enable access from outside the virtual network, you must add more Network Security Group rules.
 
 The following code demonstrates how to enable SSH access from the Internet:
 
@@ -365,6 +362,10 @@ This example makes the following assumptions:
 
 After completing these steps, you can connect to resources in the virtual network using fully qualified domain names (FQDN). You can now install HDInsight into the virtual network.
 
+## Test your settings before deploying an HDInsight cluster
+
+Before deploying your cluster, you can check that many of your network configuration settings are correct by running the [HDInsight Network Validator tool](https://aka.ms/hnv/v2) on an Azure Linux virtual machine in the same virtual network and subnet as the planned cluster.
+
 ## Next steps
 
 * For a complete example of configuring HDInsight to connect to an on-premises network, see [Connect HDInsight to an on-premises network](./connect-on-premises-network.md).
@@ -372,6 +373,6 @@ After completing these steps, you can connect to resources in the virtual networ
 * For configuring Apache HBase geo-replication, see [Set up Apache HBase cluster replication in Azure virtual networks](hbase/apache-hbase-replication.md).
 * For more information on Azure virtual networks, see the [Azure Virtual Network overview](../virtual-network/virtual-networks-overview.md).
 
-* For more information on network security groups, see [Network security groups](../virtual-network/security-overview.md).
+* For more information on network security groups, see [Network security groups](../virtual-network/network-security-groups-overview.md).
 
 * For more information on user-defined routes, see [User-defined routes and IP forwarding](../virtual-network/virtual-networks-udr-overview.md).

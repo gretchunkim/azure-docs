@@ -1,13 +1,14 @@
 ---
 title: Connect to Azure VMs on-premises failover with Azure Site Recovery
 description: Describes how to connect to Azure VMs after failover from on-premises to Azure using Azure Site Recovery
-author: Harsha-CS
-manager: rochakm
-ms.service: site-recovery
-ms.topic: conceptual
-ms.date: 10/13/2019
-ms.author: harshacs
+author: Jeronika-MS
+ms.service: azure-site-recovery
+ms.topic: concept-article
+ms.date: 07/26/2022
+ms.author: v-gajeronika
+ms.custom: sfi-image-nochange
 
+# Customer intent: As a disaster recovery planner, I want to ensure seamless connectivity to Azure VMs after failover from on-premises, so that I can maintain application availability and network integrity during unexpected outages.
 ---
 # Connect to Azure VMs after failover from on-premises 
 
@@ -32,15 +33,15 @@ To ensure connectivity to Azure VMs, prepare your on-premises machines before fa
 
 On on-premises Windows machines, do the following:
 
-1. Configure Windows settings. These include removing any static persistent routes or WinHTTP proxy, and setting the disk SAN policy to **OnlineAll**. [Follow](../virtual-machines/windows/prepare-for-upload-vhd-image.md#set-windows-configurations-for-azure) these instructions.
+1. Configure Windows settings. These include removing any static persistent routes or WinHTTP proxy, and setting the disk SAN policy to **OnlineAll**. [Follow](/azure/virtual-machines/windows/prepare-for-upload-vhd-image#set-windows-configurations-for-azure) these instructions.
 
-2. Make sure [these services](../virtual-machines/windows/prepare-for-upload-vhd-image.md#check-the-windows-services) are running.
+2. Make sure [these services](/azure/virtual-machines/windows/prepare-for-upload-vhd-image#check-the-windows-services) are running.
 
-3. Enable remote desktop (RDP) to allow remote connections to the on-premises machine. [Learn how](../virtual-machines/windows/prepare-for-upload-vhd-image.md#update-remote-desktop-registry-settings) to enable RDP with PowerShell.
+3. Enable remote desktop (RDP) to allow remote connections to the on-premises machine. [Learn how](/azure/virtual-machines/windows/prepare-for-upload-vhd-image#update-remote-desktop-registry-settings) to enable RDP with PowerShell.
 
 4. To access an Azure VM over the internet after failover, in Windows Firewall on the on-premises machine, allow TCP and UDP in the Public profile, and set RDP as an allowed app for all profiles.
 
-5. If you want to access an Azure VM over a site-to-site VPN after failover, in Windows Firewall on the on-premises machine, allow RDP for the Domain and Private profiles. [Learn](../virtual-machines/windows/prepare-for-upload-vhd-image.md#configure-windows-firewall-rules) how to allow RDP traffic.
+5. If you want to access an Azure VM over a site-to-site VPN after failover, in Windows Firewall on the on-premises machine, allow RDP for the Domain and Private profiles. [Learn](/azure/virtual-machines/windows/prepare-for-upload-vhd-image#configure-windows-firewall-rules) how to allow RDP traffic.
 6. Make sure that there are no Windows updates pending on the on-premises VM when you trigger a failover. If there are, updates might start installing on the Azure VM after failover, and you won't be able to sign into the VM until updates finish.
 
 ### Prepare Linux machines
@@ -55,9 +56,9 @@ On on-premises Linux machines, do the following:
 
 After failover, do the following on the Azure VMs that are created.
 
-1. To connect to the VM over the internet, assign a public IP address to the VM. You can't use the same public IP address for the Azure VM that you used for your on-premises machine. [Learn more](../virtual-network/virtual-network-public-ip-address.md)
+1. To connect to the VM over the internet, assign a public IP address to the VM. You can't use the same public IP address for the Azure VM that you used for your on-premises machine. [Learn more](../virtual-network/ip-services/virtual-network-public-ip-address.md)
 2. Check that network security group (NSG) rules on the VM allow incoming connections to the RDP or SSH port.
-3. Check [Boot diagnostics](../virtual-machines/troubleshooting/boot-diagnostics.md#enable-boot-diagnostics-on-existing-virtual-machine) to view the VM.
+3. Check [Boot diagnostics](/troubleshoot/azure/virtual-machines/boot-diagnostics#enable-boot-diagnostics-on-existing-virtual-machine) to view the VM.
 
 
 > [!NOTE]
@@ -150,15 +151,16 @@ In this scenario, the Azure VM gets a new IP address after failover. To setup a 
 2. Select the desired Azure virtual machine.
 3. Select **Compute and Network** and select **Edit**.
 
-     ![Customize the failover networking configurations](media/azure-to-azure-customize-networking/edit-networking-properties.png)
+     :::image type="network configurations" source="media/azure-to-azure-customize-networking/edit-networking-properties.png" alt-text="Customize the failover networking configurations.":::
 
 4. To update Failover network settings, Select **Edit** for the NIC you want to configure. In the next page that opens, provide the corresponding pre-created IP Address in the test failover and failover location.
 
-    ![Edit the NIC configuration](media/azure-to-azure-customize-networking/nic-drilldown.png)
+    :::image type="NIC configuration" source="media/azure-to-azure-customize-networking/nic-drilldown.png" alt-text="Edit the NIC configuration.":::
 
 5. Select **OK**.
 
 Site Recovery will now honor these settings and ensure that the virtual machine on failover is connected to the selected resource via the corresponding IP Address, if it is available in the target IP range. In this scenario, there's no need to failover the entire subnet. A DNS update will be required to update records for failed over machine to point to the new IP address of the virtual machine.
 
 ## Next steps
+
 [Learn about](site-recovery-active-directory.md) replicating on-premises Active Directory and DNS to Azure.

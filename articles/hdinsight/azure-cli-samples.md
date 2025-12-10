@@ -1,13 +1,13 @@
 ---
 title: 'Azure HDInsight: Azure CLI samples'
 description: Azure CLI examples for common tasks in Azure HDInsight.
-author: hrasheed-msft
-ms.author: hrasheed
-ms.reviewer: jasonh
-ms.service: hdinsight
+ms.service: azure-hdinsight
 ms.topic: sample
-ms.date: 09/23/2019 
+ms.date: 09/06/2024
 ms.custom: devx-track-azurecli
+author: apurbasroy
+ms.author: apsinhar
+ms.reviewer: hgowrisankar
 ---
 
 # Azure HDInsight: Azure CLI samples
@@ -21,13 +21,13 @@ This article provides sample scripts for common tasks. For each example, update 
 
 ## Prerequisites
 
-* Azure CLI. See [Install the Azure CLI](https://docs.microsoft.com/cli/azure/install-azure-cli) for steps.
+* Azure CLI. See [Install the Azure CLI](/cli/azure/install-azure-cli) for steps.
 
-* Optional: Bash. The examples in this article use the Bash shell on Windows 10. See [Windows Subsystem for Linux Installation Guide for Windows 10](https://docs.microsoft.com/windows/wsl/install-win10) for installation steps.  The examples will work from a Windows Command prompt with some slight modifications.
+* Optional: Bash. The examples in this article use the Bash shell on Windows 10. See [Windows Subsystem for Linux Installation Guide for Windows 10](/windows/wsl/install-win10) for installation steps.  The examples work from a Windows Command prompt with some slight modifications.
 
-## az login
+## `az login`
 
-[Log in to Azure](https://docs.microsoft.com/cli/azure/reference-index?view=azure-cli-latest#az-login).
+[Sign in to Azure](/cli/azure/reference-index#az-login).
 
 ```azurecli
 az login
@@ -36,9 +36,9 @@ az login
 # az account set --subscription "SUBSCRIPTIONID"
 ```
 
-## az hdinsight create
+## `az hdinsight create`
 
-[Creates a new cluster](https://docs.microsoft.com/cli/azure/hdinsight?view=azure-cli-latest#az-hdinsight-create).
+[Creates a new cluster](/cli/azure/hdinsight#az-hdinsight-create).
 
 ### Create a cluster with an existing storage account
 
@@ -66,9 +66,9 @@ export resourceGroupName=RESOURCEGROUPNAME
 export clusterType=spark
 export httpCredential='PASSWORD'
 export AZURE_STORAGE_ACCOUNT=STORAGEACCOUNTNAME
-export subnet="/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/MyRG/providers/Microsoft.Network/virtualNetworks/MyVnet/subnets/subnet1"
-export domain="/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/MyRG/providers/Microsoft.AAD/domainServices/MyDomain.onmicrosoft.com"
-export userAssignedIdentity="/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/MyMsiRG/providers/Microsoft.ManagedIdentity/userAssignedIdentities/MyMSI"
+export subnet="/subscriptions/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e/resourceGroups/MyRG/providers/Microsoft.Network/virtualNetworks/MyVnet/subnets/subnet1"
+export domain="/subscriptions/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e/resourceGroups/MyRG/providers/Microsoft.AAD/domainServices/MyDomain.onmicrosoft.com"
+export userAssignedIdentity="/subscriptions/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e/resourcegroups/MyMsiRG/providers/Microsoft.ManagedIdentity/userAssignedIdentities/MyMSI"
 export domainAccount=MyAdminAccount@MyDomain.onmicrosoft.com
 export groupDNS=MyGroup
 
@@ -97,7 +97,7 @@ export AZURE_STORAGE_ACCOUNT=STORAGEACCOUNTNAME
 export encryptionKeyName=kafkaClusterKey
 export encryptionKeyVersion=00000000000000000000000000000000
 export encryptionVaultUri=https://MyKeyVault.vault.azure.net
-export userAssignedIdentity="/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/MyMsiRG/providers/Microsoft.ManagedIdentity/userAssignedIdentities/MyMSI"
+export userAssignedIdentity="/subscriptions/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e/resourcegroups/MyMsiRG/providers/Microsoft.ManagedIdentity/userAssignedIdentities/MyMSI"
 
 az hdinsight create \
     --name $clusterName \
@@ -169,9 +169,9 @@ az hdinsight create \
     --cluster-configuration $clusterConfiguration
 ```
 
-## az hdinsight application create
+## `az hdinsight application create`
 
-[Create an application for a HDInsight cluster](https://docs.microsoft.com/cli/azure/hdinsight/application?view=azure-cli-latest#az-hdinsight-application-create).
+[Create an application for a HDInsight cluster](/cli/azure/hdinsight/application#az-hdinsight-application-create).
 
 ### Create an application with a script URI
 
@@ -236,9 +236,9 @@ az hdinsight application create \
     --sub-domain-suffix $subDomainSuffix
 ```
 
-## az hdinsight script-action execute
+## `az hdinsight script-action execute`
 
-[Execute script actions on the specified HDInsight cluster](https://docs.microsoft.com/cli/azure/hdinsight/script-action?view=azure-cli-latest#az-hdinsight-script-action-execute).
+[Execute script actions on the specified HDInsight cluster](/cli/azure/hdinsight/script-action#az-hdinsight-script-action-execute).
 
 ### Execute a script action and persist on success
 

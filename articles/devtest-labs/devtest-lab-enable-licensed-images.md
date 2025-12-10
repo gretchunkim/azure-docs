@@ -1,8 +1,13 @@
 ---
-title: Enable a licensed image in your lab in Azure DevTest Labs | Microsoft Docs
+title: Enable a licensed image in your lab
 description: Learn how to enable a licensed image in Azure DevTest Labs using the Azure portal
-ms.topic: article
+ms.topic: how-to
+ms.author: rosemalcolm
+author: RoseHJM
 ms.date: 06/26/2020
+ms.custom:
+  - UpdateFrequency2
+  - sfi-image-nochange
 ---
 
 # Enable a licensed image in your lab in Azure DevTest Labs
@@ -34,7 +39,7 @@ The first step to allowing users to create VMs from a licensed image is to make 
 	- **Terms review needed:** the licensed image is not currently available to users. The terms and conditions of the license must be accepted before lab users can use it to create VMs. 
 
 ## Making a licensed image available to lab users
-To make sure a licensed image is available to lab users, a lab owner with admin permissions must first accept the terms and conditions for that licensed image. Enabling programmatic deployment for the subscription associated with a licensed image automatically accepts the legal terms and privacy statements for that image. [Working with Marketplace Images on Azure Resource Manager](https://azure.microsoft.com/blog/working-with-marketplace-images-on-azure-resource-manager/) provides additional information about programmatic deployment of marketplace images.
+To make sure a licensed image is available to lab users, a lab owner with admin permissions must first accept the terms and conditions for that licensed image. Enabling programmatic deployment for the subscription associated with a licensed image automatically accepts the legal terms and privacy statements for that image. 
 
 You can enable programmatic deployment for a licensed image by following these steps:
 
@@ -42,10 +47,10 @@ You can enable programmatic deployment for a licensed image by following these s
 
 1. Identify a licensed image for which you want users to have access but whose terms have not been accepted. For example, you might see a Data Science Virtual Machine that shows a status of either **Terms accepted** or **Terms review needed**.
 
-   	![Configure Programmatic Deployment window](./media/devtest-lab-create-custom-image-from-licensed-image/devtest-lab-licensed-images.png)
+   	![Screenshot that shows Data Science Virtual Machine images with offer status' of "Terms accepted" and "Terms review needed"](./media/devtest-lab-create-custom-image-from-licensed-image/devtest-lab-licensed-images.png)
 
    > [!NOTE]
-   > Data Science VMs are Azure Virtual Machine images, pre-installed, configured, and tested with several popular tools that are commonly used for data analytics, machine learning and AI training. [Introduction to Azure Data Science Virtual Machine for Linux and Windows](../machine-learning/data-science-virtual-machine/overview.md) provides a great deal of information about DSVMs.
+   > Data Science VMs are Azure Virtual Machine images, pre-installed, configured, and tested with several popular tools that are commonly used for data analytics, machine learning and AI training. [Introduction to Azure Data Science Virtual Machine for Linux and Windows](/azure/machine-learning/data-science-virtual-machine/overview) provides a great deal of information about DSVMs.
    >
    >
 
@@ -67,14 +72,7 @@ You can enable programmatic deployment for a licensed image by following these s
 
 > [!NOTE]
 > Users can create a custom image from a licensed image. See [Create a custom image from a VHD file](devtest-lab-create-template.md) for more information.
->
->
 
-
-## Related blog posts
-
-- [Custom images or formulas?](./devtest-lab-faq.md#blog-post)
-- [Copying Custom Images between Azure DevTest Labs](https://www.visualstudiogeeks.com/blog/DevOps/How-To-Move-CustomImages-VHD-Between-AzureDevTestLabs#copying-custom-images-between-azure-devtest-labs)
 
 ## Next steps
 

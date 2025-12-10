@@ -3,14 +3,14 @@
  description: include file
  services: virtual-network
  author: asudbring
- ms.service: virtual-network
+ ms.service: azure-virtual-network
  ms.topic: include
  ms.date: 03/01/2020
  ms.author: allensu
  ms.custom: include file
 ---
 
-## Create the virtual network
+## Create the virtual network and subnet
 
 In this section, you'll create a virtual network and subnet.
 

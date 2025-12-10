@@ -1,23 +1,27 @@
 ---
-title: 'Azure VPN Gateway: About P2S VPN client profiles'
-description: This helps you work with the client profile file
-services: vpn-gateway
+title: 'P2S VPN client profile configuration files - Microsoft Entra authentication'
+titleSuffix: Azure VPN Gateway
+description: Learn how to generate P2S VPN client profile configuration files for Microsoft Entra ID authentication.
 author: cherylmc
-
-ms.service: vpn-gateway
-ms.topic: article
-ms.date: 09/03/2020
+ms.service: azure-vpn-gateway
+ms.custom: devx-track-azurepowershell
+ms.topic: how-to
+ms.date: 03/31/2025
 ms.author: cherylmc
-
+# Customer intent: "As a network administrator, I want to generate VPN client profile configuration files for Microsoft Entra ID authentication, so that I can properly configure VPN clients for secure point-to-site connections."
 ---
-# About P2S VPN client profiles
+# Generate VPN Client profile configuration files - Microsoft Entra ID authentication
 
-The downloaded profile file contains information that is necessary to configure a VPN connection. This article will help you obtain and understand the information necessary for a VPN client profile.
+This article helps you generate and extract VPN client profile configuration files. Client profile configuration files contain information that's used to configure your VPN client. The sections in this article explain the information needed to configure the Azure VPN Client profile for Azure VPN Gateway point-to-site configurations that use Microsoft Entra ID authentication.
 
-[!INCLUDE [client profiles](../../includes/vpn-gateway-vwan-vpn-profile-download.md)]
-
-* The **OpenVPN folder** contains the *ovpn* profile that needs to be modified to include the key and the certificate. For more information, see [Configure OpenVPN clients for Azure VPN Gateway](vpn-gateway-howto-openvpn-clients.md#windows). If Azure AD authentication is selected on the VPN gateway, this folder is not present in the zip file. Instead, navigate to the AzureVPN folder and locate azurevpnconfig.xml.
+[!INCLUDE [Generate VPN client profile files](../../includes/vpn-gateway-p2s-vpn-client-profile-generate-entra.md)]
 
 ## Next steps
+
+Configure VPN clients.
+
+* [Linux ](point-to-site-entra-vpn-client-linux.md)
+* [Windows](point-to-site-entra-vpn-client-windows.md)
+* [macOS](point-to-site-entra-vpn-client-mac.md)
 
 For more information about point-to-site, see [About point-to-site](point-to-site-about.md).

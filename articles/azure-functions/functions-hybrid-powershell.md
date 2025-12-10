@@ -6,6 +6,7 @@ author: eamono
 ms.topic: conceptual
 ms.date: 04/26/2020
 ms.author: eamono
+ms.custom: sfi-image-nochange
 # Customer intent: As solution architect, I want to be able to connect my function app in Azure to on-premises resources so I can remotely manage those resources by using PowerShell functions.
 ---
 
@@ -20,7 +21,7 @@ The following script enables PowerShell remoting, and it creates a new firewall 
 
 ```powershell
 # For configuration of WinRM, see
-# https://docs.microsoft.com/windows/win32/winrm/installation-and-configuration-for-windows-remote-management.
+# https://learn.microsoft.com/windows/win32/winrm/installation-and-configuration-for-windows-remote-management.
 
 # Enable PowerShell remoting.
 Enable-PSRemoting -Force
@@ -69,7 +70,7 @@ The App Service Hybrid Connections feature is available only in Basic, Standard,
 
     | Setting      | Suggested value  | Description |
     | ------------ | ---------------- | ----------- |
-    | **[Storage account](../storage/common/storage-account-create.md)** |  Globally unique name |  Create a storage account used by your function app. Storage account names must be between 3 and 24 characters in length and can contain numbers and lowercase letters only. You can also use an existing account, which must meet the [storage account requirements](../azure-functions/functions-scale.md#storage-account-requirements). |
+    | **[Storage account](../storage/common/storage-account-create.md)** |  Globally unique name |  Create a storage account used by your function app. Storage account names must be between 3 and 24 characters in length and can contain numbers and lowercase letters only. You can also use an existing account, which must meet the [storage account requirements](../azure-functions/storage-considerations.md#storage-account-requirements). |
     |**Operating system**| Preferred operating system | An operating system is pre-selected for you based on your runtime stack selection, but you can change the setting if necessary. |
     | **[Plan type](../azure-functions/functions-scale.md)** | **App service plan** | Choose **App service plan**. When you run in an App Service plan, you must manage the [scaling of your function app](../azure-functions/functions-scale.md).  |
 
@@ -104,7 +105,7 @@ Hybrid connections are configured from the networking section of the function ap
    
     :::image type="content" source="./media/functions-hybrid-powershell/hybrid-connection-overview.png" alt-text="Add a hybrid connection." border="true":::
 
-1. Enter information about the hybrid connection as shown right after the following screenshot. You have the option of making the **Endpoint Host** setting match the host name of the on-premises server to make it easier to remember the server later when you're running remote commands. The port matches the default Windows remote management service port that was defined on the server earlier.
+1. Enter information about the hybrid connection as shown after the following screenshot. For **Endpoint Host**, use the host name of the on-premises server for which you created the self-signed certificate. You'll have connection issues when the certificate name and the host name of the on-premise server don't match. The port matches the default Windows remote management service port that was defined on the server earlier.
   
       :::image type="content" source="./media/functions-hybrid-powershell/add-hybrid-connection.png" alt-text="Add hybrid connection." border="true":::
 
@@ -157,19 +158,13 @@ Hybrid connections are configured from the networking section of the function ap
 1. Name the setting **ContosoUserPassword**, and enter the password. Select **OK**.
 1. Select **Save** to store the password in the function application.
 
-    :::image type="content" source="./media/functions-hybrid-powershell/save-administrator-password.png" alt-text="Save the password for the administrator account." border="true":::
-
 ## Create a function HTTP trigger
 
 1. In your function app, select **Functions**, and then select **+ Add**.
 
     :::image type="content" source="./media/functions-hybrid-powershell/create-http-trigger-function.png" alt-text="Create new HTTP trigger." border="true":::
 
-1. Select the **HTTP trigger** template.
-
-    :::image type="content" source="./media/functions-hybrid-powershell/select-http-trigger-template.png" alt-text="Select the HTTP trigger template." border="true":::
-
-1. Name the new function and select **Create Function**.
+1. Select the **HTTP trigger** template, name the new function, and select **Create Function**.
 
     :::image type="content" source="./media/functions-hybrid-powershell/create-new-http-function.png" alt-text="Name and create the new HTTP trigger function." border="true":::
 
@@ -210,13 +205,9 @@ Hybrid connections are configured from the networking section of the function ap
                    -SessionOption (New-PSSessionOption -SkipCACheck)
     ```
 
-1. Select **Save**.
+1. Select **Save** to save your changes, then select **Test** > **Run** to test the function. 
 
-    :::image type="content" source="./media/functions-hybrid-powershell/save-http-function.png" alt-text="Change the PowerShell code and save the HTTP trigger function." border="true":::
-
- 1. Select **Test**, and then select **Run** to test the function. Review the logs to verify that the test was successful.
-
-     :::image type="content" source="./media/functions-hybrid-powershell/test-function-hybrid.png" alt-text="Test HTTP trigger function." border="true":::
+1. Select **Logs** to review the logs and verify that the test was successful.
 
 ## Managing other systems on-premises
 

@@ -1,18 +1,12 @@
 ---
-title: Tutorial for using Azure App Configuration dynamic configuration in an Azure Functions app | Microsoft Docs
+title: Tutorial for using Azure App Configuration dynamic configuration in an Azure Functions app
 description: In this tutorial, you learn how to dynamically update the configuration data for Azure Functions apps
 services: azure-app-configuration
-documentationcenter: ''
 author: zhenlan
-manager: qingye
-editor: ''
-
-ms.assetid: 
 ms.service: azure-app-configuration
-ms.workload: tbd
 ms.devlang: csharp
 ms.topic: tutorial
-ms.date: 11/17/2019
+ms.date: 03/09/2025
 ms.author: zhenlwa
 ms.custom: "devx-track-csharp, azure-functions"
 ms.tgt_pltfrm: Azure Functions
@@ -21,87 +15,139 @@ ms.tgt_pltfrm: Azure Functions
 ---
 # Tutorial: Use dynamic configuration in an Azure Functions app
 
-The App Configuration .NET Standard configuration provider supports caching and refreshing configuration dynamically driven by application activity. This tutorial shows how you can implement dynamic configuration updates in your code. It builds on the Azure Functions app introduced in the quickstarts. Before you continue, finish [Create an Azure functions app with Azure App Configuration](./quickstart-azure-functions-csharp.md) first.
+This tutorial shows how you can enable dynamic configuration updates in your Azure Functions app. It builds upon the Azure Functions app introduced in the quickstarts. Before you continue, finish [Create an Azure Functions app with Azure App Configuration](./quickstart-azure-functions-csharp.md) first.
 
 In this tutorial, you learn how to:
 
 > [!div class="checklist"]
-> * Set up your Azure Functions app to update its configuration in response to changes in an App Configuration store.
-> * Inject the latest configuration to your Azure Functions calls.
+> * Set up dynamic configuration refresh for your Azure Functions app.
+> * Enable automatic configuration refresh using App Configuration middleware.
+> * Use the latest configuration in Function calls when changes occur in your App Configuration store.
 
 ## Prerequisites
 
-- Azure subscription - [create one for free](https://azure.microsoft.com/free/)
-- [Visual Studio 2019](https://visualstudio.microsoft.com/vs) with the **Azure development** workload
-- [Azure Functions tools](../azure-functions/functions-develop-vs.md#check-your-tools-version)
-- Finish quickstart [Create an Azure functions app with Azure App Configuration](./quickstart-azure-functions-csharp.md)
+- Finish quickstart [Create an Azure Functions app with Azure App Configuration](./quickstart-azure-functions-csharp.md)
 
 ## Reload data from App Configuration
 
-1. Open *Function1.cs*. In addition to the `static` property `Configuration`, add a new `static` property `ConfigurationRefresher` to keep a singleton instance of `IConfigurationRefresher` that will be used to signal configuration updates during Functions calls later.
+The Azure App Configuration .NET provider supports caching and dynamic refresh of configuration settings based on application activity. In this section, you configure the provider to refresh settings dynamically and enable automatic configuration refresh using the App Configuration middleware, `Microsoft.Azure.AppConfiguration.Functions.Worker`, each time a function executes.
 
+> [!NOTE]  
+> Azure App Configuration can be used with Azure Functions in either the [isolated worker model](../azure-functions/dotnet-isolated-process-guide.md) or the [in-process model](../azure-functions/functions-dotnet-class-library.md). This tutorial uses the isolated worker model as an example. You can find complete code examples for both models in the [Azure App Configuration GitHub repository](https://github.com/Azure/AppConfiguration/tree/main/examples/DotNetCore/AzureFunctions).
+
+1. Open the *Program.cs* file and update the call to `AddAzureAppConfiguration` to include the `ConfigureRefresh` method. This method configures the conditions for refreshing configuration settings, including specifying the keys to monitor and the interval between refresh checks.
+
+    ### [Microsoft Entra ID (recommended)](#tab/entra-id)
+    
     ```csharp
-    private static IConfiguration Configuration { set; get; }
-    private static IConfigurationRefresher ConfigurationRefresher { set; get; }
+    // Connect to Azure App Configuration
+    builder.Configuration.AddAzureAppConfiguration(options =>
+    {
+        Uri endpoint = new(Environment.GetEnvironmentVariable("AZURE_APPCONFIG_ENDPOINT") ?? 
+            throw new InvalidOperationException("The environment variable 'AZURE_APPCONFIG_ENDPOINT' is not set or is empty."));
+        options.Connect(endpoint, new DefaultAzureCredential())
+               // Load all keys that start with `TestApp:` and have no label
+               .Select("TestApp:*")
+               // Reload configuration if any selected key-values have changed.
+               // Use the default refresh interval of 30 seconds. It can be overridden via AzureAppConfigurationRefreshOptions.SetRefreshInterval.
+               .ConfigureRefresh(refreshOptions =>
+               {
+                   refreshOptions.RegisterAll();
+               });
+    });
     ```
 
-2. Update the constructor and use the `ConfigureRefresh` method to specify the setting to be refreshed from the App Configuration store. An instance of `IConfigurationRefresher` is retrieved using `GetRefresher` method. Optionally, we also change the configuration cache expiration time window to 1 minute from the default 30 seconds.
+    ### [Connection string](#tab/connection-string)
 
     ```csharp
-    static Function1()
+    // Connect to Azure App Configuration
+    builder.Configuration.AddAzureAppConfiguration(options =>
     {
-        var builder = new ConfigurationBuilder();
-        builder.AddAzureAppConfiguration(options =>
-        {
-            options.Connect(Environment.GetEnvironmentVariable("ConnectionString"))
-                   .ConfigureRefresh(refreshOptions =>
-                        refreshOptions.Register("TestApp:Settings:Message")
-                                      .SetCacheExpiration(TimeSpan.FromSeconds(60))
-            );
-            ConfigurationRefresher = options.GetRefresher();
-        });
-        Configuration = builder.Build();
-    }
+        string connectionString = Environment.GetEnvironmentVariable("AZURE_APPCONFIG_CONNECTION_STRING") ?? 
+            throw new InvalidOperationException("The environment variable 'AZURE_APPCONFIG_CONNECTION_STRING' is not set or is empty.");
+        options.Connect(connectionString)
+               // Load all keys that start with `TestApp:` and have no label
+               .Select("TestApp:*")
+               // Reload configuration if any selected key-values have changed.
+               // Use the default refresh interval of 30 seconds. It can be overridden via AzureAppConfigurationRefreshOptions.SetRefreshInterval.
+               .ConfigureRefresh(refreshOptions =>
+               {
+                   refreshOptions.RegisterAll();
+               });
+    });
     ```
+    ---
 
-3. Update the `Run` method and signal to refresh the configuration using the `TryRefreshAsync` method at the beginning of the Functions call. This will be no-op if the cache expiration time window isn't reached. Remove the `await` operator if you prefer the configuration to be refreshed without blocking.
+    You call the `RegisterAll` method to instruct the App Configuration provider to reload the entire configuration whenever it detects a change in any of the selected key-values (those starting with *TestApp:* and having no label). For more information about monitoring configuration changes, see [Best practices for configuration refresh](./howto-best-practices.md#configuration-refresh).
+
+    By default, the refresh interval is set to 30 seconds. You can customize this interval by calling the `AzureAppConfigurationRefreshOptions.SetRefreshInterval` method.
+
+1. Update the *Program.cs* file to enable automatic configuration refresh upon each function execution by adding the App Configuration middleware:
 
     ```csharp
-    public static async Task<IActionResult> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req, ILogger log)
+    // Connect to Azure App Configuration
+    builder.Configuration.AddAzureAppConfiguration(options =>
     {
-        log.LogInformation("C# HTTP trigger function processed a request.");
+        // Omitted the code added in the previous step.
+    });
 
-        await ConfigurationRefresher.TryRefreshAsync(); 
+    // Add Azure App Configuration middleware to the service collection.
+    builder.Services.AddAzureAppConfiguration()
 
-        string keyName = "TestApp:Settings:Message";
-        string message = Configuration[keyName];
-            
-        return message != null
-            ? (ActionResult)new OkObjectResult(message)
-            : new BadRequestObjectResult($"Please create a key-value with the key '{keyName}' in App Configuration.");
-    }
+    // Use Azure App Configuration middleware for dynamic configuration refresh.
+    builder.UseAzureAppConfiguration();
+
+    builder.ConfigureFunctionsWebApplication();
+
+    builder.Build().Run();
     ```
 
 ## Test the function locally
 
-1. Set an environment variable named **ConnectionString**, and set it to the access key to your app configuration store. If you use the Windows command prompt, run the following command and restart the command prompt to allow the change to take effect:
+1. Set the environment variable.
 
-    ```console
-    setx ConnectionString "connection-string-of-your-app-configuration-store"
+    ### [Microsoft Entra ID (recommended)](#tab/entra-id)
+    Set the environment variable named **AZURE_APPCONFIG_ENDPOINT** to the endpoint of your App Configuration store found under the *Overview* of your store in the Azure portal.
+
+    If you use the Windows command prompt, run the following command and restart the command prompt to allow the change to take effect:
+
+    ```cmd
+    setx AZURE_APPCONFIG_ENDPOINT "<endpoint-of-your-app-configuration-store>"
     ```
 
-    If you use Windows PowerShell, run the following command:
+    If you use PowerShell, run the following command:
 
     ```powershell
-    $Env:ConnectionString = "connection-string-of-your-app-configuration-store"
+    $Env:AZURE_APPCONFIG_ENDPOINT = "<endpoint-of-your-app-configuration-store>"
     ```
 
     If you use macOS or Linux, run the following command:
 
-    ```console
-    export ConnectionString='connection-string-of-your-app-configuration-store'
+    ```bash
+    export AZURE_APPCONFIG_ENDPOINT='<endpoint-of-your-app-configuration-store>'
     ```
+
+    ### [Connection string](#tab/connection-string)
+    Set the environment variable named **AZURE_APPCONFIG_CONNECTION_STRING** to the read-only connection string of your App Configuration store found under *Access settings* of your store in the Azure portal.
+
+    If you use the Windows command prompt, run the following command and restart the command prompt to allow the change to take effect:
+
+    ```cmd
+    setx AZURE_APPCONFIG_CONNECTION_STRING "<connection-string-of-your-app-configuration-store>"
+    ```
+
+   If you use PowerShell, run the following command:
+
+    ```powershell
+    $Env:AZURE_APPCONFIG_CONNECTION_STRING = "<connection-string-of-your-app-configuration-store>"
+    ```
+
+    If you use macOS or Linux, run the following command:
+
+    ```bash
+    export AZURE_APPCONFIG_CONNECTION_STRING='<connection-string-of-your-app-configuration-store>'
+    ```    
+    ---
 
 2. To test your function, press F5. If prompted, accept the request from Visual Studio to download and install **Azure Functions Core (CLI)** tools. You might also need to enable a firewall exception so that the tools can handle HTTP requests.
 
@@ -113,19 +159,15 @@ In this tutorial, you learn how to:
 
     ![Quickstart Function launch local](./media/quickstarts/dotnet-core-function-launch-local.png)
 
-5. Sign in to the [Azure portal](https://portal.azure.com). Select **All resources**, and select the App Configuration store instance that you created in the quickstart.
-
-6. Select **Configuration Explorer**, and update the values of the following key:
+5. Select your App Configuration store in Azure portal and update the value of the following key in **Configuration explorer**.
 
     | Key | Value |
     |---|---|
-    | TestApp:Settings:Message | Data from Azure App Configuration - Updated |
+    | *TestApp:Settings:Message* | *Data from Azure App Configuration - Updated* |
 
-7. Refresh the browser a few times. When the cached setting expires after a minute, the page shows the response of the Functions call with updated value.
+6. Refresh your browser a few times. After the default refresh interval of 30-seconds passes, the page displays the updated value retrieved from your Azure Functions app.
 
     ![Quickstart Function refresh local](./media/quickstarts/dotnet-core-function-refresh-local.png)
-
-The example code used in this tutorial can be downloaded from [App Configuration GitHub repo](https://github.com/Azure/AppConfiguration/tree/master/examples/DotNetCore/AzureFunction)
 
 ## Clean up resources
 
@@ -133,7 +175,14 @@ The example code used in this tutorial can be downloaded from [App Configuration
 
 ## Next steps
 
-In this tutorial, you enabled your Azure Functions app to dynamically refresh configuration settings from App Configuration. To learn how to use an Azure managed identity to streamline the access to App Configuration, continue to the next tutorial.
+In this tutorial, you enabled your Azure Functions app to dynamically refresh configuration settings from App Configuration.
+
+To learn how to use feature flags from Azure App Configuration within your Azure Functions app, proceed to the following tutorial.
 
 > [!div class="nextstepaction"]
-> [Managed identity integration](./howto-integrate-azure-managed-service-identity.md)
+> [Use feature flags in Azure Functions](./quickstart-feature-flag-azure-functions-csharp.md)
+
+To learn how to use an Azure managed identity to streamline the access to App Configuration, continue to the following tutorial.
+
+> [!div class="nextstepaction"]
+> [Access App Configuration using managed identity](./howto-integrate-azure-managed-service-identity.md)

@@ -4,12 +4,14 @@ summary: Learn how to use Azure App Configuration, a managed service that helps 
 metadata:
   title: Azure App Configuration documentation
   description: Learn how to use Azure App Configuration, a managed service that helps developers centralize their application and feature settings simply and securely.
-  author: lisaguthrie
-  ms.author: lcozzens
+  author: maud-lv
+  ms.author: malev
   ms.service: azure-app-configuration
+  ms.custom:
+    - build-2024
+    - build-2025
   ms.topic: landing-page
-  ms.date: 02/03/2020
-
+  ms.date: 11/21/2025
 # linkListType: architecture | concept | deploy | download | get-started | how-to-guide | learn | overview | quickstart | reference | tutorial | video | whats-new
 
 landingContent:
@@ -21,19 +23,19 @@ landingContent:
         - text: What is Azure App Configuration?
           url: overview.md
         - text: Frequently asked questions
-          url: faq.md
+          url: faq.yml
+        - text: Best practices
+          url: howto-best-practices.md
       - linkListType: video
         links:
         - text: Getting started with Azure App Configuration
-          url: https://channel9.msdn.com/Shows/Azure-Friday/Getting-started-with-Azure-App-Configuration
-        - text: Feature management
-          url: https://channel9.msdn.com/Shows/NET-Community-Standups/ASPNET-Community-Standup-May-21st-2019-Introducing-MicrosoftFeatureManagement
+          url: /Shows/Azure-Friday/Getting-started-with-Azure-App-Configuration
         - text: Making centralized configuration easy
-          url: https://channel9.msdn.com/Events/dotnetConf/NET-Conf-2019/B210
+          url: /Events/dotnetConf/NET-Conf-2019/B210
         - text: Azure App Configuration on Cloud Native Show
           url: https://www.youtube.com/watch?v=DJqmA5PcfzE
         - text: Rolling out new features 
-          url: https://channel9.msdn.com/Shows/Azure-Friday/How-Azure-App-Configuration-helps-developers-roll-out-new-features?ocid=AID747781&wt.mc_id=azfr-c9-scottha&wt.mc_id=CFID0553 
+          url: /Shows/Azure-Friday/How-Azure-App-Configuration-helps-developers-roll-out-new-features?ocid=AID747781&wt.mc_id=azfr-c9-scottha&wt.mc_id=CFID0553 
       - linkListType: whats-new
         links:
         - text: Follow our announcements
@@ -42,41 +44,80 @@ landingContent:
           url: https://azure.microsoft.com/updates/?query=%22App%20Configuration%22
       - linkListType: concept
         links:
-        - text: Keys and values in App Config
+        - text: Keys and values
           url: concept-key-value.md
-        - text: Sync your App Configuration instance using GitHub Actions
-          url: concept-github-action.md
+        - text: Snapshots
+          url: concept-snapshots.md
+        - text: Point-in-time key-values
+          url: concept-point-time-snapshot.md
+        - text: Feature Management
+          url: concept-feature-management.md
+        - text: Experimentation
+          url: concept-experimentation.md
+        - text: Configuration files
+          url: concept-config-file.md
+        - text: Azure App Configuration Events 
+          url: concept-app-configuration-event.md
+        - text: Soft delete
+          url: concept-soft-delete.md
+        - text: Geo-replication 
+          url: concept-geo-replication.md
+
   - title: Create and code with Azure App Configuration
     linkLists:
       - linkListType: quickstart
         links:
-        - text: Code a .NET Core app
+        - text: Create an Azure App Configuration store
+          url: quickstart-azure-app-configuration-create.md
+        - text: Code an ASP.NET Core app
+          url: quickstart-aspnet-core-app.md
+        - text: Code a .NET app
           url: quickstart-dotnet-core-app.md
         - text: Code a .NET Framework app
           url: quickstart-dotnet-app.md
-        - text: Code a ASP.NET Core app
-          url: quickstart-aspnet-core-app.md
         - text: Code an Azure Functions app in C#
           url: quickstart-azure-functions-csharp.md
-        - text: Code a Spring Boot app
+        - text: Code a Java Spring app
           url: quickstart-java-spring-app.md
-        - text: Azure Resource Manager template
-          url: quickstart-resource-manager.md       
+        - text: Code a Python app
+          url: quickstart-python-provider.md
+        - text: Code a JavaScript app
+          url: quickstart-javascript-provider.md
+        - text: Code a Go app
+          url: quickstart-go-console-app.md
+        - text: Code a Go web app using Gin
+          url: quickstart-go-web-app.md
       - linkListType: tutorial
         links:  
         - text: Use dynamic config in ASP.NET Core
           url: enable-dynamic-configuration-aspnet-core.md
-        - text: Use dynamic config in .NET Core
+        - text: Use dynamic config in ASP.NET (.NET Framework)
+          url: enable-dynamic-configuration-aspnet-netfx.md
+        - text: Use dynamic config in .NET
           url: enable-dynamic-configuration-dotnet-core.md
         - text: Use dynamic config in .NET Framework
           url: enable-dynamic-configuration-dotnet.md
         - text: Use dynamic config in Azure Functions
           url: enable-dynamic-configuration-azure-functions-csharp.md
+        - text: Use dynamic config in Spring Boot
+          url: enable-dynamic-configuration-java-spring-app.md
+        - text: Use dynamic config in Python
+          url: enable-dynamic-configuration-python.md
+        - text: Use dynamic config in Go
+          url: enable-dynamic-configuration-go-console-app.md
+        - text: Use dynamic config in Go Gin
+          url: enable-dynamic-configuration-gin-web-app.md
       - linkListType: tutorial
-        links:  
-        - text: Integrate with a CI/CD pipeline
+        links:
+        - text: Import data using Azure Pipelines
+          url: azure-pipeline-import-task.md
+        - text: Export data using Azure Pipelines
+          url: azure-pipeline-export-task.md
+        - text: Push data using GitHub Actions
+          url: push-kv-github-action.md
+        - text: Export to project configuration file
           url: integrate-ci-cd-pipeline.md
-        - text: Integrate with Kubernetes deployment using Helm
+        - text: Deploy to Kubernetes using Helm
           url: integrate-kubernetes-deployment-helm.md
       - linkListType: tutorial
         links:  
@@ -94,50 +135,108 @@ landingContent:
         links:
           - text: What are feature flags?
             url: concept-feature-management.md
+          - text: What is experimentation?
+            url: concept-experimentation.md
       - linkListType: quickstart
         links:
-        - text: .NET Core app
-          url: use-feature-flags-dotnet-core.md
+        - text: Manage feature flags
+          url: manage-feature-flags.md
         - text: ASP.NET Core app
           url: quickstart-feature-flag-aspnet-core.md
-        - text: .NET Framework app
+        - text: .NET/.NET Framework app
           url: quickstart-feature-flag-dotnet.md
         - text: Spring Boot app
           url: quickstart-feature-flag-spring-boot.md
+        - text: Python app
+          url: quickstart-feature-flag-python.md
+        - text: Node.js app
+          url: quickstart-feature-flag-javascript.md
+        - text: Go console app
+          url: quickstart-feature-flag-go-console.md
+        - text: Go Gin web app
+          url: quickstart-feature-flag-go-gin.md
       - linkListType: tutorial
         links: 
-        - text: Manage feature flags
-          url: manage-feature-flags.md
+        - text: Enable conditional features with feature filters
+          url: howto-feature-filters.md
+        - text: Enable features on a schedule
+          url: howto-timewindow-filter.md
+        - text: Roll out features to targeted audience
+          url: howto-targetingfilter.md
+        - text: Use variant feature flags
+          url: howto-variant-feature-flags.md
+        - text: Enable telemetry for feature flags
+          url: howto-telemetry.md
       - linkListType: reference
         links:
-        - text: .NET Core library
-          url: https://go.microsoft.com/fwlink/?linkid=2091700
-        - text: .NET Core filter library
-          url: https://go.microsoft.com/fwlink/?linkid=2091601
+        - text: Overview
+          url: feature-management-overview.md
+        - text: .NET feature management
+          url: feature-management-dotnet-reference.md
+        - text: .NET feature management API reference
+          url: /dotnet/api/overview/azure/appconfiguration/featuremanagement
+        - text: Java Spring feature management API reference
+          url: https://azure.github.io/azure-sdk-for-java/springboot.html
+        - text: Python feature management
+          url: feature-management-python-reference.md
+        - text: Python feature management API reference
+          url: https://microsoft.github.io/FeatureManagement-Python/html/index.html
+        - text: JavaScript feature management
+          url: feature-management-javascript-reference.md
+        - text: Go feature management
+          url: https://pkg.go.dev/github.com/microsoft/Featuremanagement-Go/featuremanagement
 
-  - title: Configuration SDKs and samples
+  - title: Client libraries and tools
     linkLists:
-      - linkListType: sample
-        links:
-        - text: Azure CLI samples
-          url: cli-samples.md
       - linkListType: reference
         links:
-        - text: Azure CLI
-          url: https://docs.microsoft.com/cli/azure/appconfig?view=azure-cli-latest
-        - text: PowerShell
-          url: https://docs.microsoft.com/powershell/module/az.appconfiguration/
-        - text: Terraform
-          url: https://www.terraform.io/docs/providers/azurerm/r/app_configuration.html          
-        - text: .NET Core provider
-          url: https://go.microsoft.com/fwlink/?linkid=2074664
-        - text: Spring Boot provider
-          url: https://github.com/microsoft/spring-cloud-azure/tree/master/
+        - text: Overview
+          url: configuration-provider-overview.md
+        - text: .NET provider
+          url: reference-dotnet-provider.md
+        - text: Java Spring provider
+          url: https://go.microsoft.com/fwlink/?linkid=2180917
+        - text: Python provider
+          url: https://pypi.org/project/azure-appconfiguration-provider/
+        - text: JavaScript provider
+          url: reference-javascript-provider.md
+        - text: Kubernetes provider
+          url: reference-kubernetes-provider.md
+        - text: Go provider
+          url: https://pkg.go.dev/github.com/Azure/AppConfiguration-GoProvider/azureappconfiguration
+      - linkListType: reference
+        links:      
+        - text: Azure SDK for .NET
+          url: https://go.microsoft.com/fwlink/?linkid=2092056
         - text: Azure SDK for Java
           url: https://go.microsoft.com/fwlink/?linkid=2098196
         - text: Azure SDK for Python
           url: https://go.microsoft.com/fwlink/?linkid=2103727
         - text: Azure SDK for JavaScript
           url: https://go.microsoft.com/fwlink/?linkid=2103664
-        - text: REST
-          url: https://go.microsoft.com/fwlink/?linkid=2078296
+        - text: Azure SDK for Go
+          url: https://go.microsoft.com/fwlink/?linkid=2270866
+      - linkListType: reference
+        links:
+        - text: Control plane REST API
+          url: /rest/api/appconfiguration/
+        - text: Data plane REST API
+          url: rest-api.md
+        - text: Local emulator
+          url: emulator-overview.md
+      - linkListType: reference
+        links:
+        - text: Azure CLI
+          url: /cli/azure/appconfig
+        - text: PowerShell
+          url: /powershell/module/az.appconfiguration/
+        - text: Terraform
+          url: https://www.terraform.io/docs/providers/azurerm/r/app_configuration.html
+      - linkListType: sample
+        links:
+        - text: Azure CLI samples
+          url: cli-samples.md
+        - text: Azure PowerShell samples
+          url: powershell-samples.md
+        - text: Samples on GitHub
+          url: https://github.com/Azure/AppConfiguration/tree/main/examples

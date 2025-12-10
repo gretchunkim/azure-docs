@@ -1,23 +1,26 @@
 ---
-title: Azure Storage Explorer blob versioning guide | Microsoft Docs
+title: Azure Storage Explorer blob versioning guide
 description: Blob versioning guidance for Azure Storage Explorer
 services: storage
-author: chuye
-ms.service: storage
-ms.topic: conceptual
+author: jinglouMSFT
+ms.service: azure-storage
+ms.subservice: storage-common-concepts
+ms.topic: concept-article
 ms.date: 08/19/2020
-ms.author: chuye
+ms.author: jinglou
+ms.reviewer: cralvord,richardgao
+# Customer intent: As a cloud storage user, I want to manage and view different versions of my blobs using a user-friendly interface, so that I can easily access, restore, and delete specific blob versions as needed for effective data management.
 ---
 
 # Azure Storage Explorer blob versioning guide
 
-Microsoft Azure Storage Explorer provides easy access and management of blob versions. This guide will help you understand how blob versioning works in Storage Explorer. Before continuing, it's recommended you read more about [blob versioning](https://docs.microsoft.com/azure/storage/blobs/versioning-overview).
+Microsoft Azure Storage Explorer provides easy access and management of blob versions. This guide helps you understand how blob versioning works in Storage Explorer. Before continuing, we recommended you read more about [blob versioning](../blobs/versioning-overview.md).
 
 ## Terminology
 
 This section provides some definitions to help understand their usage in this article.
 
-- Soft delete: An alternative automatic data protection feature. You can learn more about soft delete [here](https://docs.microsoft.com/azure/storage/blobs/soft-delete-blob-overview).
+- Soft delete: An alternative automatic data protection feature. You can learn more about soft delete [here](../blobs/soft-delete-blob-overview.md).
 - Active blob: A blob or blob version is created in active state. You can only operate on blobs or blob versions in active state.
 - Soft-deleted blob: A blob or blob version marked as soft-deleted. Soft-deleted blobs are only kept for its retention period.
 - Blob version: A blob created with blob versioning enabled. Each blob version is associated with a version ID.
@@ -57,7 +60,7 @@ In this view, Storage Explorer displays:
 
 - Active non-version blobs
 - Current versions
-- Latest active previous versions. 
+- Latest active previous versions.
 
 For blobs that don't have a current version but have an active previous version, Storage Explorer displays their latest active previous version as a representation of that blob.
 
@@ -68,13 +71,13 @@ In this view, Storage Explorer displays:
 - Active non-version blobs
 - Soft-deleted non-version blobs
 - Current versions
-- Latest previous versions. 
+- Latest previous versions.
 
 For blobs that don't have a current version, Storage Explorer displays their latest previous version as a representation of that blob.
 
-> [!Note]
-> Due to service limitation, Storage Explorer needs some additional processing to get a hierarchical view of your virtual directories when listing blob versions. It will take longer to list blobs in the following views:
-> 
+> [!NOTE]
+> Due to service limitations, Storage Explorer needs extra processing to get a hierarchical view of your virtual directories when listing blob versions. It takes longer to list blobs in the following views:
+>
 > - Active blobs and blobs without current version
 > - All blobs and blobs without current version
 
@@ -88,19 +91,19 @@ Storage Explorer provides a **Manage Versions** command to view all the versions
 
 To download one or more blob versions, select the blob versions you want to download and select **Download** from the toolbar or the context menu.
 
-If you're downloading multiple versions of a blob, the downloaded files will have their version IDs at the beginning of their file names.
+If you're downloading multiple versions of a blob, the downloaded files have their version IDs at the beginning of their file names.
 
 ### Delete blob versions
 
 To delete one or more blob versions, select the blob versions you want to delete and select **Delete** from the toolbar or the context menu.
 
-Blob versions are subject to your soft-delete policy. If soft-delete is enabled, blob versions will be soft-deleted. One special case is deleting a current version. Deleting a current version will automatically make it become an active previous version instead.
+Blob versions are subject to your soft-delete policy. If soft-delete is enabled, blob versions are soft deleted. One special case is deleting a current version. Deleting a current version automatically makes it become an active previous version instead.
 
 ### Promote blob version
 
 You can restore the contents of a blob by promoting a previous version to become the current version. Select the blob version you want to promote and select **Promote Version** from the toolbar or the context menu.
 
-Non-version blobs will be overwritten by the promoted blob version. Make sure you no longer need that data or back up the data yourself before confirming the operation. Current versions automatically become previous versions, so Storage Explorer won't prompt for confirmation.
+Promoted blob versions overwrite non-version blobs. Make sure you no longer need that data or back up the data yourself before confirming the operation. Current versions automatically become previous versions, so Storage Explorer doesn't ask for confirmation.
 
 ### Undelete blob version
 
@@ -112,5 +115,6 @@ Each blob version has its own access tier. To change access tier of blob version
 
 ## See Also
 
-* [Blob versioning](https://docs.microsoft.com/azure/storage/blobs/versioning-overview)
-* [Soft delete for blobs](https://docs.microsoft.com/azure/storage/blobs/soft-delete-blob-overview)
+- [Blob versioning](../blobs/versioning-overview.md)
+- [Soft delete for blobs](../blobs/soft-delete-blob-overview.md)
+- [Azure Storage Explorer soft delete guide](./storage-explorer-soft-delete.md)

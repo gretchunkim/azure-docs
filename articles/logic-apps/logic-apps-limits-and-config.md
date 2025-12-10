@@ -1,68 +1,86 @@
 ---
-title: Limits and configuration
-description: Service limits, such as duration, throughput, and capacity, plus configuration values, such as IP addresses to allow, for Azure Logic Apps
+title: Limits and configuration reference guide
+description: Reference guide about the limits and configuration settings for logic app resources and workflows in Azure Logic Apps.
 services: logic-apps
 ms.suite: integration
-ms.reviewer: jonfan, logicappspm
-ms.topic: article
-ms.date: 08/03/2020
+ms.reviewer: rohithah, laveeshb, rarayudu, azla
+ms.topic: reference
+ms.date: 12/05/2025
+ms.custom: sfi-image-nochange
 ---
 
-# Limits and configuration information for Azure Logic Apps
+# Limits and configuration reference for Azure Logic Apps
 
-This article describes the limits and configuration details for creating and running automated workflows with Azure Logic Apps. For Power Automate, see [Limits and configuration in Power Automate](/flow/limits-and-config).
+[!INCLUDE [logic-apps-sku-consumption-standard](../../includes/logic-apps-sku-consumption-standard.md)]
+
+> [!IMPORTANT]
+>
+> For Power Automate, see [Limits and configuration in Power Automate](/power-automate/limits-and-config).
+
+This reference guide describes the limits and configuration information for Azure Logic Apps and related resources. Based on your scenario, solution requirements, the capabilities that you want, and the environment where you want to run your workflows, you choose whether to create a Consumption logic app workflow that runs in *multitenant* Azure Logic Apps or a Standard logic app workflow that runs in *single-tenant* Azure Logic Apps or an App Service Environment (v3 - Windows plans only).
+
+> [!NOTE]
+>
+> Many limits are the same across the available environments where Azure Logic Apps runs, but differences are noted where they exist.
+
+The following table briefly summarizes differences between a Consumption logic app and a Standard logic app.
+
+[!INCLUDE [Logic app resource type and environment differences](includes/logic-apps-resource-environment-differences-table.md)]
 
 <a name="definition-limits"></a>
 
-## Definition limits
+## Workflow limits
 
-Here are the limits for a single logic app definition:
+The following table lists the values that apply to a single workflow definition unless noted otherwise:
 
 | Name | Limit | Notes |
 | ---- | ----- | ----- |
-| Actions per workflow | 500 | To extend this limit, you can add nested workflows as needed. |
-| Allowed nesting depth for actions | 8 | To extend this limit, you can add nested workflows as needed. |
-| Workflows per region per subscription | 1,000 | |
-| Triggers per workflow | 10 | When working in code view, not the designer |
-| Switch scope cases limit | 25 | |
-| Variables per workflow | 250 | |
-| Characters per expression | 8,192 | |
-| Maximum size for `trackedProperties` | 16,000 characters |
-| Name for `action` or `trigger` | 80 characters | |
-| Length of `description` | 256 characters | |
-| Maximum `parameters` | 50 | |
-| Maximum `outputs` | 10 | |
+| Workflows per region per Azure subscription | - Consumption: 1,000 workflows <br><br>**Note**: Each Consumption logic app resource always contains only one workflow. <br><br>- Standard: Unlimited, based on the selected hosting plan, app activity, size of machine instances, and resource usage. <br><br>Each Standard logic app resource can contain multiple workflows | For optimal performance guidelines around Standard logic app workflows, see [Best practices and recommendations](create-single-tenant-workflows-azure-portal.md#best-practices-and-recommendations). |
+| Workflow - Maximum name length | - Consumption: 80 characters <br><br>- Standard: 32 characters ||
+| Triggers per workflow | - Consumption (designer): 1 trigger <br>- Consumption (JSON): 10 triggers <br><br>- Standard: 1 trigger | - Consumption:  Multiple triggers are possible only when you work on the JSON workflow definition, whether in code view or an Azure Resource Manager (ARM) template, not the designer. <br><br>- Standard: Only one trigger is possible, whether in the designer, code view, or an Azure Resource Manager (ARM) template. |
+| Actions per workflow | 500 actions | To extend this limit, you can use nested workflows as necessary. |
+| Actions nesting depth | 8 actions | To extend this limit, you can use nested workflows as necessary. |
+| Single trigger or action - Maximum name length | 80 characters ||
+| Single trigger or action - Maximum input or output size | 104,857,600 bytes <br>(105 MB) | To change the default value in the single-tenant service, review [Edit host and app settings for logic apps in single-tenant Azure Logic Apps](edit-app-settings-host-settings.md). |
+| Single action - Maximum combined inputs and outputs size | 209,715,200 bytes <br>(210 MB) | To change the default value in the single-tenant service, review [Edit host and app settings for logic apps in single-tenant Azure Logic Apps](edit-app-settings-host-settings.md). |
+| Expression character limit | 8,192 characters ||
+| `description` - Maximum length | 256 characters ||
+| `parameters` - Maximum number of parameters per workflow | - Consumption: 50 parameters <br><br>- Standard: 500 parameters ||
+| `outputs` - Maximum number of outputs | 10 outputs ||
+| `trackedProperties` - Maximum number of characters | 8,000 characters | Each action supports a JSON object named `trackedProperties` that you can use to specify certain action inputs or outputs to emit from your workflow and include in diagnostic telemetry. For more information, see [Monitor and collect diagnostic data for workflows](monitor-workflows-collect-diagnostic-data.md#tracked-properties). |
 
 <a name="run-duration-retention-limits"></a>
 
-## Run duration and retention limits
+## Run duration and history retention limits
 
-Here are the limits for a single logic app run:
+The following table lists the values for a single workflow run:
 
-| Name | Multi-tenant limit | Integration service environment limit | Notes |
-|------|--------------------|---------------------------------------|-------|
-| Run duration | 90 days | 366 days | Run duration is calculated by using a run's start time and the limit that's specified *at start time* by the workflow setting, [**Run history retention in days**](#change-duration). <p><p>To change the default limit, which is 90 days, see [change run duration](#change-duration). |
-| Run retention in storage | 90 days | 366 days | Run retention is calculated by using a run's start time and the limit that's specified *at the current time* by the workflow setting, [**Run history retention in days**](#change-retention). Whether a run completes or times out, the retention calculation always uses the run's start time. When a run's duration exceeds the *current* retention limit, the run is removed from the runs history. <p><p>If you change this setting, the current limit is always used for calculating retention, no matter the previous limit. For example, if you reduce the retention limit from 90 days to 30 days, a run that's 60 days old is removed from the runs history. If you increase the retention period from 30 days to 60 days, a run that's 20 days old stays in the runs history for another 40 days. <p><p>To change the default limit, which is 90 days, see [change run retention in storage](#change-retention). |
-| Minimum recurrence interval | 1 second | 1 second ||
-| Maximum recurrence interval | 500 days | 500 days ||
-|||||
+| Name | Multitenant | Single-tenant | Notes |
+|------|-------------|---------------|-------|
+| Run history retention in storage | 90 days | 90 days <br>(Default) | The amount of time to keep a workflow's run history in storage after a run starts. <br><br>**Note**: If the workflow's run duration exceeds the retention limit, this run is removed from the run history in storage. If a run isn't immediately removed after reaching the retention limit, the run is removed within 7 days. <br><br>Whether a run completes or times out, retention is always calculated by using the run's start time and the retention limit at the *time when the run started*, not the current limit. You can find the retention limit in the workflow setting, [**Run history retention in days**](#change-retention). <br><br>For more information, review [Change duration and run history retention in storage](#change-retention). |
+| Run duration | 90 days | - Stateful workflow: 90 days <br>(Default) <br><br>- Stateless workflow: 5 min <br>(Default) | The amount of time that a workflow can continue running before forcing a time-out. The run duration is calculated by using a run's start time and the limit that's specified in the workflow setting, [**Run history retention in days**](#change-duration) at that start time. <br><br>**Important**: Make sure the run duration value is always less than or equal to the run history retention in storage value. Otherwise, run histories might be deleted before the associated jobs are complete. <br><br>For more information, review [Change run duration and history retention in storage](#change-duration). |
+| Recurrence interval | - Min: 1 sec <br><br>- Max: 500 days | - Min: 1 sec <br><br>- Max: 500 days ||
 
 <a name="change-duration"></a>
 <a name="change-retention"></a>
 
-### Change run duration and run retention in storage
+## Change run duration and history retention in storage
 
-To change the default limit for run duration and run retention in storage, follow these steps. To increase the maximum limit, [contact the Logic Apps team](mailto://logicappsemail@microsoft.com) for help with your requirements.
+If a run's duration exceeds the current run history retention limit, the run is removed from the run history in storage. To avoid losing run history, make sure that the retention limit is *always* more than the run's longest possible duration.
 
-> [!NOTE]
-> For logic apps in multi-tenant Azure, the 90-day default limit is the same as the maximum limit. You can only decrease this value.
-> For logic apps in an integration service environment, you can decrease or increase the 90-day default limit.
+### [Consumption](#tab/consumption)
 
-1. Go to the [Azure portal](https://portal.azure.com). In the portal search box, find and select **Logic apps**.
+For Consumption logic app workflows, the same setting controls the maximum number of days that a workflow can run and for keeping run history in storage.
 
-1. Select and then open your logic app in the Logic App Designer.
+* In multitenant Azure Logic Apps, the 90-day default limit is the same as the maximum limit. You can only decrease this value.
 
-1. On the logic app's menu, select **Workflow settings**.
+* Run history retention is always calculated by using the run's start time and the retention limit at the time when the run started, not the current retention limit. 
+
+#### Portal
+
+1. In the [Azure portal](https://portal.azure.com) search box, open your logic app workflow in the designer.
+
+1. On the logic app menu, select **Workflow settings**.
 
 1. Under **Runtime options**, from the **Run history retention in days** list, select **Custom**.
 
@@ -70,142 +88,422 @@ To change the default limit for run duration and run retention in storage, follo
 
 1. When you're done, on the **Workflow settings** toolbar, select **Save**.
 
+#### ARM template
+
+If you use an Azure Resource Manager template, this setting appears as a property in your workflow's resource definition, which is described in the [Microsoft.Logic workflows template reference](/azure/templates/microsoft.logic/workflows):
+
+```json
+{
+   "name": "{logic-app-name}",
+   "type": "Microsoft.Logic/workflows",
+   "location": "{Azure-region}",
+   "apiVersion": "2019-05-01",
+   "properties": {
+      "definition": {},
+      "parameters": {},
+      "runtimeConfiguration": {
+         "lifetime": {
+            "unit": "day",
+            "count": {number-of-days}
+         }
+      }
+   }
+}
+```
+
+#### [Standard](#tab/standard)
+
+For Standard logic app workflows, you can decrease or increase the 90-day default limit, but you need to add the following settings and their values to your logic app resource or project:
+
+* An app setting named [**Workflows.RuntimeConfiguration.RetentionInDays**](edit-app-settings-host-settings.md#reference-local-settings-json)
+
+* A host setting named [**Runtime.FlowMaintenanceJob.RetentionCooldownInterval**](edit-app-settings-host-settings.md#run-duration-history)
+
+By default, the app setting named **Workflows.RuntimeConfiguration.RetentionInDays** is set to keep 90 days of data. The host setting named **Runtime.FlowMaintenanceJob.RetentionCooldownInterval** is set to check every 7 days for old data to delete. If you leave these default values, you might see data *up to* 97 days old. For example, suppose Azure Logic Apps checks on Day X and deletes data older than Day X - 90 days, and then waits for 7 days before running again. This behavior results in data that ages up to 97 days before the job runs again. However, if you set the interval to 1 day, but leave the retention days at the default value, the maximum delay to delete old data is 90+1 days.
+
+Run history retention is always calculated by using the run's start time and the retention limit at the time when the run started, not the current retention limit. 
+
+#### Portal
+
+1. [Follow these steps to add the app setting named **Workflows.RuntimeConfiguration.RetentionInDays**](edit-app-settings-host-settings.md?tabs=azure-portal#manage-app-settings), and set the value to the number days that you want to keep your workflow run history.
+
+1. [Follow these steps to add the host setting named **Runtime.FlowMaintenanceJob.RetentionCooldownInterval**](edit-app-settings-host-settings.md#manage-host-settings-portal), and set the value to the number of days as the interval between when to check for and delete run history that you don't want to keep.
+
+#### Visual Studio Code
+
+1. [Follow these steps to add the app setting named **Workflows.RuntimeConfiguration.RetentionInDays**](edit-app-settings-host-settings.md?tabs=visual-studio-code#manage-app-settings), and set the value to the number days that you want to keep your workflow run history.
+
+1. [Follow these steps to add the host setting named **Runtime.FlowMaintenanceJob.RetentionCooldownInterval**](edit-app-settings-host-settings.md#manage-host-settings-visual-studio-code), and set the value to the number of days as the interval between when to check for and delete run history that you don't want to keep.
+
+---
+
+<a name="concurrency-looping-and-debatching-limits"></a>
 <a name="looping-debatching-limits"></a>
 
-## Concurrency, looping, and debatching limits
+## Looping, concurrency, and debatching limits
 
-Here are the limits for a single logic app run:
+The following table lists the values for a single workflow run:
 
-| Name | Limit | Notes |
-| ---- | ----- | ----- |
-| Trigger concurrency | - Unlimited when the concurrency control is turned off <p><p>- 25 is the default limit when the concurrency control is turned on, which you can't undo after you enable concurrency. You can change the default to a value between 1 and 50 inclusively. | This limit describes the highest number of logic app instances that can run at the same time, or in parallel. <p><p>**Note**: When concurrency is turned on, the SplitOn limit is reduced to 100 items for [debatching arrays](../logic-apps/logic-apps-workflow-actions-triggers.md#split-on-debatch). <p><p>To change the default limit to a value between 1 and 50 inclusively, see [Change trigger concurrency limit](../logic-apps/logic-apps-workflow-actions-triggers.md#change-trigger-concurrency) or [Trigger instances sequentially](../logic-apps/logic-apps-workflow-actions-triggers.md#sequential-trigger). |
-| Maximum waiting runs | - Without concurrency, the minimum number of waiting runs is 1, while the maximum number is 50. <p><p>- With concurrency, the minimum number of waiting runs is 10 plus the number of concurrent runs (trigger concurrency). You can change the maximum number up to 100 inclusively. | This limit describes the highest number of logic app instances that can wait to run when your logic app is already running the maximum concurrent instances. <p><p>To change the default limit, see [Change waiting runs limit](../logic-apps/logic-apps-workflow-actions-triggers.md#change-waiting-runs). |
-| Foreach array items | 100,000 | This limit describes the highest number of array items that a "for each" loop can process. <p><p>To filter larger arrays, you can use the [query action](logic-apps-perform-data-operations.md#filter-array-action). |
-| Foreach concurrency | 20 is the default limit when the concurrency control is turned off. You can change the default to a value between 1 and 50 inclusively. | This limit is highest number of "for each" loop iterations that can run at the same time, or in parallel. <p><p>To change the default limit to a value between 1 and 50 inclusively, see [Change "for each" concurrency limit](../logic-apps/logic-apps-workflow-actions-triggers.md#change-for-each-concurrency) or [Run "for each" loops sequentially](../logic-apps/logic-apps-workflow-actions-triggers.md#sequential-for-each). |
-| SplitOn items | - 100,000 without trigger concurrency <p><p>- 100 with trigger concurrency | For triggers that return an array, you can specify an expression that uses a 'SplitOn' property that [splits or debatches array items into multiple workflow instances](../logic-apps/logic-apps-workflow-actions-triggers.md#split-on-debatch) for processing, rather than use a "Foreach" loop. This expression references the array to use for creating and running a workflow instance for each array item. <p><p>**Note**: When concurrency is turned on, the SplitOn limit is reduced to 100 items. |
-| Until iterations | - Default: 60 <p><p>- Maximum: 5,000 | |
-||||
+### Loop actions
+
+<a name="for-each-loop"></a>
+
+#### For each loop
+
+The following table lists the values for a **For each** loop:
+
+| Name | Multitenant | Single-tenant | Notes |
+|------|-------------|---------------|-------|
+| Array items | 100,000 items | - Stateful workflow: 100,000 items <br>(Default) <br><br>- Stateless workflow: 100 items <br>(Default) | The number of array items that a **For each** loop can process. <br><br>To filter larger arrays, you can use the [query action](logic-apps-perform-data-operations.md#filter-array-action). <br><br>To change the default limit in the single-tenant service, review [Edit host and app settings for logic apps in single-tenant Azure Logic Apps](edit-app-settings-host-settings.md). |
+| Concurrent iterations | Concurrency off: 20 <br><br>Concurrency on: <br><br>- Default: 20 <br>- Min: 1 <br>- Max: 50 | Concurrency off: 20 <br>(Default) <br><br>Concurrency on: <br><br>- Default: 20 <br>- Min: 1 <br>- Max: 50 | The number of **For each** loop iterations that can run at the same time, or in parallel. <br><br>To change this value in multitenant Azure Logic Apps, see [Change **For each** concurrency limit](../logic-apps/logic-apps-workflow-actions-triggers.md#change-for-each-concurrency) or [Run **For each** loops sequentially](logic-apps-workflow-actions-triggers.md#sequential-for-each). <br><br>To change the default limit in the single-tenant service, review [Edit host and app settings for logic apps in single-tenant Azure Logic Apps](edit-app-settings-host-settings.md). |
+
+<a name="until-loop"></a>
+
+#### Until loop
+
+The following table lists the values for an **Until** loop:
+
+| Name | Multitenant | Single-tenant | Notes |
+|------|-------------|---------------|-------|
+| Iterations | - Default: 60 <br>- Min: 1 <br>- Max: 5,000 | Stateful workflow: <br><br>- Default: 60 <br>- Min: 1 <br>- Max: 5,000 <br><br>Stateless workflow: <br><br>- Default: 60 <br>- Min: 1 <br>- Max: 100 | The number of cycles that an **Until** loop can have during a workflow run. <br><br>To change this value in multitenant Azure Logic Apps, in the **Until** loop shape, select **Change limits**, and specify the value for the **Count** property. <br><br>To change the default value in the single-tenant service, review [Edit host and app settings for logic apps in single-tenant Azure Logic Apps](edit-app-settings-host-settings.md). |
+| Time-out | Default: PT1H (1 hour) | Stateful workflow: PT1H (1 hour) <br><br>Stateless workflow: PT5M (5 min) | The amount of time that the **Until** loop can run before exiting and is specified in [ISO 8601 format](https://en.wikipedia.org/wiki/ISO_8601). The time-out value is evaluated for each loop cycle. If any action in the loop takes longer than the time-out limit, the current cycle doesn't stop. However, the next cycle doesn't start because the limit condition isn't met. <br><br>To change this value in multitenant Azure Logic Apps, in the **Until** loop shape, select **Change limits**, and specify the value for the **Timeout** property. <br><br>To change the default value in the single-tenant service, review [Edit host and app settings for logic apps in single-tenant Azure Logic Apps](edit-app-settings-host-settings.md). |
+
+<a name="concurrency-debatching"></a>
+
+### Concurrency and debatching
+
+| Name | Multitenant | Single-tenant | Notes |
+|------|-------------|---------------|-------|
+| Trigger - concurrent runs | Concurrency off: Unlimited <br><br>Concurrency on (irreversible): <br><br>- Default: 25 <br>- Min: 1 <br>- Max: 100 | Concurrency off: Unlimited <br><br>Concurrency on (irreversible): <br><br>- Default: 100 <br>- Min: 1 <br>- Max: 100 | The number of concurrent runs that a trigger can start at the same time, or in parallel. <br><br>**Note**: When concurrency is turned on, the debatching or **Split on** limit is reduced to 100 items for [debatching arrays](logic-apps-workflow-actions-triggers.md#split-on-debatch). <br><br>To change this value in multitenant Azure Logic Apps, see [Change trigger concurrency limit](logic-apps-workflow-actions-triggers.md#change-trigger-concurrency) or [Trigger instances sequentially](logic-apps-workflow-actions-triggers.md#sequential-trigger). <br><br>To change the default value in the single-tenant service, review [Edit host and app settings for logic apps in single-tenant Azure Logic Apps](edit-app-settings-host-settings.md). |
+| Maximum waiting runs | Concurrency on: <br><br>- Min: 10 runs plus the number of concurrent runs <br>(Default)<br>- Max: 100 runs | Concurrency on: <br><br>- Min: 10 runs plus the number of concurrent runs <br>(Default)<br>- Max: 200 runs <br> | The number of workflow instances that can wait to run when your current workflow instance is already running the maximum concurrent instances. This setting takes effect only if concurrency is turned on. <br><br>To change this value in multitenant Azure Logic Apps, see [Change waiting runs limit](../logic-apps/logic-apps-workflow-actions-triggers.md#change-waiting-runs). <br><br>To change the default value in the single-tenant service, review [Edit host and app settings for logic apps in single-tenant Azure Logic Apps](edit-app-settings-host-settings.md). |
+| Debatch or **Split on** items | Concurrency off: 100,000 items <br><br>Concurrency on: 100 items | Concurrency off: 100,000 items <br><br>Concurrency on: 100 items | For triggers that return arrays, you can specify an expression that uses the `splitOn` property, which [splits or debatches array items into multiple workflow instances](logic-apps-workflow-actions-triggers.md#split-on-debatch) for processing, rather than use a **For each** loop. This expression references the array to use for creating and running a workflow instance for each array item. <br><br>**Note**: When concurrency is turned on, the debatching or **Split on** limit is reduced to 100 items. |
 
 <a name="throughput-limits"></a>
 
 ## Throughput limits
 
-Here are the limits for a single logic app definition:
+The following table lists the values for a single workflow definition:
 
-### Multi-tenant Logic Apps service
+| Name | Multitenant | Single-tenant | Notes |
+|------|-------------|---------------|-------|
+| Action - Executions per 5-minute rolling interval | Default: 100,000 executions <br>- High throughput mode: 300,000 executions | None | In multitenant Azure Logic Apps, you can raise the default value to the maximum value for your workflow. For more information, see [Run in high throughput mode](#run-high-throughput-mode), which is in preview. Or, you can [distribute the workload across more than one workflow](handle-throttling-problems-429-errors.md#logic-app-throttling) as necessary. |
+| Action - Concurrent outbound calls | ~2,500 calls | None | You can reduce the number of concurrent requests or reduce the duration as necessary. |
+| Managed connector throttling | Throttling limit varies based on connector | Throttling limit varies based on connector | For multitenant, review [each managed connector's technical reference page](/connectors/connector-reference/connector-reference-logicapps-connectors). <br><br>For more information about handling connector throttling, review [Handle throttling problems ("429 - Too many requests" errors)](handle-throttling-problems-429-errors.md#connector-throttling). |
+| Runtime endpoint - Concurrent inbound calls | ~1,000 calls | None | You can reduce the number of concurrent requests or reduce the duration as necessary. |
+| Runtime endpoint- Concurrent inbound calls for API Management REST API | | 56 calls per 5 minutes | Applies only to API Management REST API calls to the Request trigger in a Standard logic app workflow. <br><br>Use the callback URL to send the request to the Request trigger in a Standard logic app workflow, rather than use API Management calls, which have a hard throttling limit of 56 calls per 5-minute interval. |
+| Runtime endpoint - Read calls per 5 min  | 60,000 read calls | None | This limit applies to calls that get the raw inputs and outputs from a workflow's run history. You can distribute the workload across more than one workflow as necessary. |
+| Runtime endpoint - Invoke calls per 5 min | 45,000 invoke calls | None | You can distribute workload across more than one workflow as necessary. |
+| Content throughput per 5 min | 6 GB | None | For example, suppose the backend has 100 workers. Each worker has a limit of 60 MB, which is the result from dividing 6 GB by 100 workers. You can distribute workload across more than one workflow as necessary. |
 
-| Name | Limit | Notes |
-| ---- | ----- | ----- |
-| Action: Executions per 5 minutes | 100,000 is the default limit, but 300,000 is the maximum limit. | To change the default limit, see [Run your logic app in "high throughput" mode](../logic-apps/logic-apps-workflow-actions-triggers.md#run-high-throughput-mode), which is in preview. Or, you can distribute the workload across more than one logic app as necessary. |
-| Action: Concurrent outbound calls | ~2,500 | You can reduce the number of concurrent requests or reduce the duration as necessary. |
-| Runtime endpoint: Concurrent inbound calls | ~1,000 | You can reduce the number of concurrent requests or reduce the duration as necessary. |
-| Runtime endpoint: Read calls per 5 minutes  | 60,000 | This limit applies to calls that get the raw inputs and outputs from a logic app's run history. You can distribute the workload across more than one app as necessary. |
-| Runtime endpoint: Invoke calls per 5 minutes | 45,000 | You can distribute workload across more than one app as necessary. |
-| Content throughput per 5 minutes | 600 MB | You can distribute workload across more than one app as necessary. |
-||||
+<a name="run-high-throughput-mode"></a>
 
-### Integration service environment (ISE)
+## Scale for high throughput
 
-Here are the throughput limits for the [Premium ISE SKU](../logic-apps/connect-virtual-network-vnet-isolated-environment-overview.md#ise-level):
+### [Standard](#tab/standard)
 
-| Name | Limit | Notes |
-|------|-------|-------|
-| Base unit execution limit | System-throttled when infrastructure capacity reaches 80% | Provides ~4,000 action executions per minute, which is ~160 million action executions per month | |
-| Scale unit execution limit | System-throttled when infrastructure capacity reaches 80% | Each scale unit can provide ~2,000 additional action executions per minute, which is ~80 million more action executions per month | |
-| Maximum scale units that you can add | 10 | |
-||||
+In single-tenant Azure Logic Apps, a Standard logic app resource uses storage and compute as the primary resources to run workflows.
 
-To go above these limits in normal processing, or run load testing that might go above these limits, [contact the Logic Apps team](mailto://logicappsemail@microsoft.com) for help with your requirements.
+### Storage
+
+Stateful workflows in single-tenant Azure Logic Apps use Azure Table Storage for persistent data storage during runtime, Azure Blob Storage for maintaining workflow run histories, and Azure Queue Storage for scheduling purposes. For example, a single storage account enables handling a substantial number of requests with rates of up to 2,000 requests per partition and 20,000 requests per second at the storage account level. While a single storage account can handle reasonably high throughput, beyond these thresholds, request rates are subject to throttling, and your workflows might experience partition level throttling or account level throttling as workflow execution rate increases. To make sure that your workflows operate smoothly, it's crucial that you understand the possible limitations and the ways that you can address them.
+
+For more information about scaling targets and limitations for the various Azure Storage services, see the following documentation:
+
+- [Scale targets for Table Storage](../storage/tables/scalability-targets.md#scale-targets-for-table-storage)
+- [Data operation targets for Table Storage](../storage/tables/storage-performance-checklist.md#targets-for-data-operations)
+- [Scale targets for Blob Storage](../storage/blobs/scalability-targets.md#scale-targets-for-blob-storage)
+- [Scale targets for Queue Storage](../storage/queues/scalability-targets.md#scale-targets-for-queue-storage)
+
+#### Scale your logic app for storage limitations
+
+The following recommendations apply to scaling Standard logic app workflows:
+
+- Share workload across multiple workflows.
+
+  Single-tenant Azure Logic Apps already minimizes partition-level throttling by distributing storage transactions across multiple partitions. However, to improve distribution and mitigate partition-level throttling, [distribute the workload across multiple workflows](handle-throttling-problems-429-errors.md#logic-app-throttling), rather than rely on a single workflow.
+
+- Share workload across multiple storage accounts.
+
+  If your workflows require high throughput, you can significantly increase throughput by distributing the workload across multiple storage accounts, rather than rely on a single storage account. You can set up your Standard logic app resource to use up to 32 storage accounts as the limit. To determine the number of storage accounts that you need, use the general guideline of aiming for ~100,000 action executions per minute, per storage account. While this estimate works well for most scenarios, you might use a lower number of action executions if your workflow actions are compute heavy, for example, a query action that processes large data arrays. Make sure that you perform load testing and tune your solution before using in production.
+
+  To enable using multiple storage accounts, follow these steps before you create your Standard logic app. Otherwise, if you change the settings after creation, you might experience data loss or not achieve the necessary scalability.
+
+  1. [Create the storage accounts](../storage/common/storage-account-create.md?tabs=azure-portal) that you want to use. Save the connection string for each storage account.
+
+  1. Find and open your Standard logic app, and then [edit your logic app's host settings (**host.json** file)](edit-app-settings-host-settings.md?tabs=azure-portal#manage-host-settings---hostjson) to include the following **`extensions`** object, which contains the **`workflow`** and **`settings`** objects with the **Runtime.ScaleUnitsCount** setting:
+
+     ```json
+     "extensions": {
+         "workflow": {
+             "settings": {
+                 "Runtime.ScaleUnitsCount": "<storage-accounts-number>"
+             }
+         }
+     }
+     ```
+
+     The following example specifies **3** as the number of storage accounts:
+
+     ```json
+     {
+         "version": "2.0",
+         "extensionBundle": {
+             "id": "Microsoft.Azure.Functions.ExtensionBundle.Workflows",
+             "version": "[1.*, 2.0.0)"
+         },
+         "extensions": {
+             "workflow": {
+                 "settings": {
+                     "Runtime.ScaleUnitsCount": "3"
+                 }
+             }
+         }
+     }
+     ```
+
+  1. [Edit your logic app's application configuration settings (**local.settings.json**)](edit-app-settings-host-settings.md?tabs=azure-portal#manage-app-settings---localsettingsjson) to add an app setting named **CloudStorageAccount.Workflows.ScaleUnitsDataStorage.CU0\<*storage-account-number*>\.ConnectionString** and the corresponding storage account connection string using the following syntax where the first storage account number is **`00`** up to the number of storage accounts minus 1, for example:
+
+     | App setting name | Value |
+     |------------------|-------|
+     | **CloudStorageAccount.Workflows.ScaleUnitsDataStorage.CU00.ConnectionString** | `<connection-string-1>` |
+     | **CloudStorageAccount.Workflows.ScaleUnitsDataStorage.CU01.ConnectionString** | `<connection-string-2>` |
+     | **CloudStorageAccount.Workflows.ScaleUnitsDataStorage.CU02.ConnectionString** | `<connection-string-3>` | 
+
+     > [!IMPORTANT]
+     >
+     > When you have sensitive information, such as connection strings that include usernames and passwords, 
+     > make sure to use the most secure authentication flow available. For example, in Standard logic app workflows, 
+     > secure data types, such as `securestring` and `secureobject`, aren't supported. Microsoft recommends that you 
+     > authenticate access to Azure resources with a [managed identity](/entra/identity/managed-identities-azure-resources/overview) 
+     > when possible, and assign a role that has the least privilege necessary.
+     >
+     > If this capability is unavailable, make sure to secure connection strings through other measures, such as 
+     > [Azure Key Vault](/azure/key-vault/general/overview), which you can use with [app settings](edit-app-settings-host-settings.md). 
+     > You can then [directly reference secure strings](../app-service/app-service-key-vault-references.md), such as connection 
+     > strings and keys. Similar to ARM templates, where you can define environment variables at deployment time, you can define 
+     > app settings within your [logic app workflow definition](/azure/templates/microsoft.logic/workflows). 
+     > You can then capture dynamically generated infrastructure values, such as connection endpoints, storage strings, and more. 
+     > For more information, see [Application types for the Microsoft identity platform](/entra/identity-platform/v2-app-types).
+
+   1. In your logic app's application configuration settings, update the **AzureWebJobsStorage** setting value with the same connection string that's in the **CloudStorageAccount.Workflows.ScaleUnitsDataStorage.CU00.ConnectionString** setting.
+
+#### Compute
+
+A Standard logic app runs by using one of the [available compute plans](logic-apps-pricing.md#standard-pricing-tiers), which provide different levels of virtual CPU and memory, or by using an App Service Environment v3, which provides more compute options.
+
+Single-tenant Azure Logic Apps dynamically scales to effectively handle increasing loads. Your logic app uses the following primary factors to determine whether to scale.
 
 > [!NOTE]
-> The [Developer ISE SKU](../logic-apps/connect-virtual-network-vnet-isolated-environment-overview.md#ise-level)
-> has no published limits, no capabilities for scaling up, and no service-level agreement (SLA). Use this SKU
-> only for experimenting, development, and testing, not production or performance testing.
+>
+> For a Standard logic app in an App Service Environment v3, dynamic scaling isn't available. 
+> You must set scaling rules on the associated App Service Plan. As a commonly used scaling rule, 
+> you can use the CPU metric, and scale your App Service Plan to keep the virtual CPU between 50-70%. 
+> For more information, see [Get started with autoscale in Azure](/azure/azure-monitor/autoscale/autoscale-get-started).
+
+- Trigger
+
+  To determine scaling requirements, the scaler analyzes the trigger that starts each workflow in your logic app. For example, for a workflow with a Service Bus trigger, if the queue length continuously grows, the scaler takes action to add worker instances, which enable processing more messages. Likewise, for a workflow with a Request trigger, if the request latency experiences an upward trend, the scaler increases the number of worker instances to distribute the request load more efficiently. For more information about worker instances, see [Azure Logic Apps (Standard) - Runtime Deep Dive](https://techcommunity.microsoft.com/t5/azure-integration-services-blog/azure-logic-apps-running-anywhere-runtime-deep-dive/ba-p/1835564).
+
+- Workflow job execution delay
+
+  At runtime, workflow actions are divided into individual jobs that are queued for execution. Job dispatchers regularly poll the job queue to retrieve and execute these jobs. However, if compute capacity is insufficient to pick up these jobs, they stay in the queue for a longer time, resulting in increased execution delays. The scaler monitors this situation and make scaling decisions to keep the execution delays under control. For more information about how the runtime schedules and runs jobs, see [Azure Logic Apps (Standard) - Runtime Deep Dive](https://techcommunity.microsoft.com/t5/azure-integration-services-blog/azure-logic-apps-running-anywhere-runtime-deep-dive/ba-p/1835564).
+ 
+  The scaler also considers the minimum and maximum worker instance counter configuration to determine whether to make scaling decisions, such as adding, removing, or maintaining the current number of worker instances. Typically, the scaler makes these decisions at intervals of approximately 15-30 seconds. So, consider this ramp-up time and its impact on your logic app's scaling speed to effectively handle peak loads. For example, if your workload requires scaling your logic app from just 1 worker instance to 100 worker instances, the ramp-up alone might take 25-50 minutes. Single-tenant Azure Logic Apps scaling shares the same [Azure Functions scaling infrastructure](../azure-functions/event-driven-scaling.md).
+
+##### Configure your logic app compute for faster scaling
+
+- Share workload across multiple logic apps.
+
+  Each logic app can scale independently, so distributing your workload across more than one logic app can significantly accelerate the scaling speed. For example, two logic apps can scale to twice the number of worker instances in the same timeframe as a single logic app. By splitting your workload across multiple apps, you can effectively multiply the scalability and achieve faster scaling results.
+
+- Use prewarmed instances.
+
+  If your scenario requires quicker ramp-up time, consider using prewarmed instances. If your peak load times are deterministic, you can use an automation task to adjust these prewarm instances on a schedule. For more information, see [Manage Azure resources and monitor costs by creating automation tasks (preview)](create-automation-tasks-azure-resources.md).
+
+### [Consumption](#tab/consumption)
+
+Multitenant Azure Logic Apps has a [default limit](#throughput-limits) on the number of actions that run every 5 minutes. To raise the default value to the [maximum value](#throughput-limits), you can enable high throughput mode, which is in preview. Or, [distribute the workload across multiple logic apps and workflows](handle-throttling-problems-429-errors.md#logic-app-throttling), rather than rely on a single logic app and workflow.
+
+#### Enable high throughput in the portal
+
+1. In the Azure portal, on your logic app's menu, under **Settings**, select **Workflow settings**.
+
+1. Under **Runtime options** > **High throughput**, change the setting to **On**.
+
+   ![Screenshot that shows logic app menu in Azure portal with "Workflow settings" and "High throughput" set to "On".](./media/logic-apps-limits-and-config/run-high-throughput-mode.png)
+
+#### Enable high throughput in a Resource Manager template
+
+To enable this setting in an ARM template for deploying your logic app, in the `properties` object for your logic app's resource definition, add the `runtimeConfiguration` object with the `operationOptions` property set to `OptimizedForHighThroughput`:
+
+```json
+{
+   <template-properties>
+   "resources": [
+      // Start logic app resource definition
+      {
+         "properties": {
+            <logic-app-resource-definition-properties>,
+            <logic-app-workflow-definition>,
+            <more-logic-app-resource-definition-properties>,
+            "runtimeConfiguration": {
+               "operationOptions": "OptimizedForHighThroughput"
+            }
+         },
+         "name": "[parameters('LogicAppName')]",
+         "type": "Microsoft.Logic/workflows",
+         "location": "[parameters('LogicAppLocation')]",
+         "tags": {},
+         "apiVersion": "2016-06-01",
+         "dependsOn": [
+         ]
+      }
+      // End logic app resource definition
+   ],
+   "outputs": {}
+}
+```
+
+For more information about your logic app resource definition, review [Overview: Automate deployment for Azure Logic Apps by using Azure Resource Manager templates](logic-apps-azure-resource-manager-templates-overview.md#logic-app-resource-definition).
+
+---
 
 <a name="gateway-limits"></a>
 
-## Gateway limits
+## Data gateway limits
 
-Azure Logic Apps supports write operations, including inserts and updates, through the gateway. However, these operations have [limits on their payload size](/data-integration/gateway/service-gateway-onprem#considerations).
-
-<a name="request-limits"></a>
-
-## HTTP limits
-
-Here are the limits for a single outgoing or incoming HTTP call:
-
-#### Timeout
-
-Some connector operations make asynchronous calls or listen for webhook requests, so the timeout for these operations might be longer than these limits. For more information, see the technical details for the specific connector and also [Workflow triggers and actions](../logic-apps/logic-apps-workflow-actions-triggers.md#http-action).
-
-| Name | Multi-tenant limit | Integration service environment limit | Notes |
-|------|--------------------|---------------------------------------|-------|
-| Outbound request | 120 seconds <br>(2 minutes) | 240 seconds <br>(4 minutes) | Examples of outbound requests include calls made by HTTP triggers. <p><p>**Tip**: For longer running operations, use an [asynchronous polling pattern](../logic-apps/logic-apps-create-api-app.md#async-pattern) or an [until loop](../logic-apps/logic-apps-workflow-actions-triggers.md#until-action). To work around timeout limits when you call another logic app that has a [callable endpoint](logic-apps-http-endpoint.md), you can use the built-in Azure Logic Apps action instead, which you can find in the connector picker under **Built-in**. |
-| Inbound request | 120 seconds <br>(2 minutes) | 240 seconds <br>(4 minutes) | Examples of inbound requests include calls received by request triggers and webhook triggers. <p><p>**Note**: For the original caller to get the response, all steps in the response must finish within the limit unless you call another logic app as a nested workflow. For more information, see [Call, trigger, or nest logic apps](../logic-apps/logic-apps-http-endpoint.md). |
-|||||
-
-<a name="message-size-limits"></a>
-
-#### Message size
-
-| Name | Multi-tenant limit | Integration service environment limit | Notes |
-|------|--------------------|---------------------------------------|-------|
-| Message size | 100 MB | 200 MB | To work around this limit, see [Handle large messages with chunking](../logic-apps/logic-apps-handle-large-messages.md). However, some connectors and APIs might not support chunking or even the default limit. <p><p>- Connectors such as AS2, X12, and EDIFACT have their own [B2B message limits](#b2b-protocol-limits). <br>- ISE connectors use the ISE limit, not their non-ISE connector limits. |
-| Message size with chunking | 1 GB | 5 GB | This limit applies to actions that either natively support chunking or let you enable chunking in their runtime configuration. <p><p>If you're using an ISE, the Logic Apps engine supports this limit, but connectors have their own chunking limits up to the engine limit, for example, see the [Azure Blob Storage connector's API reference](/connectors/azureblob/). For more information about chunking, see [Handle large messages with chunking](../logic-apps/logic-apps-handle-large-messages.md). |
-|||||
-
-#### Character limits
-
-| Name | Notes |
-|------|-------|
-| Expression evaluation limit | 131,072 characters | The `@concat()`, `@base64()`, `@string()` expressions can't be longer than this limit. |
-| Request URL character limit | 16,384 characters |
-|||
+Azure Logic Apps supports write operations, including inserts and updates, through the on-premises data gateway. However, these operations have [limits on their payload size](/data-integration/gateway/service-gateway-onprem#considerations).
 
 <a name="retry-policy-limits"></a>
 
-#### Retry policy
+## Retry policy limits
+
+The following table lists the retry policy limits for a trigger or action, based on whether you have a [Consumption or Standard logic app workflow](logic-apps-overview.md#resource-environment-differences).
+
+| Name | Consumption limit | Standard limit | Notes |
+|------|-------------------|----------------|-------|
+| Retry attempts | - Default: 4 attempts <br> - Max: 90 attempts | - Default: 4 attempts | To change the default limit in Consumption logic app workflows, use the [retry policy parameter](logic-apps-exception-handling.md#retry-policies). To change the default limit in Standard logic app workflows, review [Edit host and app settings for logic apps in single-tenant Azure Logic Apps](edit-app-settings-host-settings.md). |
+| Retry interval | None | Default: 7 sec | To change the default limit in Consumption logic app workflows, use the [retry policy parameter](logic-apps-exception-handling.md#retry-policies). <br><br>To change the default limit in Standard logic app workflows, review [Edit host and app settings for logic apps in single-tenant Azure Logic Apps](edit-app-settings-host-settings.md). |
+
+<a name="variables-action-limits"></a>
+
+## Variables action limits
+
+The following table lists the values for a single workflow definition:
+
+| Name | Multitenant | Single-tenant | Notes |
+|------|-------------|---------------|-------|
+| Variables per workflow | 250 variables | 250 variables <br>(Default) ||
+| Variable - Maximum content size | 104,857,600 characters | Stateful workflow: 104,857,600 characters <br>(Default) <br><br>Stateless workflow: 1,024 characters <br>(Default) | To change the default value in the single-tenant service, review [Edit host and app settings for logic apps in single-tenant Azure Logic Apps](edit-app-settings-host-settings.md). |
+| Variable (Array type) - Maximum number of array items | 100,000 items | 100,000 items <br>(Default) | To change the default value in the single-tenant service, review [Edit host and app settings for logic apps in single-tenant Azure Logic Apps](edit-app-settings-host-settings.md). |
+
+<a name="http-limits"></a>
+
+## HTTP request limits
+
+The following tables list the values for a single inbound or outbound call:
+
+<a name="http-time-out-limits"></a>
+
+### Time-out duration
+
+By default, the HTTP action and API connection actions follow the [standard asynchronous operation pattern](/azure/architecture/patterns/async-request-reply), while the Response action follows the *synchronous operation pattern*. Some managed connector operations make asynchronous calls or listen for webhook requests, so the time-out for these operations might be longer than the following limits. For more information, see [each connector's technical reference page](/connectors/connector-reference/connector-reference-logicapps-connectors) and the [Workflow triggers and actions page](logic-apps-workflow-actions-triggers.md#http-action).
+
+For Standard logic app resources in single-tenant Azure Logic Apps, stateless workflows can only run *synchronously*. Stateless workflows only save each action's inputs, outputs, and states in memory, not external storage. As a result, stateless workflows perform faster with quicker response times, provide higher throughput, reduce running costs from not using external storage, and shorter runs usually finish in 5 minutes or less. However, if outages happen, interrupted runs aren't automatically restored. The caller must manually resubmit interrupted runs. For the best performance, make sure that a stateless workflow handles data or content that doesn't exceed 64 KB in total file size. Larger sizes, such as multiple large attachments, might significantly slow workflow performance or even cause the workflow to crash from out-of-memory exceptions. If you require a workflow to handle larger file sizes, create a stateful workflow instead.
+
+| Name | Multitenant | Single-tenant | Notes |
+|------|-------------|---------------|-------|
+| Outbound request | 120 sec <br>(2 min) | 235 sec <br>(3.9 min) <br>(Default) | Examples of outbound requests include calls made by the HTTP trigger or action. <br><br>**Tip**: For longer running operations, use an [asynchronous polling pattern](logic-apps-create-api-app.md#async-pattern) or an ["Until" loop](logic-apps-workflow-actions-triggers.md#until-action). To work around time-out limits when you call another workflow that has a [callable endpoint](logic-apps-http-endpoint.md), you can use the built-in Azure Logic Apps action instead, which you can find in the designer's operation picker under **Built-in**. <br><br>To change the default limit in the single-tenant service, review [Edit host and app settings for logic apps in single-tenant Azure Logic Apps](edit-app-settings-host-settings.md). |
+| Inbound request | 120 sec <br>(2 min) | 235 sec <br>(3.9 min) <br>(Default) | Examples of inbound requests include calls received by the Request trigger, HTTP Webhook trigger, and HTTP Webhook action. <br><br>**Note**: For the original caller to get the response, all steps in the response must finish within the limit unless you call another nested workflow. For more information, see [Call, trigger, or nest logic apps](../logic-apps/logic-apps-http-endpoint.md). <br><br>To change the default limit in the single-tenant service, review [Edit host and app settings for logic apps in single-tenant Azure Logic Apps](edit-app-settings-host-settings.md). |
+
+<a name="content-storage-size-limits"></a>
+
+### Request trigger and webhook trigger size limits
+
+| Name | Multitenant | Single-tenant | Notes |
+|------|-------------|---------------|-------|
+| Request trigger (inbound) and webhook-based triggers - Content size limit per 5-minute rolling interval per workflow | 3,145,728 KB | None | This limit applies only to the content size for inbound requests received by the Request trigger or any webhook trigger. <br><br>For example, suppose the backend has 100 workers. Each worker has a limit of 31,457,280 bytes, which is the result from dividing 3,145,728,000 bytes by 100 workers. To avoid experiencing premature throttling for the Request trigger, use a new HTTP client for each request, which helps evenly distribute the calls across all nodes. For a webhook trigger, you might have to use multiple workflows, which split the load and avoids throttling. |
+
+<a name="message-size-limits"></a>
+
+### Messages
+
+| Name | Chunking enabled | Multitenant | Single-tenant | Notes |
+|------|------------------|-------------|---------------|-------|
+| Content download - Maximum number of requests | Yes | 1,000 requests | 1,000 requests <br>(Default) ||
+| Message size | No | 100 MB | 100 MB | To work around this limit, see [Handle large messages with chunking](logic-apps-handle-large-messages.md). However, some connectors and APIs don't support chunking or even the default limit. <br><br>- Connectors such as AS2, X12, and EDIFACT have their own [B2B message limits](#b2b-protocol-limits). <br><br>To change the default value in the single-tenant service, review [Edit host and app settings for logic apps in single-tenant Azure Logic Apps](edit-app-settings-host-settings.md). |
+| Message size per action | Yes | 1 GB | 1,073,741,824 bytes <br>(1 GB) <br>(Default) | This limit applies to actions that either natively support chunking or let you enable chunking in their runtime configuration. For more information about chunking, see [Handle large messages with chunking](../logic-apps/logic-apps-handle-large-messages.md). <br><br>To change the default value in the single-tenant service, review [Edit host and app settings for logic apps in single-tenant Azure Logic Apps](edit-app-settings-host-settings.md). |
+| Content chunk size per action | Yes | Varies per connector | 52,428,800 bytes (52 MB) <br>(Default) | This limit applies to actions that either natively support chunking or let you enable chunking in their runtime configuration. <br><br>To change the default value in the single-tenant service, review [Edit host and app settings for logic apps in single-tenant Azure Logic Apps](edit-app-settings-host-settings.md). |
+
+### Character limits
 
 | Name | Limit | Notes |
-| ---- | ----- | ----- |
-| Retry attempts | 90 | The default is 4. To change the default, use the [retry policy parameter](../logic-apps/logic-apps-workflow-actions-triggers.md). |
-| Retry max delay | 1 day | To change the default, use the [retry policy parameter](../logic-apps/logic-apps-workflow-actions-triggers.md). |
-| Retry min delay | 5 seconds | To change the default, use the [retry policy parameter](../logic-apps/logic-apps-workflow-actions-triggers.md). |
-||||
+|------|-------|-------|
+| Expression evaluation limit | 131,072 characters | The `@concat()`, `@base64()`, `@string()` expressions can't be longer than this limit. |
+| Request URL character limit | 16,384 characters | |
 
 <a name="authentication-limits"></a>
 
 ### Authentication limits
 
-Here are the limits for a logic app that starts with a Request trigger and enables [Azure Active Directory Open Authentication](../active-directory/develop/index.yml) (Azure AD OAuth) for authorizing inbound calls to the Request trigger:
+The following table lists the values for a workflow that starts with a Request trigger and enables [Microsoft Entra ID Open Authentication](../active-directory/develop/index.yml) (Microsoft Entra ID OAuth) for authorizing inbound calls to the Request trigger:
 
 | Name | Limit | Notes |
 | ---- | ----- | ----- |
-| Azure AD authorization policies | 5 | |
-| Claims per authorization policy | 10 | |
-||||
+| Microsoft Entra authorization policies | 5 policies | |
+| Claims per authorization policy | 10 claims | |
+| Claim value - Maximum number of characters | 150 characters |
+
+<a name="switch-action-limits"></a>
+
+## Switch action limits
+
+The following table lists the values for a single workflow definition:
+
+| Name | Limit | Notes |
+| ---- | ----- | ----- |
+| Maximum number of cases per action | 25 ||
+
+<a name="inline-code-action-limits"></a>
+
+## Inline Code action limits
+
+The following table lists the values for a single workflow definition:
+
+| Name | Multitenant | Single-tenant | Notes |
+|------|-------------|---------------|-------|
+| Maximum number of code characters | 1,024 characters | 100,000 characters | To use the higher limit, create a Standard logic app resource, which runs in single-tenant Azure Logic Apps, either [by using the Azure portal](create-single-tenant-workflows-azure-portal.md) or [by using Visual Studio Code and the **Azure Logic Apps (Standard)** extension](create-single-tenant-workflows-visual-studio-code.md). |
+| Maximum duration for running code | 5 sec | 15 sec | To use the higher limit, create a Standard logic app resource, which runs in single-tenant Azure Logic Apps, either [by using the Azure portal](create-single-tenant-workflows-azure-portal.md) or [by using Visual Studio Code and the **Azure Logic Apps (Standard)** extension](create-single-tenant-workflows-visual-studio-code.md). |
 
 <a name="custom-connector-limits"></a>
 
 ## Custom connector limits
 
-Here are the limits for custom connectors that you can create from web APIs.
+In multitenant Azure Logic Apps only, you can create and use [custom managed connectors](/connectors/custom-connectors), which are wrappers around an existing REST API or SOAP API. In single-tenant Azure Logic Apps, you can create and use only [custom built-in connectors](https://techcommunity.microsoft.com/t5/integrations-on-azure/azure-logic-apps-running-anywhere-built-in-connector/ba-p/1921272).
 
-| Name | Multi-tenant limit | Integration service environment limit | Notes |
-|------|--------------------|---------------------------------------|-------|
-| Number of custom connectors | 1,000 per Azure subscription | 1,000 per Azure subscription ||
-| Number of requests per minute for a custom connector | 500 requests per minute per connection | 2,000 requests per minute per *custom connector* ||
-|||
+The following table lists the values for custom connectors:
+
+| Name | Multitenant | Single-tenant | Notes |
+|------|-------------|---------------|-------|
+| Custom connectors | 1,000 per Azure subscription | Unlimited ||
+| APIs per service | SOAP-based: 50 | Not applicable ||
+| Parameters per API | SOAP-based: 50 | Not applicable ||
+| Requests per minute for a custom connector | 500 requests per minute per connection | Based on your implementation ||
+| Connection time-out | 2 min | Idle connection: <br>4 min <br><br>Active connection: <br>10 min ||
+
+For more information, review the following documentation:
+
+* [Custom managed connectors overview](/connectors/custom-connectors)
+* [Enable built-in connector authoring - Visual Studio Code with Azure Logic Apps (Standard) extension](create-single-tenant-workflows-visual-studio-code.md#enable-built-in-connector-authoring)
 
 <a name="managed-identity"></a>
 
-## Managed identities
+## Managed identity limits
 
 | Name | Limit |
 |------|-------|
-| Managed identities per logic app | Either the system-assigned identity or 1 user-assigned identity |
-| Number of logic apps that have a managed identity in an Azure subscription per region | 1,000 |
-|||
+| Managed identities per logic app resource | - Consumption: Either the system-assigned identity *or* only one user-assigned identity <br><br>- Standard: The system-assigned identity *and* any number of user-assigned identities <br><br>**Note**: By default, a **Logic App (Standard)** resource has the system-assigned managed identity automatically enabled to authenticate connections at runtime. This identity differs from the authentication credentials or connection string that you use when you create a connection. If you disable this identity, connections won't work at runtime. To view this setting, on your logic app's menu, under **Settings**, select **Identity**. |
+| Number of logic apps that have a managed identity in an Azure subscription per region | - Consumption: 5,000 logic apps <br>- Standard: Per [Azure App Service limits, if any](../azure-resource-manager/management/azure-subscription-service-limits.md#azure-app-service-limits) |
 
 <a name="integration-account-limits"></a>
 
@@ -213,42 +511,32 @@ Here are the limits for custom connectors that you can create from web APIs.
 
 Each Azure subscription has these integration account limits:
 
-* One [Free tier](../logic-apps/logic-apps-pricing.md#integration-accounts) integration account per Azure region. This tier is available only for public regions in Azure, for example, West US or Southeast Asia, but not for [Azure China 21Vianet](/azure/china/overview-operations) or [Azure Government](../azure-government/documentation-government-welcome.md).
+* One [Free tier](logic-apps-pricing.md#integration-accounts) integration account per Azure region. This tier is available only for public regions in Azure, for example, West US or Southeast Asia, but not for [Microsoft Azure operated by 21Vianet](/azure/china/overview-operations) or [Azure Government](../azure-government/documentation-government-welcome.md).
 
-* 1,000 total integration accounts, including integration accounts in any [integration service environments (ISE)](../logic-apps/connect-virtual-network-vnet-isolated-environment-overview.md) across both [Developer and Premium SKUs](../logic-apps/connect-virtual-network-vnet-isolated-environment-overview.md#ise-level).
+* 1,000 total integration accounts
 
-* Each ISE, whether [Developer or Premium](../logic-apps/connect-virtual-network-vnet-isolated-environment-overview.md#ise-level), is limited to 5 total integration accounts:
-
-  | ISE SKU | Integration account limits |
-  |---------|----------------------------|
-  | **Premium** | 5 total - [Standard](../logic-apps/logic-apps-pricing.md#integration-accounts) accounts only, including one Standard account for free. No Free or Basic accounts are permitted. |
-  | **Developer** | 5 total - [Free](../logic-apps/logic-apps-pricing.md#integration-accounts) (limited to 1 account) and [Standard](../logic-apps/logic-apps-pricing.md#integration-accounts) combined, or all Standard accounts. No Basic accounts are permitted. Use the [Developer SKU](../logic-apps/connect-virtual-network-vnet-isolated-environment-overview.md#ise-level) for experimenting, development, and testing, but not for production or performance testing. |
-  |||
-
-Additional costs apply to integration accounts that you add beyond the integration accounts that are included with an ISE. To learn how pricing and billing work for ISEs, see the [Logic Apps pricing model](../logic-apps/logic-apps-pricing.md#fixed-pricing). For pricing rates, see [Logic Apps pricing](https://azure.microsoft.com/pricing/details/logic-apps/).
+To learn how pricing and billing work, see the [Logic Apps pricing model](logic-apps-pricing.md). For pricing rates, see [Logic Apps pricing](https://azure.microsoft.com/pricing/details/logic-apps/).
 
 <a name="artifact-number-limits"></a>
 
 ### Artifact limits per integration account
 
-Here are the limits on the number of artifacts for each integration account tier.
-For pricing rates, see [Logic Apps pricing](https://azure.microsoft.com/pricing/details/logic-apps/). To learn how pricing and billing work for integration accounts, see the [Logic Apps pricing model](../logic-apps/logic-apps-pricing.md#integration-accounts).
+The following tables list the values for the number of artifacts limited to each integration account tier. For pricing rates, see [Logic Apps pricing](https://azure.microsoft.com/pricing/details/logic-apps/). To learn how pricing and billing work for integration accounts, see the [Logic Apps pricing model](logic-apps-pricing.md#integration-accounts).
 
 > [!NOTE]
-> Use the Free tier only for exploratory scenarios,
-> not production scenarios. This tier restricts
-> throughput and usage, and has no service-level agreement (SLA).
+> Use the Free tier only for exploratory scenarios, not production scenarios. 
+> This tier restricts throughput and usage, and has no service-level agreement (SLA).
 
-| Artifact | Free | Basic | Standard |
-|----------|------|-------|----------|
-| EDI trading agreements | 10 | 1 | 1,000 |
-| EDI trading partners | 25 | 2 | 1,000 |
-| Maps | 25 | 500 | 1,000 |
-| Schemas | 25 | 500 | 1,000 |
-| Assemblies | 10 | 25 | 1,000 |
-| Certificates | 25 | 2 | 1,000 |
-| Batch configurations | 5 | 1 | 50 |
-||||
+| Artifact | Free | Basic | Standard | Premium (preview) |
+|----------|------|-------|----------|-------------------|
+| EDI trading agreements | 10 | 1 | 1,000 | Unlimited |
+| EDI trading partners | 25 | 2 | 1,000 | Unlimited |
+| Maps | 25 | 500 | 1,000 | Unlimited |
+| Schemas | 25 | 500 | 1,000 | Unlimited |
+| Assemblies | 10 | 25 | 1,000 | Unlimited, but currently unsupported for export from an integration service environment. |
+| Certificates | 25 | 2 | 1,000 | Unlimited |
+| Batch configurations | 5 | 1 | 50 | Unlimited |
+| RosettaNet partner interface process (PIP) | 10 | 1 | 500 | Unlimited, but currently unsupported for export from an integration service environment. |
 
 <a name="artifact-capacity-limits"></a>
 
@@ -256,10 +544,9 @@ For pricing rates, see [Logic Apps pricing](https://azure.microsoft.com/pricing/
 
 | Artifact | Limit | Notes |
 | -------- | ----- | ----- |
-| Assembly | 8 MB | To upload files larger than 2 MB, use an [Azure storage account and blob container](../logic-apps/logic-apps-enterprise-integration-schemas.md). |
-| Map (XSLT file) | 8 MB | To upload files larger than 2 MB, use the [Azure Logic Apps REST API - Maps](/rest/api/logic/maps/createorupdate). <p><p>**Note**: The amount of data or records that a map can successfully process is based on the message size and action timeout limits in Azure Logic Apps. For example, if you use an HTTP action, based on [HTTP message size and timeout limits](#request-limits), a map can process data up to the HTTP message size limit if the operation completes within the HTTP timeout limit. |
-| Schema | 8 MB | To upload files larger than 2 MB, use an [Azure storage account and blob container](../logic-apps/logic-apps-enterprise-integration-schemas.md). |
-||||
+| Assembly | 8 MB | To upload files larger than 2 MB, use an [Azure storage account and blob container](logic-apps-enterprise-integration-schemas.md). |
+| Map (XSLT file) | 8 MB | To upload files larger than 2 MB, use the [Azure Logic Apps REST API - Maps](/rest/api/logic/maps/createorupdate). <br><br>**Note**: The amount of data or records that a map can successfully process is based on the message size and action time-out limits in Azure Logic Apps. For example, if you use an HTTP action, based on [HTTP message size and time-out limits](#http-limits), a map can process data up to the HTTP message size limit if the operation completes within the HTTP time-out limit. |
+| Schema | 8 MB | To upload files larger than 2 MB, use an [Azure storage account and blob container](logic-apps-enterprise-integration-schemas.md). |
 
 <a name="integration-account-throughput-limits"></a>
 
@@ -267,189 +554,269 @@ For pricing rates, see [Logic Apps pricing](https://azure.microsoft.com/pricing/
 
 | Runtime endpoint | Free | Basic | Standard | Notes |
 |------------------|------|-------|----------|-------|
-| Read calls per 5 minutes | 3,000 | 30,000 | 60,000 | This limit applies to calls that get the raw inputs and outputs from a logic app's run history. You can distribute the workload across more than one account as necessary. |
-| Invoke calls per 5 minutes | 3,000 | 30,000 | 45,000 | You can distribute the workload across more than one account as necessary. |
-| Tracking calls per 5 minutes | 3,000 | 30,000 | 45,000 | You can distribute the workload across more than one account as necessary. |
+| Read calls per 5 min | 3,000 | 30,000 | 60,000 | This limit applies to calls that get the raw inputs and outputs from a logic app's run history. You can distribute the workload across more than one account as necessary. |
+| Invoke calls per 5 min | 3,000 | 30,000 | 45,000 | You can distribute the workload across more than one account as necessary. |
+| Tracking calls per 5 min | 3,000 | 30,000 | 45,000 | You can distribute the workload across more than one account as necessary. |
 | Blocking concurrent calls | ~1,000 | ~1,000 | ~1,000 | Same for all SKUs. You can reduce the number of concurrent requests or reduce the duration as necessary. |
-||||
 
 <a name="b2b-protocol-limits"></a>
 
 ### B2B protocol (AS2, X12, EDIFACT) message size
 
-Here are the message size limits that apply to B2B protocols:
+The following table lists the message size limits that apply to B2B protocols:
 
-| Name | Multi-tenant limit | Integration service environment limit | Notes |
-|------|--------------------|---------------------------------------|-------|
-| AS2 | v2 - 100 MB<br>v1 - 50 MB | v2 - 200 MB <br>v1 - 50 MB | Applies to decode and encode |
-| X12 | 50 MB | 50 MB | Applies to decode and encode |
-| EDIFACT | 50 MB | 50 MB | Applies to decode and encode |
-||||
-
-<a name="disable-delete"></a>
-
-## Disabling or deleting logic apps
-
-When you disable a logic app, no new runs are instantiated. All in-progress and pending runs continue until they finish, which might take time to complete.
-
-When you delete a logic app, no new runs are instantiated. All in-progress and pending runs are canceled. If you have thousands of runs, cancellation might take significant time to complete.
+| Name | Multitenant | Single-tenant | Notes |
+|------|-------------|---------------|-------|
+| AS2 | v2 - 100 MB<br>v1 - 25 MB | Unavailable | Applies to decode and encode |
+| X12 | 50 MB | Unavailable | Applies to decode and encode |
+| EDIFACT | 50 MB | Unavailable | Applies to decode and encode |
 
 <a name="configuration"></a>
+<a name="firewall-ip-configuration"></a>
 
 ## Firewall configuration: IP addresses and service tags
 
-The IP addresses that Azure Logic Apps uses for incoming and outgoing calls depend on the region where your logic app exists. *All* logic apps in the same region use the same IP address ranges. Some [Power Automate](/power-automate/getting-started) calls, such as **HTTP** and **HTTP + OpenAPI** requests, go directly through the Azure Logic Apps service and come from the IP addresses that are listed here. For more information about IP addresses used by Power Automate, see [Limits and configuration in Power Automate](/flow/limits-and-config#ip-address-configuration).
+If your environment has strict network requirements and uses a firewall that limits traffic to specific IP addresses, your environment or firewall needs to permit inbound traffic sent to multitenant Azure Logic Apps from outside and outbound traffic sent from Azure Logic Apps to the outside. To set up this access, you can create [Azure Firewall rules](/azure/firewall/rule-processing) that allow access for the [inbound](#inbound) and [outbound](#outbound) IP addresses required by Azure Logic Apps in the Azure region for your logic app resource. *All* logic apps in the same region use the same IP addresses.
 
-> [!TIP]
-> To help reduce complexity when you create security rules, you can optionally use
-> [service tags](../virtual-network/service-tags-overview.md), rather than
-> specify the Logic Apps IP addresses for each region, described later in this section.
-> These tags work across the regions where the Logic Apps service is available:
+> [!NOTE]
 >
-> * **LogicAppsManagement**: Represents the inbound IP address prefixes for the Logic Apps service.
-> * **LogicApps**: Represents the outbound IP address prefixes for the Logic Apps service.
+> If you use [Power Automate](/power-automate/getting-started), some actions such as **HTTP** and **HTTP + OpenAPI** 
+> communicate directly through the Azure Logic Apps platform using some of the IP addresses listed here. For more information 
+> about the IP addresses used by Power Automate, see [Limits and configuration for Power Automate](/power-automate/limits-and-config#ip-address-configuration).
 
-* For [Azure China 21Vianet](/azure/china/), fixed or reserved IP addresses are unavailable for [custom connectors](../logic-apps/custom-connector-overview.md) and [managed connectors](../connectors/apis-list.md#managed-api-connectors), for example, Azure Storage, SQL Server, Office 365 Outlook, and so on.
+For example, suppose you have logic apps in the West US region. To support the calls that your logic app workflows send or receive using built-in operations such as the [HTTP trigger or action](/azure/connectors/connectors-native-http), your firewall must allow access for all the inbound and outbound IP addresses for the West US region.
 
-* To support the calls that your logic apps directly make with [HTTP](../connectors/connectors-native-http.md), [HTTP + Swagger](../connectors/connectors-native-http-swagger.md), and other HTTP requests, set up your firewall with all the [inbound](#inbound) *and* [outbound](#outbound) IP addresses that are used by the Logic Apps service, based on the regions where your logic apps exist. These addresses appear under the **Inbound** and **Outbound** headings in this section, and are sorted by region.
+<a name="ip-setup-considerations"></a>
 
-* To support the calls that [managed connectors](../connectors/apis-list.md#managed-api-connectors) make, set up your firewall with *all* the [outbound](#outbound) IP addresses used by these connectors, based on the regions where your logic apps exist. These addresses appear under the **Outbound** heading in this section, and are sorted by region.
+### Firewall IP configuration considerations
 
-* To enable communication for logic apps that run in an integration service environment (ISE), make sure that you [open these ports](../logic-apps/connect-virtual-network-vnet-isolated-environment.md#network-ports-for-ise).
+Before you set up your firewall with IP addresses, review these considerations:
 
-* If your logic apps have problems accessing Azure storage accounts that use [firewalls and firewall rules](../storage/common/storage-network-security.md), you have [various options to enable access](../connectors/connectors-create-api-azureblobstorage.md#access-storage-accounts-behind-firewalls).
+* To simplify any security rules that you create, use [service tags](/azure/virtual-network/service-tags-overview), rather than specific IP addresses. These tags represent a group of IP address prefixes from a specific Azure service and work across the regions where the Azure Logic Apps service is available:
 
-  For example, logic apps can't directly access storage accounts that use firewall rules and exist in the same region. However, if you permit the [outbound IP addresses for managed connectors in your region](../logic-apps/logic-apps-limits-and-config.md#outbound), your logic apps can access storage accounts that are in a different region except when you use the Azure Table Storage or Azure Queue Storage connectors. To access your Table Storage or Queue Storage, you can use the HTTP trigger and actions instead. For other options, see [Access storage accounts behind firewalls](../connectors/connectors-create-api-azureblobstorage.md#access-storage-accounts-behind-firewalls).
+  | Service tag | Description |
+  |-------------|-------------|
+  | **LogicAppsManagement** | Inbound IP address prefixes for the Azure Logic Apps service. |
+  | **LogicApps** | Outbound IP address prefixes for the multitenant Azure Logic Apps service. |
+  | **AzureConnectors** | IP address prefixes required for managed connectors that make inbound webhook callbacks to the Azure Logic Apps service and outbound calls to their respective services, such as Azure Blob Storage or Azure Event Hubs. This tag and its IP addresses also apply to any customer connector operations in your workflows. |
+
+* For Standard logic app workflows in single-tenant Azure Logic Apps, you must allow access for any trigger or action connections in your workflows. To allow traffic, use [service tags](/azure/virtual-network/service-tags-overview) and the same level of restrictions or policies as Azure App Service. You must also find and use the fully qualified domain names (FQDNs) for your connections. For more information, see the corresponding sections in the following documentation:
+
+  * [Firewall permissions for Standard workflows - Azure portal](/azure/logic-apps/create-single-tenant-workflows-azure-portal#firewall-setup)
+  * [Firewall permissions for Standard workflows - Visual Studio Code](/azure/logic-apps/create-single-tenant-workflows-visual-studio-code#firewall-setup)
+
+* If your logic app workflows have problems accessing Azure storage accounts that use [firewalls and firewall rules](/azure/storage/common/storage-network-security), you have other [options to enable access](/azure/connectors/connectors-create-api-azureblobstorage#access-storage-accounts-behind-firewalls).
+
+  For example, workflows can't directly access storage accounts that use firewall rules and exist in the same region. However, after you allow traffic through the [outbound IP addresses for managed connectors in your Azure region](/connectors/common/outbound-ip-addresses/#azure-logic-apps), your workflows can access storage accounts that exist in a different region, except when they use the Azure Table Storage or Azure Queue Storage connectors. To access Table Storage or Queue Storage, use the [HTTP trigger and actions](/azure/connectors/connectors-native-http). For other options, see [Access storage accounts behind firewalls](/azure/connectors/connectors-create-api-azureblobstorage#access-storage-accounts-behind-firewalls).
 
 <a name="inbound"></a>
 
 ### Inbound IP addresses
 
-This section lists the inbound IP addresses for the Azure Logic Apps service only. If you have Azure Government, see [Azure Government - Inbound IP addresses](#azure-government-inbound).
+For Azure Logic Apps to receive communication through your firewall from external services, you have to allow traffic through *all the inbound IP addresses* set aside for the Azure region where your logic app resources exists.
 
-> [!TIP]
-> To help reduce complexity when you create security rules, you can optionally use the
-> [service tag](../virtual-network/service-tags-overview.md), **LogicAppsManagement**,
-> rather than specify inbound Logic Apps IP address prefixes for each region.
-> This tag works across the regions where the Logic Apps service is available.
+To reduce complexity when you create security rules, use the [**LogicAppsManagement** service tag](../virtual-network/service-tags-overview.md), rather than specific inbound IP addresses. Service tags include static IP addresses, so if you can't use service tags, add all the IP addresses covered by the service tag instead. For more information, download [Azure IP Ranges and Service Tags for Public Cloud](https://www.microsoft.com/download/details.aspx?id=56519).
 
-<a name="multi-tenant-inbound"></a>
+Otherwise, see the section named [Multitenant - Inbound IP addresses](#multitenant-inbound). If you're using Azure Government, see [Azure Government - Inbound IP addresses](#azure-government-inbound).
 
-#### Multi-tenant Azure - Inbound IP addresses
+> [!NOTE]
+> 
+> Some managed connector operations make inbound webhook callbacks to Azure Logic Apps. 
+> If you use access control on the logic app resource, make sure that the calls from 
+> the IP addresses for these services or systems have permissions to access your logic app.
+>
+> The following connector operations make inbound webhook callbacks to Azure Logic Apps:
+>
+> Adobe Creative Cloud, Adobe Sign, Adobe Sign Demo, Adobe Sign Preview, Adobe Sign Stage, 
+> Azure Event Grid, Calendly, DocuSign, DocuSign Demo, LiveChat, Microsoft Dataverse 
+> (Common Data Service), Microsoft Forms, Microsoft Dynamics 365 Business Central, Microsoft 
+> Dynamics 365 for Fin & Ops, Microsoft Office 365* Outlook, Microsoft Outlook.com, Microsoft 
+> Sentinel, Parserr, SAP*, Shifts for Microsoft Teams, Teamwork Projects, Typeform, and so on:
+>
+> - **Office 365**: The return caller is actually the Office 365 connector. You can specify the 
+> managed connector outbound IP address for each region, or use the **AzureConnectors** service 
+> tag for these managed connectors.
+>
+> - **SAP**: The return caller depends on whether the deployment environment is multitenant Azure. 
+> In the multitenant, the on-premises data gateway makes the callback to the Azure Logic Apps service. 
 
-| Multi-tenant region | IP |
-|---------------------|----|
-| Australia East | 13.75.153.66, 104.210.89.222, 104.210.89.244, 52.187.231.161 |
-| Australia Southeast | 13.73.115.153, 40.115.78.70, 40.115.78.237, 52.189.216.28 |
-| Brazil South | 191.235.86.199, 191.235.95.229, 191.235.94.220, 191.234.166.198 |
-| Canada Central | 13.88.249.209, 52.233.30.218, 52.233.29.79, 40.85.241.105 |
-| Canada East | 52.232.129.143, 52.229.125.57, 52.232.133.109, 40.86.202.42 |
-| Central India | 52.172.157.194, 52.172.184.192, 52.172.191.194, 104.211.73.195 |
-| Central US | 13.67.236.76, 40.77.111.254, 40.77.31.87, 104.43.243.39 |
-| East Asia | 168.63.200.173, 13.75.89.159, 23.97.68.172, 40.83.98.194 |
-| East US | 137.135.106.54, 40.117.99.79, 40.117.100.228, 137.116.126.165 |
-| East US 2 | 40.84.25.234, 40.79.44.7, 40.84.59.136, 40.70.27.253 |
-| France Central | 52.143.162.83, 20.188.33.169, 52.143.156.55, 52.143.158.203 |
-| France South | 52.136.131.145, 52.136.129.121, 52.136.130.89, 52.136.131.4 |
-| Japan East | 13.71.146.140, 13.78.84.187, 13.78.62.130, 13.78.43.164 |
-| Japan West | 40.74.140.173, 40.74.81.13, 40.74.85.215, 40.74.68.85 |
-| Korea Central | 52.231.14.182, 52.231.103.142, 52.231.39.29, 52.231.14.42 |
-| Korea South | 52.231.166.168, 52.231.163.55, 52.231.163.150, 52.231.192.64 |
-| North Central US | 168.62.249.81, 157.56.12.202, 65.52.211.164, 65.52.9.64 |
-| North Europe | 13.79.173.49, 52.169.218.253, 52.169.220.174, 40.112.90.39 |
-| South Africa North | 102.133.228.4, 102.133.224.125, 102.133.226.199, 102.133.228.9 |
-| South Africa West | 102.133.72.190, 102.133.72.145, 102.133.72.184, 102.133.72.173 |
-| South Central US | 13.65.98.39, 13.84.41.46, 13.84.43.45, 40.84.138.132 |
-| South India | 52.172.9.47, 52.172.49.43, 52.172.51.140, 104.211.225.152 |
-| Southeast Asia | 52.163.93.214, 52.187.65.81, 52.187.65.155, 104.215.181.6 |
-| UAE Central | 20.45.75.193, 20.45.64.29, 20.45.64.87, 20.45.71.213 |
-| UK South | 51.140.79.109, 51.140.78.71, 51.140.84.39, 51.140.155.81 |
-| UK West | 51.141.48.98, 51.141.51.145, 51.141.53.164, 51.141.119.150 |
-| West Central US | 52.161.26.172, 52.161.8.128, 52.161.19.82, 13.78.137.247 |
-| West Europe | 13.95.155.53, 52.174.54.218, 52.174.49.6 |
-| West India | 104.211.164.112, 104.211.165.81, 104.211.164.25, 104.211.157.237 |
-| West US | 52.160.90.237, 138.91.188.137, 13.91.252.184, 157.56.160.212 |
-| West US 2 | 13.66.224.169, 52.183.30.10, 52.183.39.67, 13.66.128.68 |
-|||
+<a name="multitenant-inbound"></a>
+
+#### Multitenant - Inbound IP addresses
+
+This section lists the inbound IP addresses that Azure Logic Apps requires for the Azure region where a logic app exists to receive communication through your firewall. Make sure that you review the [Inbound IP addresses introduction](#inbound) for all the requirements related to allowing inbound traffic into Azure Logic Apps.
+
+| Region | Azure Logic Apps IP |
+|--------|---------------------|
+| Australia East | 20.11.76.135, 20.11.77.54, 4.200.57.191, 20.11.77.111, 4.200.48.30, 4.198.185.192, 4.200.48.37, 4.200.57.70 |
+| Australia Southeast | 20.211.194.165, 20.70.118.30, 4.198.78.245, 20.70.114.85, 20.70.116.201, 20.92.62.87, 20.211.194.79, 20.92.62.64, 13.77.55.128, 13.77.55.129 |
+| Austria East | 68.210.183.164, 68.210.183.162, 68.210.183.167, 68.210.183.161, 68.210.183.160, 68.210.183.163, 68.210.183.166, 68.210.183.165 |
+| Belgium Central | 9.160.56.245, 9.160.56.241, 9.160.56.243, 9.160.56.242, 9.160.56.247, 9.160.56.246, 9.160.56.244, 9.160.56.240 |
+| Brazil South | 20.201.111.44, 20.201.110.210, 20.201.95.184, 20.201.111.106, 20.201.110.239, 20.201.111.218, 20.201.111.204, 4.228.78.206 |
+| Brazil Southeast | 108.140.19.183, 108.140.16.189, 108.140.19.38, 108.140.17.2, 108.140.19.189, 108.140.20.8, 108.140.19.206, 108.140.20.2 |
+| Canada Central | 20.175.241.90, 20.116.229.122, 4.172.59.88, 52.237.58.32, 20.116.231.233, 20.116.229.68, 4.172.57.90, 20.116.230.165 |
+| Canada East | 40.86.205.75, 40.86.229.191, 40.69.102.29, 40.69.96.69, 40.86.248.230, 52.229.114.121, 20.220.76.245, 52.229.99.183 |
+| Central India | 4.186.8.164, 20.235.200.244, 20.235.200.100, 20.235.200.92, 4.188.187.112, 4.188.187.170, 4.188.187.173, 4.188.188.52 |
+| Central US | 172.212.239.224, 172.212.239.225, 172.212.239.226, 172.212.239.227, 172.212.239.228, 172.212.239.229, 172.212.239.230, 172.212.239.231 |
+| Chile Central | 68.211.20.55, 68.211.20.53, 68.211.20.52, 68.211.20.54, 68.211.20.48, 68.211.20.51, 68.211.20.49, 68.211.20.50 |
+| East Asia | 20.6.149.94, 4.144.32.35, 20.255.186.54, 20.6.149.151, 20.255.121.88, 20.255.104.187, 20.255.121.57, 20.6.177.230 |
+| East US | 4.156.26.80, 4.156.25.14, 4.156.25.189, 20.242.168.44, 4.156.241.183, 4.156.243.174, 4.156.242.86, 4.156.243.165, 52.224.145.162, 4.156.242.96, 4.156.243.173, 4.156.241.195, 4.156.242.97, 4.156.242.26, 4.156.242.13, 172.212.37.35 |
+| East US 2 | 20.122.237.191, 52.251.20.210, 20.122.237.232, 20.122.237.221, 4.152.129.54, 4.152.128.241, 20.1.240.241, 4.152.129.229, 4.152.127.230, 4.152.126.158, 4.153.195.56, 4.153.201.240 |
+| France Central | 20.74.20.86, 20.74.22.248, 20.74.94.80, 20.74.91.234, 20.74.106.82, 20.74.35.121, 20.19.63.163, 20.19.56.186 |
+| France South | 51.138.154.147, 51.138.152.107, 51.138.154.171, 51.138.154.241, 51.138.154.167, 51.138.152.46, 51.138.154.191, 51.138.154.153 |
+| Germany North | 20.218.25.193, 20.218.25.211, 20.218.26.154, 20.218.26.185, 20.218.40.222, 20.218.41.149, 20.218.40.115, 20.218.41.77 |
+| Germany West Central | 98.67.210.83, 98.67.210.94, 98.67.210.49, 98.67.144.141, 98.67.146.59, 98.67.145.222, 98.67.146.65, 98.67.146.238 |
+| Indonesia Central | 70.153.175.241, 70.153.175.245, 70.153.175.242, 70.153.175.246, 70.153.175.244, 70.153.175.240, 70.153.175.247, 70.153.175.243 |
+| Israel Central | 51.4.2.18, 51.4.2.88, 51.4.2.119, 51.4.2.140, 51.4.2.16, 51.4.2.136, 51.4.2.186, 51.4.2.17 |
+| Israel Northwest | 51.4.164.32, 51.4.164.33, 51.4.164.34, 51.4.164.35, 51.4.164.36, 51.4.164.37, 51.4.164.38, 51.4.164.39 |
+| Italy North | 172.213.177.28, 172.213.177.95, 172.213.177.111, 172.213.196.142, 172.213.199.113, 172.213.193.254, 172.213.199.195, 172.213.198.5 |
+| Japan East | 20.18.198.232, 20.18.197.179, 20.18.198.148, 20.18.238.86, 4.189.8.207, 4.189.9.80, 4.189.10.88, 4.189.8.209, 172.207.65.96, 172.207.65.97 |
+| Japan West | 40.74.129.115, 138.91.22.178, 40.74.120.8, 138.91.27.244, 138.91.28.97, 138.91.26.244, 23.100.110.250, 138.91.27.82, 4.190.142.240, 4.190.142.241, 4.190.142.242, 4.190.142.243 |
+| Jio India West | 20.207.247.103, 20.244.240.200, 20.244.244.210, 20.244.241.129, 20.244.240.7, 20.244.242.21, 20.244.247.29, 20.244.244.219 |
+| Korea Central | 20.249.169.92, 20.249.169.87, 20.249.169.155, 20.249.171.205, 4.230.149.190, 20.249.170.248, 20.249.171.120, 20.249.171.7 |
+| Korea South | 52.231.228.78, 52.231.181.100, 52.231.223.213, 52.231.140.232, 52.231.228.60, 52.231.143.60, 52.231.138.189, 52.231.137.253 |
+| Malaysia West | 20.17.142.181, 20.17.142.180, 20.17.142.182, 20.17.142.179, 20.17.142.176, 20.17.142.183, 20.17.142.178, 20.17.142.177 |
+| Mexico Central | 158.23.254.137, 158.23.254.158, 158.23.254.105, 158.23.254.193, 158.23.254.101, 158.23.254.220, 158.23.254.57, 158.23.254.156 |
+| New Zealand North | 172.204.59.81, 172.204.60.91, 172.204.60.122, 172.204.59.84, 172.204.59.8, 172.204.59.218, 172.204.132.91, 172.204.59.14 |
+| North Central US | 20.98.61.245, 172.183.50.180, 172.183.52.146, 172.183.51.138, 172.183.48.31, 172.183.48.9, 172.183.48.234, 40.116.65.34 |
+| North Europe | 40.67.252.16, 4.207.0.242, 4.207.204.28, 4.207.203.201, 20.67.143.247, 20.67.138.43, 68.219.40.237, 20.105.14.98, 4.207.203.15, 4.207.204.121, 4.207.201.247, 20.107.145.46 |
+| Norway East | 4.235.15.184, 4.235.37.41, 4.235.38.187, 4.235.15.175, 4.235.39.110, 4.235.38.223, 4.235.39.218, 20.251.128.60 |
+| Norway West | 20.100.74.215, 20.100.75.243, 20.100.74.245, 20.100.75.51, 20.100.72.6, 20.100.74.37, 20.100.72.154, 20.100.76.68 |
+| Poland Central | 74.248.82.221, 74.248.82.188, 74.248.83.27, 74.248.83.63, 74.248.81.204, 74.248.81.64, 74.248.81.229, 74.248.81.255 |
+| Qatar Central | 20.21.211.241, 20.21.211.242 |
+| South Africa North | 20.164.165.201, 20.164.166.18, 20.164.167.236, 20.164.56.217, 20.164.151.72, 20.164.147.113, 20.164.48.40, 20.164.148.191 |
+| South Africa West | 20.87.177.187, 102.133.70.42, 20.87.176.228, 20.87.178.76, 20.87.176.32, 20.87.176.245, 20.87.176.215, 20.87.178.32 |
+| South Central US | 172.206.187.62, 172.206.187.92, 172.206.187.101, 172.206.187.135, 52.255.127.211, 52.255.127.201, 52.255.127.24, 52.255.127.243 |
+| South India | 52.140.4.233, 52.172.100.99, 52.140.5.154, 52.140.1.153, 52.172.96.103, 52.140.2.150, 52.172.103.116, 52.172.99.31 |
+| Southeast Asia | 4.144.200.166, 4.144.203.255, 4.144.203.73, 4.144.201.132, 20.247.196.3, 52.230.58.240, 20.247.197.6, 20.247.198.8, 20.247.195.123, 20.247.197.207, 20.247.197.108, 20.247.198.132, 57.155.35.128, 57.155.35.129 |
+| Spain Central | 68.221.249.214, 68.221.249.187, 68.221.249.249, 68.221.249.208, 68.221.249.227, 68.221.250.1, 68.221.249.191, 68.221.249.9 |
+| Sweden Central | 74.241.204.72, 74.241.204.55, 74.241.204.197, 74.241.206.0, 4.225.198.176, 4.225.198.50, 4.225.197.219, 4.225.198.33 |
+| Switzerland North | 4.226.35.171, 20.250.239.241, 20.250.238.113, 20.250.238.80, 20.250.233.38, 20.250.235.79, 20.250.235.177, 20.250.235.117 |
+| Switzerland West | 20.199.218.139, 20.199.219.180, 20.199.216.255, 20.199.217.34, 20.208.231.200, 20.199.217.39, 20.199.216.16, 20.199.216.98 |
+| Taiwan North | 70.157.25.223, 70.157.25.234, 70.157.25.198, 70.157.26.159, 70.157.26.114, 70.157.26.220, 70.157.25.236, 70.157.26.234 |
+| Taiwan Northwest | 167.105.174.41, 167.105.154.20, 167.105.154.137, 167.105.168.94, 167.105.168.10, 167.105.175.23, 167.105.168.79, 167.105.174.15 |
+| UAE Central | 40.125.29.71, 40.125.28.162, 40.125.25.83, 40.125.24.49, 40.125.3.59, 40.125.3.137, 40.125.2.220, 40.125.3.139 |
+| UAE North | 20.233.241.162, 20.233.241.99, 20.174.64.131, 20.233.241.184, 20.174.48.155, 20.233.241.200, 20.174.56.89, 20.174.41.1 |
+| UK South | 20.254.10.157, 4.159.25.35, 4.159.25.50, 4.250.87.43, 4.158.106.183, 4.250.53.153, 4.159.26.160, 4.159.25.103, 4.159.59.224, 4.158.138.59, 85.210.163.36, 85.210.34.209, 85.210.36.40, 85.210.185.43 |
+| UK West | 20.162.86.241, 20.162.87.200, 51.141.80.175, 20.162.87.253, 20.254.244.41, 20.254.244.108, 20.254.241.7, 20.254.245.81 |
+| West Central US | 20.165.255.229, 4.255.162.134, 20.165.228.184, 4.255.178.108, 20.165.225.209, 4.255.145.22, 20.165.245.151, 20.165.232.221 |
+| West Europe | 98.64.193.78, 98.64.194.143, 98.64.198.223, 98.64.198.203, 98.64.208.186, 98.64.209.52, 172.211.196.189, 172.211.195.251, 98.64.154.66, 98.64.156.81, 98.64.156.180, 98.64.156.68, 20.238.229.165, 20.8.128.2, 20.238.230.113, 108.141.139.111, 108.142.111.162, 108.142.111.174, 108.142.111.178, 108.142.111.183, 108.142.111.152, 108.142.111.156, 108.142.111.179, 108.142.111.169, 98.64.203.30, 98.64.156.172, 20.56.202.157, 20.56.203.30, 57.153.19.33, 57.153.59.202, 108.141.95.140, 20.61.147.216, 57.153.83.52, 57.153.38.174, 57.153.3.13, 57.153.1.223, 108.142.29.55, 108.142.31.220, 108.142.31.202, 20.61.153.22, 57.153.7.252, 108.141.83.61 |
+| West India | 20.38.128.176, 20.38.128.177, 20.38.128.178, 20.38.128.179, 20.38.128.180, 20.38.128.181, 20.38.128.182, 20.38.128.183 |
+| West US | 13.88.169.158, 13.88.171.218, 13.91.81.69, 13.64.215.62, 13.83.10.141, 13.91.40.58, 13.91.103.48, 52.160.93.229, 13.93.215.87, 13.88.177.160, 13.88.18.200, 13.91.105.180, 13.91.18.168, 13.83.15.162, 52.160.32.120, 13.91.35.39, 13.93.177.253, 13.93.180.131, 13.93.179.126, 13.91.130.111, 13.64.236.166, 13.64.239.120, 13.93.233.226, 40.83.133.96, 13.93.239.166, 13.64.240.133, 13.86.209.140, 13.91.40.136, 40.112.147.242, 40.112.136.59, 104.42.142.214, 104.42.128.212, 13.91.65.198, 13.93.193.254, 13.93.211.175, 13.91.46.140 |
+| West US 2 | 4.155.163.32, 172.179.145.245, 4.155.162.75, 4.155.164.225, 4.149.68.5, 172.179.155.215, 4.149.68.80, 4.149.68.115 |
+| West US 3 | 4.227.75.85, 4.227.76.97, 4.236.46.212, 4.236.55.100, 4.227.77.19, 4.227.77.224, 4.227.77.128, 4.227.78.227 |
 
 <a name="azure-government-inbound"></a>
 
 #### Azure Government - Inbound IP addresses
 
-| Azure Government region | IP |
-|-------------------------|----|
-| US Gov Arizona | 52.244.67.164, 52.244.67.64, 52.244.66.82 |
-| US Gov Texas | 52.238.119.104, 52.238.112.96, 52.238.119.145 |
-| US Gov Virginia | 52.227.159.157, 52.227.152.90, 23.97.4.36 |
-| US DoD Central | 52.182.49.204, 52.182.52.106 |
-|||
+| Azure Government region | Azure Logic Apps IP |
+|-------------------------|---------------------|
+| US Gov Arizona | 52.244.187.241, 52.244.17.238, 52.244.23.110, 52.244.20.213, 52.244.16.162, 52.244.15.25, 52.244.16.141, 52.244.15.26 |
+| US Gov Texas | 52.238.78.169, 52.238.164.135, 52.238.164.111, 52.238.164.44, 52.243.250.114, 52.243.248.33, 52.243.253.54, 52.243.253.44, 52.127.38.96, 52.127.38.97 |
+| US Gov Virginia | 20.159.220.127, 62.10.96.217, 62.10.102.236, 62.10.102.136, 62.10.111.137, 62.10.111.152, 62.10.111.128, 62.10.111.123 |
+| US DoD Central | 52.180.225.24, 52.180.225.43, 52.180.225.50, 52.180.252.28, 52.180.225.29, 52.180.231.56, 52.180.231.50, 52.180.231.65 |
 
 <a name="outbound"></a>
 
 ### Outbound IP addresses
 
-This section lists the outbound IP addresses for the Azure Logic Apps service and managed connectors. If you have Azure Government, see [Azure Government - Outbound IP addresses](#azure-government-outbound).
+For Azure Logic Apps to send communication through your firewall, you have to allow traffic through *all the outbound IP addresses* set aside for the Azure region where your logic app resource exists.
 
-> [!TIP]
-> To help reduce complexity when you create security rules, you can optionally use the
-> [service tag](../virtual-network/service-tags-overview.md), **LogicApps**,
-> rather than specify outbound Logic Apps IP address prefixes for each region.
-> For managed connectors, you can optionally use the **AzureConnectors** service tag, 
-> rather than specify outbound managed connector IP address prefixes for each region. 
-> These tags work across the regions where the Logic Apps service is available. 
+To reduce complexity when you create security rules, use the [**LogicApps** service tag](/azure/virtual-network/service-tags-overview), rather than specific outbound IP addresses. If your workflow uses any [managed connector operations](/azure/connectors/managed) or [custom connectors](/connectors/custom-connectors), use the **AzureConnectors** service tag so that these connectors can make outbound calls to their respective services, such as Office 365 Outlook, or SQL Server. Both these tags work across the Azure regions where Azure Logic Apps is available. Service tags include static IP addresses, so if you can't use service tags, add *all the outbound IP addresses* covered by the service tags for your Azure region. For more information, download [Azure IP Ranges and Service Tags for Public Cloud](https://www.microsoft.com/download/details.aspx?id=56519).
 
-<a name="multi-tenant-outbound"></a>
+For custom connectors that access on-premises resources through the [on-premises data gateway resource in Azure](/azure/logic-apps/logic-apps-gateway-connection), you must set up the gateway installation to allow access for the corresponding [*managed* connector outbound IP addresses](/connectors/common/outbound-ip-addresses#azure-logic-apps).
 
-#### Multi-tenant Azure - Outbound IP addresses
+For more information about setting up communication settings on the gateway, see the following documentation:
 
-| Multi-tenant region | Logic Apps IP | Managed connectors IP |
-|---------------------|---------------|-----------------------|
-| Australia East | 13.75.149.4, 104.210.91.55, 104.210.90.241, 52.187.227.245, 52.187.226.96, 52.187.231.184, 52.187.229.130, 52.187.226.139 | 13.70.72.192 - 13.70.72.207, 13.72.243.10, 40.126.251.213, 52.237.214.72, 13.70.78.224 - 13.70.78.255 |
-| Australia Southeast | 13.73.114.207, 13.77.3.139, 13.70.159.205, 52.189.222.77, 13.77.56.167, 13.77.58.136, 52.189.214.42, 52.189.220.75 | 13.70.136.174, 13.77.50.240 - 13.77.50.255, 40.127.80.34, 52.255.48.202, 13.77.55.160 - 13.77.55.191 |
-| Brazil South | 191.235.82.221, 191.235.91.7, 191.234.182.26, 191.237.255.116, 191.234.161.168, 191.234.162.178, 191.234.161.28, 191.234.162.131 | 104.41.59.51, 191.232.38.129, 191.233.203.192 - 191.233.203.207, 191.232.191.157, 191.233.207.160 - 191.233.207.191 |
-| Canada Central | 52.233.29.92, 52.228.39.244, 40.85.250.135, 40.85.250.212, 13.71.186.1, 40.85.252.47, 13.71.184.150 | 13.71.170.208 - 13.71.170.223, 52.228.33.76, 52.228.34.13, 52.228.42.205, 52.233.31.197, 52.237.24.126, 52.237.32.212, 13.71.175.160 - 13.71.175.191, 13.71.170.224 - 13.71.170.239 |
-| Canada East | 52.232.128.155, 52.229.120.45, 52.229.126.25, 40.86.203.228, 40.86.228.93, 40.86.216.241, 40.86.226.149, 40.86.217.241 | 40.69.106.240 - 40.69.106.255, 52.229.120.52, 52.229.120.178, 52.229.123.98, 52.229.126.202, 52.242.35.152, 52.242.30.112, 40.69.111.0 - 40.69.111.31 |
-| Central India | 52.172.154.168, 52.172.186.159, 52.172.185.79, 104.211.101.108, 104.211.102.62, 104.211.90.169, 104.211.90.162, 104.211.74.145 | 52.172.211.12, 104.211.81.192 - 104.211.81.207, 104.211.98.164, 52.172.212.129, 20.43.123.0 - 20.43.123.31 |
-| Central US | 13.67.236.125, 104.208.25.27, 40.122.170.198, 40.113.218.230, 23.100.86.139, 23.100.87.24, 23.100.87.56, 23.100.82.16 | 13.89.171.80 - 13.89.171.95, 40.122.49.51, 52.173.245.164, 52.173.241.27, 40.77.68.110, 13.89.178.64 - 13.89.178.95 |
-| East Asia | 13.75.94.173, 40.83.127.19, 52.175.33.254, 40.83.73.39, 65.52.175.34, 40.83.77.208, 40.83.100.69, 40.83.75.165 | 13.75.36.64 - 13.75.36.79, 23.99.116.181, 52.175.23.169, 13.75.110.131, 104.214.164.0 - 104.214.164.31 |
-| East US | 13.92.98.111, 40.121.91.41, 40.114.82.191, 23.101.139.153, 23.100.29.190, 23.101.136.201, 104.45.153.81, 23.101.132.208 | 40.71.11.80 - 40.71.11.95, 40.71.249.205, 40.114.40.132, 40.71.249.139, 52.188.157.160, 40.71.15.160 - 40.71.15.191 |
-| East US 2 | 40.84.30.147, 104.208.155.200, 104.208.158.174, 104.208.140.40, 40.70.131.151, 40.70.29.214, 40.70.26.154, 40.70.27.236 | 40.70.146.208 - 40.70.146.223, 52.232.188.154, 104.208.233.100, 104.209.247.23, 52.225.129.144, 40.65.220.25, 40.70.151.96 - 40.70.151.127 |
-| France Central | 52.143.164.80, 52.143.164.15, 40.89.186.30, 20.188.39.105, 40.89.191.161, 40.89.188.169, 40.89.186.28, 40.89.190.104 | 40.79.130.208 - 40.79.130.223, 40.89.135.2, 40.89.186.239, 40.79.148.96 - 40.79.148.127 |
-| France South | 52.136.132.40, 52.136.129.89, 52.136.131.155, 52.136.133.62, 52.136.139.225, 52.136.130.144, 52.136.140.226, 52.136.129.51 | 40.79.178.240 - 40.79.178.255, 52.136.133.184, 52.136.142.154, 40.79.180.224 - 40.79.180.255 |
-| Japan East | 13.71.158.3, 13.73.4.207, 13.71.158.120, 13.78.18.168, 13.78.35.229, 13.78.42.223, 13.78.21.155, 13.78.20.232 | 13.71.153.19, 13.78.108.0 - 13.78.108.15, 40.115.186.96, 13.73.21.230, 40.79.189.64 - 40.79.189.95 |
-| Japan West | 40.74.140.4, 104.214.137.243, 138.91.26.45, 40.74.64.207, 40.74.76.213, 40.74.77.205, 40.74.74.21, 40.74.68.85 | 40.74.100.224 - 40.74.100.239, 40.74.130.77, 104.215.61.248, 104.215.27.24, 40.80.180.64 - 40.80.180.95 |
-| Korea Central | 52.231.14.11, 52.231.14.219, 52.231.15.6, 52.231.10.111, 52.231.14.223, 52.231.77.107, 52.231.8.175, 52.231.9.39 | 52.231.18.208 - 52.231.18.223, 52.141.36.214, 52.141.1.104, 20.44.29.64 - 20.44.29.95 |
-| Korea South | 52.231.204.74, 52.231.188.115, 52.231.189.221, 52.231.203.118, 52.231.166.28, 52.231.153.89, 52.231.155.206, 52.231.164.23 | 52.231.147.0 - 52.231.147.15, 52.231.163.10, 52.231.201.173, 52.231.148.224 - 52.231.148.255 |
-| North Central US | 168.62.248.37, 157.55.210.61, 157.55.212.238, 52.162.208.216, 52.162.213.231, 65.52.10.183, 65.52.9.96, 65.52.8.225 | 52.162.107.160 - 52.162.107.175, 52.162.242.161, 65.52.218.230, 52.162.126.4, 52.162.111.192 - 52.162.111.223 |
-| North Europe | 40.113.12.95, 52.178.165.215, 52.178.166.21, 40.112.92.104, 40.112.95.216, 40.113.4.18, 40.113.3.202, 40.113.1.181 | 13.69.227.208 - 13.69.227.223, 52.178.150.68, 104.45.93.9, 94.245.91.93, 52.169.28.181, 40.115.108.29, 13.69.231.192 - 13.69.231.223 |
-| South Africa North | 102.133.231.188, 102.133.231.117, 102.133.230.4, 102.133.227.103, 102.133.228.6, 102.133.230.82, 102.133.231.9, 102.133.231.51 | 102.133.168.167, 40.127.2.94, 102.133.155.0 - 102.133.155.15, 102.133.253.0 - 102.133.253.31 |
-| South Africa West | 102.133.72.98, 102.133.72.113, 102.133.75.169, 102.133.72.179, 102.133.72.37, 102.133.72.183, 102.133.72.132, 102.133.75.191 | 102.133.72.85, 102.133.75.194, 102.133.27.0 - 102.133.27.15, 102.37.64.0 - 102.37.64.31 |
-| South Central US | 104.210.144.48, 13.65.82.17, 13.66.52.232, 23.100.124.84, 70.37.54.122, 70.37.50.6, 23.100.127.172, 23.101.183.225 | 13.65.86.57, 104.214.19.48 - 104.214.19.63, 104.214.70.191, 52.171.130.92, 13.73.244.224 - 13.73.244.255 |
-| South India | 52.172.50.24, 52.172.55.231, 52.172.52.0, 104.211.229.115, 104.211.230.129, 104.211.230.126, 104.211.231.39, 104.211.227.229 | 13.71.125.22, 40.78.194.240 - 40.78.194.255, 104.211.227.225, 13.71.127.26 |
-| Southeast Asia | 13.76.133.155, 52.163.228.93, 52.163.230.166, 13.76.4.194, 13.67.110.109, 13.67.91.135, 13.76.5.96, 13.67.107.128 | 13.67.8.240 - 13.67.8.255, 13.76.231.68, 52.187.68.19, 52.187.115.69, 13.67.15.32 - 13.67.15.63 |
-| UAE Central | 20.45.75.200, 20.45.72.72, 20.45.75.236, 20.45.79.239, 20.45.67.170, 20.45.72.54, 20.45.67.134, 20.45.67.135 | 20.45.67.28, 20.45.67.45, 20.37.74.192 - 20.37.74.207, 40.120.8.0 - 40.120.8.31 |
-| UK South | 51.140.74.14, 51.140.73.85, 51.140.78.44, 51.140.137.190, 51.140.153.135, 51.140.28.225, 51.140.142.28, 51.140.158.24 | 51.140.80.51, 51.140.148.0 - 51.140.148.15, 51.140.61.124, 51.140.74.150, 51.105.77.96 - 51.105.77.127 |
-| UK West | 51.141.54.185, 51.141.45.238, 51.141.47.136, 51.141.114.77, 51.141.112.112, 51.141.113.36, 51.141.118.119, 51.141.119.63 | 51.140.211.0 - 51.140.211.15, 51.141.47.105, 51.141.124.13, 51.141.52.185, 51.140.212.224 - 51.140.212.255 |
-| West Central US | 52.161.27.190, 52.161.18.218, 52.161.9.108, 13.78.151.161, 13.78.137.179, 13.78.148.140, 13.78.129.20, 13.78.141.75 | 13.71.195.32 - 13.71.195.47, 52.161.102.22, 13.78.132.82, 52.161.101.204, 13.71.199.192 - 13.71.199.223 |
-| West Europe | 40.68.222.65, 40.68.209.23, 13.95.147.65, 23.97.218.130, 51.144.182.201, 23.97.211.179, 104.45.9.52, 23.97.210.126 | 13.69.64.208 - 13.69.64.223, 40.115.50.13, 52.174.88.118, 40.91.208.65, 52.166.78.89, 13.93.36.78, 13.69.71.192 - 13.69.71.223 |
-| West India | 104.211.164.80, 104.211.162.205, 104.211.164.136, 104.211.158.127, 104.211.156.153, 104.211.158.123, 104.211.154.59, 104.211.154.7 | 104.211.146.224 - 104.211.146.239, 104.211.161.203, 104.211.189.218, 104.211.189.124, 20.38.128.224 - 20.38.128.255 |
-| West US | 52.160.92.112, 40.118.244.241, 40.118.241.243, 157.56.162.53, 157.56.167.147, 104.42.49.145, 40.83.164.80, 104.42.38.32 | 40.112.243.160 - 40.112.243.175, 104.40.51.248, 104.42.122.49, 40.112.195.87, 13.93.148.62, 13.86.223.32 - 13.86.223.63 |
-| West US 2 | 13.66.210.167, 52.183.30.169, 52.183.29.132, 13.66.210.167, 13.66.201.169, 13.77.149.159, 52.175.198.132, 13.66.246.219 | 13.66.140.128 - 13.66.140.143, 52.183.78.157, 52.191.164.250, 13.66.164.219, 13.66.145.96 - 13.66.145.127 |
-||||
+* [Adjust communication settings for the on-premises data gateway](/data-integration/gateway/service-gateway-communication)
+* [Configure proxy settings for the on-premises data gateway](/data-integration/gateway/service-gateway-proxy)
+
+Otherwise, see the following sections, which list the outbound IP addresses that you need to add:
+
+- [Multitenant - Outbound IP addresses](#multitenant-outbound)
+- [Managed connector outbound IP addresses](/connectors/common/outbound-ip-addresses/#azure-logic-apps)
+
+If you're using Azure Government, see [Azure Government - Outbound IP addresses](#azure-government-outbound).
+
+<a name="multitenant-outbound"></a>
+
+#### Multitenant - Outbound IP addresses
+
+This section lists the outbound IP addresses that Azure Logic Apps requires for the Azure region where a logic app resource exists to send communication through your firewall. Make sure that you review the [Outbound IP addresses introduction](#outbound) for all the requirements related to allowing outbound traffic from Azure Logic Apps.
+
+| Region | Azure Logic Apps IP |
+|--------|---------------------|
+| Australia East | 20.53.72.170, 20.53.106.182, 20.11.76.122, 20.11.77.49, 4.200.57.71, 20.11.77.107, 4.198.187.22, 4.198.185.90, 4.198.185.246, 4.200.58.227 |
+| Australia Southeast | 52.158.133.57, 20.70.114.10, 20.70.117.240, 20.70.116.106, 20.70.114.97, 20.211.194.242, 20.70.109.46, 20.11.136.137, 20.70.116.240, 20.211.194.233, 20.11.154.170, 4.198.89.96, 20.92.61.254, 20.70.95.150, 20.70.117.21, 20.211.194.127, 20.92.61.242, 20.70.93.143, 13.77.53.224, 13.77.53.225 |
+| Austria East | 68.210.183.197, 68.210.183.198, 68.210.183.193, 68.210.183.195, 68.210.183.194, 68.210.183.192, 68.210.183.196, 68.210.183.199 |
+| Belgium Central | 9.160.57.199, 9.160.57.193, 9.160.57.198, 9.160.57.194, 9.160.57.197, 9.160.57.196, 9.160.57.192, 9.160.57.195 |
+| Brazil South | 20.201.64.135, 191.237.207.21, 20.201.111.36, 20.201.110.208, 20.201.91.95, 20.201.110.244, 20.201.110.234, 20.201.111.212, 20.201.111.203, 4.228.72.24 |
+| Brazil Southeast | 20.206.41.20, 20.206.40.250, 108.140.19.0, 108.140.16.168, 108.140.17.240, 108.140.17.223, 108.140.19.181, 108.140.20.3, 108.140.19.68, 108.140.16.195 |
+| Canada Central | 20.104.9.221, 20.48.132.222, 20.175.241.76, 20.116.229.92, 4.172.57.144, 52.237.56.228, 20.116.231.222, 20.116.229.57, 4.172.57.52, 20.116.230.54 |
+| Canada East | 20.200.59.228, 52.229.105.109, 40.86.226.221, 40.86.228.72, 40.69.98.14, 40.86.208.137, 40.86.229.179, 40.86.227.188, 40.86.202.35, 40.86.206.74, 52.229.100.167, 40.86.240.237, 40.69.120.161, 40.69.102.71, 20.220.75.33, 20.220.74.16, 40.69.101.66, 52.229.114.105 |
+| Central India | 20.204.202.72, 20.204.212.8, 4.186.8.62, 4.186.8.18, 20.235.200.242, 20.235.200.237, 20.235.200.79, 20.235.200.44, 20.235.200.70, 20.235.200.32, 4.188.187.109, 4.188.187.86, 4.188.187.140, 4.188.185.15, 4.188.187.145, 4.188.187.107, 4.188.187.184, 4.188.187.64 |
+| Central US | 52.141.218.55, 20.109.202.29, 20.118.195.232, 20.118.195.233, 20.118.195.234, 20.118.195.235, 20.118.195.236, 20.118.195.237, 20.118.195.238, 20.118.195.239 |
+| Chile Central | 68.211.20.135, 68.211.20.133, 68.211.20.134, 68.211.20.132, 68.211.20.130, 68.211.20.131, 68.211.20.129, 68.211.20.128 |
+| East Asia | 20.187.250.221, 20.187.188.136, 20.239.240.181, 20.6.152.201, 20.2.52.61, 20.255.43.37, 20.255.41.243, 4.192.72.182, 20.6.177.234, 20.255.113.33 |
+| East US | 52.226.216.187, 40.76.148.50, 20.84.29.18, 40.76.174.39, 4.156.27.7, 4.156.28.117, 4.156.25.188, 20.242.168.24, 4.156.241.165, 4.156.243.170, 4.156.242.49, 4.156.243.164, 52.224.145.30, 4.156.242.92, 4.156.243.172, 4.156.241.191, 4.156.241.47, 4.156.241.229, 4.156.242.12, 172.212.32.196 |
+| East US 2 | 20.96.58.139, 20.96.89.48, 20.96.89.234, 20.122.237.189, 52.253.79.47, 20.122.237.225, 20.122.237.205, 4.152.128.227, 4.152.128.205, 4.153.159.226, 4.152.129.221, 4.152.127.229, 4.152.125.62, 4.153.194.246, 4.153.201.239 |
+| France Central | 20.40.140.149, 51.11.237.216, 20.74.18.58, 20.74.18.36, 20.74.22.121, 20.74.20.147, 20.74.94.62, 20.74.88.179, 20.74.23.87, 20.74.22.119, 20.74.106.61, 20.74.105.214, 20.74.34.113, 20.74.33.177, 20.19.61.105, 20.74.109.28, 20.19.113.120, 20.74.106.31 |
+| France South | 52.136.135.74, 52.136.139.96, 51.138.154.137, 51.138.153.121, 51.138.152.26, 51.138.155.43, 51.138.154.125, 51.138.153.24, 51.138.152.141, 51.138.152.170 |
+| Germany North | 20.113.196.183, 20.113.206.170, 20.218.25.86, 20.218.25.112, 20.218.26.84, 20.218.26.28, 20.218.40.124, 20.218.41.137, 20.218.41.177, 20.218.41.117 |
+| Germany West Central | 20.113.11.85, 20.113.8.64, 98.67.210.79, 98.67.210.78, 98.67.210.85, 98.67.210.84, 98.67.210.14, 98.67.210.24, 98.67.144.136, 98.67.144.122, 98.67.145.221, 98.67.144.207, 98.67.146.88, 98.67.146.81, 98.67.146.51, 98.67.145.122, 98.67.146.229, 98.67.146.218 |
+| Indonesia Central | 70.153.175.230, 70.153.175.225, 70.153.175.226, 70.153.175.229, 70.153.175.227, 70.153.175.228, 70.153.175.231, 70.153.175.224 |
+| Israel Central | 20.217.134.126, 20.217.129.229, 51.4.1.246, 51.4.2.73, 51.4.2.116, 51.4.2.139, 51.4.2.89, 51.4.0.146, 51.4.2.105, 51.4.2.123 |
+| Israel Northwest | 51.4.164.64, 51.4.164.65, 51.4.164.66, 51.4.164.67, 51.4.164.68, 51.4.164.69, 51.4.164.70, 51.4.164.71 |
+| Italy North | 4.232.12.173, 4.232.12.169, 172.213.176.243, 172.213.177.89, 172.213.176.130, 172.213.195.126, 172.213.199.94, 172.213.196.10, 172.213.199.179, 172.213.199.115 |
+| Japan East | 20.46.187.174, 20.194.205.189, 20.18.198.224, 20.18.197.177, 20.18.198.141, 20.18.238.83, 4.189.14.67, 4.189.8.211, 4.189.9.135, 4.189.8.208, 20.210.69.32, 20.210.69.33 |
+| Japan West | 20.89.226.188, 20.89.226.101, 40.74.128.79, 40.74.75.184, 138.91.16.164, 138.91.21.233, 40.74.119.237, 40.74.119.158, 138.91.22.248, 138.91.26.236, 138.91.17.197, 138.91.17.144, 138.91.17.137, 104.46.237.16, 23.100.109.62, 138.91.17.15, 138.91.26.67, 104.46.234.170, 20.189.198.80, 20.189.198.81, 20.189.198.82, 20.189.198.83 |
+| Jio India West | 20.193.172.11, 20.193.171.252, 20.207.246.213, 20.207.247.91, 20.207.241.77, 20.207.246.218, 20.244.243.50, 20.244.243.105, 20.244.242.55, 20.244.241.138 |
+| Korea Central | 20.200.202.75, 20.200.231.139, 20.249.169.25, 20.249.169.18, 20.249.169.147, 20.249.171.130, 4.230.149.189, 20.249.169.207, 20.249.171.17, 20.249.169.238 |
+| Korea South | 20.200.177.135, 20.200.180.213, 52.231.139.2, 52.231.220.66, 52.231.137.133, 52.231.228.71, 52.231.230.253, 52.231.176.192, 52.231.182.160, 52.231.218.243 |
+| Malaysia West | 20.17.92.195, 20.17.92.193, 20.17.92.178, 20.17.92.177, 20.17.92.194, 20.17.92.176, 20.17.92.192, 20.17.92.179 |
+| Mexico Central | 158.23.36.73, 158.23.36.20, 158.23.254.50, 158.23.253.167, 158.23.254.157, 158.23.254.103, 158.23.254.104, 158.23.254.159, 158.23.254.149, 158.23.254.99, 158.23.254.100, 158.23.254.148, 158.23.254.192, 158.23.254.136, 158.23.254.23, 158.23.252.96, 158.23.254.102, 158.23.254.221 |
+| New Zealand North | 172.204.59.65, 172.204.59.54, 172.204.60.89, 172.204.59.203, 172.204.59.196, 172.204.60.115, 172.204.59.68, 172.204.59.63, 172.204.56.121, 172.204.58.18, 172.204.59.207, 172.204.56.218, 172.204.131.225, 172.204.131.252, 172.204.58.185, 172.204.58.53 |
+| North Central US | 52.162.177.30, 23.101.167.207, 20.80.33.190, 20.88.47.77, 172.183.51.180, 40.116.65.125, 20.88.51.31, 40.116.66.226, 40.116.64.218, 20.88.55.77, 172.183.49.208, 20.102.251.70, 20.102.255.252, 20.88.49.23, 172.183.50.30, 20.88.49.21, 20.102.255.209, 172.183.48.255 |
+| North Europe | 40.127.240.183, 51.138.227.160, 40.127.144.121, 40.67.251.175, 40.67.250.247, 4.207.0.229, 4.207.0.197, 4.207.204.8, 4.207.203.217, 4.207.203.190, 4.207.203.59, 20.67.141.244, 20.67.139.133, 20.67.137.144, 20.67.136.162, 68.219.40.225, 68.219.40.39, 20.105.12.63, 20.105.11.53, 4.207.202.106, 4.207.202.95, 4.207.204.91, 4.207.204.89, 4.207.201.234, 20.105.15.225, 20.67.191.232, 20.67.190.37 |
+| Norway East | 20.100.26.52, 20.100.36.10, 4.235.15.181, 4.235.33.240, 4.235.38.121, 4.235.9.253, 4.235.39.107, 4.235.36.134, 4.235.39.215, 4.235.39.238 |
+| Norway West | 51.13.148.178, 51.13.149.162, 20.100.72.232, 20.100.75.45, 20.100.75.97, 20.100.74.217, 20.100.73.211, 20.100.72.17, 20.100.75.141, 20.100.76.234 |
+| Poland Central | 20.215.128.160, 20.215.144.246, 74.248.82.189, 74.248.82.58, 74.248.82.253, 74.248.82.216, 74.248.81.148, 74.248.81.46, 74.248.81.211, 74.248.81.234 |
+| Qatar Central | 20.21.211.240, 20.21.209.216, 20.21.211.245, 20.21.210.251 |
+| South Africa North | 20.87.91.122, 20.87.88.47, 20.164.165.13, 20.164.165.213, 20.164.167.181, 20.164.56.150, 20.164.151.35, 20.164.48.78, 20.164.48.26, 20.164.48.152 |
+| South Africa West | 40.117.9.125, 40.117.9.229, 20.87.177.51, 102.133.70.122, 20.87.178.214, 20.87.177.83, 20.87.176.146, 20.87.178.80, 20.87.177.204, 20.87.177.252 |
+| South Central US | 20.94.149.199, 20.88.209.88, 172.206.187.57, 172.206.187.90, 172.206.187.98, 172.206.187.132, 52.255.124.118, 52.255.127.125, 52.255.126.229, 52.255.127.233 |
+| South India | 104.211.210.192, 104.211.218.202, 52.172.101.114, 52.172.101.181, 52.140.5.116, 52.172.98.23, 52.140.2.252, 52.140.0.225, 52.140.7.114, 52.172.101.204 |
+| Southeast Asia | 20.195.49.29, 20.198.128.124, 23.98.121.115, 4.144.203.116, 4.144.203.254, 4.144.203.72, 4.144.204.223, 20.247.192.203, 20.247.192.18, 20.247.197.137, 20.247.197.3, 20.247.196.123, 20.247.197.249, 20.247.195.111, 20.247.195.8, 20.247.197.146, 20.247.197.100, 20.247.197.40, 20.247.198.128, 20.247.198.96, 20.212.79.225, 20.212.79.226 |
+| Spain Central | 68.221.1.175, 68.221.2.37, 68.221.249.177, 68.221.249.251, 68.221.249.213, 68.221.249.186, 68.221.249.215, 68.221.249.210, 68.221.249.185, 68.221.249.203, 68.221.249.175, 68.221.249.229, 68.221.249.205, 68.221.249.184, 68.221.249.202, 68.221.249.209, 68.221.249.252, 68.221.250.2 |
+| Sweden Central | 20.91.177.115, 20.240.10.89, 74.241.204.65, 74.241.204.35, 74.241.204.193, 74.241.205.139, 4.225.198.80, 4.225.198.41, 74.241.203.136, 4.225.198.14 |
+| Switzerland North | 20.203.229.127, 20.203.225.242, 4.226.35.166, 20.250.239.202, 20.250.239.33, 20.250.239.55, 20.250.233.27, 20.250.235.76, 20.250.235.169, 20.250.235.96 |
+| Switzerland West | 51.107.234.254, 20.199.193.249, 20.199.217.37, 20.199.219.154, 20.199.216.246, 20.199.219.21, 20.208.230.30, 20.199.216.63, 20.199.218.36, 20.199.216.44 |
+| Taiwan North | 70.157.24.115, 70.157.24.81, 70.157.24.22, 70.157.25.196, 70.157.24.36, 70.157.25.92, 70.157.26.4, 70.157.24.57, 70.157.26.91, 70.157.26.129, 70.157.26.55, 70.157.26.61, 70.157.26.171, 70.157.26.199, 70.157.26.193, 70.157.26.207, 70.157.26.183, 70.157.26.214 |
+| Taiwan Northwest | 167.105.174.205, 167.105.175.51, 167.105.174.237, 167.105.169.43, 167.105.168.248, 167.105.168.160, 167.105.153.132, 167.105.154.109, 167.105.175.110, 167.105.175.113, 167.105.154.74, 167.105.154.62, 167.105.168.130, 167.105.174.5, 167.105.168.60, 167.105.168.156, 167.105.168.107, 167.105.168.67 |
+| UAE Central | 40.126.209.151, 40.126.214.92, 40.125.28.217, 40.125.28.159, 40.125.25.44, 40.125.29.66, 40.125.3.49, 40.125.3.66, 40.125.3.111, 40.125.3.63 |
+| UAE North | 20.74.250.247, 20.74.251.30, 20.233.241.106, 20.233.241.102, 20.233.241.85, 20.233.241.25, 20.174.64.128, 20.174.64.55, 20.233.240.41, 20.233.241.206, 20.174.48.149, 20.174.48.147, 20.233.241.187, 20.233.241.165, 20.174.56.83, 20.174.56.74, 20.174.40.222, 20.174.40.91 |
+| UK South | 20.108.102.123, 20.90.204.188, 20.90.223.4, 20.26.15.70, 20.26.13.151, 4.159.24.241, 4.250.55.134, 4.159.24.255, 4.250.55.217, 172.165.88.82, 4.250.82.111, 4.158.106.101, 4.158.105.106, 4.250.51.127, 4.250.49.230, 4.159.26.128, 172.166.86.30, 4.159.26.151, 4.159.26.77, 4.159.59.140, 4.159.59.13, 85.210.65.206, 85.210.120.102, 4.159.57.40, 85.210.66.97, 20.117.192.192 |
+| UK West | 51.104.57.160, 51.141.121.220, 20.162.84.125, 20.162.86.120, 51.141.86.225, 20.162.80.198, 20.254.242.187, 20.254.242.213, 20.254.244.189, 20.254.245.102 |
+| West Central US | 13.71.199.128 - 13.71.199.159, 13.77.220.134, 13.77.219.128, 52.150.226.148, 4.255.161.16, 4.255.195.186, 4.255.168.251, 4.255.219.152, 20.165.235.148, 20.165.249.200, 20.165.232.68 |
+| West Europe | 20.103.17.247, 20.103.16.47, 20.103.57.29, 20.101.174.23, 20.93.235.107, 20.76.174.72, 20.82.87.16, 20.103.91.39, 20.76.161.156, 98.64.193.64, 98.64.194.135, 98.64.198.219, 98.64.198.194, 98.64.208.46, 98.64.209.43, 172.211.196.188, 172.211.195.181, 98.64.157.37, 98.64.156.69, 98.64.156.152, 98.64.156.62, 20.238.229.108, 108.141.139.225, 20.238.230.87, 108.141.139.80, 108.142.111.161, 108.142.111.173, 108.142.111.175, 108.142.111.182, 108.142.111.151, 108.142.111.155, 108.142.111.157, 108.142.111.167, 98.64.203.5, 98.64.156.150, 20.56.202.134, 20.56.202.244, 57.153.19.27, 57.153.59.193, 108.141.95.129, 20.61.147.200, 57.153.83.40, 57.153.38.60, 57.153.2.162, 57.153.1.215, 108.142.24.182, 108.142.31.170, 108.142.31.143, 20.61.152.226, 57.153.7.245, 108.141.83.46 |
+| West India | 104.211.142.119, 104.211.156.193, 20.38.128.192, 20.38.128.193, 20.38.128.194, 20.38.128.195, 20.38.128.196, 20.38.128.197, 20.38.128.198, 20.38.128.199 |
+| West US | 104.40.32.148, 52.160.70.105, 13.64.231.196, 40.78.65.193, 104.42.44.28, 40.78.65.112, 168.62.28.191, 13.91.81.188, 13.88.169.213, 13.64.224.17, 13.91.70.215, 13.83.14.75, 13.91.231.159, 13.91.102.122, 52.160.94.54, 13.91.17.147, 13.93.163.29, 13.93.223.133, 13.88.19.4, 13.91.33.16, 13.91.247.124, 52.160.39.166, 13.91.20.94, 13.93.180.161, 13.93.161.57, 13.93.183.170, 13.93.180.221, 13.64.236.222, 13.64.237.74, 13.93.203.72, 13.88.56.138, 13.93.239.25, 13.83.10.112, 13.64.241.219, 13.64.243.209, 104.42.134.185, 40.112.138.23, 104.42.226.197, 104.42.129.159, 13.91.87.195, 13.93.167.155, 13.91.46.132, 13.91.247.104 |
+| West US 2 | 20.99.189.70, 20.72.243.225, 4.155.162.242, 172.179.145.85, 4.155.163.91, 4.155.160.115, 4.149.67.227, 172.179.155.210, 4.149.68.65, 4.149.68.107 |
+| West US 3 | 20.150.159.163, 20.106.116.186, 4.227.74.141, 4.227.76.10, 4.236.45.223, 4.236.55.86, 4.227.76.180, 4.227.77.218, 4.227.77.116, 4.227.78.222 |
 
 <a name="azure-government-outbound"></a>
 
 #### Azure Government - Outbound IP addresses
 
-| Region | Logic Apps IP | Managed connectors IP |
-|--------|---------------|-----------------------|
-| US DoD Central | 52.182.48.215, 52.182.92.143 | 52.127.58.160 - 52.127.58.175, 52.182.54.8, 52.182.48.136, 52.127.61.192 - 52.127.61.223 |
-| US Gov Arizona | 52.244.67.143, 52.244.65.66, 52.244.65.190 | 52.127.2.160 - 52.127.2.175, 52.244.69.0, 52.244.64.91, 52.127.5.224 - 52.127.5.255 |
-| US Gov Texas | 52.238.114.217, 52.238.115.245, 52.238.117.119 | 52.127.34.160 - 52.127.34.175, 40.112.40.25, 52.238.161.225, 20.140.137.128 - 20.140.137.159 |
-| US Gov Virginia | 13.72.54.205, 52.227.138.30, 52.227.152.44 | 52.127.42.128 - 52.127.42.143, 52.227.143.61, 52.227.162.91 |
-||||
+| Region | Azure Logic Apps IP |
+|--------|---------------------|
+| US DoD Central | 52.182.52.212, 52.182.49.151, 52.180.225.0, 52.180.251.16, 52.180.250.135, 52.180.251.20, 52.180.231.89, 52.180.224.251, 52.180.252.222, 52.180.225.21 |
+| US Gov Arizona | 52.126.49.223, 52.126.53.144, 52.126.36.100, 52.244.187.5, 52.244.19.121, 52.244.18.105, 52.244.51.113, 52.244.17.113, 52.244.26.122, 52.244.22.195, 52.244.19.137 |
+| US Gov Texas | 52.245.171.152, 20.141.123.226, 52.245.163.1, 52.238.164.53, 52.238.72.216, 52.238.164.123, 52.238.160.255, 52.243.237.44, 52.249.101.31, 52.243.251.37, 52.243.252.22, 52.127.38.64, 52.127.38.65 |
+| US Gov Virginia | 13.77.239.140, 13.77.239.184, 20.159.219.180, 62.10.96.177, 62.10.102.138, 62.10.102.94, 62.10.111.134, 62.10.111.151, 62.10.110.102, 62.10.109.190 |
 
-## Next steps
+## Related content
 
-* Learn how to [create your first logic app](../logic-apps/quickstart-create-first-logic-app-workflow.md)
-* Learn about [common examples and scenarios](../logic-apps/logic-apps-examples-and-scenarios.md)
+* [Create an example Consumption logic app workflow in multitenant Azure Logic Apps](/azure/logic-apps/quickstart-create-example-consumption-workflow)
+* [Create an example Standard logic app workflow in single-tenant Azure Logic Apps](/azure/logic-apps/create-single-tenant-workflows-azure-portal)

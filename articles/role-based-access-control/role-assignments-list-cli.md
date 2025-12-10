@@ -1,30 +1,28 @@
 ---
 title: List Azure role assignments using Azure CLI - Azure RBAC
 description: Learn how to determine what resources users, groups, service principals, or managed identities have access to using Azure CLI and Azure role-based access control (Azure RBAC).
-services: active-directory
-documentationcenter: ''
 author: rolyon
-manager: mtillman
-ms.assetid: 3483ee01-8177-49e7-b337-4d5cb14f5e32
-ms.service: role-based-access-control
-ms.devlang: na
-ms.topic: how-to
-ms.tgt_pltfrm: na
-ms.workload: identity
-ms.date: 06/17/2020
 ms.author: rolyon
+manager: pmwongera
 ms.reviewer: bagovind
+ms.date: 03/30/2025
+ms.service: role-based-access-control
+ms.topic: how-to
+ms.custom:
+  - devx-track-azurecli
+  - ge-structured-content-pilot
 ---
+
 # List Azure role assignments using Azure CLI
 
-[!INCLUDE [Azure RBAC definition list access](../../includes/role-based-access-control-definition-list.md)] This article describes how to list role assignments using Azure CLI.
+[!INCLUDE [Azure RBAC definition list access](../../includes/role-based-access-control/definition-list.md)] This article describes how to list role assignments using Azure CLI.
 
 > [!NOTE]
-> If your organization has outsourced management functions to a service provider who uses [Azure delegated resource management](../lighthouse/concepts/azure-delegated-resource-management.md), role assignments authorized by that service provider won't be shown here.
+> If your organization has outsourced management functions to a service provider who uses [Azure Lighthouse](/azure/lighthouse/overview), role assignments authorized by that service provider won't be shown here. Similarly, users in the service provider tenant won't see role assignments for users in a customer's tenant, regardless of the role they've been assigned.
 
 ## Prerequisites
 
-- [Bash in Azure Cloud Shell](/azure/cloud-shell/overview) or [Azure CLI](/cli/azure)
+- [Bash in Azure Cloud Shell](../cloud-shell/overview.md) or [Azure CLI](/cli/azure)
 
 ## List role assignments for a user
 
@@ -34,7 +32,7 @@ To list the role assignments for a specific user, use [az role assignment list](
 az role assignment list --assignee {assignee}
 ```
 
-By default, only role assignments for the current subscription will be displayed. To view role assignments for the current subscription and below, add the `--all` parameter. To view inherited role assignments, add the `--include-inherited` parameter.
+By default, only role assignments for the current subscription will be displayed. To view role assignments for the current subscription and below, add the `--all` parameter. To include role assignments at parent scopes, add the `--include-inherited` parameter. To include role assignments for groups of which the user is a member transitively, add the `--include-groups` parameter.
 
 The following example lists the role assignments that are assigned directly to the *patlong\@contoso.com* user:
 
@@ -94,13 +92,13 @@ az role assignment list --resource-group pharma-sales --output json --query '[].
 To list all role assignments at a subscription scope, use [az role assignment list](/cli/azure/role/assignment#az-role-assignment-list). To get the subscription ID, you can find it on the **Subscriptions** blade in the Azure portal or you can use [az account list](/cli/azure/account#az-account-list).
 
 ```azurecli
-az role assignment list --subscription {subscriptionNameOrId}
+az role assignment list --scope "/subscriptions/{subscriptionId}"
 ```
 
 Example:
 
 ```azurecli
-az role assignment list --subscription 00000000-0000-0000-0000-000000000000 --output json --query '[].{principalName:principalName, roleDefinitionName:roleDefinitionName, scope:scope}'
+az role assignment list --scope "/subscriptions/00000000-0000-0000-0000-000000000000" --output json --query '[].{principalName:principalName, roleDefinitionName:roleDefinitionName, scope:scope}'
 ```
 
 ```json
@@ -157,28 +155,28 @@ az role assignment list --scope /providers/Microsoft.Management/managementGroups
 
 ## List role assignments for a managed identity
 
-1. Get the object ID of the system-assigned or user-assigned managed identity.
+1. Get the principal ID of the system-assigned or user-assigned managed identity.
 
-    To get the object ID of a user-assigned managed identity, you can use [az ad sp list](/cli/azure/ad/sp#az-ad-sp-list) or [az identity list](/cli/azure/identity#az-identity-list).
+   To get the principal ID of a user-assigned managed identity, you can use [az ad sp list](/cli/azure/ad/sp#az-ad-sp-list) or [az identity list](/cli/azure/identity#az-identity-list).
 
-    ```azurecli
-    az ad sp list --display-name "{name}" --query [].objectId --output tsv
-    ```
+   ```azurecli
+   az ad sp list --display-name "{name}" --query [].id --output tsv
+   ```
 
-    To get the object ID of a system-assigned managed identity, you can use [az ad sp list](/cli/azure/ad/sp#az-ad-sp-list).
+   To get the principal ID of a system-assigned managed identity, you can use [az ad sp list](/cli/azure/ad/sp#az-ad-sp-list).
 
-    ```azurecli
-    az ad sp list --display-name "{vmname}" --query [].objectId --output tsv
-    ```
+   ```azurecli
+   az ad sp list --display-name "{vmname}" --query [].id --output tsv
+   ```
 
 1. To list the role assignments, use [az role assignment list](/cli/azure/role/assignment#az-role-assignment-list).
 
-    By default, only role assignments for the current subscription will be displayed. To view role assignments for the current subscription and below, add the `--all` parameter. To view inherited role assignments, add the `--include-inherited` parameter.
+   By default, only role assignments for the current subscription will be displayed. To view role assignments for the current subscription and below, add the `--all` parameter. To view inherited role assignments, add the `--include-inherited` parameter.
 
-    ```azurecli
-    az role assignment list --assignee {objectId}
-    ```
+   ```azurecli
+   az role assignment list --assignee {objectId}
+   ```
 
 ## Next steps
 
-- [Add or remove Azure role assignments using Azure CLI](role-assignments-cli.md)
+[Assign Azure roles using Azure CLI](role-assignments-cli.md)

@@ -1,43 +1,39 @@
-# Testing the new code owners feature in GitHub. Please contact Cory Fowler if you have questions.
+# Codeowners file
+# Each line is a file pattern followed by one or more owners.
 
-# Horizontals
-
-## Azure Policy: Samples and Compliance Controls
-articles/**/policy-reference.md @DCtheGeek
-articles/**/security-controls-policy.md @DCtheGeek
-includes/policy/ @DCtheGeek
-
-# Azure Active Directory
-
-articles/active-directory-b2c/ @msmimart @yoelhor
-articles/active-directory/app-provisioning/ @CelesteDG
-articles/active-directory/manage-apps/ @CelesteDG
-
-# Cognitive Services
-articles/cognitive-services/ @diberry @erhopf @aahill @trevorbye @patrickfarley @nitinme
-
-# DevOps
-articles/ansible/ @TomArcherMsft
-articles/chef/ @TomArcherMsft
-articles/jenkins/ @TomArcherMsft
-articles/terraform/ @TomArcherMsft
-
-# compute
-articles/virtual-machines/ @cynthn @mimckitt 
-articles/virtual-machine-scale-sets/ @ju-shim @mimckitt 
-articles/cloud-services/ @mimckitt 
-
-# Requires Internal Review
-articles/best-practices-availability-paired-regions.md @martinekuan @syntaxc4 @snoviking
-
-# Governance
-articles/governance/ @DCtheGeek
-
-# Security baselines
-articles/**/*security-baseline.md @msmbaldwin @mgblythe
-articles/security/benchmarks/ @msmbaldwin @mgblythe
-
-# Configuration
-*.json @SyntaxC4 @snoviking @martinekuan
-.acrolinx-config.edn @MonicaRush @martinekuan
-articles/zone-pivot-groups.yml @SyntaxC4 @snoviking @martinekuan
+# Folder paths in this list have been migrated to new repositories and content can no longer be created for these services in this repo.
+/articles/aks @tynevi @thomps23 @jasonwhowell
+/articles/defender-for-cloud  @tynevi @thomps23 @jasonwhowell
+/articles/attestation  @tynevi @thomps23 @jasonwhowell
+/articles/confidential-ledger  @tynevi @thomps23 @jasonwhowell
+/articles/dedicated-hsm  @tynevi @thomps23 @jasonwhowell
+/articles/key-vault  @tynevi @thomps23 @jasonwhowell
+/articles/payment-hsm  @tynevi @thomps23 @jasonwhowell
+/articles/postgresql @tynevi @thomps23 @jasonwhowell
+/articles/cosmos-db @tynevi @thomps23 @jasonwhowell
+/articles/dms @tynevi @thomps23 @jasonwhowell
+/articles/mariadb @tynevi @thomps23 @jasonwhowell
+/articles/mysql @tynevi @thomps23 @jasonwhowell
+/articles/managed-instance-apache-cassandra @tynevi @thomps23 @jasonwhowell
+/articles/virtual-machines @jasonwhowell @thomps23
+/articles/virtual-machines-scale-sets @jasonwhowell @thomps23
+/articles/container-instances @jasonwhowell @thomps23
+/articles/service-fabric @jasonwhowell @thomps23
+/articles/machine-learning @jasonwhowell @thomps23
+/articles/ai-studio @jasonwhowell @thomps23
+/articles/ai-services @jasonwhowell @thomps23
+/articles/genomics @jasonwhowell @thomps23
+/articles/open-datasets @jasonwhowell @thomps23
+/articles/search @jasonwhowell @thomps23
+/articles/azure-monitor @jasonwhowell @thomps23
+/articles/advisor @jasonwhowell @thomps23
+/articles/chaos-studio @jasonwhowell @thomps23
+/articles/service-health @jasonwhowell @thomps23
+/articles/azure-arc @jasonwhowell @thomps23
+/articles/azure-linux @jasonwhowell @thomps23
+/articles/azure-portal @jasonwhowell @thomps23
+/articles/copilot @jasonwhowell @thomps23
+/articles/lighthouse @jasonwhowell @thomps23
+/articles/quotas @jasonwhowell @thomps23
+/articles/container-registry @jasonwhowell @thomps23
+/articles/kubernetes-fleet @MicrosoftDocs/azure-docs-codeowners

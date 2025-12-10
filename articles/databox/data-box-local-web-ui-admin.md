@@ -2,62 +2,81 @@
 title: Administer Azure Data Box/Azure Data Box Heavy using local web UI
 description: Describes how to use the local web UI to administer your Data Box and Data Box Heavy devices
 services: databox
-author: alkohli
+author: stevenmatthew
 
-ms.service: databox
-ms.subservice: pod
-ms.topic: article
-ms.date: 08/10/2020
-ms.author: alkohli
+ms.service: azure-databox
+ms.topic: how-to
+ms.date: 08/31/2022
+ms.author: shaas
+ms.custom: sfi-image-nochange
+# Customer intent: As a Data Box administrator, I want to manage my Data Box devices using the local web UI, so that I can efficiently perform configuration, diagnostics, and data management tasks.
 ---
-# Use the local web UI to administer your Data Box and Data Box Heavy
 
-This article describes some of the configuration and management tasks that can be performed on the Data Box and Data Box Heavy devices. You can manage the Data Box and Data Box Heavy devices via the Azure portal UI and the local web UI for the device. This article focuses on the tasks that you can perform using the local web UI.
+# Use the local web UI to administer your Data Box
 
-Local web UI for the Data Box and Data Box Heavy is used for the initial configuration of the device. You can also use the local web UI to shut down or restart the device, run diagnostic tests, update software, view copy logs, and generate a log package for Microsoft Support. On a Data Box Heavy device with two independent nodes, you can access two separate local web UIs corresponding to each node of the device.
+This article describes some of the configuration and management tasks performed on Data Box 120, Data Box 525, and Data Box devices. You can manage the Data Box and Data Box Heavy devices via the Azure portal UI and the local web UI for the device. This article focuses on tasks performed using the local web UI.
 
-This article includes the following tutorials:
-
-- Generate a Support package
-- Shut down or restart your device
-- Download bill of material (BOM) or manifest files
-- View available capacity of the device
-- Skip checksum validation
-
-[!INCLUDE [Data Box feature is in preview](../../includes/data-box-feature-is-preview-info.md)]
+The local web UI for the devices is used for initial configuration of the device. You can also use the local web UI to shut down or restart the device, run diagnostic tests, update software, view copy logs, erase local data from the device, and generate a support package for Microsoft Support.
 
 ## Generate Support package
 
-If you experience any device issues, you can create a Support package from the system logs. Microsoft Support uses this package to troubleshoot the issue. To generate a Support package, take the following steps:
+If you experience any device issues, you can create a Support package from the system logs. Microsoft Support uses this package to troubleshoot the issue.
 
-1. In the local web UI, go to **Contact Support** and select **Create Support package**.
+To generate a Support package, take the following steps:
+
+1. In the local web UI, go to **Contact Support**. Optionally, select **Include memory dumps**. Then select **Create Support package**.
+
+    A memory dump is the contents of your device's memory, saved after a system failure.
+
+    You shouldn't select the **Include memory dumps** option unless Support asks for one. It takes a long time to gather a support package that includes memory dumps, and sensitive data is included.
 
     ![Create Support package 1](media/data-box-local-web-ui-admin/create-support-package-1.png)
 
-2. A Support package is gathered. This operation takes a few minutes.
+    A Support package is gathered. This operation takes a few minutes if you only include system logs. If you include memory dumps, it takes a lot longer.
 
     ![Create Support package 2](media/data-box-local-web-ui-admin/create-support-package-2.png)
 
-3. Once the Support package creation is complete, select **Download Support package**.
+2. Once Support package creation is complete, select **Download Support package**.
+
+    ![Create Support package 3](media/data-box-local-web-ui-admin/create-support-package-3.png)
+
+3. Browse and choose the download location. Open the folder to view the contents.
 
     ![Create Support package 4](media/data-box-local-web-ui-admin/create-support-package-4.png)
 
-4. Browse and choose the download location. Open the folder to view the contents.
+## Erase local data from your device
 
-    ![Create Support package 5](media/data-box-local-web-ui-admin/create-support-package-5.png)
+You can use the local web UI to erase local data from your device before returning it to the Azure datacenter.
+
+> [!IMPORTANT]
+> A data erase can't be reversed. Before you erase local data from your device, be sure to back up the files.
+
+To erase local data from your device, perform these steps:
+
+1. In the local web UI, go to **Data erase**.
+2. Enter the device password, and select **Erase data**.
+
+    ![Data erase option for a device](media/data-box-local-web-ui-admin/erase-local-data-1.png)
+
+3. At the confirmation prompt, select **Yes** to continue. A data erase can take as long as 50 minutes.
+
+   Be sure to back up your local data before you erase it from the device. A data erase can't be reversed.
+
+    ![Data erase confirmation prompt](media/data-box-local-web-ui-admin/erase-local-data-2.png)
 
 ## Shut down or restart your device
 
-You can shut down or restart your device using the local web UI. We recommend that before you restart, take the shares offline on the host and then the device. Doing so minimizes any possibility of data corruption. Ensure that data copy is not in progress when you shut down the device.
+You can shut down or restart your device using the local web UI. We recommend that before you restart, you take the shares offline on the host and then the device. Doing so minimizes any possibility of data corruption. Ensure that data copy isn't in progress when you shut down the device.
 
 To shut down your device, take the following steps.
 
 1. In the local web UI, go to **Shut down or restart**.
+
 2. Select **Shut down**.
 
     ![Shut down Data Box 1](media/data-box-local-web-ui-admin/shut-down-local-web-ui-1.png)
 
-3. When prompted for confirmation, select **OK** to proceed.
+3. When prompted for confirmation, select **OK** to continue.
 
     ![Shut down Data Box 2](media/data-box-local-web-ui-admin/shut-down-local-web-ui-2.png)
 
@@ -70,13 +89,34 @@ To restart your Data Box, perform the following steps.
 
     ![Restart Data Box 1](media/data-box-local-web-ui-admin/restart-local-web-ui-1.png)
 
-3. When prompted for confirmation, select **OK** to proceed.
+3. When prompted for confirmation, select **OK** to continue.
 
    The device shuts down and then restarts.
 
+## Get share credentials 
+
+If you need to find out the username and password to use to connect to a share on your device, you can find the share credentials in **Connect and copy** in the local web UI.
+
+When you order your device, you can choose to use default system-generated passwords for the shares on your device or your own passwords. Either way, the share passwords are set at the factory and can't be changed. 
+
+To get the credentials for a share:
+
+1. In the local web UI, go to **Connect and copy**. Select **SMB** to get access credentials for the shares associated with your storage account.
+
+   ![Screenshot showing the Connect And Copy page in the local Web UI for a Data Box. The Connect And Copy menu item and the SMB option are highlighted.](media/data-box-local-web-ui-admin/get-share-credentials-01.png)
+
+1. In the **Access share and copy data** dialog box, use the copy icon to copy the **Username** and **Password** corresponding to the share. To close the dialog box, select **OK**.
+
+   ![Screenshot showing the Access Share And Copy Data dialog box in the local Web UI for an SMB share on the Data Box. The Copy icon for the Storage Account and Password options, and the OK button, are highlighted.](media/data-box-local-web-ui-admin/get-share-credentials-02.png)
+
+> [!NOTE]
+> After several failed attempts to connect to a share while using an incorrect password, the user account will be locked out of the share. The account lock will clear after a few minutes, and you can connect to the shares again.  
+> - Data Box 4.1 and later: The account is locked for 15 minutes after 5 failed login attempts. 
+> - Data Box 4.0 and earlier: The account is locked for 30 minutes after 3 failed login attempts.
+
 ## Download BOM or manifest files
 
-The BOM or the manifest files contain the list of the files that are copied to the Data Box or Data Box Heavy. These files are generated for an import order when you prepare the device to ship.
+The BOM or the manifest files contain the list of the files that are copied to the Data Box. These files are generated for an import order when you prepare the device to ship.
 
 Before you begin, follow these steps to download BOM or manifest files for your import order:
 
@@ -88,7 +128,7 @@ Before you begin, follow these steps to download BOM or manifest files for your 
 
     <!-- ![Select Download list of files](media/data-box-portal-admin/download-list-of-files.png) -->
 
-3. In File Explorer, you will see that separate list of files are generated depending on the protocol used to connect to the device and the Azure Storage type used.
+3. In File Explorer, separate lists of files are generated depending on the protocol used to connect to the device and the Azure Storage type used.
 
     <!-- ![Files for storage type and connection protocol](media/data-box-portal-admin/files-storage-connection-type.png) -->
     ![Files for storage type and connection protocol](media/data-box-local-web-ui-admin/prepare-to-ship-5.png)
@@ -104,9 +144,6 @@ Before you begin, follow these steps to download BOM or manifest files for your 
     |utsac1_BlockBlock_Rest-BOM.txt    |Block blobs         |REST         |
 
 You use this list to verify the files uploaded into the Azure Storage account after the Data Box returns to the Azure datacenter. A sample manifest file is shown below.
-
-> [!NOTE]
-> On a Data Box Heavy, two sets of list of files (BOM files) are present corresponding to the two nodes on the device.
 
 ```xml
 <file size="52689" crc64="0x95a62e3f2095181e">\databox\media\data-box-deploy-copy-data\prepare-to-ship2.png</file>
@@ -148,7 +185,7 @@ You use this list to verify the files uploaded into the Azure Storage account af
 <file size="3603" crc64="0x7e34c25d5606693f">\databox\TOC.yml</file>
 ```
 
-This file contains the list of all the files that were copied on the Data Box or Data Box Heavy. In this file, *crc64* value relates to the checksum generated for the corresponding file.
+This file contains the list of all the files that were copied on the Data Box. In this file, *crc64* value relates to the checksum generated for the corresponding file.
 
 ## View available capacity of the device
 
@@ -163,15 +200,18 @@ You can use the device dashboard to view the available and used capacity of the 
 
 Checksums are generated for your data by default when you prepare to ship. In certain rare cases, depending on the data type (small file sizes), the performance may be slow. In such instances, you can skip checksum.
 
-Checksum computation during prepare to ship is only done for import orders, and not for export orders. 
+Checksum computation during prepare to ship is only done for import orders, and not for export orders.
 
-We strongly recommend that you do not disable checksum unless the performance is severely impacted.
+We strongly recommend that you do not disable checksum unless the performance is severely affected.
 
-1. In the top-right corner of the local web UI of your device, go to **Settings**.
+1. In the local web UI, go to **Connect and copy**. Select **Settings**.
 
-    ![Disable checksum](media/data-box-local-web-ui-admin/disable-checksum.png)
+    ![Screenshot of Connect and copy settings.](media/data-box-local-web-ui-admin/connect-copy-settings.png)
 
 2. **Disable** checksum validation
+
+    ![Screenshot of disable checksum option.](media/data-box-local-web-ui-admin/disable-checksum.png)
+
 3. Select **Apply**.
 
 > [!NOTE]
@@ -185,9 +225,9 @@ For more information related to SMB signing, see [Overview of Server Message Blo
 
 To enable SMB signing in your Azure Device:
 
-1. In the top-right corner of the local web UI of your device, select **Settings**.
+1. In the local web UI, go to **Connect and copy**. Select **Settings**.
 
-    ![Open Settings](media/data-box-local-web-ui-admin/data-box-settings-1.png)
+    ![Screenshot of Connect and copy settings 2.](media/data-box-local-web-ui-admin/connect-copy-settings.png)
 
 2. **Enable** SMB Signing.
 
@@ -197,21 +237,64 @@ To enable SMB signing in your Azure Device:
 4. In the local web UI, go to **Shut down or restart**.
 5. Select **Restart**.
 
+## Enable Backup Operator privileges
+
+Your web UI users have Backup Operator privileges on SMB shares by default. If you don't want this, use **Enable Backup Operator privileges** to disable or enable the privileges.
+
+For information, see Backup Operators in [Active Directory Security Groups](/windows/security/identity-protection/access-control/active-directory-security-groups#backup-operators).
+
+To enable Backup Operator privileges in your Azure Device:
+
+1. In the local web UI, go to **Connect and copy**. Select **Settings**.
+
+   ![Screenshot of Connect and copy settings 3.](media/data-box-local-web-ui-admin/connect-copy-settings.png)
+
+2. **Enable** Backup Operator privileges.
+
+   ![Screenshot of Backup operator privileges.](media/data-box-local-web-ui-admin/data-box-backup-operator-privileges-1.png)
+
+3. **Select Apply**.
+4. In the local web UI, go to **Shut down or restart**.
+5. Select **Restart**.
+
+## Enable ACLs for Azure Files
+
+Metadata on files is transferred by default when users upload data via SMB to your Data Box. The metadata includes access control lists (ACLs), file attributes, and timestamps. If you don't want this, use **ACLs for Azure Files** to disable or enable this feature.
+
+<!--For more information about metadata that is transferred, see [Preserving the ACLs and metadata with Azure Data Box](./data-box-local-web-ui-admin.md#enable-backup-operator-privileges) - IN DEVELOPMENT-->
+
+> [!Note]
+> To transfer metadata with files, you must be a Backup Operator. When you use this feature, make sure local users of the web UI are Backup Operators. See [Enable Backup Operator privileges](#enable-backup-operator-privileges).
+
+To enable transfer of ACLs for Azure Files:
+
+1. In the local web UI, go to **Connect and copy**. Select **Settings**. 
+
+    ![Screenshot of Connect and copy settings 4.](media/data-box-local-web-ui-admin/connect-copy-settings.png)
+
+2. **Enable** ACLs for Azure Files.
+
+     ![Screenshot of ACLs for Azure Files](media/data-box-local-web-ui-admin/data-box-acls-for-azure-files-1.png)
+  
+3. Select **Apply**.
+4. In the local web UI, go to **Shut down or restart**.
+5. Select **Restart**.
+
 ## Enable TLS 1.1
 
-By default, Azure Data Box uses Transport Layer Security (TLS) 1.2 for encryption as it is more secure than TSL 1.1. However, if you or your clients are using a browser to access data that does not support TLS 1.2, you may enable TLS 1.1.
+By default, Azure Data Box uses Transport Layer Security (TLS) 1.2 for encryption because it is more secure than TSL 1.1. However, if you or your clients use a browser to access data that doesn't support TLS 1.2, you may enable TLS 1.1.
 
-For more information related to TLS, see [Azure Data Box Gateway security](../databox-online/data-box-gateway-security.md).
+For more information related to TLS, see [Azure Data Box Gateway security](../databox-gateway/data-box-gateway-security.md).
 
 To enable TLS 1.1 in your Azure device:
 
 1. In the top-right corner of the local web UI of your device, select **Settings**.
 
-    ![Open Settings](media/data-box-local-web-ui-admin/data-box-settings-1.png)
+    ![Screenshot of Data Box Settings -3](media/data-box-local-web-ui-admin/data-box-settings-1.png)
 
 2. **Enable** TLS 1.1.
 
-    ![Enable TLS 1.1](media/data-box-local-web-ui-admin/data-box-tls-1-1.png)
+    ![Screenshot of Enable TLS 1.1](media/data-box-local-web-ui-admin/data-box-tls-1-1.png)
 
 3. Select **Apply**.
 4. In the local web UI, go to **Shut down or restart**.
@@ -219,4 +302,4 @@ To enable TLS 1.1 in your Azure device:
 
 ## Next steps
 
-- Learn how to [Manage the Data Box and Data Box Heavy via the Azure portal](data-box-portal-admin.md).
+- Learn how to [Manage the Data Box via the Azure portal](data-box-portal-admin.md).

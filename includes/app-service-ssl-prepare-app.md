@@ -1,56 +1,45 @@
 ---
-title: "include file"
-description: "include file"
 services: app-service
 author: cephalin
-ms.service: app-service
-ms.topic: "include"
+ms.service: azure-app-service
+ms.topic: include
 ms.date: 10/15/2018
 ms.author: cephalin
-ms.custom: "include file"
+ms.custom:
+  - "include file"
+  - sfi-image-nochange
 ---
 
 ## Prepare your web app
 
-To create custom security bindings or enable client certificates for your App Service app, your [App Service plan](https://azure.microsoft.com/pricing/details/app-service/) must be in the **Basic**, **Standard**, **Premium**, or **Isolated** tier. In this step, you make sure that your web app is in the supported pricing tier.
+If you want to create custom TLS/SSL bindings or to enable client certificates for your App Service app, your [App Service plan](https://azure.microsoft.com/pricing/details/app-service/) must be in the Basic, Standard, Premium, or Isolated tiers.
 
-### Sign in to Azure
+To make sure that your web app is in a supported pricing tier:
 
-Open the [Azure portal](https://portal.azure.com).
+### Go to your web app
 
-### Navigate to your web app
+1. In the [Azure portal](https://portal.azure.com) search box, enter **App Services** and then select it in the search results.
 
-Search for and select **App Services**.
+1. On the **App Services** page, select your web app:
 
-![Select App Services](./media/app-service-ssl-prepare-app/app-services.png)
+   :::image type="content" source="./media/app-service-ssl-prepare-app/select-app-service.png" alt-text="Screenshot of the App Services page in the Azure portal.":::
 
-On the **App Services** page, select the name of your web app.
-
-![Portal navigation to Azure app](./media/app-service-ssl-prepare-app/select-app.png)
-
-You have landed on the management page of your web app.  
+   You're now on your web app's management page.
 
 ### Check the pricing tier
 
-In the left-hand navigation of your web app page, scroll to the **Settings** section and select **Scale up (App Service plan)**.
+1. In the left menu for your web app, under **Settings**, select **Scale up (App Service plan)**.
 
-![Scale-up menu](./media/app-service-ssl-prepare-app/scale-up-menu.png)
+1. Make sure that your web app isn't in the F1 or D1 tier. These tiers don't support custom TLS/SSL.
 
-Check to make sure that your web app is not in the **F1** or **D1** tier. Your web app's current tier is highlighted by a dark blue box.
-
-![Check pricing tier](./media/app-service-ssl-prepare-app/check-pricing-tier.png)
-
-Custom SSL is not supported in the **F1** or **D1** tier. If you need to scale up, follow the steps in the next section. Otherwise, close the **Scale up** page and skip the [Scale up your App Service plan](#scale-up-your-app-service-plan) section.
+1. If you need to scale up, follow the steps in the next section. Otherwise, close the **Scale up** pane, and skip the next section.
 
 ### Scale up your App Service plan
 
-Select any of the non-free tiers (**B1**, **B2**, **B3**, or any tier in the **Production** category). For additional options, click **See additional options**.
+1. Select any non-free tier, such as **B1**, **B2**, **B3**, or any other tier in the **Production** category.
 
-Click **Apply**.
+1. When you're done, choose **Select**.
 
-![Choose pricing tier](./media/app-service-ssl-prepare-app/choose-pricing-tier.png)
+   When the scale operation is complete, you'll see a message stating that the plan was updated.
 
-When you see the following notification, the scale operation is complete.
-
-![Scale up notification](./media/app-service-ssl-prepare-app/scale-notification.png)
-
+    

@@ -1,15 +1,13 @@
 ---
 title: CreateUiDefinition artifact
 description: Shows how to create the createUiDefinition artifact for an Azure Managed Application. The file is named createUiDefinition.json.
-ms.topic: conceptual
-ms.author: lazinnat
-author: lazinnat
-ms.date: 07/11/2019
+ms.topic: reference
+ms.date: 06/24/2024
 ---
 
 # Reference: User interface elements artifact
 
-This article is a reference for a *createUiDefinition.json* artifact in Azure Managed Applications. For more information about authoring user interface elements, see [Create user interface elements](create-uidefinition-elements.md).
+This article is a reference for a _createUiDefinition.json_ artifact in Azure Managed Applications. For more information about authoring user interface elements, see [Create user interface elements](create-uidefinition-elements.md).
 
 ## User interface elements
 
@@ -57,7 +55,7 @@ The following JSON shows an example of *createUiDefinition.json* file for Azure 
           {
             "name": "zipFileBlobUri",
             "type": "Microsoft.Common.TextBox",
-            "defaultValue": "https://github.com/Azure/azure-quickstart-templates/tree/master/101-custom-rp-with-function/artifacts/functionzip/functionpackage.zip",
+            "defaultValue": "https://github.com/Azure/azure-quickstart-templates/tree/master/quickstarts/microsoft.customproviders/custom-rp-with-function/artifacts/functionzip/functionpackage.zip",
             "label": "The Uri to the uploaded function zip file",
             "toolTip": "The Uri to the uploaded function zip file",
             "visible": true

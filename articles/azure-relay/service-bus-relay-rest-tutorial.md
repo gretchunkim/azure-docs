@@ -2,8 +2,11 @@
 title: 'Tutorial: REST tutorial using Azure Relay'
 description: 'Tutorial: Build an Azure Relay host application that exposes a REST-based interface.'
 ms.topic: tutorial
-ms.custom: devx-track-csharp
-ms.date: 06/23/2020
+ms.date: 12/11/2024
+ms.custom:
+  - devx-track-csharp
+  - sfi-ropc-nochange
+# Customer intent: I want to learn how to build an Azure Relay host application that exposes a REST-based interface.
 ---
 
 # Tutorial: Azure WCF Relay REST tutorial
@@ -27,7 +30,7 @@ You do the following tasks in this tutorial:
 
 To complete this tutorial, you need the following prerequisites:
 
-* An Azure subscription. If you don't have one, [create a free account](https://azure.microsoft.com/free/) before you begin.
+* An Azure subscription. If you don't have one, [create a free account](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn) before you begin.
 * [Visual Studio 2015 or later](https://www.visualstudio.com). The examples in this tutorial use Visual Studio 2019.
 * Azure SDK for .NET. Install it from the [SDK downloads page](https://azure.microsoft.com/downloads/).
 
@@ -59,7 +62,7 @@ The primary difference between a WCF contract and a REST-style contract is the a
     This step adds references to Service Bus and *System.ServiceModel.dll*. This package automatically adds references to the Service Bus libraries and the WCF `System.ServiceModel`.
 
 1. Explicitly add a reference to `System.ServiceModel.Web.dll` to the project. In **Solution Explorer**, right-click **References** under the project folder, and select **Add Reference**.
-1. In **Add Reference**, select **Framework** and enter *System.ServiceModel.Web* in **Search**. Select the **System.ServiceModel.Web** check box, then click **OK**.
+1. In **Add Reference**, select **Framework** and enter *System.ServiceModel.Web* in **Search**. Select the **System.ServiceModel.Web** check box, then select **OK**.
 
 Next, make the following code changes to the project:
 
@@ -251,7 +254,7 @@ As with the previous steps, there's little difference between implementing a RES
 
 1. In **Solution Explorer**, double-click **App.config** to open the file in the Visual Studio editor.
 
-    The *App.config* file includes the service name, endpoint, and binding. The endpoint is the location Azure Relay exposes for clients and hosts to communicate with each other. The binding is the type of protocol that is used to communicate. The main difference here is that the configured service endpoint refers to a [WebHttpRelayBinding](/dotnet/api/microsoft.servicebus.webhttprelaybinding) binding.
+    The *App.config* file includes the service name, endpoint, and binding. The endpoint is the location Azure Relay exposes for clients and hosts to communicate with each other. The binding is the type of protocol that is used to communicate. The main difference here's that the configured service endpoint refers to a [WebHttpRelayBinding](/dotnet/api/microsoft.servicebus.webhttprelaybinding) binding.
 
 1. The `<system.serviceModel>` XML element is a WCF element that defines one or more services. Here, it's used to define the service name and endpoint. At the bottom of the `<system.serviceModel>` element, but still within `<system.serviceModel>`, add a `<bindings>` element that has the following content:
 
@@ -289,7 +292,7 @@ As with the previous steps, there's little difference between implementing a RES
 
     This content configures a service that uses the previously defined default `webHttpRelayBinding`. It also uses the default `sbTokenProvider`, which is defined in the next step.
 
-1. After the `<services>` element, create a `<behaviors>` element with the following content, replacing `SAS_KEY` with the Shared Access Signature (SAS) key. To obtain an SAS key from the [Azure portal][Azure portal], see [Get management credentials](service-bus-relay-tutorial.md#get-management-credentials).
+1. After the `<services>` element, create a `<behaviors>` element with the following content, replacing `SAS_KEY` with the Shared Access Signature (SAS) key. To obtain an SAS key from the [Azure portal], see [Get management credentials](service-bus-relay-tutorial.md#get-management-credentials).
 
     ```xml
     <behaviors>
@@ -619,7 +622,7 @@ After building the solution, do the following to run the application:
 1. Copy and paste the address from the command prompt into a browser to see the image.
 1. When you're finished, select Enter in the command prompt window to close the app.
 
-## Next steps
+## Related content
 
 Now that you've built an application that uses the Azure Relay service, see the following articles to learn more:
 

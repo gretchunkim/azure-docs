@@ -1,19 +1,18 @@
 ---
 title: include file
-description: include file
-author: robinsh
-ms.service: iot-hub
+description: Include file that describes how to use a blob storage endpoint.
+author: SoniaLopezBravo
+ms.service: azure-iot-hub
 services: iot-hub
 ms.topic: include
-ms.date: 03/15/2019
-ms.author: robinsh
+ms.date: 03/31/2025
+ms.author: sonialopez
 ms.custom: include file
 ---
-<!-- This is the note explaining about the avro and json formats when routing to blob storage. -->
 > [!NOTE]
-> The data can be written to blob storage in either the [Apache Avro](https://avro.apache.org/) format, which is the default, or JSON (preview). 
+> The data can be written to blob storage in either the [Apache Avro](https://avro.apache.org/) format, which is the default, or JSON. 
 >    
-> The capability to encode JSON format is in preview in all regions in which IoT Hub is available, except East US, West US and West Europe. The encoding format can be only set at the time the blob storage endpoint is configured. The format cannot be changed for an endpoint that has already been set up. When using JSON encoding, you must set the contentType to JSON and the contentEncoding to UTF-8 in the message system properties. 
+> The encoding format can be only set at the time the blob storage endpoint is configured. The format can't be changed for a previously configured endpoint. When using JSON encoding, you must set the contentType to JSON and the contentEncoding to UTF-8 in the message system properties. 
 >
-> For more detailed information about using a blob storage endpoint, please see [guidance on routing to storage](../articles/iot-hub/iot-hub-devguide-messages-d2c.md#azure-storage-as-a-routing-endpoint).
+> For more detailed information about using a blob storage endpoint, see [Azure Storage as a routing endpoint](../articles/iot-hub/iot-hub-devguide-endpoints.md#azure-storage-as-a-routing-endpoint).
 >

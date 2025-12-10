@@ -1,17 +1,18 @@
 ---
 title: Use Curl to export data with Apache Sqoop in Azure HDInsight
 description: Learn how to remotely submit Apache Sqoop jobs to Azure HDInsight using Curl.
-author: hrasheed-msft
-ms.author: hrasheed
-ms.reviewer: jasonh
-ms.service: hdinsight
+ms.service: azure-hdinsight
 ms.topic: how-to
-ms.date: 01/06/2020
+author: hareshg
+ms.author: hgowrisankar
+ms.reviewer: nijelsf
+ms.date: 05/10/2024
+ms.custom: sfi-ropc-nochange
 ---
 
 # Run Apache Sqoop jobs in HDInsight with Curl
 
-[!INCLUDE [sqoop-selector](../../../includes/hdinsight-selector-use-sqoop.md)]
+[!INCLUDE [sqoop-selector](../includes/hdinsight-selector-use-sqoop.md)]
 
 Learn how to use Curl to run Apache Sqoop jobs on an Apache Hadoop cluster in HDInsight. This article demonstrates how to export data from Azure Storage and import it into a SQL Server database using Curl. This article is a continuation of [Use Apache Sqoop with Hadoop in HDInsight](./hdinsight-use-sqoop.md).
 
@@ -21,7 +22,7 @@ Curl is used to demonstrate how you can interact with HDInsight by using raw HTT
 
 * Completion of [Set up test environment](./hdinsight-use-sqoop.md#create-cluster-and-sql-database) from [Use Apache Sqoop with Hadoop in HDInsight](./hdinsight-use-sqoop.md).
 
-* A client to query the Azure SQL Database. Consider using [SQL Server Management Studio](../../azure-sql/database/connect-query-ssms.md) or [Visual Studio Code](../../azure-sql/database/connect-query-vscode.md).
+* A client to query the Azure SQL Database. Consider using [SQL Server Management Studio](/azure/azure-sql/database/connect-query-ssms) or [Visual Studio Code](/azure/azure-sql/database/connect-query-vscode).
 
 * [Curl](https://curl.haxx.se/). Curl is a tool to transfer data from or to a HDInsight cluster.
 

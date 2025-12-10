@@ -1,11 +1,11 @@
----
+﻿---
 title: Manage resources - Azure PowerShell
 description: Use Azure PowerShell and Azure Resource Manager to manage your resources. Shows how to deploy and delete resources. 
-author: mumian
-ms.topic: conceptual
-ms.date: 02/11/2019
-ms.author: jgao
+ms.topic: article
+ms.date: 02/10/2025
+ms.custom: devx-track-azurepowershell, devx-track-arm-template
 ---
+
 # Manage Azure resources by using Azure PowerShell
 
 Learn how to use Azure PowerShell with [Azure Resource Manager](overview.md) to manage your Azure resources. For managing resource groups, see [Manage Azure resource groups by using Azure PowerShell](manage-resource-groups-powershell.md).
@@ -40,12 +40,12 @@ $ctx = $storageAccount.Context
 
 ### Deploy a template
 
-The following script creates deploy a Quickstart template to create a storage account. For more information, see [Quickstart: Create Azure Resource Manager templates by using Visual Studio Code](../templates/quickstart-create-templates-use-visual-studio-code.md?tabs=PowerShell).
+The following script deploys a Quickstart template to create a storage account. For more information, see [Quickstart: Create Azure Resource Manager templates by using Visual Studio Code](../templates/quickstart-create-templates-use-visual-studio-code.md?tabs=PowerShell).
 
 ```azurepowershell-interactive
 $resourceGroupName = Read-Host -Prompt "Enter the Resource Group name"
 $location = Read-Host -Prompt "Enter the location (i.e. centralus)"
-$templateUri = "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/101-storage-account-create/azuredeploy.json"
+$templateUri = "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/quickstarts/microsoft.storage/storage-account-create/azuredeploy.json"
 New-AzResourceGroupDeployment -ResourceGroupName $resourceGroupName -TemplateUri $templateUri -Location $location
 ```
 
@@ -57,7 +57,7 @@ You can create a resource group and deploy resources to the group. For more info
 
 ## Deploy resources to multiple subscriptions or resource groups
 
-Typically, you deploy all the resources in your template to a single resource group. However, there are scenarios where you want to deploy a set of resources together but place them in different resource groups or subscriptions. For more information, see [Deploy Azure resources to multiple subscriptions or resource groups](../templates/cross-scope-deployment.md).
+Typically, you deploy all the resources in your template to a single resource group. However, there are scenarios where you want to deploy a set of resources together but place them in different resource groups or subscriptions. For more information, see [Deploy Azure resources to multiple subscriptions or resource groups](../templates/deploy-to-resource-group.md).
 
 ## Delete resources
 
@@ -89,7 +89,7 @@ For more information, see [Move resources to new resource group or subscription]
 
 ## Lock resources
 
-Locking prevents other users in your organization from accidentally deleting or modifying critical resources, such as Azure subscription, resource group, or resource. 
+Locking prevents other users in your organization from accidentally deleting or modifying critical resources, such as Azure subscription, resource group, or resource.
 
 The following script locks a storage account so the account can't be deleted.
 
@@ -123,15 +123,16 @@ For more information, see [Lock resources with Azure Resource Manager](lock-reso
 
 ## Tag resources
 
-Tagging helps organizing your resource group and resources logically. For information, see [Using tags to organize your Azure resources](tag-resources.md#powershell).
+Tagging helps you organize your resource group and resources logically. For information, see [Using tags to organize your Azure resources](tag-resources-powershell.md).
 
 ## Manage access to resources
 
-[Azure role-based access control (Azure RBAC)](../../role-based-access-control/overview.md) is the way that you manage access to resources in Azure. For more information, see [Manage access using RBAC and Azure PowerShell](../../role-based-access-control/role-assignments-powershell.md).
+[Azure role-based access control (Azure RBAC)](../../role-based-access-control/overview.md) is the way that you manage access to resources in Azure. For more information, see [Add or remove Azure role assignments using Azure PowerShell](../../role-based-access-control/role-assignments-powershell.md).
 
 ## Next steps
 
 - To learn Azure Resource Manager, see [Azure Resource Manager overview](overview.md).
-- To learn the Resource Manager template syntax, see [Understand the structure and syntax of Azure Resource Manager templates](../templates/template-syntax.md).
+- To learn the Resource Manager template syntax, see [Understand the structure and syntax of Azure Resource Manager templates](../templates/syntax.md).
 - To learn how to develop templates, see the [step-by-step tutorials](../index.yml).
 - To view the Azure Resource Manager template schemas, see [template reference](/azure/templates/).
+

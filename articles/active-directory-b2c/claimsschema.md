@@ -1,19 +1,27 @@
 ---
-title: ClaimsSchema  - Azure Active Directory B2C | Microsoft Docs
-description: Specify the ClaimsSchema element of a custom policy in Azure Active Directory B2C.
-services: active-directory-b2c
-author: msmimart
-manager: celestedg
+title: "ClaimsSchema: Azure Active Directory B2C"
+description: Specify the ClaimsSchema element of a custom policy in Azure AD B2C. Define and manage claim types for user attributes and input controls.
 
-ms.service: active-directory
-ms.workload: identity
+author: kengaderdus
+manager: CelesteDG
+
+ms.service: azure-active-directory
+
 ms.topic: reference
-ms.date: 03/05/2020
-ms.author: mimart
-ms.subservice: B2C
+ms.date: 03/21/2025
+ms.author: kengaderdus
+ms.subservice: b2c
+ms.custom:
+  - "b2c-support"
+  - sfi-image-nochange
+
+
+#Customer intent: As a policy administrator or developer, I want to understand the structure and attributes of the ClaimsSchema element, so that I can define and manage claim types in the policy effectively.
+
 ---
 
 # ClaimsSchema
+[!INCLUDE [active-directory-b2c-end-of-sale-notice-b](../../includes/active-directory-b2c-end-of-sale-notice-b.md)]
 
 [!INCLUDE [active-directory-b2c-advanced-audience-warning](../../includes/active-directory-b2c-advanced-audience-warning.md)]
 
@@ -66,8 +74,8 @@ The **DataType** element supports the following values:
 | ------- | ----------- |
 |boolean|Represents a Boolean (`true` or `false`) value.|
 |date| Represents an instant in time, typically expressed as a date of a day. The value of the date follows ISO 8601 convention.|
-|dateTime|Represents an instant in time, typically expressed as a date and time of day. The value of the date follows ISO 8601 convention.|
-|duration|Represents a time interval in years, months, days, hours, minutes, and seconds. The format of is `PnYnMnDTnHnMnS`, where `P` indicates positive, or `N` for negative value. `nY` is the number of years followed by a literal `Y`. `nMo` is the number of months followed by a literal `Mo`. `nD` is the number of days followed by a literal `D`. Examples: `P21Y` represents 21 years. `P1Y2Mo` represents one year, and two months. `P1Y2Mo5D` represents one year, two months, and five days.  `P1Y2M5DT8H5M620S` represents one year, two months, five days, eight hours, five minutes, and twenty seconds.  |
+|dateTime|Represents an instant in time, typically expressed as a date and time of day. The value of the date follows ISO 8601 convention during runtime and is converted to UNIX epoch time when issued as a claim into the token.|
+|duration|Represents a time interval in years, months, days, hours, minutes, and seconds. The format of is `PnYnMnDTnHnMnS`, where `P` indicates positive, or `N` for negative value. `nY` is the number of years followed by a literal `Y`. `nMo` is the number of months followed by a literal `Mo`. `nD` is the number of days followed by a literal `D`. Examples: `P21Y` represents 21 years. `P1Y2Mo` represents one year, and two months. `P1Y2Mo5D` represents one year, two months, and five days.  `P1Y2M5DT8H5M20S` represents one year, two months, five days, eight hours, five minutes, and twenty seconds.  |
 |phoneNumber|Represents a phone number. |
 |int| Represents number between -2,147,483,648 and 2,147,483,647|
 |long| Represents number between -9,223,372,036,854,775,808 to 9,223,372,036,854,775,807 |
@@ -105,11 +113,11 @@ In the following example, when the Identity Experience Framework interacts with 
 </ClaimType>
 ```
 
-As a result, the JWT token issued by Azure AD B2C, emits the `family_name` instead of ClaimType name **surname**.
+As a result, the JWT issued by Azure AD B2C, emits the `family_name` instead of ClaimType name **surname**.
 
 ```json
 {
-  "sub": "6fbbd70d-262b-4b50-804c-257ae1706ef2",
+  "sub": "aaaaaaaa-0000-1111-2222-bbbbbbbbbbbb",
   "auth_time": 1535013501,
   "given_name": "David",
   "family_name": "Williams",
@@ -126,7 +134,7 @@ The **Mask** element contains the following attributes:
 | `Type` | Yes | The type of the claim mask. Possible values: `Simple` or `Regex`. The `Simple` value indicates that a simple text mask is applied to the leading portion of a string claim. The `Regex` value indicates that a regular expression is applied to the string claim as whole.  If the `Regex` value is specified, an optional attribute must also be defined with the regular expression to use. |
 | `Regex` | No | If **`Type`** is set to `Regex`, specify the regular expression to use.
 
-The following example configures a **PhoneNumber** claim with the `Simple` mask:
+The following example configures a **PhoneNumber** claim with the `Simple` mask. For more samples, check out the [Claim simple mask live demo](https://github.com/azure-ad-b2c/unit-tests/tree/main/claims#simple-mask).
 
 ```xml
 <ClaimType Id="PhoneNumber">
@@ -141,7 +149,7 @@ The Identity Experience Framework renders the phone number while hiding the firs
 
 ![Phone number claim shown in browser with first six digits masked by Xs](./media/claimsschema/mask.png)
 
-The following example configures a **AlternateEmail** claim with the `Regex` mask:
+The following example configures a **AlternateEmail** claim with the `Regex` mask. For more samples, check out the [Regex mask live demo](https://github.com/azure-ad-b2c/unit-tests/tree/main/claims#regex-mask).
 
 ```xml
 <ClaimType Id="AlternateEmail">
@@ -155,7 +163,6 @@ The following example configures a **AlternateEmail** claim with the `Regex` mas
 The Identity Experience Framework renders only the first letter of the email address and the email domain name:
 
 ![Email claim shown in browser with characters masked by asterisks](./media/claimsschema/mask-regex.png)
-
 
 ### Restriction
 
@@ -184,7 +191,7 @@ The **Enumeration** element contains the following attributes:
 |Value | Yes | The claim value that is associated with selecting this option. |
 | SelectByDefault | No | Indicates whether or not this option should be selected by default in the UI. Possible values: True or False. |
 
-The following example configures a **city** dropdown list claim with a default value set to `New York`:
+The following example configures a **city** dropdown list claim with a default value set to `New York`. For more samples, check out the [Claim restriction enumeration live demo](https://github.com/azure-ad-b2c/unit-tests/tree/main/claims#restriction-enumeration).
 
 ```xml
 <ClaimType Id="city">
@@ -219,14 +226,14 @@ The following example configures an **email** claim with regular expression inpu
   <DisplayName>Email Address</DisplayName>
   <DataType>string</DataType>
   <DefaultPartnerClaimTypes>
-	<Protocol Name="OpenIdConnect" PartnerClaimType="email" />
+  <Protocol Name="OpenIdConnect" PartnerClaimType="email" />
   </DefaultPartnerClaimTypes>
   <UserHelpText>Email address that can be used to contact you.</UserHelpText>
   <UserInputType>TextBox</UserInputType>
   <Restriction>
-	<Pattern RegularExpression="^[a-zA-Z0-9.!#$%&amp;'^_`{}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$" HelpText="Please enter a valid email address." />
-	</Restriction>
- </ClaimType>
+    <Pattern RegularExpression="^[a-zA-Z0-9.+!#$%&amp;'+^_`{}~-]+(?:\.[a-zA-Z0-9!#$%&amp;'+^_`{}~-]+)*@(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?$" HelpText="Please enter a valid email address." />
+  </Restriction>
+</ClaimType>
 ```
 
 The Identity Experience Framework renders the email address claim with email format input validation:
@@ -236,6 +243,8 @@ The Identity Experience Framework renders the email address claim with email for
 ### UserInputType
 
 Azure AD B2C supports a variety of user input types, such as a textbox, password, and dropdown list that can be used when manually entering claim data for the claim type. You must specify the **UserInputType** when you collect information from the user by using a [self-asserted technical profile](self-asserted-technical-profile.md) and [display controls](display-controls.md).
+
+Check out the [Live demo](https://github.com/azure-ad-b2c/unit-tests/tree/main/claims#user-input-types) of the user input type.
 
 The **UserInputType** element available user input types:
 
@@ -249,7 +258,7 @@ The **UserInputType** element available user input types:
 |Password | `string` |Password text box.|
 |RadioSingleSelect |`string` | Collection of radio buttons. The claim value is the selected value.|
 |Readonly | `boolean`, `date`, `dateTime`, `duration`, `int`, `long`, `string`| Read-only text box. |
-|TextBox |`boolean`, `int`, `string` |Single-line text box. |
+|TextBox |`boolean`, `int`, `phoneNumber`, `string` |Single-line text box. |
 
 
 #### TextBox
@@ -280,7 +289,7 @@ The **EmailBox** user input type is used to provide a basic email input field.
   <UserHelpText>Email address that can be used to contact you.</UserHelpText>
   <UserInputType>EmailBox</UserInputType>
   <Restriction>
-    <Pattern RegularExpression="^[a-zA-Z0-9!#$%&amp;'+^_`{}~-]+(?:\.[a-zA-Z0-9!#$%&amp;'+^_`{}~-]+)*@(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?$" HelpText="Please enter a valid email address." />
+    <Pattern RegularExpression="^[a-zA-Z0-9.+!#$%&amp;'+^_`{}~-]+(?:\.[a-zA-Z0-9!#$%&amp;'+^_`{}~-]+)*@(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?$" HelpText="Please enter a valid email address." />
   </Restriction>
 </ClaimType>
 ```
@@ -319,7 +328,7 @@ The **DateTimeDropdown** user input type is used to provide a set of drop-downs 
 
 The **RadioSingleSelect** user input type is used to provide a collection of radio buttons that allows the user to select one option.
 
-![Using claim type with radiodsingleselect](./media/claimsschema/radiosingleselect.png)
+![Using claim type with radiosingleselect](./media/claimsschema/radiosingleselect.png)
 
 ```xml
 <ClaimType Id="color">
@@ -387,10 +396,9 @@ The **Readonly** user input type is used to provide a readonly field to display 
 </ClaimType>
 ```
 
-
 #### Paragraph
 
-The **Paragraph** user input type is used to provide a field that shows text only in a paragraph tag.  For example, &lt;p&gt;text&lt;/p&gt;. A **Paragraph** user input type `OutputClaim` of self-asserted technical profile, must set the `Required` attribute `false` (default).
+The **Paragraph** user input type is used to provide a field that shows text only in a paragraph tag.  For example, &lt;p&gt;text&lt;/p&gt;. A **Paragraph** user input type `OutputClaim` of self-asserted technical profile, must set the `Required` attribute `false` (default). This user input type is only supported in self-asserted page layouts. Unified sign-in and sign-up pages (unifiedssp) might not display this properly.
 
 ![Using claim type with paragraph](./media/claimsschema/paragraph.png)
 
@@ -401,10 +409,5 @@ The **Paragraph** user input type is used to provide a field that shows text onl
   <AdminHelpText>A claim responsible for holding response messages to send to the relying party</AdminHelpText>
   <UserHelpText>A claim responsible for holding response messages to send to the relying party</UserHelpText>
   <UserInputType>Paragraph</UserInputType>
-  <Restriction>
-    <Enumeration Text="B2C_V1_90001" Value="You cannot sign in because you are a minor" />
-    <Enumeration Text="B2C_V1_90002" Value="This action can only be performed by gold members" />
-    <Enumeration Text="B2C_V1_90003" Value="You have not been enabled for this operation" />
-  </Restriction>
 </ClaimType>
 ```

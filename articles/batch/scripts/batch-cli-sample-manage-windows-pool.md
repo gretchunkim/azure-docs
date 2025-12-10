@@ -1,35 +1,39 @@
 ---
-title: Azure CLI Script Example - Windows Pool in Batch
-description: This script demonstrates some of the commands available in the Azure CLI to create and manage a pool of Windows compute nodes in Azure Batch.
+title: Azure CLI Script Example - Windows Pool in Batch | Microsoft Docs
+description: Learn some of the commands available in the Azure CLI to create and manage a pool of Windows compute nodes in Azure Batch.
 ms.topic: sample
-ms.date: 12/12/2019 
-ms.custom: devx-track-azurecli
+ms.date: 06/24/2024
+ms.custom: devx-track-azurecli, seo-azure-cli
+keywords: windows pool, azure cli samples, azure cli code samples, azure cli script samples
+# Customer intent: As a cloud developer, I want to use Azure CLI to create and manage a Windows pool in Azure Batch, so that I can efficiently run and scale workloads using cloud-based compute resources.
 ---
 
 # CLI example: Create and manage a Windows pool in Azure Batch
 
 This script demonstrates some of the commands available in the Azure CLI to create and
-manage a pool of Windows compute nodes in Azure Batch. A Windows pool can be configured in two ways, with either a Cloud Services configuration 
-or a Virtual Machine configuration. This example shows how to create a Windows pool with the Cloud Services configuration.
+manage a pool of Windows compute nodes in Azure Batch. A Windows pool can be configured in two ways, with either a Cloud Services configuration or a Virtual Machine configuration. This example shows how to create a Windows pool with the Cloud Services configuration.
 
-[!INCLUDE [cloud-shell-try-it.md](../../../includes/cloud-shell-try-it.md)]
+[!INCLUDE [quickstarts-free-trial-note](~/reusable-content/ce-skilling/azure/includes/quickstarts-free-trial-note.md)]
 
-If you choose to install and use the CLI locally, this article requires that you are running the Azure CLI version 2.0.20 or later. Run `az --version` to find the version. If you need to install or upgrade, see [Install Azure CLI](/cli/azure/install-azure-cli). 
+[!INCLUDE [azure-cli-prepare-your-environment.md](~/reusable-content/azure-cli/azure-cli-prepare-your-environment.md)]
 
-## Example script
+## Sample script
 
-[!code-azurecli-interactive[main](../../../cli_scripts/batch/manage-pool/manage-pool-windows.sh "Manage Windows Cloud Services Pool")]
+[!INCLUDE [cli-launch-cloud-shell-sign-in.md](~/reusable-content/ce-skilling/azure/includes/cli-launch-cloud-shell-sign-in.md)]
 
-## Clean up deployment
+### Run the script
 
-Run the following command to remove the
-resource group and all resources associated with it.
+:::code language="azurecli" source="~/azure_cli_scripts/batch/manage-pool/manage-pool-windows.sh" id="FullScript":::
 
-```azurecli-interactive
-az group delete --name myResourceGroup
+## Clean up resources
+
+[!INCLUDE [cli-clean-up-resources.md](~/reusable-content/ce-skilling/azure/includes/cli-clean-up-resources.md)]
+
+```azurecli
+az group delete --name $resourceGroup
 ```
 
-## Script explanation
+## Sample reference
 
 This script uses the following commands. Each command in the table links to command-specific documentation.
 

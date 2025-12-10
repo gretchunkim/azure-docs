@@ -1,162 +1,430 @@
----
-title: Extension resource types
-description: Lists the Azure resource types are used to extend the capabilities of other resource types.
-ms.topic: conceptual
-ms.date: 07/28/2020
+﻿---
+title: Extension Resource Types
+description: Lists the Azure resource types that you use to extend the capabilities of other resource types.
+ms.topic: article
+ms.date: 02/09/2025
 ---
 
 # Resource types that extend capabilities of other resources
 
-An extension resource is a resource that adds to another resource's capabilities. For example, resource lock is an extension resource. You apply a resource lock to another resource to prevent it from being deleted or modified. It doesn't make sense to create a resource lock by itself. An extension resource is always applied to another resource.
+An extension resource is a resource that adds to another resource's capabilities. For example, resource lock is an extension resource. You apply a resource lock to another resource to prevent it from being deleted or modified. It doesn't make sense to create a resource lock by itself. You always apply an extension resource to another resource.
 
-## Extension resource types
+## Microsoft.Advisor
 
-- Microsoft.Advisor/configurations
-- Microsoft.Advisor/recommendations
-- Microsoft.Advisor/suppressions
-- Microsoft.AlertsManagement/alerts
-- Microsoft.AlertsManagement/alertsSummary
-- Microsoft.Authorization/checkAccess
-- Microsoft.Authorization/denyAssignments
-- Microsoft.Authorization/findOrphanRoleAssignments
-- Microsoft.Authorization/locks
-- Microsoft.Authorization/permissions
-- Microsoft.Authorization/policyAssignments
-- Microsoft.Authorization/policyDefinitions
-- Microsoft.Authorization/policyExemptions
-- Microsoft.Authorization/policySetDefinitions
-- Microsoft.Authorization/privateLinkAssociations
-- Microsoft.Authorization/roleAssignments
-- Microsoft.Authorization/roleAssignmentsUsageMetrics
-- Microsoft.Authorization/roleDefinitions
-- Microsoft.Billing/billingPeriods
-- Microsoft.Billing/billingPermissions
-- Microsoft.Billing/billingRoleAssignments
-- Microsoft.Billing/billingRoleDefinitions
-- Microsoft.Billing/createBillingRoleAssignment
-- Microsoft.Blueprint/blueprintAssignments
-- Microsoft.Blueprint/blueprints
-- Microsoft.ChangeAnalysis/resourceChanges
-- Microsoft.Consumption/AggregatedCost
-- Microsoft.Consumption/Balances
-- Microsoft.Consumption/Budgets
-- Microsoft.Consumption/Charges
-- Microsoft.Consumption/CostTags
-- Microsoft.Consumption/Forecasts
-- Microsoft.Consumption/Marketplaces
-- Microsoft.Consumption/OperationResults
-- Microsoft.Consumption/OperationStatus
-- Microsoft.Consumption/Pricesheets
-- Microsoft.Consumption/ReservationDetails
-- Microsoft.Consumption/ReservationRecommendationDetails
-- Microsoft.Consumption/ReservationRecommendations
-- Microsoft.Consumption/ReservationSummaries
-- Microsoft.Consumption/ReservationTransactions
-- Microsoft.Consumption/Tags
-- Microsoft.Consumption/Terms
-- Microsoft.Consumption/UsageDetails
-- Microsoft.Consumption/credits
-- Microsoft.Consumption/events
-- Microsoft.Consumption/lots
-- Microsoft.Consumption/products
-- Microsoft.Consumption/tenants
-- Microsoft.ContainerInstance/serviceAssociationLinks
-- Microsoft.CostManagement/Alerts
-- Microsoft.CostManagement/Budgets
-- Microsoft.CostManagement/costAllocationRules
-- Microsoft.CostManagement/Dimensions
-- Microsoft.CostManagement/Exports
-- Microsoft.CostManagement/ExternalSubscriptions
-- Microsoft.CostManagement/Forecast
-- Microsoft.CostManagement/Query
-- Microsoft.CostManagement/Reportconfigs
-- Microsoft.CostManagement/Reports
-- Microsoft.CostManagement/showbackRules
-- Microsoft.CostManagement/Views
-- Microsoft.CustomProviders/associations
-- Microsoft.EventGrid/eventSubscriptions
-- Microsoft.EventGrid/extensionTopics
-- Microsoft.GuestConfiguration/configurationProfileAssignments
-- Microsoft.GuestConfiguration/guestConfigurationAssignments
-- Microsoft.GuestConfiguration/software
-- Microsoft.GuestConfiguration/softwareUpdateProfile
-- Microsoft.GuestConfiguration/softwareUpdates
-- microsoft.insights/baseline
-- microsoft.insights/calculatebaseline
-- microsoft.insights/dataCollectionRuleAssociations
-- microsoft.insights/diagnosticSettings
-- microsoft.insights/diagnosticSettingsCategories
-- microsoft.insights/eventtypes
-- microsoft.insights/extendedDiagnosticSettings
-- microsoft.insights/guestDiagnosticSettingsAssociation
-- microsoft.insights/logDefinitions
-- microsoft.insights/logs
-- microsoft.insights/metricDefinitions
-- microsoft.insights/metricNamespaces
-- microsoft.insights/metricbaselines
-- microsoft.insights/metrics
-- microsoft.insights/myWorkbooks
-- microsoft.insights/topology
-- microsoft.insights/transactions
-- microsoft.insights/vmInsightsOnboardingStatuses
-- Microsoft.KubernetesConfiguration/sourceControlConfigurations
-- Microsoft.Maintenance/applyUpdates
-- Microsoft.Maintenance/configurationAssignments
-- Microsoft.Maintenance/updates
-- Microsoft.ManagedIdentity/Identities
-- Microsoft.ManagedServices/registrationAssignments
-- Microsoft.ManagedServices/registrationDefinitions
-- Microsoft.OperationalInsights/storageInsightConfigs
-- Microsoft.OperationsManagement/managementassociations
-- Microsoft.PolicyInsights/attestations
-- Microsoft.PolicyInsights/policyEvents
-- Microsoft.PolicyInsights/policyStates
-- Microsoft.PolicyInsights/policyTrackedResources
-- Microsoft.PolicyInsights/remediations
-- Microsoft.RecoveryServices/backupProtectedItems
-- Microsoft.RecoveryServices/replicationEligibilityResults
-- Microsoft.ResourceHealth/availabilityStatuses
-- Microsoft.ResourceHealth/childAvailabilityStatuses
-- Microsoft.ResourceHealth/childResources
-- Microsoft.ResourceHealth/events
-- Microsoft.ResourceHealth/impactedResources
-- Microsoft.ResourceHealth/notifications
-- Microsoft.Resources/links
-- Microsoft.Resources/tags
-- Microsoft.Security/Compliances
-- Microsoft.Security/InformationProtectionPolicies
-- Microsoft.Security/adaptiveNetworkHardenings
-- Microsoft.Security/advancedThreatProtectionSettings
-- Microsoft.Security/assessmentMetadata
-- Microsoft.Security/assessments
-- Microsoft.Security/complianceResults
-- Microsoft.Security/dataCollectionAgents
-- Microsoft.Security/deviceSecurityGroups
-- Microsoft.Security/jitPolicies
-- Microsoft.Security/serverVulnerabilityAssessments
-- Microsoft.SecurityInsights/aggregations
-- Microsoft.SecurityInsights/alertRuleTemplates
-- Microsoft.SecurityInsights/alertRules
-- Microsoft.SecurityInsights/automationRules
-- Microsoft.SecurityInsights/bookmarks
-- Microsoft.SecurityInsights/cases
-- Microsoft.SecurityInsights/dataConnectors
-- Microsoft.SecurityInsights/dataConnectorsCheckRequirements
-- Microsoft.SecurityInsights/entities
-- Microsoft.SecurityInsights/entityQueries
-- Microsoft.SecurityInsights/incidents
-- Microsoft.SecurityInsights/officeConsents
-- Microsoft.SecurityInsights/settings
-- Microsoft.SecurityInsights/threatIntelligence
-- Microsoft.SoftwarePlan/hybridUseBenefits
-- Microsoft.Subscription/CreateSubscription
-- microsoft.support/supporttickets
-- Microsoft.WorkloadMonitor/components
-- Microsoft.WorkloadMonitor/monitorInstances
-- Microsoft.WorkloadMonitor/monitors
-- Microsoft.WorkloadMonitor/notificationSettings
+* advisorScore
+* configurations
+* predict
+* recommendations
+* suppressions
+
+## Microsoft.AlertsManagement
+
+* alertRuleRecommendations
+* alerts
+* investigations
+* tenantActivityLogAlerts
+
+## Microsoft.App
+
+* functions
+* logicApps
+
+## Microsoft.Authorization
+
+* accessReviewHistoryDefinitions
+* denyAssignments
+* eligibleChildResources
+* locks
+* policyAssignments
+* policyDefinitions
+* policyExemptions
+* policySetDefinitions
+* privateLinkAssociations
+* roleAssignmentApprovals
+* roleAssignments
+* roleAssignmentScheduleInstances
+* roleAssignmentScheduleRequests
+* roleAssignmentSchedules
+* roleDefinitions
+* roleEligibilityScheduleInstances
+* roleEligibilityScheduleRequests
+* roleEligibilitySchedules
+* roleManagementAlertConfigurations
+* roleManagementAlertDefinitions
+* roleManagementAlerts
+* roleManagementPolicies
+* roleManagementPolicyAssignments
+
+## Microsoft.Automanage
+
+* configurationProfileAssignments
+
+## Microsoft.AwsConnector
+
+* ec2Instances
+
+## Microsoft.AzureStackHCI
+
+* edgeDevices
+* virtualMachineInstances
+
+## Microsoft.Billing
+
+* billingPeriods
+* billingPermissions
+* billingRoleAssignments
+* billingRoleDefinitions
+* createBillingRoleAssignment
+
+## Microsoft.Blueprint
+
+* blueprintAssignments
+* blueprints
+
+## Microsoft.ChangeAnalysis
+
+* changes
+* changeSnapshots
+* computeChanges
+
+## Microsoft.Chaos
+
+* targets
+
+## Microsoft.ConnectedVMwarevSphere
+
+* virtualmachineinstances
+
+## Microsoft.Consumption
+
+* AggregatedCost
+* Balances
+* Budgets
+* Charges
+* CostTags
+* credits
+* events
+* Forecasts
+* lots
+* Marketplaces
+* Pricesheets
+* products
+* ReservationDetails
+* ReservationRecommendationDetails
+* ReservationRecommendations
+* ReservationSummaries
+* ReservationTransactions
+
+## Microsoft.ContainerInstance
+
+* serviceAssociationLinks
+
+## Microsoft.ContainerService
+
+* fleetMemberships
+
+## Microsoft.CostManagement
+
+* Alerts
+* BenefitRecommendations
+* BenefitUtilizationSummaries
+* Budgets
+* CalculateCost
+* Dimensions
+* Exports
+* ExternalSubscriptions
+* Forecast
+* GenerateBenefitUtilizationSummariesReport
+* GenerateCostDetailsReport
+* GenerateDetailedCostReport
+* Insights
+* MarkupRules
+* Pricesheets
+* Publish
+* Query
+* Reportconfigs
+* Reports
+* ScheduledActions
+* SendMessage
+* Settings
+* StartConversation
+* Views
+
+## Microsoft.CustomProviders
+
+* associations
+
+## Microsoft.DataMigration
+
+* DatabaseMigrations
+
+## Microsoft.DataProtection
+
+* backupInstances
+
+## Microsoft.Edge
+
+* connectivityStatuses
+* Sites
+* updates
+
+## Microsoft.EdgeMarketplace
+
+* offers
+* publishers
+
+## Microsoft.EventGrid
+
+* eventSubscriptions
+* extensionTopics
+
+## Microsoft.GuestConfiguration
+
+* guestConfigurationAssignments
+
+## Microsoft.Help
+
+* diagnostics
+* discoverySolutions
+* plugins
+* simplifiedSolutions
+* solutions
+* troubleshooters
+
+## Microsoft.HybridCompute
+
+* networkConfigurations
+* settings
+
+## Microsoft.HybridConnectivity
+
+* endpoints
+* solutionConfigurations
+
+## Microsoft.HybridContainerService
+
+* kubernetesVersions
+* provisionedClusterInstances
+
+## microsoft.insights
+
+* dataCollectionRuleAssociations
+* diagnosticSettings
+* diagnosticSettingsCategories
+* eventtypes
+* extendedDiagnosticSettings
+* guestDiagnosticSettingsAssociation
+* logDefinitions
+* logs
+* metricbaselines
+* metricDefinitions
+* metricNamespaces
+* metrics
+* tenantactiongroups
+* topology
+* transactions
+
+## Microsoft.IoTSecurity
+
+* sensors
+* sites
+
+## Microsoft.KubernetesConfiguration
+
+* extensions
+* extensionTypes
+* fluxConfigurations
+* namespaces
+* sourceControlConfigurations
+
+## Microsoft.KubernetesRuntime
+
+* bgpPeers
+* loadBalancers
+* services
+* storageClasses
+
+## Microsoft.LoadTestService
+
+* loadTestMappings
+* loadTestProfileMappings
+
+## Microsoft.Maintenance
+
+* applyUpdates
+* configurationAssignments
+* scheduledevents
+* updates
+
+## Microsoft.ManagedIdentity
+
+* Identities
+
+## Microsoft.ManagedServices
+
+* registrationAssignments
+* registrationDefinitions
+
+## Microsoft.Management
+
+* managementGroups
+
+## Microsoft.Marketplace
+
+* products
+
+## Microsoft.Monitor
+
+* investigations
+
+## Microsoft.Network
+
+* cloudServiceNetworkInterfaces
+* cloudServicePublicIPAddresses
+* cloudServiceSlots
+
+## Microsoft.OperationalInsights
+
+* storageInsightConfigs
+
+## Microsoft.PolicyInsights
+
+* attestations
+* componentPolicyStates
+* eventGridFilters
+* policyEvents
+* policyStates
+* policyTrackedResources
+* remediations
+
+## Microsoft.Purview
+
+* consents
+* policies
+
+## Microsoft.Quota
+
+* groupQuotas
+* quotaRequests
+* quotas
+* usages
+
+## Microsoft.RecoveryServices
+
+* backupProtectedItems
+
+## Microsoft.ResourceHealth
+
+* childResources
+* events
+* impactedResources
+
+## Microsoft.ResourceNotifications
+
+* eventGridFilters
+
+## Microsoft.Resources
+
+* links
+* tags
+
+## Microsoft.ScVmm
+
+* VirtualMachineInstances
+
+## Microsoft.Security
+
+* adaptiveNetworkHardenings
+* advancedThreatProtectionSettings
+* apiCollections
+* applications
+* assessmentMetadata
+* assessments
+* Compliances
+* customRecommendations
+* dataCollectionAgents
+* defenderForStorageSettings
+* deviceSecurityGroups
+* governanceRules
+* healthReports
+* InformationProtectionPolicies
+* integrations
+* jitPolicies
+* pricings
+* secureScoreControls
+* secureScores
+* securityStandards
+* serverVulnerabilityAssessments
+* sqlVulnerabilityAssessments
+* standardAssignments
+* trustedIps
+
+## Microsoft.SecurityInsights
+
+* aggregations
+* alertRules
+* alertRuleTemplates
+* automationRules
+* billingStatistics
+* bookmarks
+* businessApplicationAgents
+* cases
+* contentPackages
+* contentProductPackages
+* contentProductTemplates
+* contentTemplates
+* contenttranslators
+* dataConnectorDefinitions
+* dataConnectors
+* enrichment
+* enrichmentWidgets
+* entities
+* entityQueryTemplates
+* exportConnections
+* fileImports
+* hunts
+* huntsessions
+* incidents
+* metadata
+* MitreCoverageRecords
+* onboardingStates
+* overview
+* recommendations
+* securityMLAnalyticsSettings
+* settings
+* sourceControls
+* threatIntelligence
+* triggeredAnalyticsRuleRuns
+* workspaceManagerAssignments
+* workspaceManagerConfigurations
+* workspaceManagerGroups
+* workspaceManagerMembers
+
+## Microsoft.SerialConsole
+
+* serialPorts
+
+## Microsoft.ServiceLinker
+
+* daprConfigurations
+* dryruns
+* linkers
+
+## Microsoft.SoftwarePlan
+
+* hybridUseBenefits
+
+## Microsoft.Subscription
+
+* aliases
+* policies
+
+## microsoft.support
+
+* supporttickets
 
 ## Next steps
 
 - To get the resource ID for an extension resource in an Azure Resource Manager template, use the [extensionResourceId](../templates/template-functions-resource.md#extensionresourceid).
 - For an example of creating an extension resource in a template, see [Event Grid Event Subscriptions](/azure/templates/microsoft.eventgrid/2019-06-01/eventsubscriptions).
+

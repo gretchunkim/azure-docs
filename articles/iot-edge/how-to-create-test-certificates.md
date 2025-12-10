@@ -1,60 +1,50 @@
 ---
-title: Create test certificates - Azure IoT Edge | Microsoft Docs
+title: Create test certificates - Azure IoT Edge
 description: Create test certificates and learn how to install them on an Azure IoT Edge device to prepare for production deployment. 
-author: kgremban
-manager: philmea
-ms.author: kgremban
-ms.date: 06/02/2020
-ms.topic: conceptual
-ms.service: iot-edge
+author: sethmanheim
+ms.author: sethm
+ms.date: 06/06/2025
+ms.topic: concept-article
+ms.service: azure-iot-edge
 services: iot-edge
 ---
 
 # Create demo certificates to test IoT Edge device features
 
-IoT Edge devices require certificates for secure communication between the runtime, the modules, and any downstream devices.
-If you don't have a certificate authority to create the required certificates, you can use demo certificates to try out IoT Edge features in your test environment.
-This article describes the functionality of the certificate generation scripts that IoT Edge provides for testing.
+[!INCLUDE [iot-edge-version-all-supported](includes/iot-edge-version-all-supported.md)]
 
-These certificates expire in 30 days, and should not be used in any production scenario.
+IoT Edge devices need certificates for secure communication between the runtime, the modules, and any downstream devices.
+If you don't have a certificate authority to create the required certificates, use demo certificates to try out IoT Edge features in your test environment.
+This article explains the certificate generation scripts that IoT Edge provides for testing.
 
-You can create certificates on any machine, and then copy them over to your IoT Edge device.
-It's easier to use your primary machine to create the certificates rather than generating them on your IoT Edge device itself.
-By using your primary machine, you can set up the scripts once and then use them to create certificates for multiple devices.
+> [!WARNING]
+> These certificates expire in 30 days, and you shouldn't use them in any production scenario.
 
-Follow these steps to create demo certificates for testing your IoT Edge scenario:
-
-1. [Set up scripts](#set-up-scripts) for certificate generation on your device.
-2. [Create the root CA certificate](#create-root-ca-certificate) that you use to sign all the other certificates for your scenario.
-3. Generate the certificates you need for the scenario you want to test:
-   * [Create IoT Edge device identity certificates](#create-iot-edge-device-identity-certificates) to test automatic provisioning with the IoT Hub Device Provisioning Service.
-   * [Create IoT Edge device CA certificates](#create-iot-edge-device-ca-certificates) to test production scenarios or gateway scenarios.
-   * [Create downstream device certificates](#create-downstream-device-certificates) to test authenticating downstream devices to IoT Hub in a gateway scenario.
+Create certificates on any machine and then copy them to your IoT Edge device, or generate the certificates directly on the IoT Edge device.
 
 ## Prerequisites
 
-A development machine with Git installed.
+Use a development machine that has Git installed.
 
-## Set up scripts
+## Download test certificate scripts and set up working directory
 
 The IoT Edge repository on GitHub includes certificate generation scripts that you can use to create demo certificates.
 This section provides instructions for preparing the scripts to run on your computer, either on Windows or Linux.
-If you're on a Linux machine, skip ahead to [Set up on Linux](#set-up-on-linux).
 
-### Set up on Windows
+# [Windows](#tab/windows)
 
-To create demo certificates on a Windows device, you need to install OpenSSL and then clone the generation scripts and set them up to run locally in PowerShell.
+To create demo certificates on a Windows device, install OpenSSL, then clone the generation scripts and set them up to run locally in PowerShell.
 
 #### Install OpenSSL
 
-Install OpenSSL for Windows on the machine that you're using to generate the certificates.
-If you already have OpenSSL installed on your Windows device, you may skip this step, but ensure that openssl.exe is available in your PATH environment variable.
+Install OpenSSL for Windows on the device you use to generate the certificates.
+If OpenSSL is already installed, make sure that openssl.exe is available in your PATH environment variable.
 
-There are several ways to install OpenSSL, including the following options:
+You can install OpenSSL in different ways:
 
 * **Easier:** Download and install any [third-party OpenSSL binaries](https://wiki.openssl.org/index.php/Binaries), for example, from [OpenSSL on SourceForge](https://sourceforge.net/projects/openssl/). Add the full path to openssl.exe to your PATH environment variable.
 
-* **Recommended:** Download the OpenSSL source code and build the binaries on your machine by yourself or via [vcpkg](https://github.com/Microsoft/vcpkg). The instructions listed below use vcpkg to download source code, compile, and install OpenSSL on your Windows machine with easy steps.
+* **Recommended:** Download the OpenSSL source code and build the binaries on your device, or use [vcpkg](https://github.com/Microsoft/vcpkg). The following instructions use vcpkg to download source code, compile, and install OpenSSL on your Windows device.
 
    1. Navigate to a directory where you want to install vcpkg. Follow the instructions to download and install [vcpkg](https://github.com/Microsoft/vcpkg).
 
@@ -69,102 +59,93 @@ There are several ways to install OpenSSL, including the following options:
 #### Prepare scripts in PowerShell
 
 The Azure IoT Edge git repository contains scripts that you can use to generate test certificates.
-In this section, you clone the IoT Edge repo and execute the scripts.
+In this section, you clone the IoT Edge repository and execute the scripts.
 
-1. Open a PowerShell window in administrator mode.
-
-2. Clone the IoT Edge git repo, which contains scripts to generate demo certificates. Use the `git clone` command or [download the ZIP](https://github.com/Azure/iotedge/archive/master.zip).
+1. Open PowerShell in administrator mode.
+2. Clone the IoT Edge git repository, which has scripts to generate demo certificates. Use the `git clone` command or [download the ZIP](https://github.com/Azure/iotedge/archive/master.zip).
 
    ```powershell
    git clone https://github.com/Azure/iotedge.git
    ```
 
-3. Navigate to the directory in which you want to work. Throughout this article, we'll call this directory *\<WRKDIR>*. All certificates and keys will be created in this working directory.
-
-4. Copy the configuration and script files from the cloned repo into your working directory.
-
+3. Create a directory and copy the certificate scripts there. All certificate and key files are created in this directory.
+  
    ```powershell
-   copy <path>\iotedge\tools\CACertificates\*.cnf .
-   copy <path>\iotedge\tools\CACertificates\ca-certs.ps1 .
+   mkdir wrkdir
+   cd .\wrkdir\
+   cp ..\iotedge\tools\CACertificates\*.cnf .
+   cp ..\iotedge\tools\CACertificates\ca-certs.ps1 .
    ```
 
-   If you downloaded the repo as a ZIP, then the folder name is `iotedge-master` and the rest of the path is the same.
+   If you downloaded the repository as a ZIP, the folder name is `iotedge-master` and the rest of the path is the same.
 
-5. Enable PowerShell to run the scripts.
+3. Set the PowerShell execution policy to run the scripts.
 
    ```powershell
    Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser
    ```
 
-6. Bring the functions used by the scripts into PowerShell's global namespace.
+4. Import the functions used by the scripts into PowerShell's global namespace.
 
    ```powershell
    . .\ca-certs.ps1
    ```
 
-   The PowerShell window will display a warning that the certificates generated by this script are only for testing purposes, and should not be used in production scenarios.
+   The PowerShell window shows a warning that the certificates generated by this script are only for testing, and shouldn't be used in production scenarios.
 
-7. Verify that OpenSSL has been installed correctly and make sure that there won't be name collisions with existing certificates. If there are problems, the script output should describe how to fix them on your system.
+5. Verify that OpenSSL has been installed correctly and make sure that there won't be name collisions with existing certificates. If there are problems, the script output should describe how to fix them on your system.
+
 
    ```powershell
    Test-CACertsPrerequisites
    ```
 
-### Set up on Linux
+# [Linux](#tab/linux)
 
-To create demo certificates on a Windows device, you need clone the generation scripts and set them up to run locally in bash.
+To create demo certificates on a Linux device, you need to clone the generation scripts and set them up to run locally in bash.
 
-1. Clone the IoT Edge git repo, which contains scripts to generate demo certificates.
+1. Clone the IoT Edge git repository, which contains scripts to generate demo certificates.
 
    ```bash
    git clone https://github.com/Azure/iotedge.git
    ```
 
-2. Navigate to the directory in which you want to work. We'll refer to this directory throughout the article as *\<WRKDIR>*. All certificate and key files will be created in this directory.
+2. Create a directory and copy the certificate scripts there. All certificate and key files are created in this directory.
   
-3. Copy the config and script files from the cloned IoT Edge repo into your working directory.
-
    ```bash
-   cp <path>/iotedge/tools/CACertificates/*.cnf .
-   cp <path>/iotedge/tools/CACertificates/certGen.sh .
+   mkdir wrkdir
+   cd wrkdir
+   cp ../iotedge/tools/CACertificates/*.cnf .
+   cp ../iotedge/tools/CACertificates/certGen.sh .
    ```
 
-<!--
-4. Configure OpenSSL to generate certificates using the provided script. 
-
-   ```bash
-   chmod 700 certGen.sh 
-   ```
--->
+---
 
 ## Create root CA certificate
 
-The root CA certificate is used to make all the other demo certificates for testing an IoT Edge scenario.
-You can keep using the same root CA certificate to make demo certificates for multiple IoT Edge or downstream devices.
+Run this script to generate a root CA certificate. You need this certificate for each step in this article.
 
-If you already have one root CA certificate in your working folder, don't create a new one.
-The new root CA certificate will overwrite the old, and any downstream certificates made from the old one will stop working.
-If you want multiple root CA certificates, be sure to manage them in separate folders.
+Use the root CA certificate to create other demo certificates for testing an IoT Edge scenario. You can use the same root CA certificate to create demo certificates for multiple IoT Edge or downstream devices.
 
-Before proceeding with the steps in this section, follow the steps in the [Set up scripts](#set-up-scripts) section to prepare a working directory with the demo certificate generation scripts.
+If you already have a root CA certificate in your working folder, don't create a new one. Creating a new root CA certificate overwrites the old one, and any downstream certificates created from the old certificate stop working. If you need multiple root CA certificates, manage them in separate folders.
 
-### Windows
+# [Windows](#tab/windows)
 
-1. Navigate to the working directory where you placed the certificate generation scripts.
+1. Go to the working directory `wrkdir` where you put the certificate generation scripts.
 
-1. Create the root CA certificate and have it sign one intermediate certificate. The certificates are all placed in your working directory.
+1. Create the root CA certificate and sign one intermediate certificate. The certificates are placed in your working directory.
 
    ```powershell
    New-CACertsCertChain rsa
    ```
 
-   This script command creates several certificate and key files, but when articles ask for the **root CA certificate**, use the following file:
+   This script creates several certificate and key files. When articles ask for the **root CA certificate**, use this file:
 
-   * `<WRKDIR>\certs\azure-iot-test-only.root.ca.cert.pem`
+   `certs\azure-iot-test-only.root.ca.cert.pem`
 
-### Linux
+# [Linux](#tab/linux)
 
-1. Navigate to the working directory where you placed the certificate generation scripts.
+1. Go to the working directory `wrkdir` where you put the certificate generation scripts.
 
 1. Create the root CA certificate and one intermediate certificate.
 
@@ -172,149 +153,150 @@ Before proceeding with the steps in this section, follow the steps in the [Set u
    ./certGen.sh create_root_and_intermediate
    ```
 
-   This script command creates several certificate and key files, but when articles ask for the **root CA certificate**, use the following file:
+   This script creates several certificate and key files. When articles ask for the **root CA certificate**, use this file:
 
-   * `<WRKDIR>/certs/azure-iot-test-only.root.ca.cert.pem`  
+   `certs/azure-iot-test-only.root.ca.cert.pem`
 
-## Create IoT Edge device identity certificates
+---
 
-Device identity certificates are used to provision IoT Edge devices through the [Azure IoT Hub Device Provisioning Service (DPS)](../iot-dps/index.yml).
+You need this certificate before you create more certificates for your IoT Edge devices and downstream devices, as described in the next sections.
 
-Device identity certificates go in the **Provisioning** section of the config.yaml file on the IoT Edge device.
+## Create identity certificate for the IoT Edge device
 
-Before proceeding with the steps in this section, follow the steps in the [Set up scripts](#set-up-scripts) and [Create root CA certificate](#create-root-ca-certificate) sections.
+IoT Edge device identity certificates are used to provision IoT Edge devices if you choose to use X.509 certificate authentication. If you use **symmetric key** for authenticating to IoT Hub or DPS, these certificates aren't needed, and you can skip this section.
 
-### Windows
+These certificates work whether you use manual provisioning or automatic provisioning through the Azure IoT Hub Device Provisioning Service (DPS). 
 
-Create the IoT Edge device identity certificate and private key with the following command:
+Device identity certificates go in the **Provisioning** section of the config file on the IoT Edge device.
 
-```powershell
-New-CACertsEdgeDeviceIdentity "<name>"
-```
+# [Windows](#tab/windows)
 
-The name that you pass in to this command will be the device ID for the IoT Edge device in IoT Hub.
+1. Go to the working directory `wrkdir` that has the certificate generation scripts and root CA certificate.
 
-The new device identity command creates several certificate and key files, including three that you'll use when creating an individual enrollment in DPS and installing the IoT Edge runtime:
+1. Create the IoT Edge device identity certificate and private key with the following command:
 
-* `<WRKDIR>\certs\iot-edge-device-identity-<name>-full-chain.cert.pem`
-* `<WRKDIR>\certs\iot-edge-device-identity-<name>.cert.pem`
-* `<WRKDIR>\private\iot-edge-device-identity-<name>.key.pem`
+    ```powershell
+    New-CACertsEdgeDeviceIdentity "<device-id>"
+    ```
+    
+    The name you enter for this command is the device ID for the IoT Edge device in IoT Hub.
 
-### Linux
+1. The new device identity command creates several certificate and key files:
 
-Create the IoT Edge device identity certificate and private key with the following command:
+    | Type | File | Description |
+    |---|---|---|
+    | Device identity certificate | `certs\iot-edge-device-identity-<device-id>.cert.pem` | Signed by the intermediate certificate generated earlier. Contains just the identity certificate. Specify in configuration file for DPS individual enrollment or IoT Hub provisioning.  |
+    | Full chain certificate | `certs\iot-edge-device-identity-<device-id>-full-chain.cert.pem` | Contains the full certificate chain including the intermediate certificate. Specify in configuration file for IoT Edge to present to DPS for group enrollment provisioning. |
+    | Private key | `private\iot-edge-device-identity-<device-id>.key.pem` | Private key associated with the device identity certificate. Should be specified in configuration file as long as you're using some sort of certificate authentication (thumbprint or CA) for either DPS or IoT Hub. |
 
-```bash
-./certGen.sh create_edge_device_identity_certificate "<name>"
-```
+# [Linux](#tab/linux)
 
-The name that you pass in to this command will be the device ID for the IoT Edge device in IoT Hub.
+1. Navigate to the working directory `wrkdir` that has the certificate generation scripts and root CA certificate.
 
-The script creates several certificate and key files, including three that you'll use when creating an individual enrollment in DPS and installing the IoT Edge runtime:
+1. Create the IoT Edge device identity certificate and private key with the following command:
 
-* `<WRKDIR>\certs\iot-edge-device-identity-<name>-full-chain.cert.pem`
-* `<WRKDIR>/certs/iot-edge-device-identity-<name>.cert.pem`
-* `<WRKDIR>/private/iot-edge-device-identity-<name>.key.pem`
+    ```bash
+    ./certGen.sh create_edge_device_identity_certificate "<device-id>"
+    ```
+    
+    The name that you pass in to this command is the device ID for the IoT Edge device in IoT Hub.
 
-## Create IoT Edge device CA certificates
+1. The script creates several certificate and key files, including three that you use when creating an individual enrollment in DPS and installing the IoT Edge runtime:
 
-Every IoT Edge device going to production needs a device CA certificate that's referenced from the config.yaml file.
-The device CA certificate is responsible for creating certificates for modules running on the device.
-It's also necessary for gateway scenarios, because the device CA certificate is how the IoT Edge device verifies its identity to downstream devices.
+    | Type | File | Description |
+    |---|---|---|
+    | Device identity certificate | `certs/iot-edge-device-identity-<device-id>.cert.pem` | Signed by the intermediate certificate generated earlier. Contains just the identity certificate. Specify in configuration file for DPS individual enrollment or IoT Hub provisioning.  |
+    | Full chain certificate | `certs/iot-edge-device-identity-<device-id>-full-chain.cert.pem` | Contains the full certificate chain including the intermediate certificate. Specify in configuration file for IoT Edge to present to DPS for group enrollment provisioning. |
+    | Private key | `private/iot-edge-device-identity-<device-id>.key.pem` | Private key associated with the device identity certificate. Should be specified in configuration file as long as you're using some sort of certificate authentication (thumbprint or CA) for either DPS or IoT Hub. |
 
-Device CA certificates go in the **Certificate** section of the config.yaml file on the IoT Edge device.
+---
 
-Before proceeding with the steps in this section, follow the steps in the [Set up scripts](#set-up-scripts) and [Create root CA certificate](#create-root-ca-certificate) sections.
+## Create Edge CA certificates
 
-### Windows
+You need these certificates for **gateway scenarios** because the Edge CA certificate lets the IoT Edge device verify its identity to downstream devices. Skip this section if you aren't connecting any downstream devices to IoT Edge.
 
-1. Navigate to the working directory that has the certificate generation scripts and root CA certificate.
+The **Edge CA** certificate also creates certificates for modules running on the device, but the IoT Edge runtime can create temporary certificates if Edge CA isn't set up. Place Edge CA certificates in the **Edge CA** section of the `config.toml` file on the IoT Edge device. To learn more, see [Understand how Azure IoT Edge uses certificates](iot-edge-certs.md).
 
-2. Create the IoT Edge device CA certificate and private key with the following command. Provide a name for the CA certificate.
+# [Windows](#tab/windows)
+
+1. Navigate to the working directory `wrkdir` that has the certificate generation scripts and root CA certificate.
+
+2. Create the IoT Edge CA certificate and private key with the following command. Enter a name for the CA certificate. Don't use the same name as the hostname parameter in the config file or the device's ID in IoT Hub for the **New-CACertsEdgeDevice** command.
 
    ```powershell
    New-CACertsEdgeDevice "<CA cert name>"
    ```
 
-   This command creates several certificate and key files. The following certificate and key pair needs to be copied over to an IoT Edge device and referenced in the config.yaml file:
+3. This command creates several certificate and key files. Copy the following certificate and key pair to the IoT Edge device and reference them in the config file:
 
-   * `<WRKDIR>\certs\iot-edge-device-<CA cert name>-full-chain.cert.pem`
-   * `<WRKDIR>\private\iot-edge-device-<CA cert name>.key.pem`
+   * `certs\iot-edge-device-<CA cert name>-full-chain.cert.pem`
+   * `private\iot-edge-device-<CA cert name>.key.pem`
 
-The name passed to the **New-CACertsEdgeDevice** command should not be the same as the hostname parameter in config.yaml, or the device's ID in IoT Hub.
-The script helps you avoid any issues by appending a ".ca" string to the certificate name to prevent the name collision in case a user sets up IoT Edge using the same name in both places.
-However, it's good practice to avoid using the same name.
 
-### Linux
+# [Linux](#tab/linux)
 
 1. Navigate to the working directory that has the certificate generation scripts and root CA certificate.
 
-2. Create the IoT Edge device CA certificate and private key with the following command. Provide a name for the CA certificate.
+2. Create the IoT Edge CA certificate and private key with the following command. Enter a name for the CA certificate. Don't use the same name as the hostname parameter in the config file or the device's ID in IoT Hub for the **create_edge_device_ca_certificate** command.
 
    ```bash
-   ./certGen.sh create_edge_device_certificate "<CA cert name>"
+   ./certGen.sh create_edge_device_ca_certificate "<CA cert name>"
    ```
 
-   This script command creates several certificate and key files. The following certificate and key pair needs to be copied over to an IoT Edge device and referenced in the config.yaml file:
+3. This script command creates several certificate and key files. Copy the following certificate and key pair to the IoT Edge device and reference them in the config file:
 
-   * `<WRKDIR>/certs/iot-edge-device-<CA cert name>-full-chain.cert.pem`
-   * `<WRKDIR>/private/iot-edge-device-<CA cert name>.key.pem`
+   * `certs/iot-edge-device-ca-<CA cert name>-full-chain.cert.pem`
+   * `private/iot-edge-device-ca-<CA cert name>.key.pem`
 
-The name passed to the **create_edge_device_certificate** command should not be the same as the hostname parameter in config.yaml, or the device's ID in IoT Hub.
-The script helps you avoid any issues by appending a ".ca" string to the certificate name to prevent the name collision in case a user sets up IoT Edge using the same name in both places.
-However, it's good practice to avoid using the same name.
+---
 
 ## Create downstream device certificates
 
-If you're setting up a downstream IoT device for a gateway scenario and want to use X.509 authentication, you can generate demo certificates for the downstream device.
-If you want to use symmetric key authentication, you don't need to create additional certificates for the downstream device.
+These certificates are required for setting up a downstream IoT device for a gateway scenario and want to use X.509 authentication with IoT Hub or DPS. If you want to use symmetric key authentication, you don't need to create certificates for the downstream device and can skip this section.
+
 There are two ways to authenticate an IoT device using X.509 certificates: using self-signed certs or using certificate authority (CA) signed certs.
-For X.509 self-signed authentication, sometimes referred to as thumbprint authentication, you need to create new certificates to place on your IoT device.
-These certificates have a thumbprint in them that you share with IoT Hub for authentication.
-For X.509 certificate authority (CA) signed authentication, you need a root CA certificate registered in IoT Hub that you use to sign certificates for your IoT device.
-Any device using a certificate that was issued by the root CA certificate or any of its intermediate certificates will be permitted to authenticate.
+- For X.509 self-signed authentication, sometimes referred to as *thumbprint* authentication, you need to create new certificates to place on your IoT device. These certificates have a thumbprint in them that you share with IoT Hub for authentication.
+- For X.509 certificate authority (CA) signed authentication, you need a root CA certificate registered in IoT Hub or DPS that you use to sign certificates for your IoT device. Any device using a certificate that was issued by the root CA certificate or any of its intermediate certificates can authenticate as long as the full chain is presented by the device.
 
 The certificate generation scripts can help you make demo certificates to test out either of these authentication scenarios.
-
-Before proceeding with the steps in this section, follow the steps in the [Set up scripts](#set-up-scripts) and [Create root CA certificate](#create-root-ca-certificate) sections.
 
 ### Self-signed certificates
 
 When you authenticate an IoT device with self-signed certificates, you need to create device certificates based on the root CA certificate for your solution.
-Then, you retrieve a hexadecimal "fingerprint" from the certificates to provide to IoT Hub.
+Then, you retrieve a hexadecimal "thumbprint" from the certificates to provide to IoT Hub.
 Your IoT device also needs a copy of its device certificates so that it can authenticate with IoT Hub.
 
-#### Windows
+# [Windows](#tab/windows)
 
-1. Navigate to the working directory that has the certificate generation scripts and root CA certificate.
+1. Navigate to the working directory `wrkdir` that has the certificate generation scripts and root CA certificate.
 
 2. Create two certificates (primary and secondary) for the downstream device. An easy naming convention to use is to create the certificates with the name of the IoT device and then the primary or secondary label. For example:
 
    ```PowerShell
-   New-CACertsDevice "<device name>-primary"
-   New-CACertsDevice "<device name>-secondary"
+   New-CACertsDevice "<device ID>-primary"
+   New-CACertsDevice "<device ID>-secondary"
    ```
 
    This script command creates several certificate and key files. The following certificate and key pairs needs to be copied over to the downstream IoT device and referenced in the applications that connect to IoT Hub:
 
-   * `<WRKDIR>\certs\iot-device-<device name>-primary-full-chain.cert.pem`
-   * `<WRKDIR>\certs\iot-device-<device name>-secondary-full-chain.cert.pem`
-   * `<WRKDIR>\certs\iot-device-<device name>-primary.cert.pem`
-   * `<WRKDIR>\certs\iot-device-<device name>-secondary.cert.pem`
-   * `<WRKDIR>\certs\iot-device-<device name>-primary.cert.pfx`
-   * `<WRKDIR>\certs\iot-device-<device name>-secondary.cert.pfx`
-   * `<WRKDIR>\private\iot-device-<device name>-primary.key.pem`
-   * `<WRKDIR>\private\iot-device-<device name>-secondary.key.pem`
+   * `certs\iot-device-<device ID>-primary-full-chain.cert.pem`
+   * `certs\iot-device-<device ID>-secondary-full-chain.cert.pem`
+   * `certs\iot-device-<device ID>-primary.cert.pem`
+   * `certs\iot-device-<device ID>-secondary.cert.pem`
+   * `certs\iot-device-<device ID>-primary.cert.pfx`
+   * `certs\iot-device-<device ID>-secondary.cert.pfx`
+   * `private\iot-device-<device ID>-primary.key.pem`
+   * `private\iot-device-<device ID>-secondary.key.pem`
 
-3. Retrieve the SHA1 fingerprint (called a thumbprint in IoT Hub contexts) from each certificate. The fingerprint is a 40 hexadecimal character string. Use the following openssl command to view the certificate and find the fingerprint:
+3. Retrieve the SHA1 thumbprint (called a thumbprint in IoT Hub contexts) from each certificate. The thumbprint is a 40 hexadecimal character string. Use the following openssl command to view the certificate and find the thumbprint:
 
    ```PowerShell
-   openssl x509 -in <WRKDIR>\certs\iot-device-<device name>-primary.cert.pem -text -fingerprint
+   Write-Host (Get-Pfxcertificate -FilePath certs\iot-device-<device name>-primary.cert.pem).Thumbprint
    ```
 
-   Run this command twice, once for the primary certificate and once for the secondary certificate. You provide fingerprints for both certificates when you register a new IoT device using self-signed X.509 certificates.
+   Run this command twice, once for the primary certificate and once for the secondary certificate. You provide thumbprints for both certificates when you register a new IoT device using self-signed X.509 certificates.
 
-#### Linux
+# [Linux](#tab/linux)
 
 1. Navigate to the working directory that has the certificate generation scripts and root CA certificate.
 
@@ -327,36 +309,36 @@ Your IoT device also needs a copy of its device certificates so that it can auth
 
    This script command creates several certificate and key files. The following certificate and key pairs needs to be copied over to the downstream IoT device and referenced in the applications that connect to IoT Hub:
 
-   * `<WRKDIR>/certs/iot-device-<device name>-primary-full-chain.cert.pem`
-   * `<WRKDIR>/certs/iot-device-<device name>-secondary-full-chain.cert.pem`
-   * `<WRKDIR>/certs/iot-device-<device name>-primary.cert.pem`
-   * `<WRKDIR>/certs/iot-device-<device name>-secondary.cert.pem`
-   * `<WRKDIR>/certs/iot-device-<device name>-primary.cert.pfx`
-   * `<WRKDIR>/certs/iot-device-<device name>-secondary.cert.pfx`
-   * `<WRKDIR>/private/iot-device-<device name>-primary.key.pem`
-   * `<WRKDIR>/private/iot-device-<device name>-secondary.key.pem`
+   * `certs/iot-device-<device name>-primary-full-chain.cert.pem`
+   * `certs/iot-device-<device name>-secondary-full-chain.cert.pem`
+   * `certs/iot-device-<device name>-primary.cert.pem`
+   * `certs/iot-device-<device name>-secondary.cert.pem`
+   * `certs/iot-device-<device name>-primary.cert.pfx`
+   * `certs/iot-device-<device name>-secondary.cert.pfx`
+   * `private/iot-device-<device name>-primary.key.pem`
+   * `private/iot-device-<device name>-secondary.key.pem`
 
-3. Retrieve the SHA1 fingerprint (called a thumbprint in IoT Hub contexts) from each certificate. The fingerprint is a 40 hexadecimal character string. Use the following openssl command to view the certificate and find the fingerprint:
+3. Retrieve the SHA1 thumbprint (called a thumbprint in IoT Hub contexts) from each certificate. The thumbprint is a 40 hexadecimal character string. Use the following openssl command to view the certificate and find the thumbprint:
 
    ```bash
-   openssl x509 -in <WRKDIR>/certs/iot-device-<device name>-primary.cert.pem -text -fingerprint | sed 's/[:]//g'
+   openssl x509 -in certs/iot-device-<device name>-primary.cert.pem -text -thumbprint | sed 's/[:]//g'
    ```
 
-   You provide both the primary and secondary fingerprint when you register a new IoT device using self-signed X.509 certificates.
+   You provide both the primary and secondary thumbprint when you register a new IoT device using self-signed X.509 certificates.
+
+---
 
 ### CA-signed certificates
 
-When you authenticate an IoT device with self-signed certificates, you need to upload the root CA certificate for your solution to IoT Hub.
-Then, you perform a verification to prove to IoT Hub that you own the root CA certificate.
-Finally, you use the same root CA certificate to create device certificates to put on your IoT device so that it can authenticate with IoT Hub.
+When you authenticate an IoT device with CA-signed certificates, you need to upload the root CA certificate for your solution to IoT Hub. Use the same root CA certificate to create device certificates to put on your IoT device so that it can authenticate with IoT Hub.
 
-The certificates in this section are for the steps in [Set up X.509 security in your Azure IoT hub](../iot-hub/iot-hub-security-x509-get-started.md).
+The certificates in this section are for the steps in the IoT Hub X.509 certificate tutorial series. See [Understanding Public Key Cryptography and X.509 Public Key Infrastructure](../iot-hub/tutorial-x509-introduction.md) for the introduction of this series.
 
-#### Windows
+# [Windows](#tab/windows)
 
-1. Upload the root CA certificate file from your working directory, `<WRKDIR>\certs\azure-iot-test-only.root.ca.cert.pem`, to your IoT hub.
+1. Upload the root CA certificate file from your working directory, `certs\azure-iot-test-only.root.ca.cert.pem`, to your IoT hub.
 
-2. Use the code provided in the Azure portal to verify that you own that root CA certificate.
+2. If automatic verification isn't selected, use the code provided in the Azure portal to verify that you own that root CA certificate.
 
    ```PowerShell
    New-CACertsVerificationCert "<verification code>"
@@ -370,16 +352,16 @@ The certificates in this section are for the steps in [Set up X.509 security in 
 
    This script command creates several certificate and key files. The following certificate and key pairs needs to be copied over to the downstream IoT device and referenced in the applications that connect to IoT Hub:
 
-   * `<WRKDIR>\certs\iot-device-<device id>.cert.pem`
-   * `<WRKDIR>\certs\iot-device-<device id>.cert.pfx`
-   * `<WRKDIR>\certs\iot-device-<device id>-full-chain.cert.pem`  
-   * `<WRKDIR>\private\iot-device-<device id>.key.pem`
+   * `certs\iot-device-<device id>.cert.pem`
+   * `certs\iot-device-<device id>.cert.pfx`
+   * `certs\iot-device-<device id>-full-chain.cert.pem`  
+   * `private\iot-device-<device id>.key.pem`
 
-#### Linux
+# [Linux](#tab/linux)
 
-1. Upload the root CA certificate file from your working directory, `<WRKDIR>\certs\azure-iot-test-only.root.ca.cert.pem`, to your IoT hub.
+1. Upload the root CA certificate file from your working directory, `certs\azure-iot-test-only.root.ca.cert.pem`, to your IoT hub.
 
-2. Use the code provided in the Azure portal to verify that you own that root CA certificate.
+2. If automatic verification isn't selected, use the code provided in the Azure portal to verify that you own that root CA certificate.
 
    ```bash
    ./certGen.sh create_verification_certificate "<verification code>"
@@ -393,7 +375,9 @@ The certificates in this section are for the steps in [Set up X.509 security in 
 
    This script command creates several certificate and key files. The following certificate and key pairs needs to be copied over to the downstream IoT device and referenced in the applications that connect to IoT Hub:
 
-   * `<WRKDIR>/certs/iot-device-<device id>.cert.pem`
-   * `<WRKDIR>/certs/iot-device-<device id>.cert.pfx`
-   * `<WRKDIR>/certs/iot-device-<device id>-full-chain.cert.pem`  
-   * `<WRKDIR>/private/iot-device-<device id>.key.pem`
+   * `certs/iot-device-<device id>.cert.pem`
+   * `certs/iot-device-<device id>.cert.pfx`
+   * `certs/iot-device-<device id>-full-chain.cert.pem`  
+   * `private/iot-device-<device id>.key.pem`
+
+---

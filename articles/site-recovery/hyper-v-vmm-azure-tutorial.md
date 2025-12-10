@@ -1,9 +1,16 @@
 ---
 title: Set up Hyper-V (with VMM) disaster recovery using Azure Site Recovery
+ms.reviewer: v-gajeronika
 description: Learn how to set up disaster recovery of on-premises Hyper-V VMs in System Center VMM clouds to Azure by using Site Recovery.
 ms.topic: tutorial
-ms.date: 03/19/2020
-ms.custom: MVC
+ms.date: 12/08/2025
+ms.author: v-gajeronika
+ms.service: azure-site-recovery
+author: Jeronika-MS
+ms.custom:
+  - MVC
+  - sfi-image-nochange
+# Customer intent: "As a system administrator managing Hyper-V virtual machines with System Center VMM, I want to set up disaster recovery to Azure using Site Recovery, so that I can ensure high availability and quick recovery in case of an outage."
 ---
 
 # Set up disaster recovery of on-premises Hyper-V VMs in VMM clouds to Azure
@@ -39,7 +46,7 @@ This tutorial assumes that you already completed the following tutorials:
     1. **Are you using System Center VMM to manage your Hyper-V hosts?**, select **Yes**.
 1. Select **OK**.
 
-   ![Replication goal](./media/hyper-v-vmm-azure-tutorial/replication-goal.png)
+   :::image type="content" source="./media/hyper-v-vmm-azure-tutorial/replication-goal.png" alt-text="Screenshot of Replication goal.":::
 
 ## Confirm deployment planning
 
@@ -56,7 +63,7 @@ When you set up the source environment, you install the Azure Site Recovery Prov
 1. Download the vault registration key. You need this key when you run the Provider setup. The key is valid for five days after you generate it.
 1. Download the installer for the Microsoft Azure Recovery Services agent.
 
-   ![Download Provider, registration key, and agent](./media/hyper-v-vmm-azure-tutorial/download-vmm.png)
+   :::image type="content" source="./media/hyper-v-vmm-azure-tutorial/download-vmm.png" alt-text="Screenshot of Download Provider, registration key, and agent.":::
 
 ### Install the Provider on the VMM server
 
@@ -85,7 +92,31 @@ In the Microsoft Azure Recovery Services Agent Setup Wizard, configure these set
 
 1. **Installation**. When the installation finishes, select **Close** to finish the wizard.
 
-   ![Install agent](./media/hyper-v-vmm-azure-tutorial/mars-install.png)
+   :::image type="content" source="./media/hyper-v-vmm-azure-tutorial/mars-install.png" alt-text="Screenshot of Install agent.":::
+
+### Install the Recovery Services agent on Windows core Hyper-V hosts
+
+Install the agent on each Windows core Hyper-V host containing VMs that you want to replicate.
+
+1. On the Windows Core Hyper-V host, create a directory by running the following command:
+
+   ```powershell
+   New-Item -Path C:\ASR -ItemType Directory
+   ```
+
+2. Download the installer for the Microsoft Azure Recovery Services agent:
+
+   ```powershell
+   Invoke-WebRequest -Uri <put the URI here> -OutFile .\ASR\MARSsoftware.exe
+   ```
+   
+3. Execute the installer by running the below command:
+
+   ```powershell
+   .\MARSsoftware.exe
+   ```
+
+4. Once the Microsoft Azure Recovery Services agent installation completes, you can close the Wizard console.
 
 ## Set up the target environment
 
@@ -103,7 +134,7 @@ Site Recovery checks that there's one or more compatible Azure storage accounts 
 1. **Source network**. Select the source on-premises VM network.
 1. **Target network**. Select the Azure network in which replica Azure VMs will be located when they're created after failover. Then, select **OK**.
 
-   ![Network mapping](./media/hyper-v-vmm-azure-tutorial/network-mapping-vmm.png)
+   :::image type="content" source="./media/hyper-v-vmm-azure-tutorial/network-mapping-vmm.png" alt-text="Screenshot of Network mapping.":::
 
 ## Set up a replication policy
 
@@ -129,5 +160,4 @@ Site Recovery checks that there's one or more compatible Azure storage accounts 
 
 ## Next steps
 
-> [!div class="nextstepaction"]
-> [Run a disaster recovery drill](tutorial-dr-drill-azure.md)
+- [Run a disaster recovery drill](tutorial-dr-drill-azure.md).

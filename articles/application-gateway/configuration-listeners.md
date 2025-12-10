@@ -1,17 +1,23 @@
 ---
 title: Azure Application Gateway listener configuration
-description: This article describes how to configure Azure Application Gateway listeners.
+description: Learn how Application Gateway listeners handle incoming web requests efficiently. Configure protocols, certificates, HTTP2 support, and WebSocket connectivity for optimal performance.
+#customer intent: As a network administrator, I want to understand how to configure Application Gateway listeners so that I can properly handle incoming web requests for my organization's applications.
 services: application-gateway
-author: vhorne
-ms.service: application-gateway
-ms.topic: conceptual
-ms.date: 09/09/2020
-ms.author: surmb
+author: mbender-ms
+ms.service: azure-application-gateway
+ms.topic: concept-article
+ms.date: 06/16/2025
+ms.author: mbender
+ms.custom:
+  - ai-gen-docs-bap
+  - ai-gen-description
+  - ai-seo-date:06/16/2025
+# Customer intent: As a network administrator, I want to configure listeners for the Azure Application Gateway, so that I can manage incoming requests effectively based on protocols, ports, and host headers for optimal traffic routing.
 ---
 
 # Application Gateway listener configuration
 
-[!INCLUDE [updated-for-az](../../includes/updated-for-az.md)]
+[!INCLUDE [updated-for-az](~/reusable-content/ce-skilling/azure/includes/updated-for-az.md)]
 
 A listener is a logical entity that checks for incoming connection requests by using the port, protocol, host, and IP address. When you configure the listener, you must enter values for these that match the corresponding values in the incoming request on the gateway.
 
@@ -19,25 +25,40 @@ When you create an application gateway by using the Azure portal, you also creat
 
 ## Listener type
 
-When you create a new listener, you choose between [*basic* and *multi-site*](https://docs.microsoft.com/azure/application-gateway/application-gateway-components#types-of-listeners).
+When you create a new listener, you choose between [*basic* and *multi-site*](./application-gateway-components.md#types-of-listeners).
 
-- If you want all of your requests (for any domain) to be accepted and forwarded to backend pools, choose basic. Learn [how to create an application gateway with a basic listener](https://docs.microsoft.com/azure/application-gateway/quick-create-portal).
+- If you want all of your requests (for any domain) to be accepted and forwarded to backend pools, choose basic. Learn [how to create an application gateway with a basic listener](./quick-create-portal.md).
 
-- If you want to forward requests to different backend pools based on the *host* header or host names, choose multi-site listener, where you must also specify a host name that matches with the incoming request. This is because Application Gateway relies on HTTP 1.1 host headers to host more than one website on the same public IP address and port. To learn more, see [hosting multiple sites using Application Gateway](multiple-site-overview.md).
+- If you want to forward requests to different backend pools based on the *host* header or host names, choose multi-site listener. Application Gateway relies on HTTP 1.1 host headers to host more than one website on the same public IP address and port. To differentiate requests on the same port, you must specify a host name that matches with the incoming request. To learn more, see [hosting multiple sites using Application Gateway](multiple-site-overview.md).
 
 ### Order of processing listeners
 
 For the v1 SKU, requests are matched according to the order of the rules and the type of listener. If a rule with basic listener comes first in the order, it's processed first and will accept any request for that port and IP combination. To avoid this, configure the rules with multi-site listeners first and push the rule with the basic listener to the last in the list.
 
-For the v2 SKU, multi-site listeners are processed before basic listeners.
+For the v2 SKU, rule priority defines the order in which listeners are processed. Wildcard and basic listeners should be defined a priority with a number greater than site-specific and multi-site listeners, to ensure site-specific and multi-site listeners execute prior to the wildcard and basic listeners.
 
-## Front-end IP address
+## Frontend IP address
 
-Choose the front-end IP address that you plan to associate with this listener. The listener will listen to incoming requests on this IP.
+Choose the frontend IP address that you plan to associate with this listener. The listener will listen to incoming requests on this IP.
 
-## Front-end port
+  > [!NOTE]
+  > Application Gateway frontend supports dual-stack IP addresses. You can create up to four frontend IP addresses: Two IPv4 addresses (public and private) and two IPv6 addresses (public and private).
 
-Choose the front-end port. Select an existing port or create a new one. Choose any value from the [allowed range of ports](https://docs.microsoft.com/azure/application-gateway/application-gateway-components#ports). You can use not only well-known ports, such as 80 and 443, but any allowed custom port that's suitable. A port can be used for public-facing listeners or private-facing listeners.
+
+## Frontend port
+
+Associate a frontend port. You can select an existing port or create a new one. Choose any value from the [allowed range of ports](./application-gateway-components.md#ports). You can use not only well-known ports, such as 80 and 443, but any allowed custom port that's suitable. The same port can be used for public and private listeners. 
+
+>[!NOTE] 
+> When using private and public listeners with the same port number, your application gateway changes the "destination" of the inbound flow to the frontend IPs of your gateway. Hence, depending on your Network Security Group's configuration, you may need an inbound rule with **Destination IP addresses** as your application gateway's public and private frontend IPs.
+> 
+> **Inbound Rule**:
+> - Source: (as per your requirement)
+> - Destination IP addresses: Public and Private frontend IPs of your application gateway.
+> - Destination Port: (as per listener configuration)
+> - Protocol: TCP
+> 
+> **Outbound Rule**: (no specific requirement)
 
 ## Protocol
 
@@ -45,10 +66,12 @@ Choose HTTP or HTTPS:
 
 - If you choose HTTP, the traffic between the client and the application gateway is unencrypted.
 
-- Choose HTTPS if you want [TLS termination](features.md#secure-sockets-layer-ssltls-termination) or [end-to-end TLS encryption](https://docs.microsoft.com/azure/application-gateway/ssl-overview). The traffic between the client and the application gateway is encrypted. And the TLS connection terminates at the application gateway. If you want end-to-end TLS encryption, you must choose HTTPS and configure the **back-end HTTP** setting. This ensures that traffic is re-encrypted when it travels from the application gateway to the back end.
+- Choose HTTPS if you want [TLS termination](features.md#secure-sockets-layer-ssltls-termination) or [end-to-end TLS encryption](./ssl-overview.md). The traffic between the client and the application gateway is encrypted and the TLS connection will be terminated at the application gateway. If you want end-to-end TLS encryption to the backend target, you must choose HTTPS within **backend HTTP setting** as well. This ensures that traffic is encrypted when application gateway initiates a connection to the backend target.
 
+To configure TLS termination, a TLS/SSL certificate must be added to the listener. This allows the Application Gateway to decrypt incoming traffic and encrypt response traffic to the client. The certificate provided to the Application Gateway must be in Personal Information Exchange (PFX) format, which contains both the private and public keys.
 
-To configure TLS termination and end-to-end TLS encryption, you must add a certificate to the listener to enable the application gateway to derive a symmetric key. This is dictated by the TLS protocol specification. The symmetric key is used to encrypt and decrypt the traffic that's sent to the gateway. The gateway certificate must be in Personal Information Exchange (PFX) format. This format lets you export the private key that the gateway uses to encrypt and decrypt traffic.
+> [!NOTE]
+> When using a TLS certificate from Key Vault for a listener, you must ensure your Application Gateway always has access to that linked key vault resource and the certificate object within it. This enables seamless operations of TLS termination feature and maintains the overall health of your gateway resource. If an application gateway resource detects a misconfigured key vault, it automatically puts the associated HTTPS listener(s) in a disabled state. [Learn more](../application-gateway/disabled-listeners.md).
 
 ## Supported certificates
 
@@ -58,7 +81,7 @@ See [Overview of TLS termination and end to end TLS with Application Gateway](ss
 
 ### HTTP2 support
 
-HTTP/2 protocol support is available to clients that connect to application gateway listeners only. The communication to back-end server pools is over HTTP/1.1. By default, HTTP/2 support is disabled. The following Azure PowerShell code snippet shows how to enable this:
+HTTP/2 protocol support is available to clients that connect to application gateway listeners only. Communication to backend server pools is always HTTP/1.1. By default, HTTP/2 support is disabled. The following Azure PowerShell code snippet shows how to enable this:
 
 ```azurepowershell
 $gw = Get-AzApplicationGateway -Name test -ResourceGroupName hm
@@ -68,23 +91,28 @@ $gw.EnableHttp2 = $true
 Set-AzApplicationGateway -ApplicationGateway $gw
 ```
 
+> [!IMPORTANT]
+> When creating an application gateway resource through the Azure portal, the default option for **HTTP2** is set as enabled. You can choose **Disabled** during creation, and re-enabled HTTP2 support using the Azure portal by selecting **Enabled** under **HTTP2** in **Application gateway > Configuration**.
+>
+> In instances where HTTP2 isn't supported by a client, HTTP1.1 will be used. Enabling HTTP2 doesn't disable HTTP1.1; it allows support for both.
+>
+
 ### WebSocket support
 
 WebSocket support is enabled by default. There's no user-configurable setting to enable or disable it. You can use WebSockets with both HTTP and HTTPS listeners.
 
 ## Custom error pages
 
-You can define custom error at the global level or the listener level. But creating global-level custom error pages from the Azure portal is currently not supported. You can configure a custom error page for a 403 web application firewall error or a 502 maintenance page at the listener level. You must also specify a publicly accessible blob URL for the given error status code. For more information, see [Create Application Gateway custom error pages](https://docs.microsoft.com/azure/application-gateway/custom-error).
+You can define customized error pages for different response codes returned by the Application Gateway. The response codes for which you can configure error pages are 400, 403, 405, 408, 500, 502, 503, and 504. You can use global-level or listener-specific error page configuration to set them granularly for each listener. For more information, see [Create Application Gateway custom error pages](./custom-error.md).
 
-![Application Gateway error codes](https://docs.microsoft.com/azure/application-gateway/media/custom-error/ag-error-codes.png)
-
-To configure a global custom error page, see [Azure PowerShell configuration](https://docs.microsoft.com/azure/application-gateway/custom-error#azure-powershell-configuration).
+> [!NOTE]
+> An error originating from the backend server is passed along unmodified by the Application Gateway to the client. 
 
 ## TLS policy
 
-You can centralize TLS/SSL certificate management and reduce encryption-decryption overhead for a back-end server farm. Centralized TLS handling also lets you specify a central TLS policy that's suited to your security requirements. You can choose *default*, *predefined*, or *custom* TLS policy.
+You can centralize TLS/SSL certificate management and reduce encryption-decryption overhead for a backend server farm. Centralized TLS handling also lets you specify a central TLS policy that's suited to your security requirements. You can choose *predefined* or *custom* TLS policy.
 
-You configure TLS policy to control TLS protocol versions. You can configure an application gateway to use a minimum protocol version for TLS handshakes from TLS1.0, TLS1.1, and TLS1.2. By default, SSL 2.0 and 3.0 are disabled and aren't configurable. For more information, see [Application Gateway TLS policy overview](https://docs.microsoft.com/azure/application-gateway/application-gateway-ssl-policy-overview).
+You configure TLS policy to control TLS protocol versions. You can configure an application gateway to use a minimum protocol version for TLS handshakes from TLS1.0, TLS1.1, TLS1.2, and TLS1.3. By default, SSL 2.0 and 3.0 are disabled and aren't configurable. For more information, see [Application Gateway TLS policy overview](./application-gateway-ssl-policy-overview.md).
 
 After you create a listener, you associate it with a request-routing rule. That rule determines how requests that are received on the listener are routed to the back end.
 

@@ -2,10 +2,12 @@
 title: Configure Avere vFXT storage - Azure
 description: Learn how to add a back-end storage system for a cluster in Avere vFXT for Azure. If you created an Azure Blob container with the cluster, it is ready to use.
 author: ekpgh
-ms.service: avere-vfxt
+ms.service: azure-avere-vfxt
 ms.topic: how-to
 ms.date: 01/13/2020
 ms.author: rohogue
+ms.custom: sfi-image-nochange
+# Customer intent: "As a cloud administrator, I want to configure back-end storage for my Avere vFXT cluster in Azure, so that I can enhance data management and connectivity for my applications."
 ---
 
 # Configure storage
@@ -45,8 +47,6 @@ Follow these steps to add a NAS core filer:
 1. Click **Core Filer** > **Manage Core Filers** on the left.
 
 1. Click **Create**.
-
-   ![Screenshot of the Add new core filer page with a cursor over the Create button](media/avere-vfxt-add-core-filer-start.png)
 
 1. Fill in the required information in the wizard:
 
@@ -100,7 +100,7 @@ To add Blob storage after creating the cluster, follow these steps.
 
    You can use the Azure portal or click the  "Deploy to Azure" button below.
 
-   [![button to create storage account](media/deploytoazure.png)](https://ms.portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAvere%2Fmaster%2Fsrc%2Fvfxt%2Fstorageaccount%2Fazuredeploy.json)
+   [![button to create storage account](media/deploytoazure.png)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAvere%2Fmaster%2Fsrc%2Fvfxt%2Fstorageaccount%2Fazuredeploy.json)
 
 1. After the account is created, browse to the storage account page.
 
@@ -151,7 +151,7 @@ To add Blob storage after creating the cluster, follow these steps.
    * Optionally, set **Encryption type** to **None**.  Azure Storage is encrypted by default.
    * Click **Add Filer**.
 
-   For more detailed information, read [Adding a new cloud core filer](<https://azure.github.io/Avere/legacy/ops_guide/4_7/html/new_core_filer_cloud.html>) in the Avere cluster configuration guide.
+   For more detailed information, read [Adding a new cloud core filer](https://azure.github.io/Avere/legacy/ops_guide/4_7/html/new_core_filer_cloud.html) in the Avere cluster configuration guide.
 
 The page will refresh, or you can refresh the page to display your new core filer.
 

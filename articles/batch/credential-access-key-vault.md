@@ -1,52 +1,33 @@
 ---
-title: Securely access Key Vault with Batch
+title: Use certificates and securely access Azure Key Vault with Batch
 description: Learn how to programmatically access your credentials from Key Vault using Azure Batch.
 ms.topic: how-to
-ms.date: 02/13/2020 
+ms.date: 07/01/2025
 ms.custom: devx-track-azurepowershell
+# Customer intent: As a developer, I want to use certificates with Azure Batch to securely access Azure Key Vault, so that I can programmatically retrieve credentials for my applications without compromising security.
 ---
 
-# Securely access Key Vault with Batch
+# Use certificates to securely access Azure Key Vault with Batch
 
-In this article, you'll learn how to set up Batch nodes to securely access credentials stored in Azure Key Vault. There's no point in putting your admin credentials in Key Vault, then hard-coding credentials to access Key Vault from a script. The solution is to use a certificate that grants your Batch nodes access to Key Vault. With a few steps, we can implement secure key storage for Batch.
+> [!WARNING]
+> Batch account certificates as detailed in this article are [deprecated](batch-certificate-migration-guide.md). To securely access Azure Key Vault, simply use [Pool managed identities](managed-identity-pools.md) with the appropriate access permissions configured for the user-assigned managed identity to access your Key Vault. If you need to provision certificates on Batch nodes, please utilize the available Azure Key Vault VM extension in conjunction with pool Managed Identity to install and manage certificates on your Batch pool. For more information on deploying certificates from Azure Key Vault with Managed Identity on Batch pools, see [Enable automatic certificate rotation in a Batch pool](automatic-certificate-rotation.md).
+
+In this article, you'll learn how to set up Batch nodes with certificates to securely access credentials stored in [Azure Key Vault](/azure/key-vault/general/overview).
 
 To authenticate to Azure Key Vault from a Batch node, you need:
 
-- An Azure Active Directory (Azure AD) credential
+- A Microsoft Entra credential
 - A certificate
 - A Batch account
 - A Batch pool with at least one node
 
 ## Obtain a certificate
 
-If you don't already have a certificate, the easiest way to get one is to generate a self-signed certificate using the `makecert` command-line tool.
-
-You can typically find `makecert` in this path: `C:\Program Files (x86)\Windows Kits\10\bin\<arch>`. Open a command prompt as an administrator and navigate to `makecert` using the following example.
-
-```console
-cd C:\Program Files (x86)\Windows Kits\10\bin\x64
-```
-
-Next, use the `makecert` tool to create self-signed certificate files called `batchcertificate.cer` and `batchcertificate.pvk`. The common name (CN) used isn't important for this application, but it's helpful to make it something that tells you what the certificate is used for.
-
-```console
-makecert -sv batchcertificate.pvk -n "cn=batch.cert.mydomain.org" batchcertificate.cer -b 09/23/2019 -e 09/23/2019 -r -pe -a sha256 -len 2048
-```
-
-Batch requires a `.pfx` file. Use the [pvk2pfx](/windows-hardware/drivers/devtest/pvk2pfx) tool to convert the `.cer` and `.pvk` files created by `makecert` to a single `.pfx` file.
-
-```console
-pvk2pfx -pvk batchcertificate.pvk -spc batchcertificate.cer -pfx batchcertificate.pfx -po
-```
+If you don't already have a certificate, [use the PowerShell cmdlet `New-SelfSignedCertificate`](/powershell/module/pki/new-selfsignedcertificate) to make a new self-signed certificate.
 
 ## Create a service principal
 
-Access to Key Vault is granted to either a **user** or a **service principal**. To access Key Vault programmatically, use a service principal with the certificate we created previous step.
-
-For more information on Azure service principals, see [Application and service principal objects in Azure Active Directory](../active-directory/develop/app-objects-and-service-principals.md).
-
-> [!NOTE]
-> The service principal must be in the same Azure AD tenant as the Key Vault.
+Access to Key Vault is granted to either a **user** or a **service principal**. To access Key Vault programmatically, use a [service principal](../active-directory/develop/app-objects-and-service-principals.md#service-principal-object) with the certificate you created in the previous step. The service principal must be in the same Microsoft Entra tenant as the Key Vault.
 
 ```powershell
 $now = [System.DateTime]::Parse("2020-02-10")
@@ -63,11 +44,11 @@ $newADApplication = New-AzureRmADApplication -DisplayName "Batch Key Vault Acces
 $newAzureAdPrincipal = New-AzureRmADServicePrincipal -ApplicationId $newADApplication.ApplicationId
 ```
 
-The URLs for the application aren't important since we're only using them for Key Vault access.
+The URLs for the application aren't important, since we're only using them for Key Vault access.
 
 ## Grant rights to Key Vault
 
-The service principal created in the previous step needs permission to retrieve the secrets from Key Vault. Permission can be granted either through the Azure portal or with the PowerShell command below.
+The service principal created in the previous step needs permission to retrieve the secrets from Key Vault. Permission can be granted either through the [Azure portal](/azure/key-vault/general/assign-access-policy-portal) or with the PowerShell command below.
 
 ```powershell
 Set-AzureRmKeyVaultAccessPolicy -VaultName 'BatchVault' -ServicePrincipalName '"https://batch.mydomain.com' -PermissionsToSecrets 'Get'
@@ -77,13 +58,13 @@ Set-AzureRmKeyVaultAccessPolicy -VaultName 'BatchVault' -ServicePrincipalName '"
 
 Create a Batch pool, then go to the certificate tab in the pool and assign the certificate you created. The certificate is now on all Batch nodes.
 
-Next, we need to assign the certificate to the Batch account. Assigning the certificate to the account allows us to assign it to the pools and then to the nodes. The easiest way to do this is to go to your Batch account in the portal, navigate to **Certificates**, and select **Add**. Upload the `.pfx` file we generated in the [Obtain a certificate](#obtain-a-certificate) and supply the password. Once complete, the certificate is added to the list and you can verify the thumbprint.
+Next, assign the certificate to the Batch account. Assigning the certificate to the account lets Batch assign it to the pools and then to the nodes. The easiest way to do this is to go to your Batch account in the portal, navigate to **Certificates**, and select **Add**. Upload the `.pfx` file you generated earlier and supply the password. Once complete, the certificate is added to the list and you can verify the thumbprint.
 
-Now when you create a Batch pool, you can do navigate to **Certificates** within the pool and assign the certificate you created to that pool. When you do so, ensure you select **LocalMachine** for the store location. The certificate is loaded on all Batch nodes in the pool.
+Now when you create a Batch pool, you can navigate to **Certificates** within the pool and assign the certificate you created to that pool. When you do so, ensure you select **LocalMachine** for the store location. The certificate is loaded on all Batch nodes in the pool.
 
 ## Install Azure PowerShell
 
-If you plan on accessing Key Vault using PowerShell scripts on your nodes, then you need the Azure PowerShell library installed. There are a few ways to do this, if your nodes have Windows Management Framework (WMF) 5 installed, then you can use the install-module command to download it. If you're using nodes that don’t have WMF 5, easiest way to install it is to bundle up the Azure PowerShell `.msi` file with your Batch files, and then call the installer as the first part of your Batch startup script. See this example for details:
+If you plan on accessing Key Vault using PowerShell scripts on your nodes, then you need the Azure PowerShell library installed. If your nodes have Windows Management Framework (WMF) 5 installed, you can use the install-module command to download it. If you're using nodes that don’t have WMF 5, the easiest way to install it is to bundle up the Azure PowerShell `.msi` file with your Batch files, and then call the installer as the first part of your Batch startup script. See this example for details:
 
 ```powershell
 $psModuleCheck=Get-Module -ListAvailable -Name Azure -Refresh
@@ -94,7 +75,7 @@ if($psModuleCheck.count -eq 0) {
 
 ## Access Key Vault
 
-Now we're all setup to access Key Vault in scripts running on Batch nodes. To access Key Vault from a script, all you need is for your script to authenticate against Azure AD using the certificate. To do this in PowerShell, use the following example commands. Specify the appropriate GUID for **Thumbprint**, **App ID** (the ID of your service principal), and **Tenant ID** (the tenant where your service principal exists).
+Now you're ready to access Key Vault in scripts running on your Batch nodes. To access Key Vault from a script, all you need is for your script to authenticate against Microsoft Entra ID using the certificate. To do this in PowerShell, use the following example commands. Specify the appropriate GUID for **Thumbprint**, **App ID** (the ID of your service principal), and **Tenant ID** (the tenant where your service principal exists).
 
 ```powershell
 Add-AzureRmAccount -ServicePrincipal -CertificateThumbprint -ApplicationId
@@ -107,3 +88,9 @@ $adminPassword=Get-AzureKeyVaultSecret -VaultName BatchVault -Name batchAdminPas
 ```
 
 These are the credentials to use in your script.
+
+## Next steps
+
+- Learn more about [Azure Key Vault](/azure/key-vault/general/overview).
+- Review the [Azure Security Baseline for Batch](security-baseline.md).
+- Learn about Batch features such as [configuring access to compute nodes](pool-endpoint-configuration.md), [using Linux compute nodes](batch-linux-nodes.md), and [using private endpoints](private-connectivity.md).

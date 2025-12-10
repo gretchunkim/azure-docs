@@ -2,10 +2,11 @@
 title: Disaster recovery guidance for Avere vFXT for Azure
 description: How to protect data in Avere vFXT for Azure from accidental deletion or outages
 author: ekpgh
-ms.service: avere-vfxt
-ms.topic: conceptual
+ms.service: azure-avere-vfxt
+ms.topic: concept-article
 ms.date: 12/10/2019
 ms.author: rohogue
+# Customer intent: As an Avere vFXT for Azure user, I want to establish an effective disaster recovery plan for my workflows, so that I can minimize data loss and downtime in the event of accidental deletions or outages.
 ---
 
 # Disaster recovery guidance for Avere vFXT for Azure
@@ -56,7 +57,7 @@ Best practices for protecting data in Azure Blob storage include:
 
 * Copy your critical data to another storage account in another region frequently (as often as determined by your disaster recovery plan).
 * Control access to data on all target systems to prevent accidental deletion or corruption. Consider using [resource locks](../azure-resource-manager/management/lock-resources.md) on data storage.
-* Enable the Avere vFXT for Azure [cloud snapshot](<https://azure.github.io/Avere/legacy/ops_guide/4_7/html/gui_cloud_snapshot_policies.html>) feature for your Blob core filers.
+* Enable the Avere vFXT for Azure [cloud snapshot](https://azure.github.io/Avere/legacy/ops_guide/4_7/html/gui_cloud_snapshot_policies.html) feature for your Blob core filers.
 
 ### Copy Avere vFXT core filer data to a backup account
 
@@ -68,7 +69,7 @@ Follow these steps to establish a data backup in another account.
 
    You must supply this key when adding the container to a cluster - even if you are re-adding it to its original cluster.
 
-   Read [Cloud encryption settings](<https://azure.github.io/Avere/legacy/ops_guide/4_7/html/gui_cloud_encryption_settings.html>)<!-- link to legacy doc site --> for detailed information.
+   Read [Cloud encryption settings](https://azure.github.io/Avere/legacy/ops_guide/4_7/html/gui_cloud_encryption_settings.html)<!-- link to legacy doc site --> for detailed information.
 
    If your container uses Azure's built-in encryption only, you can skip this step.
 
@@ -112,7 +113,7 @@ To access the backup container from an Avere vFXT for Azure cluster, follow this
 * For more information about customizing settings for Avere vFXT for Azure, read [Cluster tuning](avere-vfxt-tuning.md).
 * Learn more about disaster recovery and building resilient applications in Azure:
 
-  * [Azure resiliency technical guidance](https://docs.microsoft.com/azure/architecture/framework/resiliency/overview)
-  * [Recover from a region-wide service disruption](https://docs.microsoft.com/azure/architecture/resiliency/recovery-loss-azure-region)
-  * [Disaster recovery and high availability for Azure applications](<https://docs.microsoft.com/azure/resiliency/resiliency-disaster-recovery-high-availability-azure-applications>)
+  * [Azure resiliency technical guidance](/azure/architecture/reliability/architect)
+  * [Recover from a region-wide service disruption](/azure/architecture/resiliency/recovery-loss-azure-region)
+  * [Disaster recovery and high availability for Azure applications](/azure/architecture/framework/resiliency/backup-and-recovery)
   <!-- can't find these in the source tree to use relative links -->

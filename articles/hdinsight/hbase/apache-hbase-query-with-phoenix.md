@@ -1,14 +1,13 @@
 ---
 title: 'Quickstart: Apache HBase & Apache Phoenix - Azure HDInsight'
 description: In this quickstart, you learn how to use Apache Phoenix in HDInsight. Also, learn how to install and set up SQLLine on your computer to connect to an HBase cluster in HDInsight.
-author: hrasheed-msft
-ms.reviewer: jasonh
-
-ms.service: hdinsight
-ms.custom: hdinsightactive
+ms.service: azure-hdinsight
+ms.custom: hdinsightactive, mode-other
 ms.topic: quickstart
-ms.date: 06/12/2019
-ms.author: hrasheed
+author: apurbasroy
+ms.author: apsinhar
+ms.reviewer: nijelsf
+ms.date:  09/06/2024
 #Customer intent: As a HBase user, I want learn Apache Phoenix so that I can run HBase queries in Azure HDInsight.
 ---
 
@@ -16,7 +15,7 @@ ms.author: hrasheed
 
 In this quickstart, you learn how to use the Apache Phoenix to run HBase queries in Azure HDInsight. Apache Phoenix is a SQL query engine for Apache HBase. It is accessed as a JDBC driver, and it enables querying and managing HBase tables by using SQL. [SQLLine](http://sqlline.sourceforge.net/) is a command-line utility to execute SQL.
 
-If you don't have an Azure subscription, create a [free account](https://azure.microsoft.com/free/?WT.mc_id=A261C142F) before you begin.
+If you don't have an Azure subscription, create a [free account](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn) before you begin.
 
 ## Prerequisites
 
@@ -36,11 +35,11 @@ A portion of the output will look similar to:
 
 ```output
     {
-      "href" : "http://hn1-brim.432dc3rlshou3ocf251eycoapa.bx.internal.cloudapp.net:8080/api/v1/clusters/myCluster/hosts/zk0-brim.432dc3rlshou3ocf251eycoapa.bx.internal.cloudapp.net/host_components/ZOOKEEPER_SERVER",
+      "href" : "http://hn*.432dc3rlshou3ocf251eycoapa.bx.internal.cloudapp.net:8080/api/v1/clusters/myCluster/hosts/<zookeepername1>.432dc3rlshou3ocf251eycoapa.bx.internal.cloudapp.net/host_components/ZOOKEEPER_SERVER",
       "HostRoles" : {
         "cluster_name" : "myCluster",
         "component_name" : "ZOOKEEPER_SERVER",
-        "host_name" : "zk0-brim.432dc3rlshou3ocf251eycoapa.bx.internal.cloudapp.net"
+        "host_name" : "<zookeepername1>.432dc3rlshou3ocf251eycoapa.bx.internal.cloudapp.net"
       }
 ```
 

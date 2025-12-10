@@ -1,57 +1,56 @@
 ---
-title: About ExpressRoute virtual network gateways - Azure| Microsoft Docs
-description: Learn about virtual network gateways for ExpressRoute. This article includes information about gateway SKUs and types.
+title: About ExpressRoute virtual network gateways
+description: Learn about virtual network gateways for ExpressRoute, including gateway SKUs, performance characteristics, features, and configuration considerations.
 services: expressroute
 author: duongau
-
-ms.service: expressroute
-ms.topic: conceptual
-ms.date: 10/14/2019
+ms.service: azure-expressroute
+ms.topic: concept-article
+ms.date: 11/10/2025
 ms.author: duau
-
+ms.custom: references_regions
 ---
+
 # About ExpressRoute virtual network gateways
 
-To connect your Azure virtual network and your on-premises network via ExpressRoute, you must create a virtual network gateway first. A virtual network gateway serves two purposes: exchange IP routes between the networks and route network traffic. This article explains gateway types, gateway SKUs, and estimated performance by SKU. This article also explains ExpressRoute [FastPath](#fastpath), a feature that enables the network traffic from your on-premises network to bypass the virtual network gateway to improve performance.
+A virtual network gateway connects your Azure virtual network to your on-premises network through Azure ExpressRoute. The gateway serves two key purposes: exchanging IP routes between networks and routing network traffic between them.
 
-## Gateway types
+This article explains gateway types, gateway SKUs, estimated performance by SKU, and key features. It also covers ExpressRoute [FastPath](#fastpath), which enables network traffic from your on-premises network to bypass the virtual network gateway for improved performance.
 
-When you create a virtual network gateway, you need to specify several settings. One of the required settings, '-GatewayType', specifies whether the gateway is used for ExpressRoute, or VPN traffic. The two gateway types are:
+<a name="gwsku"></a>
+## Gateway SKUs
 
-* **Vpn** - To send encrypted traffic across the public Internet, you use the gateway type 'Vpn'. This is also referred to as a VPN gateway. Site-to-Site, Point-to-Site, and VNet-to-VNet connections all use a VPN gateway.
-
-* **ExpressRoute** - To send network traffic on a private connection, you use the gateway type 'ExpressRoute'. This is also referred to as an ExpressRoute gateway and is the type of gateway used when configuring ExpressRoute.
-
-Each virtual network can have only one virtual network gateway per gateway type. For example, you can have one virtual network gateway that uses -GatewayType Vpn, and one that uses -GatewayType ExpressRoute.
-
-## <a name="gwsku"></a>Gateway SKUs
 [!INCLUDE [expressroute-gwsku-include](../../includes/expressroute-gwsku-include.md)]
 
-If you want to upgrade your gateway to a more powerful gateway SKU, in most cases you can use the 'Resize-AzVirtualNetworkGateway' PowerShell cmdlet. This will work for upgrades to Standard and HighPerformance SKUs. However, to upgrade to the UltraPerformance SKU, you will need to recreate the gateway. Recreating a gateway incurs downtime.
+You can upgrade your gateway to a higher-capacity SKU within the same SKU family (non-availability zone or availability zone-enabled). For example:
 
-### <a name="aggthroughput"></a>Estimated performances by gateway SKU
-The following table shows the gateway types and the estimated performances. This table applies to both the Resource Manager and classic deployment models.
+- Upgrade from one non-availability zone SKU to another non-availability zone SKU
+- Upgrade from one availability zone-enabled SKU to another availability zone-enabled SKU
 
-[!INCLUDE [expressroute-table-aggthroughput](../../includes/expressroute-table-aggtput-include.md)]
+For all other scenarios, including downgrades or switching between availability zone types, you must delete and recreate the gateway. This process incurs downtime.
 
-> [!IMPORTANT]
-> Application performance depends on multiple factors, such as the end-to-end latency, and the number of traffic flows the application opens. The numbers in the table represent the upper limit that the application can theoretically achieve in an ideal environment.
+## Gateway subnet
+
+Before you create an ExpressRoute gateway, you must create a gateway subnet. The gateway subnet contains the IP addresses that the virtual network gateway virtual machines (VMs) and services use.
+
+When you create your virtual network gateway, Azure deploys gateway VMs to the gateway subnet and configures them with the required ExpressRoute settings. Never deploy anything else into the gateway subnet. The gateway subnet must be named **GatewaySubnet** for Azure to recognize it and deploy the gateway components correctly.
+
+> [!NOTE]
+> [!INCLUDE [vpn-gateway-gwudr-warning.md](../../includes/vpn-gateway-gwudr-warning.md)]
 >
->
+> Don't deploy Azure DNS Private Resolver into a virtual network that has an ExpressRoute virtual network gateway with wildcard rules directing all name resolution to a specific DNS server. This configuration can cause management connectivity problems.
 
-## <a name="gwsub"></a>Gateway subnet
+### Gateway subnet size
 
-Before you create an ExpressRoute gateway, you must create a gateway subnet. The gateway subnet contains the IP addresses that the virtual network gateway VMs and services use. When you create your virtual network gateway, gateway VMs are deployed to the gateway subnet and configured with the required ExpressRoute gateway settings. Never deploy anything else (for example, additional VMs) to the gateway subnet. The gateway subnet must be named 'GatewaySubnet' to work properly. Naming the gateway subnet 'GatewaySubnet' lets Azure know that this is the subnet to deploy the virtual network gateway VMs and services to.
+When you create the gateway subnet, you specify how many IP addresses it contains. The gateway VMs and services use these IP addresses. Some configurations require more IP addresses than others.
 
->[!NOTE]
->[!INCLUDE [vpn-gateway-gwudr-warning.md](../../includes/vpn-gateway-gwudr-warning.md)]
->
+When planning your gateway subnet size, refer to the documentation for your specific configuration. For example, ExpressRoute/VPN gateway coexistence configurations require larger gateway subnets than most other configurations. We recommend that you create a gateway subnet that can accommodate possible future configurations.
 
-When you create the gateway subnet, you specify the number of IP addresses that the subnet contains. The IP addresses in the gateway subnet are allocated to the gateway VMs and gateway services. Some configurations require more IP addresses than others. 
+**Recommendations:**
+- Create a gateway subnet of **/27 or larger** for most configurations.
+- If you plan to connect **16 ExpressRoute circuits** to your gateway, you must create a gateway subnet of **/26 or larger**.
+- For **dual stack gateway subnets**, we recommend an IPv6 range of **/64 or larger**.
 
-When you are planning your gateway subnet size, refer to the documentation for the configuration that you are planning to create. For example, the ExpressRoute/VPN Gateway coexist configuration requires a larger gateway subnet than most other configurations. Additionally, you may want to make sure your gateway subnet contains enough IP addresses to accommodate possible future additional configurations. While you can create a gateway subnet as small as /29, we recommend that you create a gateway subnet of /27 or larger (/27, /26 etc.) if you have the available address space to do so. This will accommodate most configurations.
-
-The following Resource Manager PowerShell example shows a gateway subnet named GatewaySubnet. You can see the CIDR notation specifies a /27, which allows for enough IP addresses for most configurations that currently exist.
+The following Azure Resource Manager PowerShell example shows a gateway subnet named **GatewaySubnet**. The CIDR notation specifies a /27, which provides enough IP addresses for most configurations.
 
 ```azurepowershell-interactive
 Add-AzVirtualNetworkSubnetConfig -Name 'GatewaySubnet' -AddressPrefix 10.0.3.0/27
@@ -59,40 +58,100 @@ Add-AzVirtualNetworkSubnetConfig -Name 'GatewaySubnet' -AddressPrefix 10.0.3.0/2
 
 [!INCLUDE [vpn-gateway-no-nsg](../../includes/vpn-gateway-no-nsg-include.md)]
 
-### <a name="zrgw"></a>Zone-redundant gateway SKUs
+## Gateway limitations and performance
 
-You can also deploy ExpressRoute gateways in Azure Availability Zones. This physically and logically separates them into different Availability Zones, protecting your on-premises network connectivity to Azure from zone-level failures.
+<a name="gatewayfeaturesupport"></a>
+### Feature support by gateway SKU
 
-![Zone-redundant ExpressRoute gateway](./media/expressroute-about-virtual-network-gateways/zone-redundant.png)
+The following table shows the features that each gateway SKU supports and the maximum number of ExpressRoute circuit connections.
 
-Zone-redundant gateways use specific new gateway SKUs for ExpressRoute gateway.
+| Gateway SKU | VPN and ExpressRoute coexistence | FastPath | Maximum circuit connections |
+|--|--|--|--|
+| **Standard/ERGw1Az** | Yes | No | 4 |
+| **High Performance/ERGw2Az** | Yes | No | 8 |
+| **Ultra Performance/ErGw3Az** | Yes | Yes | 16 |
+| **ErGwScale** | Yes | Yes (minimum 10 scale units) | 4 (minimum 1 scale unit)<br>8 (minimum 2 scale units)<br>16 (minimum 10 scale units) |
 
-* ErGw1AZ
-* ErGw2AZ
-* ErGw3AZ
+> [!NOTE]
+> The maximum number of ExpressRoute circuits from the same peering location that can connect to the same virtual network is 4 for all gateways.
 
-The new gateway SKUs also support other deployment options to best match your needs. When creating a virtual network gateway using the new gateway SKUs, you also have the option to deploy the gateway in a specific zone. This is referred to as a zonal gateway. When you deploy a zonal gateway, all the instances of the gateway are deployed in the same Availability Zone.
+<a name="aggthroughput"></a>
+### Estimated performance by gateway SKU
 
-## <a name="fastpath"></a>FastPath
+[!INCLUDE [expressroute-gateway-performance-include](../../includes/expressroute-gateway-performance-include.md)]
 
-ExpressRoute virtual network gateway is designed to exchange network routes and route network traffic. FastPath is designed to improve the data path performance between your on-premises network and your virtual network. When enabled, FastPath sends network traffic directly to virtual machines in the virtual network, bypassing the gateway.
+
+## Auto-assigned public IP
+
+The auto-assigned public IP feature simplifies ExpressRoute gateway deployment by allowing Microsoft to manage the required public IP address on your behalf. For PowerShell and Command-Line Interface (CLI), you're no longer required to create or maintain a separate public IP resource for your gateway. 
+
+:::image type="content" source="media/expressroute-about-virtual-network-gateways/hobo-ip.png" alt-text="Screenshot of the create for virtual network gateway for ExpressRoute.":::
+
+When auto-assigned public IP is enabled, the ExpressRoute gateway's Overview page no longer shows a Public IP address field — this means the gateway's public IP is automatically provisioned and managed by Microsoft.
+
+:::image type="content" source="media/expressroute-about-virtual-network-gateways/hobo-overview.png" alt-text="Screenshot of the overview for virtual network gateway for ExpressRoute.":::
+
+**Key benefits:**
+
+- **Improved security:** The public IP is managed internally by Microsoft and isn't exposed to you, reducing risks associated with open management ports.
+- **Reduced complexity:** You're no longer required to provision or manage a public IP resource.
+- **Streamlined deployment:** The Azure PowerShell and CLI no longer prompt for a public IP during gateway creation.
+
+**How it works:**  
+
+When you create an ExpressRoute gateway, Microsoft automatically provisions and manages the public IP address in a secure, backend subscription. This IP is encapsulated within the gateway resource, enabling Microsoft to enforce policies such as data rate limits and enhance auditability. Previously it was possible to create the public IP resource as a zonal resource which ensured that all instances of the gateway in that zone shared the same public IP address. New behavior is that the gateway is always zone redundant.
+
+**Availability:**  
+
+Auto-assigned public IP isn't available for Virtual WAN (vWAN) or Extended Zone deployments.
+ 
+## Connectivity from virtual network to virtual network and from virtual network to virtual WAN
+
+By default, virtual network-to-virtual network and virtual network-to-virtual WAN connectivity is disabled through an ExpressRoute circuit for all gateway SKUs. To enable this connectivity, you must configure the ExpressRoute virtual network gateway to allow this traffic. For more information, see guidance about [virtual network connectivity over ExpressRoute](virtual-network-connectivity-guidance.md). To enable this traffic, see [Enable virtual network-to-virtual network or virtual network-to-virtual WAN connectivity through ExpressRoute](expressroute-howto-add-gateway-portal-resource-manager.md#enable-or-disable-vnet-to-vnet-or-vnet-to-virtual-wan-traffic-through-expressroute).
+
+## FastPath
+
+ExpressRoute FastPath improves the data path performance between your on-premises network and your virtual network. When enabled, FastPath sends network traffic directly to virtual machines in the virtual network, bypassing the gateway.
 
 For more information about FastPath, including limitations and requirements, see [About FastPath](about-fastpath.md).
 
-## <a name="resources"></a>REST APIs and PowerShell cmdlets
-For additional technical resources and specific syntax requirements when using REST APIs and PowerShell cmdlets for virtual network gateway configurations, see the following pages:
+## Private endpoint connectivity
 
-| **Classic** | **Resource Manager** |
+The ExpressRoute virtual network gateway facilitates connectivity to private endpoints deployed in the same virtual network and across peered virtual networks.
+
+> [!IMPORTANT]
+> * The throughput and control plane capacity for connectivity to private endpoint resources might be reduced by half compared to connectivity to non-private endpoint resources.
+> * During a maintenance period, you might experience intermittent connectivity problems to private endpoint resources.
+> * You need to ensure that on-premises configuration, including router and firewall settings, are correctly set up to ensure that packets for the IP 5-tuple transits use a single next hop (Microsoft Enterprise Edge router) unless there's a maintenance event. If your on-premises firewall or router configuration is causing the same IP 5-tuple to frequently switch next hops, you experience connectivity problems.
+> * Ensure that [network policies](../private-link/disable-private-endpoint-network-policy.md) (at a minimum, for UDR support) are enabled on the subnet(s) where private endpoints are deployed
+
+### Private endpoint connectivity and planned maintenance events
+
+Private endpoint connectivity is stateful. When you establish a connection to a private endpoint over ExpressRoute private peering, the gateway infrastructure routes inbound and outbound connections through one of its back-end instances. During maintenance events, back-end instances reboot one at a time, which can cause intermittent connectivity problems.
+
+To avoid or minimize connectivity problems with private endpoints during maintenance activities, set the TCP time-out value to fall between 15 and 30 seconds on your on-premises applications. Test and configure the optimal value based on your application requirements.
+
+## REST APIs and PowerShell cmdlets
+
+For technical resources and specific syntax requirements when using REST APIs and PowerShell cmdlets for virtual network gateway configurations, see:
+
+| Classic | Resource Manager |
 | --- | --- |
-| [PowerShell](/powershell/module/servicemanagement/azure.service/?view=azuresmps-4.0.0#azure) |[PowerShell](https://docs.microsoft.com/powershell/module/az.network#networking) |
-| [REST API](https://msdn.microsoft.com/library/jj154113.aspx) |[REST API](https://msdn.microsoft.com/library/mt163859.aspx) |
+| [PowerShell](/powershell/module/servicemanagement/azure) |[PowerShell](/powershell/module/az.network#networking) |
+| [REST API](/previous-versions/azure/reference/jj154113(v=azure.100)) |[REST API](/rest/api/virtual-network/) |
 
-## Next steps
+## Virtual network-to-virtual network connectivity
 
-For more information about available connection configurations, see [ExpressRoute Overview](expressroute-introduction.md).
+By default, connectivity between virtual networks is enabled when you link multiple virtual networks to the same ExpressRoute circuit. We don't recommend using your ExpressRoute circuit for communication between virtual networks. Instead, we recommend that you use [virtual network peering](../virtual-network/virtual-network-peering-overview.md). For more information about why virtual network-to-virtual network connectivity isn't recommended over ExpressRoute, see [Connectivity between virtual networks over ExpressRoute](virtual-network-connectivity-guidance.md).
 
-For more information about creating ExpressRoute gateways, see [Create a virtual network gateway for ExpressRoute](expressroute-howto-add-gateway-resource-manager.md).
+### Virtual network peering limits
 
-For more information about configuring zone-redundant gateways, see [Create a zone-redundant virtual network gateway](../../articles/vpn-gateway/create-zone-redundant-vnet-gateway.md).
+A virtual network with an ExpressRoute gateway can have virtual network peering with up to **500 other virtual networks**. Virtual networks without an ExpressRoute gateway might have higher peering limits.
 
-For more information about FastPath, see [About FastPath](about-fastpath.md).
+## Related content
+
+- [ExpressRoute overview](expressroute-introduction.md)
+- [Create a virtual network gateway for ExpressRoute](expressroute-howto-add-gateway-resource-manager.md)
+- [Configure a virtual network gateway for ExpressRoute](expressroute-howto-add-gateway-portal-resource-manager.md)
+- [Create a zone-redundant virtual network gateway](../../articles/vpn-gateway/create-zone-redundant-vnet-gateway.md)
+- [About FastPath](about-fastpath.md)

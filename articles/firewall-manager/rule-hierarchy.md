@@ -1,32 +1,33 @@
 ---
 title: Use Azure Firewall policy to define a rule hierarchy
-description: Learn how to use Azure Firewall policy to define a rule hierarchy and enforce compliance. 
+description: Learn how to use Azure Firewall policy to define a rule hierarchy and enforce compliance.
 services: firewall-manager
-author: vhorne
-ms.service: firewall-manager
+author: duongau
+ms.service: azure-firewall-manager
 ms.topic: how-to
-ms.date: 08/26/2020
-ms.author: victorh
+ms.date: 03/12/2024
+ms.author: duau
+ms.custom: FY23 content-maintenance
 ---
 
 # Use Azure Firewall policy to define a rule hierarchy
 
-Security administrators need to manage firewalls and ensure compliance across on-premise and cloud deployments. A key component is the ability to provide application teams with flexibility to implement CI/CD pipelines to create firewall rules in an automated way.
+Security administrators need to manage firewalls and ensure compliance across on-premises and cloud deployments. A key component is the ability to provide application teams with flexibility to implement CI/CD pipelines to create firewall rules in an automated way.
 
 Azure Firewall policy allows you to define a rule hierarchy and enforce compliance:
 
 - Provides a hierarchical structure to overlay a central base policy on top of a child application team policy. The base policy has a higher priority and runs before the child policy.
-- Use a custom role-based access control (RBAC) definition to prevent inadvertent base policy removal and provide selective access to rule collection groups within a subscription or resource group. 
+- Use an Azure custom role definition to prevent inadvertent base policy removal and provide selective access to rule collection groups within a subscription or resource group.
 
 ## Solution overview
 
 The high-level steps for this example are:
 
-1. Create a base firewall policy in the security team resource group. 
+1. Create a base firewall policy in the security team resource group.
 3. Define IT security-specific rules in the base policy. This adds a common set of rules to allow/deny traffic.
-4. Create application team policies that inherit the base policy. 
+4. Create application team policies that inherit the base policy.
 5. Define application team-specific rules in the policy. You can also migrate rules from pre-existing firewalls.
-6. Create Azure Active Directory custom roles to provide fine grained access to rule collection group and add roles at a Firewall Policy scope. In the following example, Sales team members can edit rule collection groups for the Sales teams Firewall Policy. The same applies to the Database and Engineering teams.
+6. Create Microsoft Entra custom roles to provide fine grained access to rule collection group and add roles at a Firewall Policy scope. In the following example, Sales team members can edit rule collection groups for the Sales teams Firewall Policy. The same applies to the Database and Engineering teams.
 7. Associate the policy to the corresponding firewall. An Azure firewall can have only one assigned policy. This requires each application team to have their own firewall.
 
 
@@ -45,79 +46,79 @@ Create policies for each of the application teams:
 
 :::image type="content" source="media/rule-hierarchy/policy-hierarchy.png" alt-text="Policy hierarchy" border="false":::
 
-### Create custom roles to access the rule collection groups 
+### Create custom roles to access the rule collection groups
 
 Custom roles are defined for each application team. The role defines operations and scope. The application teams are allowed to edit rule collection groups for their respective applications.
 
 Use the following high-level procedure to define custom roles:
 
-1. Get the subscription:
+1. Get the subscription.
 
    `Select-AzSubscription -SubscriptionId xxxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxxxx`
-2. Run the following command:
+2. Run the following command.
 
    `Get-AzProviderOperation "Microsoft.Support/*" | FT Operation, Description -AutoSize`
-3. Use the Get-AzRoleDefinition command to output the Reader role in JSON format. 
+3. Use the Get-AzRoleDefinition command to output the Reader role in JSON format.
 
    `Get-AzRoleDefinition -Name "Reader" | ConvertTo-Json | Out-File C:\CustomRoles\ReaderSupportRole.json`
 4. Open the ReaderSupportRole.json file in an editor.
 
-   The following shows the JSON output. For information about the different properties, see [Azure custom roles](../role-based-access-control/custom-roles.md).
+   Here's the JSON output. For information about the different properties, see [Azure custom roles](../role-based-access-control/custom-roles.md).
 
 ```json
-   { 
-     "Name": "Reader", 
-     "Id": "acdd72a7-3385-48ef-bd42-f606fba81ae7", 
-     "IsCustom": false, 
-     "Description": "Lets you view everything, but not make any changes.", 
-     "Actions": [ 
-      "*/read" 
-     ], 
-     "NotActions": [], 
-     "DataActions": [], 
-     "NotDataActions": [], 
-     "AssignableScopes": [ 
-       "/" 
-     ] 
-   } 
+   {
+     "Name": "Reader",
+     "Id": "acdd72a7-3385-48ef-bd42-f606fba81ae7",
+     "IsCustom": false,
+     "Description": "Lets you view everything, but not make any changes.",
+     "Actions": [
+      "*/read"
+     ],
+     "NotActions": [],
+     "DataActions": [],
+     "NotDataActions": [],
+     "AssignableScopes": [
+       "/"
+     ]
+   }
 ```
 5. Edit the JSON file to add the 
 
-   `*/read", "Microsoft.Network/*/read", "Microsoft.Network/firewallPolicies/ruleCollectionGroups/write` 
+   `*/read", "Microsoft.Network/*/read", "Microsoft.Network/firewallPolicies/ruleCollectionGroups/write`
 
    operation to the **Actions** property. Be sure to include a comma after the read operation. This action allows the user to create and update rule collection groups.
-6. In **AssignableScopes**, add your subscription ID with the following format: 
+6. In **AssignableScopes**, add your subscription ID with the following format. 
 
    `/subscriptions/xxxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxxxx`
 
-   You must add explicit subscription IDs, otherwise you won't be allowed to import the role into your subscription.
+   You must add explicit subscription IDs. Otherwise, you aren't allowed to import the role into your subscription.
 7. Delete the **Id** property line and change the **IsCustom** property to true.
 8. Change the **Name** and **Description** properties to *AZFM Rule Collection Group Author* and *Users in this role can edit Firewall Policy rule collection groups*
 
 Your JSON file should look similar to the following example:
 
 ```
-{ 
+{
 
-    "Name":  "AZFM Rule Collection Group Author", 
-    "IsCustom":  true, 
-    "Description":  "Users in this role can edit Firewall Policy rule collection groups", 
-    "Actions":  [ 
-                    "*/read", 
-                    "Microsoft.Network/*/read", 
-                     "Microsoft.Network/firewallPolicies/ruleCollectionGroups/write" 
-                ], 
-    "NotActions":  [ 
-                   ], 
-    "DataActions":  [ 
-                    ], 
-    "NotDataActions":  [ 
-                       ], 
-    "AssignableScopes":  [ 
-                             "/subscriptions/xxxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxxxx"] 
-} 
+    "Name":  "AZFM Rule Collection Group Author",
+    "IsCustom":  true,
+    "Description":  "Users in this role can edit Firewall Policy rule collection groups",
+    "Actions":  [
+                    "*/read",
+                    "Microsoft.Network/*/read",
+                     "Microsoft.Network/firewallPolicies/ruleCollectionGroups/write"
+                ],
+    "NotActions":  [
+                   ],
+    "DataActions":  [
+                    ],
+    "NotDataActions":  [
+                       ],
+    "AssignableScopes":  [
+                             "/subscriptions/xxxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxxxx"]
+}
 ```
-9. To create the new custom role, use the New-AzRoleDefinition command and specify the JSON role definition file. 
+9. To create the new custom role, use the New-AzRoleDefinition command and specify the JSON role definition file.
 
    `New-AzRoleDefinition -InputFile "C:\CustomRoles\RuleCollectionGroupRole.json`
 
@@ -148,16 +149,16 @@ Repeat this procedure for the other firewall policies.
 
 ### Summary
 
-Firewall Policy with custom RBAC now provides selective access to firewall policy rule collection groups.
+Firewall Policy with custom roles now provides selective access to firewall policy rule collection groups.
 
 Users don’t have permissions to:
 - Delete the Azure Firewall or firewall policy.
 - Update firewall policy hierarchy or DNS settings or threat intelligence.
-- Update firewall policy where they are not members of AZFM Rule Collection Group Author group.
+- Update firewall policy where they aren't members of AZFM Rule Collection Group Author group.
 
-Security administrators can use base policy to enforce guardrails and block certain types of traffic (for example  ICMP) as required by their enterprise. 
+Security administrators can use base policy to enforce guardrails and block certain types of traffic (for example  ICMP) as required by their enterprise.
 
 ## Next steps
 
-Learn more about [Azure Firewall policy](policy-overview.md).
-
+- [Learn more about Azure Firewall policy](policy-overview.md)
+- [Learn more about Azure network security](../networking/security/index.yml)

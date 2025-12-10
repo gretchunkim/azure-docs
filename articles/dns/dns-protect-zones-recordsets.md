@@ -3,23 +3,29 @@ title: Protecting DNS Zones and Records - Azure DNS
 description: In this learning path, get started protecting DNS zones and record sets in Microsoft Azure DNS.
 services: dns
 author: asudbring
-ms.service: dns
+ms.service: azure-dns
 ms.topic: how-to
-ms.date: 2/20/2020
-ms.author: allensu
+ms.date: 11/30/2023
+ms.author: allensu 
+ms.devlang: azurecli
+ms.custom:
+  - devx-track-azurepowershell
+  - devx-track-azurecli
+  - sfi-image-nochange
+# Customer intent: "As a network administrator, I want to implement access controls and protection mechanisms for DNS zones and records, so that I can prevent unauthorized changes and accidental deletions that could disrupt service availability."
 ---
 
 # How to protect DNS zones and records
 
-[!INCLUDE [updated-for-az](../../includes/updated-for-az.md)]
+[!INCLUDE [updated-for-az](~/reusable-content/ce-skilling/azure/includes/updated-for-az.md)]
 
 DNS zones and records are critical resources. Deleting a DNS zone or a single DNS record can result in a service outage. It's important that DNS zones and records are protected against unauthorized or accidental changes.
 
 This article explains how Azure DNS enables you to protect your private DNS zones and records against such changes.  We apply two powerful securities features provided by Azure Resource Manager: [Azure role-based access control (Azure RBAC)](../role-based-access-control/overview.md) and [resource locks](../azure-resource-manager/management/lock-resources.md).
 
-## Role-based access control
+## Azure role-based access control
 
-Azure role-based access control (Azure RBAC) enables fine-grained access management for Azure users, groups, and resources. With RBAC, you can grant the level of access that users need. For more information about how RBAC helps you manage access, see [What is Azure role-based access control (Azure RBAC)](../role-based-access-control/overview.md).
+Azure role-based access control (Azure RBAC) enables fine-grained access management for Azure users, groups, and resources. With Azure RBAC, you can grant the level of access that users need. For more information about how Azure RBAC helps you manage access, see [What is Azure role-based access control (Azure RBAC)](../role-based-access-control/overview.md).
 
 ### The DNS Zone Contributor role
 
@@ -27,15 +33,15 @@ The DNS Zone Contributor role is a built-in role for managing private DNS resour
 
 The resource group *myResourceGroup* contains five zones for Contoso Corporation. Granting the DNS administrator DNS Zone Contributor permissions to that resource group, enables full control over those DNS zones. It avoids granting unnecessary permissions. The DNS administrator can't create or stop virtual machines.
 
-The simplest way to assign RBAC permissions is [via the Azure portal](../role-based-access-control/role-assignments-portal.md).  
+The simplest way to assign Azure RBAC permissions is [via the Azure portal](/azure/role-based-access-control/role-assignments-portal).  
 
-Open **Access control (IAM)** for the resource group, then select **Add**, then select the **DNS Zone Contributor** role. Select the required users or groups to grant permissions.
+Open **Access control (IAM)** for the resource group, then select **+ Add**, then select the **DNS Zone Contributor** role. Select the required users or groups to grant permissions.
 
-![Resource group level RBAC via the Azure portal](./media/dns-protect-zones-recordsets/rbac1.png)
+:::image type="content" source="./media/dns-protect-zones-recordsets/resource-group-rbac.png" alt-text="Screenshot of access control page for resource group.":::
 
 Permissions can also be [granted using Azure PowerShell](../role-based-access-control/role-assignments-powershell.md):
 
-```azurepowershell
+```azurepowershell-interactive
 # Grant 'DNS Zone Contributor' permissions to all zones in a resource group
 
 $usr = "<user email address>"
@@ -47,7 +53,7 @@ New-AzRoleAssignment -SignInName $usr -RoleDefinitionName $rol -ResourceGroupNam
 
 The equivalent command is also [available via the Azure CLI](../role-based-access-control/role-assignments-cli.md):
 
-```azurecli
+```azurecli-interactive
 # Grant 'DNS Zone Contributor' permissions to all zones in a resource group
 
 az role assignment create \
@@ -56,19 +62,19 @@ az role assignment create \
 --resource-group "<resource group name>"
 ```
 
-### Zone level RBAC
+### Zone level Azure RBAC
 
 Azure RBAC rules can be applied to a subscription, a resource group or to an individual resource. That resource can be an individual DNS zone, or an individual record set.
 
 For example, the resource group *myResourceGroup* contains the zone *contoso.com* and a subzone *customers.contoso.com*. CNAME records are created for each customer account. The administrator account used to manage CNAME records is assigned permissions to create records in the *customers.contoso.com* zone. The account can manage *customers.contoso.com* only.
 
-Zone-level RBAC permissions can be granted via the Azure portal.  Open **Access control (IAM)** for the zone, select **Add**, then select the **DNS Zone Contributor** role and select the required users or groups to grant permissions.
+Zone-level Azure RBAC permissions can be granted via the Azure portal.  Open **Access control (IAM)** for the zone, select **+ Add**, then select the **DNS Zone Contributor** role and select the required users or groups to grant permissions.
 
-![DNS Zone level RBAC via the Azure portal](./media/dns-protect-zones-recordsets/rbac2.png)
+:::image type="content" source="./media/dns-protect-zones-recordsets/zone-rbac.png" alt-text="Screenshot of access control page for DNS zone.":::
 
 Permissions can also be [granted using Azure PowerShell](../role-based-access-control/role-assignments-powershell.md):
 
-```azurepowershell
+```azurepowershell-interactive
 # Grant 'DNS Zone Contributor' permissions to a specific zone
 
 $usr = "<user email address>"
@@ -82,7 +88,7 @@ New-AzRoleAssignment -SignInName $usr -RoleDefinitionName $rol -ResourceGroupNam
 
 The equivalent command is also [available via the Azure CLI](../role-based-access-control/role-assignments-cli.md):
 
-```azurecli
+```azurecli-interactive
 # Grant 'DNS Zone Contributor' permissions to a specific zone
 
 az role assignment create \
@@ -91,17 +97,17 @@ az role assignment create \
 --scope "/subscriptions/<subscription id>/resourceGroups/<resource group name>/providers/Microsoft.Network/DnsZones/<zone name>/"
 ```
 
-### Record set level RBAC
+### Record set level Azure RBAC
 
 Permissions are applied at the record set level.  The user is granted control to entries they need and are unable to make any other changes.
 
-Record-set level RBAC permissions can be configured via the Azure portal, using the **Access Control (IAM)** button in the record set page:
+Record-set level Azure RBAC permissions can be configured via the Azure portal, using the **Users** button in the record set page:
 
-![Record set level RBAC via the Azure portal](./media/dns-protect-zones-recordsets/rbac3.png)
+:::image type="content" source="./media/dns-protect-zones-recordsets/record-set-rbac-1.png" alt-text="Screenshot of user button in record set.":::
 
-Record-set level RBAC permissions can also be [granted using Azure PowerShell](../role-based-access-control/role-assignments-powershell.md):
+Record-set level Azure RBAC permissions can also be [granted using Azure PowerShell](../role-based-access-control/role-assignments-powershell.md):
 
-```azurepowershell
+```azurepowershell-interactive
 # Grant permissions to a specific record set
 
 $usr = "<user email address>"
@@ -114,7 +120,7 @@ New-AzRoleAssignment -SignInName $usr -RoleDefinitionName $rol -Scope $sco
 
 The equivalent command is also [available via the Azure CLI](../role-based-access-control/role-assignments-cli.md):
 
-```azurecli
+```azurecli-interactive
 # Grant permissions to a specific record set
 
 az role assignment create \
@@ -150,7 +156,7 @@ The following example shows a custom role definition for managing CNAME records 
     "NotActions": [
     ],
     "AssignableScopes": [
-        "/subscriptions/c276fc76-9cd4-44c9-99a7-4fd71546436e"
+        "/subscriptions/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e"
     ]
 }
 ```
@@ -167,21 +173,21 @@ The remaining Actions are copied from the [DNS Zone Contributor built-in role](.
 
 Custom role definitions can't currently be defined via the Azure portal. A custom role based on this role definition can be created using Azure PowerShell:
 
-```azurepowershell
+```azurepowershell-interactive
 # Create new role definition based on input file
 New-AzRoleDefinition -InputFile <file path>
 ```
 
 It can also be created via the Azure CLI:
 
-```azurecli
+```azurecli-interactive
 # Create new role definition based on input file
-az role create -inputfile <file path>
+az role definition create --role-definition <file path>
 ```
 
 The role can then be assigned in the same way as built-in roles, as described earlier in this article.
 
-For more information on how to create, manage, and assign custom roles, see [Custom Roles in Azure RBAC](../role-based-access-control/custom-roles.md).
+For more information on how to create, manage, and assign custom roles, see [Azure custom roles](../role-based-access-control/custom-roles.md).
 
 ## Resource locks
 
@@ -193,13 +199,13 @@ There are two types of resource lock: **CanNotDelete** and **ReadOnly**. These l
 
 To prevent changes being made, apply a ReadOnly lock to the zone. This lock prevents new record sets from being created, and existing record sets from being modified or deleted.
 
-Zone level resource locks can be created via the Azure portal.  From the DNS zone page, select **Locks**, then select **+Add**:
+Zone level resource locks can be created via the Azure portal. From the DNS zone page, select **Locks**, then select **+ Add**:
 
-![Zone level resource locks via the Azure portal](./media/dns-protect-zones-recordsets/locks1.png)
+:::image type="content" source="./media/dns-protect-zones-recordsets/zone-locks.png" alt-text="Screenshot of zone level resource locks.":::
 
-Zone-level resource locks can also be created via [Azure PowerShell](https://docs.microsoft.com/powershell/module/az.resources/new-azresourcelock?view=latest):
+Zone-level resource locks can also be created via [Azure PowerShell](/powershell/module/az.resources/new-azresourcelock):
 
-```azurepowershell
+```azurepowershell-interactive
 # Lock a DNS zone
 
 $lvl = "<lock level>"
@@ -211,9 +217,9 @@ $rsg = "<resource group name>"
 New-AzResourceLock -LockLevel $lvl -LockName $lnm -ResourceName $rsc -ResourceType $rty -ResourceGroupName $rsg
 ```
 
-The equivalent command is also [available via the Azure CLI](https://docs.microsoft.com/cli/azure/lock?view=azure-cli-latest#az-lock-create):
+The equivalent command is also [available via the Azure CLI](/cli/azure/lock#az-lock-create):
 
-```azurecli
+```azurecli-interactive
 # Lock a DNS zone
 
 az lock create \
@@ -234,7 +240,7 @@ To prevent an existing DNS record set against modification, apply a ReadOnly loc
 
 Record set level resource locks can currently only be configured using Azure PowerShell.  They aren't supported in the Azure portal or Azure CLI.
 
-```azurepowershell
+```azurepowershell-interactive
 # Lock a DNS record set
 
 $lvl = "<lock level>"
@@ -256,7 +262,7 @@ As an alternative, apply a CanNotDelete lock to a record set in the zone, such a
 
 The following PowerShell command creates a CanNotDelete lock against the SOA record of the given zone:
 
-```azurepowershell
+```azurepowershell-interactive
 # Protect against zone delete with CanNotDelete lock on the record set
 
 $lvl = "CanNotDelete"
@@ -281,5 +287,5 @@ It's possible to use both approaches - resource locks and custom roles - at the 
 
 ## Next steps
 
-* For more information about working with RBAC, see [Get started with access management in the Azure portal](../role-based-access-control/overview.md).
+* For more information about working with Azure RBAC, see [What is Azure role-based access control (Azure RBAC)](../role-based-access-control/overview.md).
 * For more information about working with resource locks, see [Lock resources with Azure Resource Manager](../azure-resource-manager/management/lock-resources.md).

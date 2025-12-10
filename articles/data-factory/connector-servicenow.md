@@ -1,37 +1,74 @@
 ---
-title: Copy data from ServiceNow
-description: Learn how to copy data from ServiceNow to supported sink data stores by using a copy activity in an Azure Data Factory pipeline.
-services: data-factory
-ms.author: jingwang
-author: linda33wj
-manager: shwang
-ms.reviewer: douglasl
-ms.service: data-factory
-ms.workload: data-services
+title: Copy data from ServiceNow V2
+titleSuffix: Azure Data Factory & Azure Synapse
+description: Learn how to copy data from ServiceNow V2 to supported sink data stores by using a copy activity in an Azure Data Factory or Synapse Analytics pipeline.
+ms.author: jianleishen
+author: jianleishen
+ms.subservice: data-movement
 ms.topic: conceptual
-ms.custom: seo-lt-2019
-ms.date: 08/01/2019
+ms.date: 08/11/2025
+ms.custom:
+  - synapse
+  - sfi-image-nochange
 ---
 
-# Copy data from ServiceNow using Azure Data Factory
+# Copy data from ServiceNow V2 using Azure Data Factory or Synapse Analytics
+
 [!INCLUDE[appliesto-adf-asa-md](includes/appliesto-adf-asa-md.md)]
 
-This article outlines how to use the Copy Activity in Azure Data Factory to copy data from ServiceNow. It builds on the [copy activity overview](copy-activity-overview.md) article that presents a general overview of copy activity.
+This article outlines how to use the Copy Activity in Azure Data Factory and Synapse Analytics pipelines to copy data from ServiceNow. It builds on the [copy activity overview](copy-activity-overview.md) article that presents a general overview of copy activity.
+
+> [!IMPORTANT]
+> The ServiceNow V1 connector is at [removal stage](connector-release-stages-and-timelines.md). You are recommended to [upgrade the ServiceNow connector](#upgrade-your-servicenow-linked-service) from V1 to V2.
 
 ## Supported capabilities
 
-This ServiceNow connector is supported for the following activities:
+This ServiceNow connector is supported for the following capabilities:
 
-- [Copy activity](copy-activity-overview.md) with [supported source/sink matrix](copy-activity-overview.md)
-- [Lookup activity](control-flow-lookup-activity.md)
+| Supported capabilities|IR |
+|---------| --------|
+|[Copy activity](copy-activity-overview.md) (source/-)|&#9312; &#9313;|
+|[Lookup activity](control-flow-lookup-activity.md)|&#9312; &#9313;|
 
-You can copy data from ServiceNow to any supported sink data store. For a list of data stores that are supported as sources/sinks by the copy activity, see the [Supported data stores](copy-activity-overview.md#supported-data-stores-and-formats) table.
+*&#9312; Azure integration runtime &#9313; Self-hosted integration runtime*
 
-Azure Data Factory provides a built-in driver to enable connectivity, therefore you don't need to manually install any driver using this connector.
+For a list of data stores that are supported as sources/sinks, see the [Supported data stores](connector-overview.md#supported-data-stores) table.
+
+The service provides a built-in driver to enable connectivity. Therefore you don't need to manually install any driver using this connector.
+
+## Prerequisite
+
+To use this connector, you need to have a role with at least read access to *sys_db_object*, *sys_db_view* and *sys_dictionary* tables in ServiceNow.
+
+To access views in ServiceNow, you need to have a role with at least read access to *sys_db_view_table* and *sys_db_view_table_field* tables.
 
 ## Getting started
 
-[!INCLUDE [data-factory-v2-connector-get-started](../../includes/data-factory-v2-connector-get-started.md)]
+[!INCLUDE [data-factory-v2-connector-get-started](includes/data-factory-v2-connector-get-started.md)]
+
+## Create a linked service to ServiceNow using UI
+
+Use the following steps to create a linked service to ServiceNow in the Azure portal UI.
+
+1. Browse to the Manage tab in your Azure Data Factory or Synapse workspace and select Linked Services, then click New:
+
+    # [Azure Data Factory](#tab/data-factory)
+
+    :::image type="content" source="media/doc-common-process/new-linked-service.png" alt-text="Screenshot of creating a new linked service with Azure Data Factory UI.":::
+
+    # [Azure Synapse](#tab/synapse-analytics)
+
+    :::image type="content" source="media/doc-common-process/new-linked-service-synapse.png" alt-text="Screenshot of creating a new linked service with Azure Synapse UI.":::
+
+2. Search for ServiceNow and select the ServiceNow connector.
+
+    :::image type="content" source="media/connector-servicenow/servicenow-connector.png" alt-text="Screenshot of the ServiceNow connector.":::    
+
+1. Configure the service details, test the connection, and create the new linked service.
+
+    :::image type="content" source="media/connector-servicenow/configure-servicenow-linked-service.png" alt-text="Screenshot of linked service configuration for ServiceNow.":::
+
+## Connector configuration details
 
 The following sections provide details about properties that are used to define Data Factory entities specific to ServiceNow connector.
 
@@ -41,16 +78,14 @@ The following properties are supported for ServiceNow linked service:
 
 | Property | Description | Required |
 |:--- |:--- |:--- |
-| type | The type property must be set to: **ServiceNow** | Yes |
+| type | The type property must be set to: **ServiceNowV2** | Yes |
 | endpoint | The endpoint of the ServiceNow server (`http://<instance>.service-now.com`).  | Yes |
 | authenticationType | The authentication type to use. <br/>Allowed values are: **Basic**, **OAuth2** | Yes |
 | username | The user name used to connect to the ServiceNow server for Basic and OAuth2 authentication.  | Yes |
-| password | The password corresponding to the user name for Basic and OAuth2 authentication. Mark this field as a SecureString to store it securely in Data Factory, or [reference a secret stored in Azure Key Vault](store-credentials-in-key-vault.md). | Yes |
-| clientId | The client ID for OAuth2 authentication.  | No |
-| clientSecret | The client secret for OAuth2 authentication. Mark this field as a SecureString to store it securely in Data Factory, or [reference a secret stored in Azure Key Vault](store-credentials-in-key-vault.md). | No |
-| useEncryptedEndpoints | Specifies whether the data source endpoints are encrypted using HTTPS. The default value is true.  | No |
-| useHostVerification | Specifies whether to require the host name in the server's certificate to match the host name of the server when connecting over TLS. The default value is true.  | No |
-| usePeerVerification | Specifies whether to verify the identity of the server when connecting over TLS. The default value is true.  | No |
+| password | The password corresponding to the user name for Basic and OAuth2 authentication. Mark this field as a SecureString to store it securely, or [reference a secret stored in Azure Key Vault](store-credentials-in-key-vault.md). | Yes |
+| clientId | The client ID for OAuth2 authentication.  | Yes for OAuth authentication|
+| clientSecret | The client secret for OAuth2 authentication. Mark this field as a SecureString to store it securely, or [reference a secret stored in Azure Key Vault](store-credentials-in-key-vault.md). | Yes for OAuth authentication |
+| grantType | Specifies the type of OAuth2.0 flow that the client app uses to access token. The default value is password.| Yes for OAuth authentication |
 
 **Example:**
 
@@ -58,7 +93,7 @@ The following properties are supported for ServiceNow linked service:
 {
     "name": "ServiceNowLinkedService",
     "properties": {
-        "type": "ServiceNow",
+        "type": "ServiceNowV2",
         "typeProperties": {
             "endpoint" : "http://<instance>.service-now.com",
             "authenticationType" : "Basic",
@@ -76,12 +111,13 @@ The following properties are supported for ServiceNow linked service:
 
 For a full list of sections and properties available for defining datasets, see the [datasets](concepts-datasets-linked-services.md) article. This section provides a list of properties supported by ServiceNow dataset.
 
-To copy data from ServiceNow, set the type property of the dataset to **ServiceNowObject**. The following properties are supported:
+To copy data from ServiceNow, set the type property of the dataset to **ServiceNowV2Object**. The following properties are supported:
 
 | Property | Description | Required |
 |:--- |:--- |:--- |
-| type | The type property of the dataset must be set to: **ServiceNowObject** | Yes |
-| tableName | Name of the table. | No (if "query" in activity source is specified) |
+| type | The type property of the dataset must be set to: **ServiceNowV2Object** | Yes |
+| tableName | Name of the table. | Yes |
+| valueType | The type of ServiceNow table values. The value of this property can be `display` or `actual` (default). You can look at it as the parameter of `sysparm_display_value` as true or false when calling [ServiceNow REST APIs](https://developer.servicenow.com/app.do#!/rest_api_doc?v=jakarta&id=r_AggregateAPI-GET). | No |
 
 **Example**
 
@@ -89,8 +125,11 @@ To copy data from ServiceNow, set the type property of the dataset to **ServiceN
 {
     "name": "ServiceNowDataset",
     "properties": {
-        "type": "ServiceNowObject",
-        "typeProperties": {},
+        "type": "ServiceNowV2Object",
+        "typeProperties": {
+            "tableName": "<table name>",
+            "valueType": "actual"
+        },
         "schema": [],
         "linkedServiceName": {
             "referenceName": "<ServiceNow linked service name>",
@@ -106,27 +145,24 @@ For a full list of sections and properties available for defining activities, se
 
 ### ServiceNow as source
 
-To copy data from ServiceNow, set the source type in the copy activity to **ServiceNowSource**. The following properties are supported in the copy activity **source** section:
+To copy data from ServiceNow, set the source type in the copy activity to **ServiceNowV2Source**. The following properties are supported in the copy activity **source** section:
 
 | Property | Description | Required |
 |:--- |:--- |:--- |
-| type | The type property of the copy activity source must be set to: **ServiceNowSource** | Yes |
-| query | Use the custom SQL query to read data. For example: `"SELECT * FROM Actual.alm_asset"`. | No (if "tableName" in dataset is specified) |
-
-Note the following when specifying the schema and column for ServiceNow in query, and **refer to [Performance tips](#performance-tips) on copy performance implication**.
-
-- **Schema:** specify the schema as `Actual` or `Display` in the ServiceNow query, which you can look at it as the parameter of `sysparm_display_value` as true or false when calling [ServiceNow restful APIs](https://developer.servicenow.com/app.do#!/rest_api_doc?v=jakarta&id=r_AggregateAPI-GET). 
-- **Column:** the column name for actual value under `Actual` schema is `[column name]_value`, while for display value under `Display` schema is `[column name]_display_value`. Note the column name need map to the schema being used in the query.
-
-**Sample query:**
-`SELECT col_value FROM Actual.alm_asset`
-OR 
-`SELECT col_display_value FROM Display.alm_asset`
+| type | The type property of the copy activity source must be set to: **ServiceNowV2Source** | Yes |
+| expression| Use the expression to read data. You can configure the expression in **Query builder**. It has the same usage as the condition builder in ServiceNow. For instructions on how to use it, see this [article](https://docs.servicenow.com/bundle/vancouver-platform-user-interface/page/use/common-ui-elements/concept/c_ConditionBuilder.html). You can also [use expression parameters](#using-expression-parameters). Note that you should use the actual value instead of the display value.| No |
+| *Under `expression`* |  |  |
+| type | The expression type. Values can be Constant (default), Unary, Binary, Field and Nary.  | No  |
+| value | The constant value. |Yes when the expression type is Constant or Field |
+| operators | The operator value. For more information about operators, see *Operators available for choice fields containing strings* section in this [article](https://docs.servicenow.com/bundle/vancouver-platform-user-interface/page/use/common-ui-elements/reference/r_OpAvailableFiltersQueries.html).| Yes when the expression type is Unary or Binary |
+| operands | List of expressions on which operator is applied.| Yes when the expression type is Unary or Binary |
+| | | |
+| pageSize | The number of documents per page of the query result. | No<br/>(the default is **300**) |
 
 **Example:**
 
 ```json
-"activities":[
+"activities": [
     {
         "name": "CopyFromServiceNow",
         "type": "Copy",
@@ -144,8 +180,24 @@ OR 
         ],
         "typeProperties": {
             "source": {
-                "type": "ServiceNowSource",
-                "query": "SELECT * FROM Actual.alm_asset"
+                "type": "ServiceNowV2Source",
+                "expression": {
+                    "type": "Nary",
+                    "operators": [
+                        "<"
+                    ],
+                    "operands": [
+                        {
+                            "type": "Field",
+                            "value": "u_founded"
+                        },
+                        {
+                            "type": "Constant",
+                            "value": "2000"
+                        }
+                    ]
+                },
+                "pageSize": 300
             },
             "sink": {
                 "type": "<sink type>"
@@ -154,22 +206,91 @@ OR 
     }
 ]
 ```
-## Performance tips
 
-### Schema to use
+### Using expression parameters
 
-ServiceNow has 2 different schemas, one is **"Actual"** which returns actual data, the other is **"Display"** which returns the display values of data. 
+You can configure the expression parameter in **Query builder** by selecting **Add dynamic content**. The parameter type should be **Object**, and the value should follow the format shown in the example JSON below:
 
-If you have a filter in your query, use "Actual" schema which has better copy performance. When querying against "Actual" schema, ServiceNow natively support filter when fetching the data to only return the filtered resultset, whereas when querying "Display" schema, ADF retrieve all the data and apply filter internally.
+```json
+ {
+	"type": "Nary",
+	"operators": [
+		"="
+	],
+	"operands": [
+		{
+			"type": "Field",
+			"value": "col"
+		},
+		{
+			"type": "Constant",
+			"value": "val"
+		}
+	]
+}
+```
 
-### Index
+Here is an example of the source JSON using the expression parameter:
 
-ServiceNow table index can help improve query performance, refer to [Create a table index](https://docs.servicenow.com/bundle/geneva-servicenow-platform/page/administer/table_administration/task/t_CreateCustomIndex.html).
+```json
+"activities": [
+    {
+        "name": "CopyFromServiceNow",
+        "type": "Copy",
+        "inputs": [
+            {
+                "referenceName": "<ServiceNow input dataset name>",
+                "type": "DatasetReference"
+            }
+        ],
+        "outputs": [
+            {
+                "referenceName": "<output dataset name>",
+                "type": "DatasetReference"
+            }
+        ],
+        "typeProperties": {
+            "source": {
+                "type": "ServiceNowV2Source",
+                "expression": {
+                    "type": "Expression",
+                    "value": "@pipeline().parameters.expressionParameter"
+                }
+            },
+            "sink": {
+                "type": "<sink type>"
+            }
+        }
+    }
+]
+```
 
+> [!NOTE]
+> The column `sys_tags` and its derived columns cannot be obtained due to ServiceNow API limitations.
+    
 ## Lookup activity properties
 
 To learn details about the properties, check [Lookup activity](control-flow-lookup-activity.md).
 
+## <a name="upgrade-your-servicenow-linked-service"></a> Upgrade the ServiceNow connector
 
-## Next steps
-For a list of data stores supported as sources and sinks by the copy activity in Azure Data Factory, see [supported data stores](copy-activity-overview.md#supported-data-stores-and-formats).
+Here are the steps that help you to upgrade your ServiceNow connector:
+
+1. Create a new linked service by referring to [Linked service properties](#linked-service-properties).
+2. **Query** in source is upgraded to **Query builder**, which has the same usage as the condition builder in ServiceNow. Learn how to configure it referring to [ServiceNow as source](#servicenow-as-source).
+
+## <a name="differences-between-servicenow-and-servicenow-legacy"></a> Differences between ServiceNow V2 and V1
+
+The ServiceNow V2 connector offers new functionalities and is compatible with most features of ServiceNow V1 connector. The table below shows the feature differences between V2 and V1.
+
+| ServiceNow V2| ServiceNow V1 | 
+|:--- |:--- |
+| useEncryptedEndpoints, useHostVerification and usePeerVerification are not supported in the linked service. | Support useEncryptedEndpoints, useHostVerification and usePeerVerification in the linked service. | 
+| Support **Query builder** in the source. | **Query builder** is not supported in the source. | 
+| SQL-based queries are not supported. | Support SQL-based queries. | 
+| sortBy queries are not supported in **Query builder**. | Support sortBy queries in **Query**. | 
+| You can view the schema in the dataset. | You can't view the schema in the dataset. |
+| You can configure `valueType` to `display` or `actual` in datasets. The display or actual table name is used as the value of `tableName`. <br><br>The column name is `[column name]` for both display and actual value.| The display or actual table name with "Display" or "Actual" prefix appended is used as the value of `tableName`.<br><br>The column name for actual value is `[column name]_value`, while for display value is `[column name]_display_value`.|  
+
+## Related content
+For a list of data stores supported as sources and sinks by the copy activity, see [supported data stores](copy-activity-overview.md#supported-data-stores-and-formats).
